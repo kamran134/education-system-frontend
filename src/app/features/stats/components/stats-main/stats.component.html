@@ -59,8 +59,8 @@
         </div>
     </mat-tab>
     <mat-tab label="İlin şagirdləri">
-        <div *ngIf="!isloading">
-            <table mat-table [dataSource]="stats.students || []" class="mat-elevation-z8" matSort #studentSort (matSortChange)="onSortChange($event)">
+        <div>
+            <table mat-table [dataSource]="isloading ? [] : (stats.students || [])" class="mat-elevation-z8" matSort #studentSort (matSortChange)="onSortChange($event)">
                 <ng-container matColumnDef="code" *ngIf="studentColumns.includes('code')">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header>
                         Şagirdin kodu
@@ -171,8 +171,8 @@
         </div>
     </mat-tab>
     <mat-tab label="İlin müəllimləri">
-        <div *ngIf="!isloading">
-            <table mat-table [dataSource]="stats.teachers || []" class="mat-elevation-z8" matSort #teacherSort (matSortChange)="onSortChange($event)">
+        <div>
+            <table mat-table [dataSource]="isloading ? [] : (stats.teachers || [])" class="mat-elevation-z8" matSort #teacherSort (matSortChange)="onSortChange($event)">
                 <ng-container matColumnDef="code" *ngIf="teacherColumns.includes('code')">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Müəllimin kodu </th>
                     <td mat-cell *matCellDef="let result"> {{ result.code }} </td>
@@ -224,8 +224,8 @@
         </div>
     </mat-tab>
     <mat-tab label="İlin məktəbləri">
-        <div *ngIf="!isloading">
-            <table mat-table [dataSource]="stats.schools || []" class="mat-elevation-z8" matSort #schoolSort (matSortChange)="onSortChange($event)">
+        <div>
+            <table mat-table [dataSource]="isloading ? [] : (stats.schools || [])" class="mat-elevation-z8" matSort #schoolSort (matSortChange)="onSortChange($event)">
                 <ng-container matColumnDef="code" *ngIf="schoolColumns.includes('code')">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Məktəbin kodu </th>
                     <td mat-cell *matCellDef="let result"> {{ result.code }} </td>
@@ -272,8 +272,8 @@
         </div>
     </mat-tab>
     <mat-tab label="İlin rayonları / şəhərləri">
-        <div *ngIf="!isloading">
-            <table mat-table [dataSource]="districtsDataSource" class="mat-elevation-z8" matSort #districtSort (matSortChange)="onSortChange($event)">
+        <div>
+            <table mat-table [dataSource]="isloading ? [] : districtsDataSource" class="mat-elevation-z8" matSort #districtSort (matSortChange)="onSortChange($event)">
                 <ng-container matColumnDef="code" *ngIf="districtColumns.includes('code')">
                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Rayon / şəhər kodu </th>
                     <td mat-cell *matCellDef="let result"> {{ result.code }} </td>

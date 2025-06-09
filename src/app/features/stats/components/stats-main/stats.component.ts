@@ -226,6 +226,11 @@ export class StatsComponent implements OnInit {
     }
 
     loadStudentsStats(): void {
+        if (this.selectedMonth.substring(5) === '0') {
+            this.snackBar.open('Ay seçilməyib', 'Bağla', this.matSnackConfig);
+            return;
+        }
+
         this.isloading = true;
         this.stats = {};
 
@@ -633,6 +638,8 @@ export class StatsComponent implements OnInit {
 
     onSortChange(sortState: Sort): void {
         this.pageIndex = 0; // Сбрасываем страницу
+        console.log('sort direction new:', sortState.direction, 'sort direction old:', this.sortDirection);
+
         this.sortDirection = sortState.direction;
         this.sortActive = sortState.active;
         if (sortState.direction) {
