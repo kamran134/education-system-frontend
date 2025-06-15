@@ -36,7 +36,6 @@ import { StatsFiltersComponent } from "../stats-filters/stats-filters.component"
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { StatsPagination } from '../../../../core/models/pagination.model';
 import * as XLSX from 'xlsx';
-import { StudentRatingTableComponent } from '../student-rating-table/student-rating-table.component';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-format.pipe';
 import { DashboardService } from '../../../dashboard/services/dashboard.service';
@@ -44,34 +43,38 @@ import { UserSettings } from '../../../../core/models/settings.model';
 import { BehaviorSubject } from 'rxjs';
 import { StudentsMonthTabComponent } from '../students-month-tab/students-month-tab.component';
 import { StudentsYearTabComponent } from '../students-year-tab/students-year-tab.component';
+import { TeachersYearTabComponent } from "../teachers-year-tab/teachers-year-tab.component";
+import { SchoolsYearTabComponent } from "../schools-year-tab/schools-year-tab.component";
+import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-tab.component";
 
 @Component({
     selector: 'app-stats',
     standalone: true,
     imports: [
-        MatGridListModule,
-        MatButtonModule,
-        MatSnackBarModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatCardModule,
-        MatTableModule,
-        MatDatepickerModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatPaginatorModule,
-        MatInputModule,
-        MatTabsModule,
-        MatSortModule,
-        MatSortHeader,
-        CommonModule,
-        ReactiveFormsModule,
-        RouterModule,
-        StatsFiltersComponent,
-        StudentsMonthTabComponent,
-        StudentsYearTabComponent,
-        RoundNumberPipe
-    ],
+    MatGridListModule,
+    MatButtonModule,
+    MatSnackBarModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatTableModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatPaginatorModule,
+    MatInputModule,
+    MatTabsModule,
+    MatSortModule,
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    StatsFiltersComponent,
+    StudentsMonthTabComponent,
+    StudentsYearTabComponent,
+    TeachersYearTabComponent,
+    SchoolsYearTabComponent,
+    DistrictsYearTabComponent
+],
     providers: [MonthNamePipe, MomentDateFormatPipe],
     templateUrl: './stats.component.html',
     styleUrl: './stats.component.scss'

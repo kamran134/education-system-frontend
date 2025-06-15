@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Teacher } from '../../../../core/models/teacher.model';
+import { District } from '../../../../core/models/district.model';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 
 @Component({
-    selector: 'app-teachers-year-tab',
+    selector: 'app-districts-year-tab',
     standalone: true,
     imports: [
         CommonModule,
@@ -20,11 +20,11 @@ import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
         MatIconModule,
         RoundNumberPipe
     ],
-    templateUrl: './teachers-year-tab.component.html',
-    styleUrl: './teachers-year-tab.component.scss'
+    templateUrl: './districts-year-tab.component.html',
+    styleUrl: './districts-year-tab.component.scss'
 })
-export class TeachersYearTabComponent {
-    @Input() teachers: Teacher[] = [];
+export class DistrictsYearTabComponent {
+    @Input() districts: District[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;
     @Input() pageSize: number = 1000;

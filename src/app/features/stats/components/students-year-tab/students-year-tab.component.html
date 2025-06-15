@@ -70,9 +70,9 @@
         [showFirstLastButtons]="true"
         (page)="pageChanged.emit($event)">
     </mat-paginator>
-    </div>
+</div>
 
-    <div *ngIf="!isLoading && students.length > 0">
+<div *ngIf="!isLoading && students.length > 0">
     <button mat-raised-button (click)="exportClicked.emit()">
         <mat-icon>file_download</mat-icon> Excel-ə eksport et
     </button>

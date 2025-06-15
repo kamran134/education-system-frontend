@@ -11,7 +11,15 @@ import { Student } from '../../../../core/models/student.model';
 @Component({
     selector: 'app-students-year-tab',
     standalone: true,
-    imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatButtonModule, MatIconModule, RoundNumberPipe],
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatButtonModule,
+        MatIconModule,
+        RoundNumberPipe
+    ],
     templateUrl: './students-year-tab.component.html',
     styleUrl: './students-year-tab.component.scss'
 })

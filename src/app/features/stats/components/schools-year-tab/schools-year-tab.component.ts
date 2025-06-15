@@ -1,15 +1,15 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Teacher } from '../../../../core/models/teacher.model';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { School } from '../../../../core/models/school.model';
 
 @Component({
-    selector: 'app-teachers-year-tab',
+    selector: 'app-schools-year-tab',
     standalone: true,
     imports: [
         CommonModule,
@@ -20,11 +20,11 @@ import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
         MatIconModule,
         RoundNumberPipe
     ],
-    templateUrl: './teachers-year-tab.component.html',
-    styleUrl: './teachers-year-tab.component.scss'
+    templateUrl: './schools-year-tab.component.html',
+    styleUrl: './schools-year-tab.component.scss'
 })
-export class TeachersYearTabComponent {
-    @Input() teachers: Teacher[] = [];
+export class SchoolsYearTabComponent {
+    @Input() schools: School[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;
     @Input() pageSize: number = 1000;
