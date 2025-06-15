@@ -42,6 +42,8 @@ import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-forma
 import { DashboardService } from '../../../dashboard/services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
 import { BehaviorSubject } from 'rxjs';
+import { StudentsMonthTabComponent } from '../students-month-tab/students-month-tab.component';
+import { StudentsYearTabComponent } from '../students-year-tab/students-year-tab.component';
 
 @Component({
     selector: 'app-stats',
@@ -65,8 +67,9 @@ import { BehaviorSubject } from 'rxjs';
         CommonModule,
         ReactiveFormsModule,
         RouterModule,
-        StudentRatingTableComponent,
         StatsFiltersComponent,
+        StudentsMonthTabComponent,
+        StudentsYearTabComponent,
         RoundNumberPipe
     ],
     providers: [MonthNamePipe, MomentDateFormatPipe],
@@ -688,7 +691,7 @@ export class StatsComponent implements OnInit {
         }
     }
 
-    exportToExcel(tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts') {
+    exportToExcel(tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' | string) {
         const workbook = XLSX.utils.book_new();
         let sheetName: string = '';
         let result: XLSX.WorkSheet = {};

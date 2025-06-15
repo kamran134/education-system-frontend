@@ -29,147 +29,33 @@
 
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedTabChange)="onTabChange($event)" [(selectedIndex)]="selectedTabIndex">
     <mat-tab label="Ayın şagirdləri" [className]="darkMode ? 'dark-mode' : 'light-mode'">
-        <div class="stats-container" *ngIf="!isloading">
-            <app-student-rating-table
-                [title]="(developingStudentsLabel$ | async) || 'Cari ayda inkişaf edən şagirdlər'"
-                [tableName]="'developingStudents'"
-                [dataSource]="stats.developingStudents || []"
-                [columns]="monthStudentColumns"
-                (excelExport)="exportToExcel('developingStudents')"
-                (rowClicked)="openStudentDetails($event)">
-            </app-student-rating-table>
-        
-            <app-student-rating-table
-                [title]="(studentsOfMonthLabel$ | async) || 'Cari ayın şagirdləri'"
-                [tableName]="'studentsOfMonth'"
-                [dataSource]="stats.studentsOfMonth || []"
-                [columns]="monthStudentColumns"
-                (excelExport)="exportToExcel('studentsOfMonth')"
-                (rowClicked)="openStudentDetails($event)">
-            </app-student-rating-table>
-        
-            <app-student-rating-table
-                [title]="(studentsOfMonthByRepublicLabel$ | async) || 'Respublika üzrə cari ayın şagirdləri'"
-                [tableName]="'studentsOfMonthByRepublic'"
-                [dataSource]="stats.studentsOfMonthByRepublic || []"
-                [columns]="monthStudentColumns"
-                (excelExport)="exportToExcel('studentsOfMonthByRepublic')"
-                (rowClicked)="openStudentDetails($event)">
-            </app-student-rating-table>
-        </div>
+        <app-students-month-tab
+            [stats]="stats"
+            [monthStudentColumns]="monthStudentColumns"
+            [isLoading]="isloading"
+            [labels]="{
+            developing$: developingStudentsLabel$,
+            ofMonth$: studentsOfMonthLabel$,
+            republic$: studentsOfMonthByRepublicLabel$
+            }"
+            (excelExport)="exportToExcel($event)"
+            (rowClicked)="openStudentDetails($event)"
+        ></app-students-month-tab>
     </mat-tab>
     <mat-tab label="İlin şagirdləri">
-        <div>
-            <table mat-table [dataSource]="isloading ? [] : (stats.students || [])" class="mat-elevation-z8" matSort #studentSort (matSortChange)="onSortChange($event)">
-                <ng-container matColumnDef="code" *ngIf="studentColumns.includes('code')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Şagirdin kodu
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.code }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="lastName" *ngIf="studentColumns.includes('lastName')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Soyadı
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.lastName }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="firstName" *ngIf="studentColumns.includes('firstName')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Adı
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.firstName }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="middleName" *ngIf="studentColumns.includes('middleName')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Atasının adı
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.middleName }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="grade" *ngIf="studentColumns.includes('grade')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Sinfi
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.grade }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="teacher" *ngIf="studentColumns.includes('teacher')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Müəllimi
-                    </th>
-                    <td mat-cell *matCellDef="let student" [ngClass]="{'not-found': !student.teacher}">
-                        {{ (student.teacher || '').fullname || 'Müəllim tapılmadı' }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="school" *ngIf="studentColumns.includes('school')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Məktəbi
-                    </th>
-                    <td mat-cell *matCellDef="let student" [ngClass]="{'not-found': !student.school}">
-                        {{ (student.school || '').name || 'Məktəb tapılmadı' }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="district" *ngIf="studentColumns.includes('district')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Rayonu / şəhəri
-                    </th>
-                    <td mat-cell *matCellDef="let student" [ngClass]="{'not-found': !student.district}">
-                        {{ (student.district || '').name || 'Rayon / şəhər tapılmadı' }}
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="score" *ngIf="studentColumns.includes('score')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Ümumi balı
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.score || 0 }}
-                    </td>
-                </ng-container>
-    
-                <ng-container matColumnDef="averageScore" *ngIf="studentColumns.includes('averageScore')">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                        Orta balı
-                    </th>
-                    <td mat-cell *matCellDef="let student">
-                        {{ student.averageScore | roundNumber }}
-                    </td>
-                </ng-container>
-    
-                <tr mat-header-row *matHeaderRowDef="studentColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: studentColumns;" class="clickable-row" (click)="openStudentDetails(row._id)"></tr>
-            </table>
-        </div>
-
-        <div *ngIf="!isloading && stats.students && stats.students.length > 0" >
-            <mat-paginator
-                [length]="totalCounts.allStudentsTotalCount"
-                [pageIndex]="pageIndex"
-                [showFirstLastButtons]="true"
-                [pageSize]="studentsPageSize"
-                [pageSizeOptions]="[1000, 10000]"
-                (page)="onPageChange($event)" />
-        </div>
-
-        <div *ngIf="!isloading && stats.students && stats.students.length > 0">
-            <button mat-raised-button (click)="exportToExcel('allStudents')"><mat-icon>file_download</mat-icon> Excel-ə eksport et</button>
-        </div>
-    </mat-tab>
+        <app-students-year-tab
+          [students]="stats.students ?? []"
+          [displayedColumns]="studentColumns"
+          [totalCount]="totalCounts.allStudentsTotalCount ?? 0"
+          [pageIndex]="pageIndex"
+          [pageSize]="studentsPageSize"
+          [isLoading]="isloading"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)"
+          (exportClicked)="exportToExcel('allStudents')"
+          (rowClicked)="openStudentDetails($event)"
+        ></app-students-year-tab>
+      </mat-tab>
     <mat-tab label="İlin müəllimləri">
         <div>
             <table mat-table [dataSource]="isloading ? [] : (stats.teachers || [])" class="mat-elevation-z8" matSort #teacherSort (matSortChange)="onSortChange($event)">

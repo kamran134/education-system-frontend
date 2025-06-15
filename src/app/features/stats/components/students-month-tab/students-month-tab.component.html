@@ -1,0 +1,28 @@
+<div class="stats-container" *ngIf="!isLoading">
+    <app-student-rating-table
+      [title]="(labels.developing$ | async) ?? 'Cari ayda inkişaf edən şagirdlər'"
+      tableName="developingStudents"
+      [dataSource]="stats.developingStudents || []"
+      [columns]="monthStudentColumns"
+      (excelExport)="excelExport.emit('developingStudents')"
+      (rowClicked)="rowClicked.emit($event)"
+    ></app-student-rating-table>
+  
+    <app-student-rating-table
+      [title]="(labels.ofMonth$ | async) ?? 'Cari ayın şagirdləri'"
+      tableName="studentsOfMonth"
+      [dataSource]="stats.studentsOfMonth || []"
+      [columns]="monthStudentColumns"
+      (excelExport)="excelExport.emit('studentsOfMonth')"
+      (rowClicked)="rowClicked.emit($event)"
+    ></app-student-rating-table>
+  
+    <app-student-rating-table
+      [title]="(labels.republic$ | async) ?? 'Respublika üzrə cari ayın şagirdləri'"
+      tableName="studentsOfMonthByRepublic"
+      [dataSource]="stats.studentsOfMonthByRepublic || []"
+      [columns]="monthStudentColumns"
+      (excelExport)="excelExport.emit('studentsOfMonthByRepublic')"
+      (rowClicked)="rowClicked.emit($event)"
+    ></app-student-rating-table>
+</div>

@@ -1,0 +1,79 @@
+<div>
+    <table mat-table [dataSource]="isLoading ? [] : students" matSort (matSortChange)="sortChanged.emit($event)" class="mat-elevation-z8">
+        <ng-container matColumnDef="code" *ngIf="displayedColumns.includes('code')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Şagirdin kodu </th>
+            <td mat-cell *matCellDef="let student"> {{ student.code }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastName" *ngIf="displayedColumns.includes('lastName')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Soyadı </th>
+            <td mat-cell *matCellDef="let student"> {{ student.lastName }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="firstName" *ngIf="displayedColumns.includes('firstName')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Adı </th>
+            <td mat-cell *matCellDef="let student"> {{ student.firstName }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="middleName" *ngIf="displayedColumns.includes('middleName')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Atasının adı </th>
+            <td mat-cell *matCellDef="let student"> {{ student.middleName }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="grade" *ngIf="displayedColumns.includes('grade')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Sinfi </th>
+            <td mat-cell *matCellDef="let student"> {{ student.grade }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="teacher" *ngIf="displayedColumns.includes('teacher')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Müəllimi </th>
+            <td mat-cell *matCellDef="let student" [ngClass]="{'not-found': !student.teacher}">
+                {{ student.teacher?.fullname || 'Müəllim tapılmadı' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="school" *ngIf="displayedColumns.includes('school')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Məktəbi </th>
+            <td mat-cell *matCellDef="let student" [ngClass]="{'not-found': !student.school}">
+                {{ student.school?.name || 'Məktəb tapılmadı' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="district" *ngIf="displayedColumns.includes('district')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Rayonu / şəhəri </th>
+            <td mat-cell *matCellDef="let student" [ngClass]="{'not-found': !student.district}">
+                {{ student.district?.name || 'Rayon / şəhər tapılmadı' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="score" *ngIf="displayedColumns.includes('score')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Ümumi balı </th>
+            <td mat-cell *matCellDef="let student"> {{ student.score || 0 }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="averageScore" *ngIf="displayedColumns.includes('averageScore')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Orta balı </th>
+            <td mat-cell *matCellDef="let student"> {{ student.averageScore | roundNumber }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row" (click)="rowClicked.emit(row._id)"></tr>
+    </table>
+</div>
+
+<div *ngIf="!isLoading && students.length > 0">
+    <mat-paginator
+        [length]="totalCount"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[1000, 10000]"
+        [showFirstLastButtons]="true"
+        (page)="pageChanged.emit($event)">
+    </mat-paginator>
+    </div>
+
+    <div *ngIf="!isLoading && students.length > 0">
+    <button mat-raised-button (click)="exportClicked.emit()">
+        <mat-icon>file_download</mat-icon> Excel-ə eksport et
+    </button>
+</div>
