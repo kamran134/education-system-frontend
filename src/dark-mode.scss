@@ -1,0 +1,130 @@
+body {
+    &.dark-mode {
+        background-color: $backgroundColor;
+        color: $white;
+
+        main-flat-button {
+            background-color: #0e0e0e !important;
+            color: $white !important;
+            &:hover {
+                background-color: #1f1f1f !important;
+            }
+        }
+
+        .mat-mdc-raised-button {
+            background-color: #0e0e0e !important;
+            color: $white !important;
+            &:hover {
+                background-color: #1f1f1f !important;
+            }
+        }
+
+        .mdc-text-field {
+            background-color: #1f1f1f;
+            color: $white
+        }
+
+        .mat-mdc-select {
+            color: $white;
+        }
+
+        mat-label {
+            color: $darkWhite;
+        }
+
+        .mat-mdc-select-panel {
+            background-color: #1f1f1f;
+        }
+
+        .mat-mdc-table {
+            background-color: $backgroundColor !important;
+            color: $white !important;
+
+            .mat-mdc-header-row {
+                background-color: $backgroundColor !important;
+                color: $cyan !important;
+            }
+
+            .mat-mdc-row {
+                background-color: $backgroundColor !important;
+                color: $white !important;
+            }
+
+            .mat-mdc-table-cell {
+                color: $white !important;
+            }
+        }
+
+        .mat-drawer-container {
+            background-color: $backgroundColor !important;
+            color: $white !important;
+        }
+
+        .mat-drawer-inner-container {
+            background-color: $backgroundColorGreen !important;
+            color: $white !important;
+        }
+
+        .mdc-list-item {
+            &__primary-text {
+                color: $white;
+                &--selected {
+                    color: $selectedOptionDarkMode;
+                }
+            }
+        }
+
+        .mdc-list-item--selected {
+            span {
+                color: $selectedOptionDarkMode !important;
+            }
+            
+            --mat-full-pseudo-checkbox-selected-icon-color: #a685e2;
+            --mat-minimal-pseudo-checkbox-selected-checkmark-color: #a685e2;
+        }
+
+        .mat-pseudo-checkbox-full {
+            border-color: $darkWhite;
+        }
+
+        .mat-mdc-select-arrow {
+            color: $darkWhite;
+        }
+
+        .mdc-tab {
+            &--active {
+                span {
+                    color: $tabActiveDarkThemeColor !important;
+                }
+            }
+            span {
+                color: $white;
+            }
+            &:hover {
+                span {
+                    color: $tabActiveLightThemeColor !important;
+                }
+            }
+        }
+
+        .mdc-form-field {
+            color: $white !important;
+        }
+
+        .mdc-checkbox {
+            &__background {
+                border-color: $white !important;
+            }
+        }
+
+        .student-card {
+            background-color: $backgroundColorGreen !important;
+            color: $white !important;
+        }
+
+        .mat-mdc-dialog-surface {
+            //background-color: $backgroundColor;
+            color: $white !important;
+        }
+    }
+}

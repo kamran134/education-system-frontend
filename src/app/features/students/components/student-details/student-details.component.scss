@@ -1,6 +1,11 @@
 .student-card {
     margin: auto;
     padding: 16px;
+
+    &__exam-results {
+        display: flex;
+        justify-content: center;
+    }
 }
   
 table {
