@@ -16,7 +16,7 @@
     [selectedSchoolIds]="selectedSchoolIds"
     [selectedTeacherIds]="selectedTeacherIds"
     [selectedGrades]="selectedGrades"
-    [selectedExam]="selectedExam"
+    [selectedExamIds]="selectedExamIds || ''"
     [selectedMonth]="selectedMonth"
     (monthUpdated)="updateMonth($event)"
     (districtChanged)="onDistrictSelectChanged($event)"
@@ -34,9 +34,9 @@
             [monthStudentColumns]="monthStudentColumns"
             [isLoading]="isloading"
             [labels]="{
-            developing$: developingStudentsLabel$,
-            ofMonth$: studentsOfMonthLabel$,
-            republic$: studentsOfMonthByRepublicLabel$
+                developing$: developingStudentsLabel$,
+                ofMonth$: studentsOfMonthLabel$,
+                republic$: studentsOfMonthByRepublicLabel$
             }"
             (excelExport)="exportToExcel($event)"
             (rowClicked)="openStudentDetails($event)"

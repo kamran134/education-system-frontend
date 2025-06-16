@@ -60,7 +60,7 @@ export class StatsFiltersComponent {
     @Input() selectedSchoolIds: string[] = [];
     @Input() selectedTeacherIds: string[] = [];
     @Input() selectedGrades: number[] = [];
-    @Input() selectedExam: Exam | undefined = undefined;
+    @Input() selectedExamIds: string[] | [] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
 
     @Output() monthUpdated = new EventEmitter<string>();
@@ -68,7 +68,7 @@ export class StatsFiltersComponent {
     @Output() schoolChanged = new EventEmitter<string[]>();
     @Output() teacherChanged = new EventEmitter<string[]>();
     @Output() gradeChanged = new EventEmitter<number[]>();
-    @Output() examChanged = new EventEmitter<Exam>();
+    @Output() examChanged = new EventEmitter<string[]>();
     @Output() searchStringChanged = new EventEmitter<string>();
 
     searchString: string = '';
@@ -77,7 +77,7 @@ export class StatsFiltersComponent {
     // Контролы для месяца и года
     monthControl = new FormControl(Number(this.selectedMonth.substring(5))); // 0-11
     yearControl = new FormControl(new Date().getFullYear());
-    examControl = new FormControl<Exam | undefined>(undefined);
+    // examControl = new FormControl<Exam[] | undefined>(undefined);
 
     months = [
         { value: 0, name: 'Seçin' }, // Добавляем опцию "Выберите"
@@ -100,8 +100,8 @@ export class StatsFiltersComponent {
         this.setupSearch();
         this.setupMonthYearChange();
         this.setupYears();
-        this.setupExamChange();
-        console.log('selected month:', this.monthControl.value);
+        // this.setupExamChange();
+        
     }
 
     setupYears() {
@@ -129,12 +129,8 @@ export class StatsFiltersComponent {
         }
     }
 
-    setupExamChange() {
-        this.examControl.valueChanges.subscribe(exam => {
-            if (exam) {
-                this.examChanged.emit(exam);
-            }
-        });
+    onExamSelectChanged() {
+        this.examChanged.emit(this.selectedExamIds);
     }
 
     onDistrictSelectChanged() {

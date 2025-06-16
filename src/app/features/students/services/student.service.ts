@@ -34,41 +34,15 @@ export class StudentService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
+        if (params.code) {
+            url = `${url}&code=${params.code}`;
+        }
         return this.http.get<StudentData>(url);
     }
 
     getStudentById(studentId: string): Observable<StudentWithResult> {
         let url: string = `${this.configService.getApiUrl()}/students/${studentId}`;
         return this.http.get<StudentWithResult>(url);
-    }
-
-    getStudentsForStats(params: FilterParams): Observable<StudentData> {
-        let url: string = `${this.configService.getApiUrl()}/students/forStats?page=${params.page}&size=${params.size}`;
-        if (params.defective) {
-            url = `${url}&defective=true`;
-        }
-        if (params.districtIds && params.districtIds.length > 0) {
-            url = `${url}&districtIds=${params.districtIds}`;
-        }
-        if (params.schoolIds && params.schoolIds.length > 0) {
-            url = `${url}&schoolIds=${params.schoolIds}`;
-        }
-        if (params.teacherIds && params.teacherIds.length > 0) {
-            url = `${url}&teacherIds=${params.teacherIds}`;
-        }
-        if (params.grades && params.grades.length > 0) {
-            url = `${url}&grades=${params.grades}`;
-        }
-        if (params.examIds && params.examIds.length > 0) {
-            url = `${url}&examIds=${params.examIds}`
-        }
-        if (params.sortColumn && params.sortDirection) {
-            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
-        }
-        if (params.code) {
-            url = `${url}&code=${params.code}`;
-        }
-        return this.http.get<StudentData>(url);
     }
 
     searchStudents(searchString: string): Observable<StudentData> {

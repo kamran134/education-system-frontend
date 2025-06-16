@@ -130,8 +130,8 @@ export class StatsComponent implements OnInit {
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
     selectedGrades: number[] = [];
-    selectedExam: Exam | undefined = undefined;
-    selectedExamId: string = '';
+    selectedExams: Exam[] | undefined = undefined;
+    selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
     districts: District[] = [];
     schools: School[] = [];
@@ -179,12 +179,15 @@ export class StatsComponent implements OnInit {
                 this.loadSettings();
                 this.loadExams();
                 this.loadDistricts();
+                this.loadSchools();
+                this.loadTeachers();
+
                 this.route.queryParams.subscribe((params: Params) => {
                     this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',') : [];
                     this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',') : [];
                     this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',') : [];
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number) : [];
-                    this.selectedExamId = params['examId'] || '';
+                    this.selectedExamIds = params['examIds'] ? params['examIds'].split(',') : [];
                     this.selectedMonth = params['month'] || new Date().getFullYear() + '-0';
                     this.selectedTab = params['tab'] || 'students';
                     this.sortActive = params['sortActive'] || 'averageScore';
@@ -195,7 +198,7 @@ export class StatsComponent implements OnInit {
 
                     if (this.selectedTab === 'students') {
                         this.selectedTabIndex = 0;
-                        this.loadStudentsStats();
+                        this.loadMonthStudentsStats();
                     } else if (this.selectedTab === 'allStudents') {
                         this.selectedTabIndex = 1;
                         this.loadAllStudentsStats();
@@ -231,9 +234,9 @@ export class StatsComponent implements OnInit {
             });
     }
 
-    loadStudentsStats(): void {
-        if (this.selectedMonth.substring(5) === '0') {
-            this.snackBar.open('Ay seçilməyib', 'Bağla', this.matSnackConfig);
+    loadMonthStudentsStats(): void {
+        if (this.selectedMonth.substring(5) === '0' && this.selectedExamIds.length === 0) {
+            this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
             return;
         }
 
@@ -246,11 +249,11 @@ export class StatsComponent implements OnInit {
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
             code: this.searchString || undefined,
-            examId: this.selectedExamId || undefined,
+            examIds: this.selectedExamIds.join(',') || '',
             month: this.selectedMonth,
         };
 
-        this.statsService.getStudentsStats(this.selectedMonth, params).subscribe({
+        this.statsService.getStudentsStats(params).subscribe({
             next: (response) => {
                 this.isloading = false;
                 this.stats = { ...response };
@@ -273,13 +276,13 @@ export class StatsComponent implements OnInit {
             sortColumn: this.sortActive || 'averageScore',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
-            examIds: this.selectedExamId || undefined,
+            examIds: this.selectedExamIds.join(',') || '',
         };
         
         this.isloading = true;
         this.stats = {};
 
-        this.studentService.getStudentsForStats(params).subscribe({
+        this.studentService.getStudents(params).subscribe({
             next: (response) => {
                 this.isloading = false;
                 this.stats.students = response.data;
@@ -297,12 +300,12 @@ export class StatsComponent implements OnInit {
         this.isloading = true;
         this.stats = {};
 
-        if (!this.selectedExam) {
+        if (!this.selectedExams) {
             this.isloading = false;
             this.snackBar.open('İmtahan seçilməyib', 'Bağla', this.matSnackConfig);
             return;
         }
-        this.statsService.getStatsByExam(this.selectedExam).subscribe({
+        this.statsService.getStatsByExam(this.selectedExams).subscribe({
             next: (response) => {
                 this.isloading = false;
                 this.stats = response;
@@ -459,17 +462,9 @@ export class StatsComponent implements OnInit {
             .subscribe({
                 next: (response: ExamData) => {
                     this.exams = response.data;
-                    if (this.selectedExamId) {
-                        this.selectedExam = this.exams.find(exam => exam._id === this.selectedExamId);
-                        if (this.selectedExam) {
-                            this.developingStudentsLabel$.next(`${this.selectedExam.name} üzrə inkişaf edən şagirdlər`);
-                            this.studentsOfMonthLabel$.next(`${this.selectedExam.name} üzrə ayın şagirdləri`);
-                            this.studentsOfMonthByRepublicLabel$.next(`${this.selectedExam.name} üzrə respublika üzrə ayın şagirdləri`);
-                        }
-                    }
                 },
-                error: (err: any) => {
-                    this.errorMessage = '';
+                error: (error: any) => {
+                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                 }
             });
     }
@@ -493,9 +488,9 @@ export class StatsComponent implements OnInit {
 
     updateMonth(month: string) {
         this.selectedMonth = month;
-        this.selectedExam = undefined;
-        this.selectedExamId = '';
-        this.loadStudentsStats();
+        this.selectedExams = [];
+        this.selectedExamIds = [];
+        this.loadMonthStudentsStats();
         this.developingStudentsLabel$.next(`${this.monthNamePipe.transform(month)} ayında inkişaf edən şagirdlər`);
         this.studentsOfMonthLabel$.next(`${this.monthNamePipe.transform(month)} ayında ayın şagirdləri`);
         this.studentsOfMonthByRepublicLabel$.next(`${this.monthNamePipe.transform(month)} ayında respublika üzrə ayın şagirdləri`);
@@ -506,7 +501,7 @@ export class StatsComponent implements OnInit {
 
         if (event.index === 0) {
             this.selectedTab = 'students';
-            this.loadStudentsStats();
+            this.loadMonthStudentsStats();
         } else if (event.index === 1) {
             this.selectedTab = 'allStudents';
             this.loadAllStudentsStats();
@@ -527,7 +522,7 @@ export class StatsComponent implements OnInit {
         if (this.selectedTab === 'students') {
             this.loadSchools();
             this.loadTeachers();
-            this.loadStudentsStats();
+            this.loadMonthStudentsStats();
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadSchools();
@@ -547,7 +542,7 @@ export class StatsComponent implements OnInit {
         this.selectedSchoolIds = schoolIds;
         if (this.selectedTab === 'students') {
             this.loadTeachers();
-            this.loadStudentsStats();
+            this.loadMonthStudentsStats();
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadTeachers();
@@ -561,7 +556,7 @@ export class StatsComponent implements OnInit {
     onTeacherSelectChanged(teacherIds: string[]) {
         this.selectedTeacherIds = teacherIds;
         if (this.selectedTab === 'students') {
-            this.loadStudentsStats();
+            this.loadMonthStudentsStats();
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
@@ -571,22 +566,24 @@ export class StatsComponent implements OnInit {
     onGradeSelectChanged(grades: number[]) {
         this.selectedGrades = grades;
         if (this.selectedTab === 'students') {
-            this.loadStudentsStats();
+            this.loadMonthStudentsStats();
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
         }
     }
 
-    onExamSelectChanged(exam: Exam) {
-        this.selectedExam = exam;
-        this.selectedExamId = exam._id;
+    onExamSelectChanged(examIds: string[]) {
+        this.selectedExamIds = examIds;
         this.selectedMonth = `${new Date().getFullYear()}-0`; // Сбрасываем месяц при смене экзамена
         if (this.selectedTab === 'students') {
-            this.loadStudentsStats();
-            this.developingStudentsLabel$.next(`${exam.name} üzrə inkişaf edən şagirdlər`);
-            this.studentsOfMonthLabel$.next(`${exam.name} üzrə ayın şagirdləri`);
-            this.studentsOfMonthByRepublicLabel$.next(`${exam.name} üzrə respublika üzrə ayın şagirdləri`);
+            this.loadMonthStudentsStats();
+            
+            if (this.selectedExams && this.selectedExams.length > 0) {
+                this.developingStudentsLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə inkişaf edən şagirdlər`);
+                this.studentsOfMonthLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə ayın şagirdləri`);
+                this.studentsOfMonthByRepublicLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə respublika üzrə ayın şagirdləri`);
+            }
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
@@ -594,17 +591,12 @@ export class StatsComponent implements OnInit {
     }
 
     openStudentDetails(studentId: string): void {
-        // const selectedDate = new Date(this.selectedMonth);
-        // if (!selectedDate) return;
-
-        // const month = selectedDate.toISOString().slice(0, 7);
-
         const queryParams = {
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            examId: this.selectedExam ? this.selectedExam._id : undefined,
+            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : '',
             month: this.selectedMonth,
             source: 'stats',
             tab: this.selectedTab,
@@ -625,7 +617,6 @@ export class StatsComponent implements OnInit {
 
     onPageChange(event: PageEvent): void {
         this.pageIndex = event.pageIndex;
-
         this.isloading = true;
 
         if (this.selectedTab === 'allStudents') {
@@ -644,7 +635,6 @@ export class StatsComponent implements OnInit {
 
     onSortChange(sortState: Sort): void {
         this.pageIndex = 0; // Сбрасываем страницу
-        console.log('sort direction new:', sortState.direction, 'sort direction old:', this.sortDirection);
 
         this.sortDirection = sortState.direction;
         this.sortActive = sortState.active;
@@ -682,7 +672,7 @@ export class StatsComponent implements OnInit {
         this.pageIndex = 0; // Сбрасываем страницу
         this.searchString = searchString;
         if (this.selectedTab === 'students') {
-            this.loadStudentsStats();
+            this.loadMonthStudentsStats();
         } else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
         } else if (this.selectedTab === 'allTeachers') {

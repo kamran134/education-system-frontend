@@ -47,8 +47,8 @@
 
     <mat-form-field class="filters__exams" *ngIf="['students', 'allStudents'].includes(selectedTab)">
         <mat-label>İmtahanlar</mat-label>
-        <mat-select [formControl]="examControl">
-        <mat-option *ngFor="let exam of exams" [value]="exam">{{ exam.name }}</mat-option>
+        <mat-select [(value)]="selectedExamIds" (selectionChange)="onExamSelectChanged()" multiple>
+            <mat-option *ngFor="let exam of exams" [value]="exam._id">{{ exam.name }}</mat-option>
         </mat-select>
     </mat-form-field>
 

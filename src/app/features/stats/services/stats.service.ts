@@ -22,8 +22,8 @@ export class StatsService {
         return this.http.post(url, {}, { withCredentials: true });
     }
 
-    getStudentsStats(month: string, params: FilterParams): Observable<Stats> {
-        let url: string = `${this.configService.getApiUrl()}/stats/students?month=${month}`;
+    getStudentsStats(params: FilterParams): Observable<Stats> {
+        let url: string = `${this.configService.getApiUrl()}/stats/students?month=${params.month}`;
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}&districtIds=${params.districtIds}`;
         }
@@ -39,14 +39,14 @@ export class StatsService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        if (params.examId) {
-            url = `${url}&examId=${params.examId}`;
+        if (params.examIds) {
+            url = `${url}&examIds=${params.examIds}`;
         }
         return this.http.get<Stats>(url, {});
     }
 
-    getStatsByExam(exam: Exam): Observable<Stats> {
-        let url: string = `${this.configService.getApiUrl()}/stats/by-exam/${exam._id}`;
+    getStatsByExam(exam: Exam[]): Observable<Stats> {
+        let url: string = `${this.configService.getApiUrl()}/stats/by-exam?exam_ids=${exam.map(e => e._id).join(',')}`;
         return this.http.get<Stats>(url, {});
     }
 
