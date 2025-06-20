@@ -1,22 +1,22 @@
 <div class="table-container">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
         <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef> Şagirdin kodu </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Şagirdin kodu </th>
             <td mat-cell *matCellDef="let student"> {{ student.code }} </td>
         </ng-container>
 
         <ng-container matColumnDef="fullName">
-            <th mat-header-cell *matHeaderCellDef> Soyadı, adı, ata adı </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Soyadı, adı, ata adı </th>
             <td mat-cell *matCellDef="let student"> {{ student.lastName }} {{ student.firstName }} {{ student.middleName }} </td>
         </ng-container>
 
         <ng-container matColumnDef="score">
-            <th mat-header-cell *matHeaderCellDef> Balı </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Balı </th>
             <td mat-cell *matCellDef="let student"> {{ student.score }} </td>
         </ng-container>
 
         <ng-container matColumnDef="averageScore">
-            <th mat-header-cell *matHeaderCellDef> Orta balı </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Orta balı </th>
             <td mat-cell *matCellDef="let student"> {{ student.averageScore }} </td>
         </ng-container>
 

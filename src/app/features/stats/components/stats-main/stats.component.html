@@ -38,6 +38,7 @@
                 ofMonth$: studentsOfMonthLabel$,
                 republic$: studentsOfMonthByRepublicLabel$
             }"
+            (sortChanged)="onSortChange($event)"
             (excelExport)="exportToExcel($event)"
             (rowClicked)="openStudentDetails($event)"
         ></app-students-month-tab>

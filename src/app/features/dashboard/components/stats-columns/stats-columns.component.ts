@@ -65,6 +65,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'school', label: 'Məktəbi', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
+        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'totalScore', label: 'İmtahandakı toplam balı', selected: false },
     ];
 
     studentColumnOptions: Column[] = [

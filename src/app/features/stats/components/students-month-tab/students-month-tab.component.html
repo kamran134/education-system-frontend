@@ -1,4 +1,4 @@
-<div class="stats-container" *ngIf="!isLoading">
+<div class="stats-container">
     <app-student-rating-table
       [title]="(labels.developing$ | async) ?? 'Cari ayda inkişaf edən şagirdlər'"
       tableName="developingStudents"
@@ -6,6 +6,7 @@
       [columns]="monthStudentColumns"
       (excelExport)="excelExport.emit('developingStudents')"
       (rowClicked)="rowClicked.emit($event)"
+      (sortChanged)="sortChanged.emit($event)"
     ></app-student-rating-table>
   
     <app-student-rating-table
@@ -15,6 +16,7 @@
       [columns]="monthStudentColumns"
       (excelExport)="excelExport.emit('studentsOfMonth')"
       (rowClicked)="rowClicked.emit($event)"
+      (sortChanged)="sortChanged.emit($event)"
     ></app-student-rating-table>
   
     <app-student-rating-table
@@ -24,5 +26,6 @@
       [columns]="monthStudentColumns"
       (excelExport)="excelExport.emit('studentsOfMonthByRepublic')"
       (rowClicked)="rowClicked.emit($event)"
+      (sortChanged)="sortChanged.emit($event)"
     ></app-student-rating-table>
 </div>

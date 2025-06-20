@@ -42,6 +42,9 @@ export class StatsService {
         if (params.examIds) {
             url = `${url}&examIds=${params.examIds}`;
         }
+        if (params.sortColumn && params.sortDirection) {
+            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+        }
         return this.http.get<Stats>(url, {});
     }
 

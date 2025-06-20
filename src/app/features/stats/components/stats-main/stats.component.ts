@@ -248,6 +248,8 @@ export class StatsComponent implements OnInit {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
+            sortColumn: this.sortActive || 'averageScore',
+            sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             examIds: this.selectedExamIds.join(',') || '',
             month: this.selectedMonth,
@@ -639,7 +641,24 @@ export class StatsComponent implements OnInit {
         this.sortDirection = sortState.direction;
         this.sortActive = sortState.active;
         if (sortState.direction) {
-            if (this.selectedTab === 'allStudents') {
+            if (this.selectedTab === 'students') {
+                this.loadMonthStudentsStats();
+                // if (this.stats.developingStudents && this.stats.developingStudents.length > 0) {
+                //     const key = this.sortActive as keyof Student;
+                //     console.log('Sorting developingStudents by key:', key, 'Direction:', this.sortDirection);
+                //     this.stats.developingStudents = this.stats.developingStudents.sort((a, b) => {
+                //         if (a.studentData && b.studentData) {
+                //             if (this.sortDirection === 'asc') {
+                //                 return a.studentData[key]! > b.studentData[key]! ? 1 : -1;
+                //             } else if (this.sortDirection === 'desc') {
+                //                 return a.studentData[key]! < b.studentData[key]! ? 1 : -1;
+                //             }
+                //         }
+                //     return 0;
+                //     });
+                // }
+            }
+            else if (this.selectedTab === 'allStudents') {
                 this.loadAllStudentsStats();
             }
             else if (this.selectedTab === 'allTeachers') {

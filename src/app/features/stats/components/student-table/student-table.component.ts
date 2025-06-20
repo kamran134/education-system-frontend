@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 @Component({
     selector: 'app-student-table',
     standalone: true,
-    imports: [MatTableModule, MatPaginatorModule],
+    imports: [MatTableModule, MatSortModule, MatPaginatorModule],
     templateUrl: './student-table.component.html',
     styleUrl: './student-table.component.scss'
 })
