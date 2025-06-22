@@ -66,7 +66,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
-        { key: 'totalScore', label: 'İmtahandakı toplam balı', selected: false },
+        { key: 'totalScore', label: 'İmtahan balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false }
     ];
 
     studentColumnOptions: Column[] = [
@@ -80,6 +81,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false }
     ];
 
     teacherColumnOptions: Column[] = [
@@ -88,7 +90,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'school', label: 'Məktəbi', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false }
+        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false }
     ];
 
     schoolColumnOptions: Column[] = [
@@ -96,7 +99,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'name', label: 'Adı', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false }
+        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false }
     ];
 
     districtColumnOptions: Column[] = [

@@ -119,10 +119,10 @@ export class StatsComponent implements OnInit {
     studentsOfMonthByRepublicLabel$ = new BehaviorSubject<string>('Respublika üzrə cari ayın şagirdləri');
 
     private readonly availableStudentColumns: string[] = [
-        'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore'
+        'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore', 'place'
     ];
-    private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'score', 'averageScore'];
-    private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'score', 'averageScore'];
+    private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'score', 'averageScore', 'place'];
+    private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'score', 'averageScore', 'place'];
     private readonly availableDistrictColumns: string[] = ['code', 'name', 'score', 'averageScore'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день

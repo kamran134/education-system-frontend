@@ -56,6 +56,13 @@
             <td mat-cell *matCellDef="let student"> {{ student.averageScore | roundNumber }} </td>
         </ng-container>
 
+        <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
+            <th mat-header-cell *matHeaderCellDef> Yer </th>
+            <td mat-cell *matCellDef="let student; let i = index">
+                {{ i + 1 }}
+            </td>
+        </ng-container>
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row" (click)="rowClicked.emit(row._id)"></tr>
     </table>

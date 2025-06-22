@@ -65,12 +65,32 @@ body {
             color: $white !important;
         }
 
+        .mat-mdc-list-item {
+            &:hover {
+                background-color: $backgroundColorSelected !important;
+                
+                .mdc-list-item__primary-text {
+                    color: $selectedOptionDarkMode !important;
+                }
+            }
+        }
+
         .mdc-list-item {
             &__primary-text {
                 color: $white;
                 &--selected {
                     color: $selectedOptionDarkMode;
                 }
+                &:hover {
+                    color: $selectedOptionDarkMode;
+                }
+            }
+            color: $white;
+            &--selected {
+                color: $selectedOptionDarkMode;
+            }
+            &:hover {
+                color: $selectedOptionDarkMode;
             }
         }
 
