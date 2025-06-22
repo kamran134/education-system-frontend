@@ -119,7 +119,7 @@ export class StatsComponent implements OnInit {
     studentsOfMonthByRepublicLabel$ = new BehaviorSubject<string>('Respublika üzrə cari ayın şagirdləri');
 
     private readonly availableStudentColumns: string[] = [
-        'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore', 'place'
+        'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
     ];
     private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'score', 'averageScore', 'place'];
     private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'score', 'averageScore', 'place'];

@@ -67,10 +67,11 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
         { key: 'totalScore', label: 'İmtahan balı', selected: false },
-        { key: 'place', label: 'Yer', selected: false }
+        // { key: 'place', label: 'Yer', selected: false }
     ];
 
     studentColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false },
         { key: 'code', label: 'Kodu', selected: false },
         { key: 'lastName', label: 'Soyadı', selected: false },
         { key: 'firstName', label: 'Adı', selected: false },
@@ -81,26 +82,25 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
-        { key: 'place', label: 'Yer', selected: false }
     ];
 
     teacherColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false },
         { key: 'code', label: 'Kodu', selected: false },
         { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: false },
         { key: 'school', label: 'Məktəbi', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
-        { key: 'place', label: 'Yer', selected: false }
     ];
 
     schoolColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false },
         { key: 'code', label: 'Kodu', selected: false },
         { key: 'name', label: 'Adı', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
-        { key: 'place', label: 'Yer', selected: false }
     ];
 
     districtColumnOptions: Column[] = [
