@@ -64,7 +64,6 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'teacher', label: 'Müəllimi', selected: false },
         { key: 'school', label: 'Məktəbi', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
-        { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
         { key: 'totalScore', label: 'İmtahan balı', selected: false },
         // { key: 'place', label: 'Yer', selected: false }
@@ -104,6 +103,7 @@ export class StatsColumnsComponent implements OnInit{
     ];
 
     districtColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false },
         { key: 'code', label: 'Kodu', selected: false },
         { key: 'name', label: 'Adı', selected: false },
         { key: 'score', label: 'Balı', selected: false },

@@ -1,5 +1,12 @@
 <div>
     <table mat-table [dataSource]="isLoading ? [] : districts" class="mat-elevation-z8" matSort #districtSort (matSortChange)="sortChanged.emit($event)">
+        <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
+            <th mat-header-cell *matHeaderCellDef> Yer </th>
+            <td mat-cell *matCellDef="let result; let i = index">
+                {{ i + 1 }}
+            </td>
+        </ng-container>
+        
         <ng-container matColumnDef="code" *ngIf="displayedColumns.includes('code')">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Rayon / şəhər kodu </th>
             <td mat-cell *matCellDef="let result"> {{ result.code }} </td>
@@ -16,7 +23,7 @@
         </ng-container>
 
         <ng-container matColumnDef="averageScore" *ngIf="displayedColumns.includes('averageScore')">
-            <th mat-header-cell *matHeaderCellDef> Orta balı </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Orta balı </th>
             <td mat-cell *matCellDef="let result"> {{ result.averageScore | roundNumber }} </td>
         </ng-container>
         

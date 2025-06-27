@@ -33,7 +33,6 @@ import { Student } from '../../../../core/models/student.model';
 import { StudentService } from '../../../students/services/student.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { StatsFiltersComponent } from "../stats-filters/stats-filters.component";
-import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { StatsPagination } from '../../../../core/models/pagination.model';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
@@ -123,7 +122,7 @@ export class StatsComponent implements OnInit {
     ];
     private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'score', 'averageScore', 'place'];
     private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'score', 'averageScore', 'place'];
-    private readonly availableDistrictColumns: string[] = ['code', 'name', 'score', 'averageScore'];
+    private readonly availableDistrictColumns: string[] = ['code', 'name', 'score', 'averageScore', 'place'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
     selectedDistrictIds: string[] = [];
@@ -227,6 +226,7 @@ export class StatsComponent implements OnInit {
                     this.teacherColumns = settings.allTeacherCollumns || this.availableTeacherColumns;
                     this.schoolColumns = settings.allSchoolCollumns || this.availableSchoolColumns;
                     this.districtColumns = settings.allDistrictCollumns || this.availableDistrictColumns;
+                    console.log('this.monthStudentColumns', this.monthStudentColumns);
                 },
                 error: (error: Error) => {
                     console.error('Error loading settings:', error);

@@ -1,5 +1,12 @@
 <div>
     <table mat-table [dataSource]="isLoading ? [] : schools" class="mat-elevation-z8" matSort #schoolSort (matSortChange)="sortChanged.emit($event)">
+        <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
+            <th mat-header-cell *matHeaderCellDef> Yer </th>
+            <td mat-cell *matCellDef="let result; let i = index">
+                {{ i + 1 }}
+            </td>
+        </ng-container>
+        
         <ng-container matColumnDef="code" *ngIf="displayedColumns.includes('code')">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Məktəbin kodu </th>
             <td mat-cell *matCellDef="let result"> {{ result.code }} </td>
@@ -23,13 +30,6 @@
         <ng-container matColumnDef="district" *ngIf="displayedColumns.includes('district')">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Rayonu / şəhəri </th>
             <td mat-cell *matCellDef="let result"> {{ (result.district || '').name }} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
-            <th mat-header-cell *matHeaderCellDef> Yer </th>
-            <td mat-cell *matCellDef="let result; let i = index">
-                {{ i + 1 }}
-            </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
