@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Teacher, TeacherData } from '../../../../core/models/teacher.model';
+import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -14,8 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
-import { District, DistrictData } from '../../../../core/models/district.model';
-import { School, SchoolData } from '../../../../core/models/school.model';
+import { District, DistrictResponse } from '../../../../core/models/district.model';
+import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
@@ -142,7 +142,7 @@ export class TeachersListComponent implements OnInit {
         this.isLoading = true;
         this.teacherService.getTeachers(params)
             .subscribe({
-                next: (response: TeacherData) => {
+                next: (response: TeacherResponse) => {
                     this.teachers = response.data;
                     this.totalCount = response.totalCount
                     this.isLoading = false;
@@ -162,7 +162,7 @@ export class TeachersListComponent implements OnInit {
 
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
-                next: (data: SchoolData) => {
+                next: (data: SchoolResponse) => {
                     this.schools = data.data;
                 },
                 error: (err: any) => {
@@ -183,7 +183,7 @@ export class TeachersListComponent implements OnInit {
 
         this.districtService.getDistricts(params)
             .subscribe({
-                next: (response: DistrictData) => {
+                next: (response: DistrictResponse) => {
                     this.districts = response.data;
                 },
                 error: (err: any) => {

@@ -14,3 +14,9 @@ export interface Stats {
     schools?: School[];
     districts?: District[];
 }
+
+export interface StatsResponse {
+    data: Stats;
+    message: string;
+    success: boolean;
+}

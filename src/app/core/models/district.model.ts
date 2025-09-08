@@ -1,4 +1,4 @@
-export interface DistrictData {
+export interface DistrictResponse {
     data: District[];
     totalCount: number;
 }

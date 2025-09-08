@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../../core/services/config.service';
 import { Observable } from 'rxjs';
-import { Teacher, TeacherData } from '../../../core/models/teacher.model';
+import { Teacher, TeacherResponse } from '../../../core/models/teacher.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { ResponseFromBackend } from '../../../core/models/response.model';
 import { RepairingResults } from '../../../core/models/student.model';
@@ -14,7 +14,7 @@ export class TeacherService {
 
   constructor(private http: HttpClient, private configService: ConfigService) { }
 
-    getTeachers(params: FilterParams): Observable<TeacherData> {
+    getTeachers(params: FilterParams): Observable<TeacherResponse> {
         let url: string = `${this.configService.getApiUrl()}/teachers?page=${params.page}&size=${params.size}`;
 
         if (params.districtIds && params.districtIds.length > 0) {
@@ -29,15 +29,15 @@ export class TeacherService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        return this.http.get<TeacherData>(url);
+        return this.http.get<TeacherResponse>(url);
     }
 
-    getTeachersForFilter(params: FilterParams): Observable<TeacherData> {
+    getTeachersForFilter(params: FilterParams): Observable<TeacherResponse> {
         let url: string = `${this.configService.getApiUrl()}/teachers/filter`;
         if (params.schoolIds && params.schoolIds.length > 0) {
             url = `${url}?schoolIds=${params.schoolIds}`;
         }
-        return this.http.get<TeacherData>(url);
+        return this.http.get<TeacherResponse>(url);
     }
 
     createTeacher(teacher: Teacher): Observable<any> {

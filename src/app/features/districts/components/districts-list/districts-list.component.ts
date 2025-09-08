@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { District, DistrictData } from '../../../../core/models/district.model';
+import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../services/district.service';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -82,7 +82,7 @@ export class DistrictsListComponent implements OnInit {
         }
         this.districtService.getDistricts(params)
             .subscribe({
-                next: (response: DistrictData) => {
+                next: (response: DistrictResponse) => {
                     this.districts = response.data;
                     this.isLoading = false;
                 },

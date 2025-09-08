@@ -3,7 +3,7 @@ import { ExamResult } from "./examResult.model";
 import { School } from "./school.model";
 import { Teacher } from "./teacher.model";
 
-export interface StudentData {
+export interface StudentResponse {
     data: Student[];
     totalCount: number;
 }
@@ -52,4 +52,10 @@ export interface StudentWithResult {
     district: District;
     status: string;
     results: ExamResult[];
+}
+
+export interface StudentWithResultResponse {
+    data: StudentWithResult;
+    message: string;
+    success: boolean;
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../../core/services/config.service';
 import { Observable } from 'rxjs';
-import { School, SchoolData } from '../../../core/models/school.model';
+import { School, SchoolResponse } from '../../../core/models/school.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { ResponseFromBackend } from '../../../core/models/response.model';
 import { RepairingResults } from '../../../core/models/student.model';
@@ -13,7 +13,7 @@ import { RepairingResults } from '../../../core/models/student.model';
 export class SchoolService {
     constructor(private http: HttpClient, private configService: ConfigService) { }
 
-    getSchools(params: FilterParams): Observable<SchoolData> {
+    getSchools(params: FilterParams): Observable<SchoolResponse> {
         let url: string = `${this.configService.getApiUrl()}/schools`;
         if (params.page && params.size) {
             url = `${url}?page=${params.page}&size=${params.size}`;
@@ -29,15 +29,15 @@ export class SchoolService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        return this.http.get<SchoolData>(url);
+        return this.http.get<SchoolResponse>(url);
     }
 
-    getSchoolsForFilter(params: FilterParams): Observable<SchoolData> {
+    getSchoolsForFilter(params: FilterParams): Observable<SchoolResponse> {
         let url: string = `${this.configService.getApiUrl()}/schools/filter`;
         if (params.districtIds) {
             url = `${url}?districtIds=${params.districtIds}`;
         }
-        return this.http.get<SchoolData>(url);
+        return this.http.get<SchoolResponse>(url);
     }
 
     createSchool(school: School): Observable<any> {

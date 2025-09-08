@@ -1,6 +1,6 @@
 import { District } from "./district.model";
 
-export interface SchoolData {
+export interface SchoolResponse {
     data: School[];
     totalCount: number;
 }

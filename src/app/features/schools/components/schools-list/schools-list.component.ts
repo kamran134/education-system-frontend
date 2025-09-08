@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { School, SchoolData } from '../../../../core/models/school.model';
+import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { SchoolService } from '../../services/school.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -12,7 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { FilterParams } from '../../../../core/models/filterParams.model';
-import { District, DistrictData } from '../../../../core/models/district.model';
+import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOption, MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -128,7 +128,7 @@ export class SchoolsListComponent implements OnInit {
         this.isLoading = true;
         this.schoolService.getSchools(params)
         .subscribe({
-            next: (data: SchoolData) => {
+            next: (data: SchoolResponse) => {
                 this.schools = data.data;
                 this.totalCount = data.totalCount;
                 this.isLoading = false;
@@ -151,7 +151,7 @@ export class SchoolsListComponent implements OnInit {
 
         this.districtService.getDistricts(params)
         .subscribe({
-            next: (response: DistrictData) => {
+            next: (response: DistrictResponse) => {
                 this.districts = response.data;
             },
             error: (err: any) => {

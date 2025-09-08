@@ -1,4 +1,4 @@
-export interface UserData {
+export interface UserResponse {
     data: User[];
     totalCount: number;
 }

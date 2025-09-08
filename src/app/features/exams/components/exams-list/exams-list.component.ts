@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ExamService } from '../../services/exam.service';
 import { FilterParams } from '../../../../core/models/filterParams.model';
-import { Exam, ExamData } from '../../../../core/models/exam.model';
+import { Exam, ExamResponse } from '../../../../core/models/exam.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ExamAddDialogComponent } from '../exam-add-dialog/exam-add-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -78,7 +78,7 @@ export class ExamsListComponent implements OnInit {
         this.isLoading = true;
         this.examService.getExams(params)
             .subscribe({
-                next: (data: ExamData) => {
+                next: (data: ExamResponse) => {
                     this.exams = data.data;
                     this.totalCount = data.totalCount;
                     this.isLoading = false;

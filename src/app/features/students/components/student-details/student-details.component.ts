@@ -56,8 +56,8 @@ export class StudentDetailsComponent implements OnInit {
 
     private loadStudent(): void {
         this.studentService.getStudentById(this.studentId).subscribe({
-            next: (data) => {
-                this.student = data;
+            next: (response) => {
+                this.student = response.data;
             },
             error: (error: Error) => {
                 console.error('Şagirdin alınmasında xəta!', error.error);

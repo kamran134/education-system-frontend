@@ -1,7 +1,7 @@
 import { District } from "./district.model";
 import { School } from "./school.model";
 
-export interface TeacherData {
+export interface TeacherResponse {
     data: Teacher[];
     totalCount: number;
 }

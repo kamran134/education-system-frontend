@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, model, ModelSignal, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { RepairingResults, Student, StudentData } from '../../../../core/models/student.model';
+import { RepairingResults, Student, StudentResponse } from '../../../../core/models/student.model';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatOption } from '@angular/material/core';
@@ -15,9 +15,9 @@ import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
-import { District, DistrictData } from '../../../../core/models/district.model';
-import { School, SchoolData } from '../../../../core/models/school.model';
-import { Teacher, TeacherData } from '../../../../core/models/teacher.model';
+import { District, DistrictResponse } from '../../../../core/models/district.model';
+import { School, SchoolResponse } from '../../../../core/models/school.model';
+import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -144,7 +144,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
         };
 
         this.studentService.getStudents(params).subscribe({
-            next: (response: StudentData) => {
+            next: (response: StudentResponse) => {
                 this.students = response.data;
                 this.totalCount = response.totalCount;
                 this.isLoading = false;
@@ -165,7 +165,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
 
         this.teacherService.getTeachersForFilter(params)
             .subscribe({
-                next: (response: TeacherData) => {
+                next: (response: TeacherResponse) => {
                     this.teachers = response.data;
                 },
                 error: (error: any) => {
@@ -184,7 +184,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
 
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
-                next: (response: SchoolData) => {
+                next: (response: SchoolResponse) => {
                     this.schools = response.data;
                 },
                 error: (error: any) => {
@@ -205,7 +205,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
 
         this.districtService.getDistricts(params)
             .subscribe({
-                next: (response: DistrictData) => {
+                next: (response: DistrictResponse) => {
                     this.districts = response.data;
                 },
                 error: (err: any) => {

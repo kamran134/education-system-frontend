@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DistrictData } from '../../../core/models/district.model';
+import { DistrictResponse } from '../../../core/models/district.model';
 import { ConfigService } from '../../../core/services/config.service';
 import { ResponseFromBackend } from '../../../core/models/response.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
@@ -12,7 +12,7 @@ import { FilterParams } from '../../../core/models/filterParams.model';
 export class DistrictService {
     constructor(private http: HttpClient, private configService: ConfigService) {}
 
-    getDistricts(params: FilterParams): Observable<DistrictData> {
+    getDistricts(params: FilterParams): Observable<DistrictResponse> {
         let url: string = `${this.configService.getApiUrl()}/districts`;
         if (params.sortColumn && params.sortDirection) {
             url = `${url}?sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
@@ -20,7 +20,7 @@ export class DistrictService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        return this.http.get<DistrictData>(url);
+        return this.http.get<DistrictResponse>(url);
     }
 
     addDistrict(district: {name: string, code: number}): Observable<ResponseFromBackend> {

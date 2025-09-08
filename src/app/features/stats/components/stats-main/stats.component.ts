@@ -18,12 +18,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Exam, ExamData } from '../../../../core/models/exam.model';
+import { Exam, ExamResponse } from '../../../../core/models/exam.model';
 import { ExamService } from '../../../exams/services/exam.service';
-import { MatSort, MatSortHeader, MatSortModule, Sort } from '@angular/material/sort';
-import { District, DistrictData } from '../../../../core/models/district.model';
-import { School, SchoolData } from '../../../../core/models/school.model';
-import { Teacher, TeacherData } from '../../../../core/models/teacher.model';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { District, DistrictResponse } from '../../../../core/models/district.model';
+import { School, SchoolResponse } from '../../../../core/models/school.model';
+import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { SchoolService } from '../../../schools/services/school.service';
@@ -226,7 +226,6 @@ export class StatsComponent implements OnInit {
                     this.teacherColumns = settings.allTeacherCollumns || this.availableTeacherColumns;
                     this.schoolColumns = settings.allSchoolCollumns || this.availableSchoolColumns;
                     this.districtColumns = settings.allDistrictCollumns || this.availableDistrictColumns;
-                    console.log('this.monthStudentColumns', this.monthStudentColumns);
                 },
                 error: (error: Error) => {
                     console.error('Error loading settings:', error);
@@ -258,7 +257,7 @@ export class StatsComponent implements OnInit {
         this.statsService.getStudentsStats(params).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats = { ...response };
+                this.stats = { ...response.data };
             },
             error: (error: Error) => {
                 this.isloading = false;
@@ -310,7 +309,7 @@ export class StatsComponent implements OnInit {
         this.statsService.getStatsByExam(this.selectedExams).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats = response;
+                this.stats = response.data;
             },
             error: (error: Error) => {
                 this.isloading = false;
@@ -333,7 +332,7 @@ export class StatsComponent implements OnInit {
         }
 
         this.teacherService.getTeachers(params).subscribe({
-            next: (response: TeacherData) => {
+            next: (response: TeacherResponse) => {
                 this.isloading = false;
                 this.stats = {
                     ...this.stats, teachers: response.data.filter((teacher: Teacher) => teacher.active &&
@@ -384,7 +383,7 @@ export class StatsComponent implements OnInit {
         }
 
         this.districtService.getDistricts(params).subscribe({
-            next: (response: DistrictData) => {
+            next: (response: DistrictResponse) => {
                 this.isloading = false;
                 this.stats = { ...this.stats, districts: response.data };
                 this.totalCounts.allDistrictsTotalCount = response.totalCount;
@@ -411,7 +410,7 @@ export class StatsComponent implements OnInit {
 
         this.teacherService.getTeachersForFilter(params)
             .subscribe({
-                next: (response: TeacherData) => {
+                next: (response: TeacherResponse) => {
                     this.teachers = response.data;
                 },
                 error: (error: Error) => {
@@ -432,7 +431,7 @@ export class StatsComponent implements OnInit {
 
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
-                next: (response: SchoolData) => {
+                next: (response: SchoolResponse) => {
                     this.schools = response.data;
                 },
                 error: (error: Error) => {
@@ -450,7 +449,7 @@ export class StatsComponent implements OnInit {
 
         this.districtService.getDistricts(params)
             .subscribe({
-                next: (response: DistrictData) => {
+                next: (response: DistrictResponse) => {
                     this.districts = response.data;
                 },
                 error: (error: Error) => {
@@ -462,7 +461,7 @@ export class StatsComponent implements OnInit {
     loadExams(): void {
         this.examService.getExamsForFilter()
             .subscribe({
-                next: (response: ExamData) => {
+                next: (response: ExamResponse) => {
                     this.exams = response.data;
                 },
                 error: (error: any) => {

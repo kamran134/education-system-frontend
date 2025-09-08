@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../../core/services/config.service';
 import { Observable } from 'rxjs';
-import { Stats } from '../../../core/models/stats.model';
+import { Stats, StatsResponse } from '../../../core/models/stats.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { Exam } from '../../../core/models/exam.model';
 
@@ -22,7 +22,7 @@ export class StatsService {
         return this.http.post(url, {}, { withCredentials: true });
     }
 
-    getStudentsStats(params: FilterParams): Observable<Stats> {
+    getStudentsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/students?month=${params.month}`;
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}&districtIds=${params.districtIds}`;
@@ -45,15 +45,15 @@ export class StatsService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
-        return this.http.get<Stats>(url, {});
+        return this.http.get<StatsResponse>(url, {});
     }
 
-    getStatsByExam(exam: Exam[]): Observable<Stats> {
+    getStatsByExam(exam: Exam[]): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/by-exam?exam_ids=${exam.map(e => e._id).join(',')}`;
-        return this.http.get<Stats>(url, {});
+        return this.http.get<StatsResponse>(url, {});
     }
 
-    getTeachersStats(params: FilterParams): Observable<Stats> {
+    getTeachersStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/teachers`;
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}?districtIds=${params.districtIds}`;
@@ -61,19 +61,19 @@ export class StatsService {
         if (params.schoolIds && params.schoolIds.length > 0) {
             url = `${url}&schoolIds=${params.schoolIds}`;
         }
-        return this.http.get<Stats>(url, {});
+        return this.http.get<StatsResponse>(url, {});
     }
 
-    getSchoolsStats(params: FilterParams): Observable<Stats> {
+    getSchoolsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/schools`;
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}?districtIds=${params.districtIds}`;
         }
-        return this.http.get<Stats>(url, {});
+        return this.http.get<StatsResponse>(url, {});
     }
 
-    getDistrictsStats(params: FilterParams): Observable<Stats> {
+    getDistrictsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/districts`;
-        return this.http.get<Stats>(url, {});
+        return this.http.get<StatsResponse>(url, {});
     }
 }

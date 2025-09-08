@@ -1,4 +1,4 @@
-export interface ExamData {
+export interface ExamResponse {
     data: Exam[];
     totalCount: number;
 }

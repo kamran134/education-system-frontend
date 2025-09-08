@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
-import { User, UserData, UserEdit } from '../../../../core/models/user.model';
+import { User, UserResponse, UserEdit } from '../../../../core/models/user.model';
 import { DashboardService } from '../../services/dashboard.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -61,7 +61,7 @@ export class UsersComponent implements OnInit{
 
     loadUsers(): void {
         this.dashboardService.getUsers({ page: 1, size: 10 }).subscribe({
-            next: (data: UserData) => {
+            next: (data: UserResponse) => {
                 this.dataSource = data.data;
                 this.totalCount = data.totalCount;
             },

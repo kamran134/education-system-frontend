@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { ConfigService } from "../../../core/services/config.service";
 import { UserParams } from "../../../core/models/filterParams.model";
 import { Observable } from "rxjs";
-import { UserData, UserEdit } from "../../../core/models/user.model";
+import { UserResponse, UserEdit } from "../../../core/models/user.model";
 import { UserSettings } from "../../../core/models/settings.model";
 
 @Injectable({
@@ -19,7 +19,7 @@ export class DashboardService {
      * @returns An observable containing user data.
      */
 
-    getUsers(userParams: UserParams): Observable<UserData> {
+    getUsers(userParams: UserParams): Observable<UserResponse> {
         let url: string = `${this.configService.getApiUrl()}/users`;
         if (userParams.page && userParams.size) {
             url = `${url}?page=${userParams.page}&size=${userParams.size}`;
@@ -39,15 +39,15 @@ export class DashboardService {
         if (userParams.updatedAt) {
             url = `${url}&updatedAt=${userParams.updatedAt.toISOString()}`;
         }
-        return this.http.get<UserData>(url, { withCredentials: true });
+        return this.http.get<UserResponse>(url, { withCredentials: true });
     }
 
-    createUser(user: UserEdit): Observable<UserData> {
+    createUser(user: UserEdit): Observable<UserResponse> {
         const url = `${this.configService.getApiUrl()}/users`;
-        return this.http.post<UserData>(url, user, { withCredentials: true });
+        return this.http.post<UserResponse>(url, user, { withCredentials: true });
     }
 
-    editUser(user: UserEdit): Observable<UserData> {
+    editUser(user: UserEdit): Observable<UserResponse> {
         const url = `${this.configService.getApiUrl()}/users`;
         return this.http.put<any>(url, user, { withCredentials: true });
     }
