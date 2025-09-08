@@ -3,7 +3,7 @@ name: Deploy Frontend to GHCR
 on:
   push:
     branches:
-      - main  # Меняй, если хочешь триггерить из другой ветки
+      - new_version  # Меняй, если хочешь триггерить из другой ветки
 
 jobs:
   build-and-push:
