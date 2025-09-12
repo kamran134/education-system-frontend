@@ -1,0 +1,43 @@
+/* SIMPLE OBVIOUS TEST - THIS MUST WORK */
+
+:host {
+  display: block !important;
+}
+
+.modern-dialog-wrapper {
+  background: red !important;
+  padding: 50px !important;
+  border: 10px solid blue !important;
+}
+
+.modern-dialog-title {
+  background: yellow !important;
+  color: black !important;
+  font-size: 30px !important;
+  padding: 20px !important;
+  text-align: center !important;
+  border: 5px solid green !important;
+}
+
+h2[mat-dialog-title] {
+  background: yellow !important;
+  color: black !important;
+  font-size: 30px !important;
+  padding: 20px !important;
+  text-align: center !important;
+  border: 5px solid green !important;
+}
+
+mat-dialog-content {
+  background: lightblue !important;
+  border: 5px solid darkblue !important;
+  padding: 20px !important;
+}
+
+button {
+  background: gold !important;
+  color: darkred !important;
+  font-size: 18px !important;
+  padding: 12px 25px !important;
+  border: 3px solid maroon !important;
+}

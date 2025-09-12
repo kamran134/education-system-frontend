@@ -1,0 +1,176 @@
+<mat-dialog-content class="modern-dialog-content">
+    <app-modern-form-container 
+        title="Şagirdin redaktə edilməsi"
+        subtitle="Şagird məlumatlarını yeniləyin"
+        icon="person"
+        [hasError]="hasFormError"
+        [errorMessage]="formErrorMessage">
+        
+        <form #studentForm="ngForm" novalidate>
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin kodu</mat-label>
+                <input 
+                    matInput 
+                    [(ngModel)]='data.student.code' 
+                    name="code" 
+                    required 
+                    #codeField="ngModel"
+                    [class.is-invalid]="codeField.invalid && codeField.touched"
+                    placeholder="Şagird kodunu daxil edin" />
+                <mat-icon matSuffix>badge</mat-icon>
+                <mat-error *ngIf="codeField.invalid && codeField.touched">
+                    Şagird kodu mütləqdir
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin soyadı</mat-label>
+                <input 
+                    matInput 
+                    [(ngModel)]='data.student.lastName' 
+                    name="lastName" 
+                    required 
+                    #lastNameField="ngModel"
+                    [class.is-invalid]="lastNameField.invalid && lastNameField.touched"
+                    placeholder="Soyadını daxil edin" />
+                <mat-icon matSuffix>person_outline</mat-icon>
+                <mat-error *ngIf="lastNameField.invalid && lastNameField.touched">
+                    Soyad mütləqdir
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin adı</mat-label>
+                <input 
+                    matInput 
+                    [(ngModel)]='data.student.firstName' 
+                    name="firstName" 
+                    required 
+                    #firstNameField="ngModel"
+                    [class.is-invalid]="firstNameField.invalid && firstNameField.touched"
+                    placeholder="Adını daxil edin" />
+                <mat-icon matSuffix>person</mat-icon>
+                <mat-error *ngIf="firstNameField.invalid && firstNameField.touched">
+                    Ad mütləqdir
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin ata adı</mat-label>
+                <input 
+                    matInput 
+                    [(ngModel)]='data.student.middleName' 
+                    name="middleName" 
+                    #middleNameField="ngModel"
+                    placeholder="Ata adını daxil edin" />
+                <mat-icon matSuffix>family_restroom</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin rayonu / şəhəri</mat-label>
+                <mat-select 
+                    [(value)]="selectedDistrict" 
+                    (selectionChange)="onDistrictSelectChanged()" 
+                    required
+                    name="district"
+                    #districtField="ngModel"
+                    [class.is-invalid]="districtField.invalid && districtField.touched">
+                    <mat-option *ngFor="let district of districts" [value]="district">
+                        <div class="select-option">
+                            <mat-icon>location_on</mat-icon>
+                            <span>{{ district.name }}</span>
+                        </div>
+                    </mat-option>
+                </mat-select>
+                <mat-icon matSuffix>location_city</mat-icon>
+                <mat-error *ngIf="districtField.invalid && districtField.touched">
+                    Rayon/şəhər seçimi mütləqdir
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin məktəbi</mat-label>
+                <mat-select 
+                    [(value)]="selectedSchool" 
+                    (selectionChange)="onSchoolSelectChanged()" 
+                    required
+                    name="school"
+                    #schoolField="ngModel"
+                    [class.is-invalid]="schoolField.invalid && schoolField.touched"
+                    [disabled]="!selectedDistrict">
+                    <mat-option *ngFor="let school of schools" [value]="school">
+                        <div class="select-option">
+                            <mat-icon>school</mat-icon>
+                            <span>{{ school.name }}</span>
+                        </div>
+                    </mat-option>
+                </mat-select>
+                <mat-icon matSuffix>school</mat-icon>
+                <mat-error *ngIf="schoolField.invalid && schoolField.touched">
+                    Məktəb seçimi mütləqdir
+                </mat-error>
+                <mat-hint *ngIf="!selectedDistrict">Əvvəlcə rayon/şəhər seçin</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin sinfi</mat-label>
+                <mat-select 
+                    [(value)]="selectedGrade" 
+                    (selectionChange)="onGradeSelectChanged()" 
+                    required
+                    name="grade"
+                    #gradeField="ngModel"
+                    [class.is-invalid]="gradeField.invalid && gradeField.touched">
+                    <mat-option *ngFor="let grade of grades" [value]="grade">
+                        <div class="select-option">
+                            <mat-icon>grade</mat-icon>
+                            <span>{{ grade }}-ci sinif</span>
+                        </div>
+                    </mat-option>
+                </mat-select>
+                <mat-icon matSuffix>class</mat-icon>
+                <mat-error *ngIf="gradeField.invalid && gradeField.touched">
+                    Sinif seçimi mütləqdir
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Şagirdin müəllimi</mat-label>
+                <mat-select 
+                    [(value)]="selectedTeacher" 
+                    (selectionChange)="onTeacherSelectChanged()" 
+                    required
+                    name="teacher"
+                    #teacherField="ngModel"
+                    [class.is-invalid]="teacherField.invalid && teacherField.touched"
+                    [disabled]="!selectedSchool">
+                    <mat-option *ngFor="let teacher of teachers" [value]="teacher">
+                        <div class="select-option">
+                            <mat-icon>person_pin</mat-icon>
+                            <span>{{ teacher.fullname }}</span>
+                        </div>
+                    </mat-option>
+                </mat-select>
+                <mat-icon matSuffix>person_pin</mat-icon>
+                <mat-error *ngIf="teacherField.invalid && teacherField.touched">
+                    Müəllim seçimi mütləqdir
+                </mat-error>
+                <mat-hint *ngIf="!selectedSchool">Əvvəlcə məktəb seçin</mat-hint>
+            </mat-form-field>
+        </form>
+    </app-modern-form-container>
+</mat-dialog-content>
+
+<app-modern-dialog-actions
+    [loading]="isLoading"
+    [success]="saveSuccess"
+    [error]="saveError"
+    [disabled]="!isFormValid()"
+    saveText="Yadda saxla"
+    loadingText="Yenilənir..."
+    successText="Yeniləndi!"
+    saveIcon="save"
+    [saveTooltip]="getFormValidationMessage()"
+    (cancel)="onClose()"
+    (save)="onSave()">
+</app-modern-dialog-actions>
