@@ -32,15 +32,15 @@ export class RegisterComponent {
   
     submit() {
         if (this.registerForm.invalid) return;
-  
+
         this.authService.register(this.registerForm.getRawValue()).subscribe({
             next: (response) => {
-            // this.authService.saveToken(response.token);
-            this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-            this.errorMessage.set(err.error.message || 'Qeydiyyat zamanı xəta');
-        }
-      });
+                // Регистрация прошла успешно, перенаправляем на логин
+                this.router.navigate(['/login']);
+            },
+            error: (err) => {
+                this.errorMessage.set(err.error.message || 'Qeydiyyat zamanı xəta');
+            }
+        });
     }
 }

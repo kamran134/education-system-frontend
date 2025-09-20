@@ -28,7 +28,12 @@ export class LoginComponent {
 
         this.authService.login(this.loginForm.getRawValue()).subscribe({
             next: (response) => {
-                this.authService.saveToken(response.token);
+                if (response.success) {
+                    // Токен уже сохранен в сервисе, просто очищаем ошибку
+                    this.errorMessage.set(null);
+                } else {
+                    this.errorMessage.set(response.message || 'Girişdə xəta');
+                }
             },
             error: (error) => {
                 this.errorMessage.set(error.error.message || 'Girişdə xəta');

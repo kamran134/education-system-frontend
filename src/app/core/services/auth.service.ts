@@ -124,21 +124,55 @@ export class AuthService {
         }
     }
 
-    login(credentials: { email: string; password: string }): Observable<{ token: string }> {
-        return this.http.post<{ token: string }>(
+    login(credentials: { email: string; password: string }): Observable<any> {
+        return this.http.post<any>(
             `${this.configService.getAuthUrl()}/login`,
             credentials,
             { withCredentials: true }).pipe(
                 tap(response => {
-                    localStorage.setItem('token', response.token);
-                    this.authStatus.next(true);
-                    this.router.navigate(['/admin']);
+                    if (response.success && response.data) {
+                        localStorage.setItem('token', response.data.token);
+                        localStorage.setItem('id', response.data.user.id);
+                        localStorage.setItem('role', response.data.user.role);
+                        
+                        // Обновляем состояние
+                        this.authStatus.next(true);
+                        this.userId.next(response.data.user.id);
+                        this.userRole.next(response.data.user.role);
+                        
+                        this.router.navigate(['/admin']);
+                    }
                 })
             );
     }
 
     register(credentials: { email: string; password: string; confirmPassword: string }): Observable<any> {
         return this.http.post(`${this.configService.getAuthUrl()}/register`, credentials, { withCredentials: true });
+    }
+
+    refreshToken(): Observable<any> {
+        return this.http.post<any>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
+            .pipe(
+                tap(response => {
+                    if (response.success && response.data) {
+                        localStorage.setItem('token', response.data.token);
+                    }
+                })
+            );
+    }
+
+    getCurrentUser(): Observable<any> {
+        return this.http.get<any>(`${this.configService.getAuthUrl()}/me`)
+            .pipe(
+                tap(response => {
+                    if (response.success && response.data) {
+                        localStorage.setItem('id', response.data.id);
+                        localStorage.setItem('role', response.data.role);
+                        this.userId.next(response.data.id);
+                        this.userRole.next(response.data.role);
+                    }
+                })
+            );
     }
 
     getToken(): string | null {
@@ -160,8 +194,11 @@ export class AuthService {
                 tap(() => {
                     if (isPlatformBrowser(this.platformId)) {
                         localStorage.removeItem('token');
+                        localStorage.removeItem('id');
+                        localStorage.removeItem('role');
                     }
                     this.userRole.next(null);
+                    this.userId.next(null);
                     this.authStatus.next(false);
                     this.router.navigate(['/login']);
                 })
@@ -172,10 +209,33 @@ export class AuthService {
     constructor(private configService: ConfigService) {
         if (isPlatformBrowser(this.platformId)) {
             const token = this.getToken();
-            if (token) {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                this.userRole.next(payload.role || null);
-                this.userId.next(payload.userId || null);
+            const storedUserId = localStorage.getItem('id');
+            const storedRole = localStorage.getItem('role');
+            
+            if (token && storedUserId && storedRole) {
+                this.userId.next(storedUserId);
+                this.userRole.next(storedRole);
+            } else if (token) {
+                // Если есть токен, но нет сохраненных данных, декодируем токен
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    this.userRole.next(payload.role || null);
+                    this.userId.next(payload.userId || null);
+                    
+                    // Сохраняем в localStorage если их там нет
+                    if (payload.userId && !storedUserId) {
+                        localStorage.setItem('id', payload.userId);
+                    }
+                    if (payload.role && !storedRole) {
+                        localStorage.setItem('role', payload.role);
+                    }
+                } catch (error) {
+                    console.error('Error decoding token:', error);
+                    // Если токен поврежден, очищаем все
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('id');
+                    localStorage.removeItem('role');
+                }
             }
         }
     }

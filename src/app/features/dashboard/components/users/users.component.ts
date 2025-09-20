@@ -101,7 +101,11 @@ export class UsersComponent implements OnInit{
     }
 
     onUserUpdate(user: User): void {
-        if (this.isAdminOrSuperAdmin$) this.openEditDialog(user);   
+        this.authService.isAdminOrSuperAdmin$.subscribe(isAdminOrSuperAdmin => {
+            if (isAdminOrSuperAdmin) {
+                this.openEditDialog(user);
+            }
+        });   
     }
 
     onUserDelete(user: User): void {
@@ -111,15 +115,19 @@ export class UsersComponent implements OnInit{
         });
 
         confirmRef.afterClosed().subscribe((confirmed: boolean) => {
-            if (confirmed && this.isAdminOrSuperAdmin$) {
-                this.dashboardService.deleteUser(user._id).subscribe({
-                    next: () => {
-                        this.loadUsers();
-                        this.snackBar.open('İstifadəçi silindi', 'Bağla', this.matSnackConfig);
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+            if (confirmed) {
+                this.authService.isAdminOrSuperAdmin$.subscribe(isAdminOrSuperAdmin => {
+                    if (isAdminOrSuperAdmin) {
+                        this.dashboardService.deleteUser(user._id).subscribe({
+                            next: () => {
+                                this.loadUsers();
+                                this.snackBar.open('İstifadəçi silindi', 'Bağla', this.matSnackConfig);
+                            },
+                            error: (error) => {
+                                console.error(error);
+                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                            }
+                        });
                     }
                 });
             }

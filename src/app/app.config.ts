@@ -15,13 +15,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { DateAdapter, MAT_DATE_FORMATS, MatNativeDateModule } from '@angular/material/core';
 import { CustomDateAdapter } from './core/adapters/custom-date-adapter';
 import { CUSTOM_DATE_FORMATS } from './core/services/custom-date-formats';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(routes), 
         provideClientHydration(),
-        // provideHttpClient(withInterceptors([authInterceptor])),
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([authInterceptor])),
         provideAnimationsAsync(),
         importProvidersFrom(
             BrowserAnimationsModule,
