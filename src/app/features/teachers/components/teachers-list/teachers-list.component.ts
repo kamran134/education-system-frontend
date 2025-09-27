@@ -18,6 +18,7 @@ import { District, DistrictResponse } from '../../../../core/models/district.mod
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
@@ -143,8 +144,9 @@ export class TeachersListComponent implements OnInit {
         this.teacherService.getTeachers(params)
             .subscribe({
                 next: (response: TeacherResponse) => {
-                    this.teachers = response.data;
-                    this.totalCount = response.totalCount
+                    const paginatedData = ResponseHandlerUtil.extractPaginatedData<Teacher>(response);
+                    this.teachers = paginatedData.data;
+                    this.totalCount = paginatedData.totalCount;
                     this.isLoading = false;
                 },
                 error: (err: any) => {
@@ -184,7 +186,7 @@ export class TeachersListComponent implements OnInit {
         this.districtService.getDistricts(params)
             .subscribe({
                 next: (response: DistrictResponse) => {
-                    this.districts = response.data;
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
                 },
                 error: (err: any) => {
                     this.isLoading = false;
@@ -250,8 +252,8 @@ export class TeachersListComponent implements OnInit {
             if (result) {
                 this.teacherService.createTeacher(result).subscribe({
                     next: (response: ResponseFromBackend) => {
-                        this.teachers = [...this.teachers, response.data];
-                        this.snackBar.open(response.message || 'Müəllim uğurla yaradıldı', 'Bağla', this.matSnackConfig);
+                        this.teachers = [...this.teachers, ResponseHandlerUtil.extractData<Teacher>(response)];
+                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yaradıldı', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);
@@ -273,8 +275,8 @@ export class TeachersListComponent implements OnInit {
                 this.teacherService.updateTeacher(result).subscribe({
                     next: (response) => {
                         const index = this.teachers.findIndex(s => s._id === result._id);
-                        this.teachers[index] = response.data;
-                        this.snackBar.open(response.message || 'Müəllim uğurla yeniləndi', 'Bağla', this.matSnackConfig);
+                        this.teachers[index] = ResponseHandlerUtil.extractData<Teacher>(response);
+                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);

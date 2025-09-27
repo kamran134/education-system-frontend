@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { Stats } from '../../../../core/models/stats.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -257,7 +258,7 @@ export class StatsComponent implements OnInit {
         this.statsService.getStudentsStats(params).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats = { ...response.data };
+                this.stats = { ...ResponseHandlerUtil.extractData<any>(response) };
             },
             error: (error: Error) => {
                 this.isloading = false;
@@ -286,9 +287,10 @@ export class StatsComponent implements OnInit {
         this.studentService.getStudents(params).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats.students = response.data;
-                this.studentsDataSource.data = response.data;
-                this.totalCounts.allStudentsTotalCount = response.totalCount;
+                const paginatedData = ResponseHandlerUtil.extractPaginatedData<Student>(response);
+                this.stats.students = paginatedData.data;
+                this.studentsDataSource.data = paginatedData.data;
+                this.totalCounts.allStudentsTotalCount = paginatedData.totalCount;
             },
             error: (error: Error) => {
                 this.isloading = false;
@@ -309,7 +311,7 @@ export class StatsComponent implements OnInit {
         this.statsService.getStatsByExam(this.selectedExams).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats = response.data;
+                this.stats = ResponseHandlerUtil.extractData<any>(response);
             },
             error: (error: Error) => {
                 this.isloading = false;
@@ -331,14 +333,15 @@ export class StatsComponent implements OnInit {
             code: this.searchString || undefined,
         }
 
-        this.teacherService.getTeachers(params).subscribe({
-            next: (response: TeacherResponse) => {
+        this.statsService.getTeachersStats(params).subscribe({
+            next: (response: any) => {
                 this.isloading = false;
+                const statsData = ResponseHandlerUtil.extractData<Teacher[]>(response);
                 this.stats = {
-                    ...this.stats, teachers: response.data.filter((teacher: Teacher) => teacher.active &&
-                        teacher.school && teacher.school.active)
+                    ...this.stats, teachers: statsData
                 };
-                this.totalCounts.allTeachersTotalCount = response.totalCount;
+                // Для статистики totalCount может быть в самих данных или отдельно
+                this.totalCounts.allTeachersTotalCount = Array.isArray(statsData) ? statsData.length : 0;
                 this.teachersDataSource.data = this.stats.teachers || [];
             },
             error: (error: Error) => {
@@ -361,11 +364,13 @@ export class StatsComponent implements OnInit {
             code: this.searchString || undefined,
         }
 
-        this.schoolService.getSchools(params).subscribe({
+        this.statsService.getSchoolsStats(params).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats = { ...this.stats, schools: response.data.filter((school: School) => school.active) };
-                this.totalCounts.allSchoolsTotalCount = response.totalCount;
+                const statsData = ResponseHandlerUtil.extractData<School[]>(response);
+                this.stats = { ...this.stats, schools: statsData };
+                // Для статистики totalCount может быть в самих данных или отдельно  
+                this.totalCounts.allSchoolsTotalCount = Array.isArray(statsData) ? statsData.length : 0;
                 this.schoolsDataSource.data = this.stats.schools || [];
             },
             error: (error: Error) => {
@@ -382,11 +387,13 @@ export class StatsComponent implements OnInit {
             code: this.searchString || undefined,
         }
 
-        this.districtService.getDistricts(params).subscribe({
-            next: (response: DistrictResponse) => {
+        this.statsService.getDistrictsStats(params).subscribe({
+            next: (response: any) => {
                 this.isloading = false;
-                this.stats = { ...this.stats, districts: response.data };
-                this.totalCounts.allDistrictsTotalCount = response.totalCount;
+                const statsData = ResponseHandlerUtil.extractData<District[]>(response);
+                this.stats = { ...this.stats, districts: statsData };
+                // Для статистики totalCount может быть в самих данных или отдельно
+                this.totalCounts.allDistrictsTotalCount = Array.isArray(statsData) ? statsData.length : 0;
                 this.districtsDataSource.data = this.stats.districts || [];
             },
             error: (error: Error) => {
@@ -411,9 +418,12 @@ export class StatsComponent implements OnInit {
         this.teacherService.getTeachersForFilter(params)
             .subscribe({
                 next: (response: TeacherResponse) => {
-                    this.teachers = response.data;
+                    const data = ResponseHandlerUtil.extractData<Teacher[]>(response);
+                    this.teachers = Array.isArray(data) ? data : [];
+                    console.log('Teachers loaded:', this.teachers);
                 },
                 error: (error: Error) => {
+                    this.teachers = [];
                     this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                 }
             });
@@ -432,9 +442,12 @@ export class StatsComponent implements OnInit {
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
                 next: (response: SchoolResponse) => {
-                    this.schools = response.data;
+                    const data = ResponseHandlerUtil.extractData<School[]>(response);
+                    this.schools = Array.isArray(data) ? data : [];
+                    console.log('Schools loaded:', this.schools);
                 },
                 error: (error: Error) => {
+                    this.schools = [];
                     this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                 }
             });
@@ -450,9 +463,12 @@ export class StatsComponent implements OnInit {
         this.districtService.getDistricts(params)
             .subscribe({
                 next: (response: DistrictResponse) => {
-                    this.districts = response.data;
+                    const data = ResponseHandlerUtil.extractData<District[]>(response);
+                    this.districts = Array.isArray(data) ? data : [];
+                    console.log('Districts loaded:', this.districts);
                 },
                 error: (error: Error) => {
+                    this.districts = [];
                     this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                 }
             });
@@ -462,9 +478,12 @@ export class StatsComponent implements OnInit {
         this.examService.getExamsForFilter()
             .subscribe({
                 next: (response: ExamResponse) => {
-                    this.exams = response.data;
+                    const data = ResponseHandlerUtil.extractData<Exam[]>(response);
+                    this.exams = Array.isArray(data) ? data : [];
+                    console.log('Exams loaded:', this.exams);
                 },
                 error: (error: any) => {
+                    this.exams = [];
                     this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                 }
             });

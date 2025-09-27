@@ -12,6 +12,7 @@ import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../services/school.service';
 import { School, SchoolForCreation } from '../../../../core/models/school.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-school-editing-dialog',
@@ -63,7 +64,7 @@ export class SchoolEditingDialogComponent implements OnInit {
 
         this.districtService.getDistricts(params).subscribe({
             next: (response) => {
-                this.districts = response.data;
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
                 this.selectedDistrict = this.districts.find(d => d._id === this.data.school.district?._id) || null;
             },
             error: (error) => {

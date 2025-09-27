@@ -18,6 +18,7 @@ import { MatOption, MatSelectModule } from '@angular/material/select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DistrictService } from '../../../districts/services/district.service';
 import { MatTableModule } from '@angular/material/table';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatCardModule } from '@angular/material/card';
@@ -152,7 +153,7 @@ export class SchoolsListComponent implements OnInit {
         this.districtService.getDistricts(params)
         .subscribe({
             next: (response: DistrictResponse) => {
-                this.districts = response.data;
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
             },
             error: (err: any) => {
                 this.isLoading = false;
@@ -219,8 +220,8 @@ export class SchoolsListComponent implements OnInit {
                 this.schoolService.createSchool(result).subscribe({
                     next: (response: ResponseFromBackend) => {
                         console.log(response);
-                        this.schools = [...this.schools, response.data];
-                        this.snackBar.open(response.message || 'Məktəb uğurla yaradıldı', 'Bağla', this.matSnackConfig);
+                        this.schools = [...this.schools, ResponseHandlerUtil.extractData<School>(response)];
+                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Məktəb uğurla yaradıldı', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);

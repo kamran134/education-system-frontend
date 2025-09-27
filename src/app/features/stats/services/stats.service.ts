@@ -49,31 +49,63 @@ export class StatsService {
     }
 
     getStatsByExam(exam: Exam[]): Observable<StatsResponse> {
-        let url: string = `${this.configService.getApiUrl()}/stats/by-exam?exam_ids=${exam.map(e => e._id).join(',')}`;
+        // Используем первый экзамен из массива для получения статистики
+        const examId = exam.length > 0 ? exam[0]._id : '';
+        let url: string = `${this.configService.getApiUrl()}/stats/by-exam/${examId}`;
         return this.http.get<StatsResponse>(url, {});
     }
 
     getTeachersStats(params: FilterParams): Observable<StatsResponse> {
-        let url: string = `${this.configService.getApiUrl()}/teachers`;
+        let url: string = `${this.configService.getApiUrl()}/stats/teachers`;
+        const queryParams = [];
+        
         if (params.districtIds && params.districtIds.length > 0) {
-            url = `${url}?districtIds=${params.districtIds}`;
+            queryParams.push(`districtIds=${params.districtIds}`);
         }
         if (params.schoolIds && params.schoolIds.length > 0) {
-            url = `${url}&schoolIds=${params.schoolIds}`;
+            queryParams.push(`schoolIds=${params.schoolIds}`);
         }
+        if (params.sortColumn && params.sortDirection) {
+            queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
+        }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<StatsResponse>(url, {});
     }
 
     getSchoolsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/schools`;
+        const queryParams = [];
+        
         if (params.districtIds && params.districtIds.length > 0) {
-            url = `${url}?districtIds=${params.districtIds}`;
+            queryParams.push(`districtIds=${params.districtIds}`);
         }
+        if (params.sortColumn && params.sortDirection) {
+            queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
+        }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<StatsResponse>(url, {});
     }
 
     getDistrictsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/districts`;
+        const queryParams = [];
+        
+        if (params.sortColumn && params.sortDirection) {
+            queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
+        }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<StatsResponse>(url, {});
     }
 }

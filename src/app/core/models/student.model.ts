@@ -2,11 +2,15 @@ import { District } from "./district.model";
 import { ExamResult } from "./examResult.model";
 import { School } from "./school.model";
 import { Teacher } from "./teacher.model";
+import { ApiResponse } from "./response.model";
 
 export interface StudentResponse {
     data: Student[];
     totalCount: number;
 }
+
+// Новый формат с ResponseHandler
+export interface StudentApiResponse extends ApiResponse<{ data: Student[], totalCount: number }> {}
 
 export interface RepairingResults {
     message?: string;
@@ -54,8 +58,4 @@ export interface StudentWithResult {
     results: ExamResult[];
 }
 
-export interface StudentWithResultResponse {
-    data: StudentWithResult;
-    message: string;
-    success: boolean;
-}
+export interface StudentWithResultResponse extends ApiResponse<StudentWithResult> {}

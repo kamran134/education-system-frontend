@@ -30,6 +30,7 @@ import { MatCardModule } from '@angular/material/card';
 import { StudentEditingDialogComponent } from '../student-editing/student-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-students-list',
@@ -144,9 +145,10 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
         };
 
         this.studentService.getStudents(params).subscribe({
-            next: (response: StudentResponse) => {
-                this.students = response.data;
-                this.totalCount = response.totalCount;
+            next: (response) => {
+                const paginatedData = ResponseHandlerUtil.extractPaginatedData<Student>(response);
+                this.students = paginatedData.data;
+                this.totalCount = paginatedData.totalCount;
                 this.isLoading = false;
             },
             error: (error) => {
@@ -166,7 +168,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
         this.teacherService.getTeachersForFilter(params)
             .subscribe({
                 next: (response: TeacherResponse) => {
-                    this.teachers = response.data;
+                    this.teachers = ResponseHandlerUtil.extractData<Teacher[]>(response);
                 },
                 error: (error: any) => {
                     this.isLoading = false;
@@ -185,7 +187,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
                 next: (response: SchoolResponse) => {
-                    this.schools = response.data;
+                    this.schools = ResponseHandlerUtil.extractData<School[]>(response);
                 },
                 error: (error: any) => {
                     this.isLoading = false;
@@ -206,7 +208,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
         this.districtService.getDistricts(params)
             .subscribe({
                 next: (response: DistrictResponse) => {
-                    this.districts = response.data;
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
                 },
                 error: (err: any) => {
                     this.isLoading = false;
@@ -220,7 +222,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
         this.examService.getExamsForFilter()
             .subscribe({
                 next: (response) => {
-                    this.exams = response.data
+                    this.exams = ResponseHandlerUtil.extractData<Exam[]>(response);
                 },
                 error: (err: any) => {
                     this.errorMessage = ``;
@@ -483,8 +485,9 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
             })
         ).subscribe({
             next: (response) => {
-                this.students = response.data;
-                this.totalCount = response.totalCount;
+                const paginatedData = ResponseHandlerUtil.extractPaginatedData<Student>(response);
+                this.students = paginatedData.data;
+                this.totalCount = paginatedData.totalCount;
             },
             error: (error) => {
                 this.errorMessage = error.message;

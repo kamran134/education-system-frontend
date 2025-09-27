@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-student-details',
@@ -57,7 +58,7 @@ export class StudentDetailsComponent implements OnInit {
     private loadStudent(): void {
         this.studentService.getStudentById(this.studentId).subscribe({
             next: (response) => {
-                this.student = response.data;
+                this.student = ResponseHandlerUtil.extractData<StudentWithResult>(response);
             },
             error: (error: Error) => {
                 console.error('Şagirdin alınmasında xəta!', error.error);

@@ -14,6 +14,7 @@ import { MatTableModule } from '@angular/material/table';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-districts-list',
@@ -83,7 +84,7 @@ export class DistrictsListComponent implements OnInit {
         this.districtService.getDistricts(params)
             .subscribe({
                 next: (response: DistrictResponse) => {
-                    this.districts = response.data;
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
                     this.isLoading = false;
                 },
                 error: (err: any) => {

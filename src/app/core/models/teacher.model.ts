@@ -1,10 +1,13 @@
 import { District } from "./district.model";
 import { School } from "./school.model";
+import { ApiResponse } from "./response.model";
 
 export interface TeacherResponse {
     data: Teacher[];
     totalCount: number;
 }
+
+export interface TeacherApiResponse extends ApiResponse<{ data: Teacher[], totalCount: number }> {}
 
 export interface Teacher {
     _id: string;

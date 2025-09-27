@@ -15,6 +15,7 @@ import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { FilterParams } from '../../../../core/models/filterParams.model';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-student-editing',
@@ -65,7 +66,7 @@ export class StudentEditingDialogComponent implements OnInit {
 
         this.districtService.getDistricts(params).subscribe({
             next: (response) => {
-                this.districts = response.data;
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
                 this.selectedDistrict = this.districts.find(d => d._id === this.data.student.district?._id) || null;
                 if (this.selectedDistrict) {
                     this.loadSchools(); // Загружаем школы только если район есть
@@ -80,7 +81,7 @@ export class StudentEditingDialogComponent implements OnInit {
     loadSchools(): void {
         this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id }).subscribe({
             next: (response) => {
-                this.schools = response.data;
+                this.schools = ResponseHandlerUtil.extractData<School[]>(response);
                 this.selectedSchool = this.schools.find(s => s._id === this.data.student.school?._id) || null;
                 if (this.selectedSchool) {
                     this.loadTeachers(); // Загружаем учителей только если школа есть
@@ -95,7 +96,7 @@ export class StudentEditingDialogComponent implements OnInit {
     loadTeachers(): void {
         this.teacherService.getTeachersForFilter({ schoolIds: this.selectedSchool?._id }).subscribe({
             next: (response) => {
-                this.teachers = response.data;
+                this.teachers = ResponseHandlerUtil.extractData<Teacher[]>(response);
                 this.selectedTeacher = this.teachers.find(t => t._id === this.data.student.teacher?._id) || null;
             },
             error: (error) => {

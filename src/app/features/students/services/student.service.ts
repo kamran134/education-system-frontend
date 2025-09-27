@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../../core/services/config.service';
 import { FilterParams } from '../../../core/models/filterParams.model';
-import { RepairingResults, Student, StudentResponse, StudentWithResult, StudentWithResultResponse } from '../../../core/models/student.model';
+import { RepairingResults, Student, StudentResponse, StudentWithResult, StudentWithResultResponse, StudentApiResponse } from '../../../core/models/student.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class StudentService {
     constructor(private http: HttpClient, private configService: ConfigService) { }
 
-    getStudents(params: FilterParams): Observable<StudentResponse> {
+    getStudents(params: FilterParams): Observable<StudentApiResponse> {
         let url: string = `${this.configService.getApiUrl()}/students?page=${params.page}&size=${params.size}`;
         if (params.defective) {
             url = `${url}&defective=true`;
@@ -37,7 +37,7 @@ export class StudentService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        return this.http.get<StudentResponse>(url);
+        return this.http.get<StudentApiResponse>(url);
     }
 
     getStudentById(studentId: string): Observable<StudentWithResultResponse> {
@@ -45,9 +45,9 @@ export class StudentService {
         return this.http.get<StudentWithResultResponse>(url);
     }
 
-    searchStudents(searchString: string): Observable<StudentResponse> {
+    searchStudents(searchString: string): Observable<StudentApiResponse> {
         let url: string = `${this.configService.getApiUrl()}/students/search/${searchString}`;
-        return this.http.get<StudentResponse>(url);
+        return this.http.get<StudentApiResponse>(url);
     }
 
     createStudent(student: Student): Observable<StudentWithResult> {

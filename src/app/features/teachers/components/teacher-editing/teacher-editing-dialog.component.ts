@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { MatOptionModule } from '@angular/material/core';
 import { FilterParams } from '../../../../core/models/filterParams.model';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-teacher-editing-dialog',
@@ -65,7 +66,7 @@ export class TeacherEditingDialogComponent implements OnInit{
 
         this.districtService.getDistricts(params).subscribe({
             next: (response) => {
-                this.districts = response.data;
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
                 this.selectedDistrict = this.districts.find(d => d._id === this.data.teacher.district?._id) || null;
                 if (this.selectedDistrict) {
                     this.loadSchools(); // Загружаем школы только если район есть
@@ -80,7 +81,7 @@ export class TeacherEditingDialogComponent implements OnInit{
     loadSchools(): void {
         this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id }).subscribe({
             next: (response) => {
-                this.schools = response.data;
+                this.schools = ResponseHandlerUtil.extractData<School[]>(response);
                 this.selectedSchool = this.schools.find(s => s._id === this.data.teacher.school?._id) || null;
             },
             error: (error) => {

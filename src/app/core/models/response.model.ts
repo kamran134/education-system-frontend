@@ -1,3 +1,12 @@
+// Новый формат ответа с ResponseHandler
+export interface ApiResponse<T = any> {
+    success: boolean;
+    data?: T;
+    message?: string;
+    error?: any;
+}
+
+// Старый формат (оставляем для совместимости)
 export interface ResponseFromBackend {
     data: any;
     message?: string;
