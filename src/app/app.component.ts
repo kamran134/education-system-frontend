@@ -55,22 +55,19 @@ export class AppComponent implements OnInit {
             this.darkMode = localStorage.getItem('theme') === 'true';
             this.setMode();
             
-            // Проверяем и восстанавливаем состояние пользователя при старте
-            if (this.authService.getToken()) {
-                this.authService.getCurrentUser().subscribe({
-                    next: (response) => {
-                        // Данные пользователя успешно получены и сохранены
-                        console.log('User data restored:', response.data);
-                    },
-                    error: (error) => {
-                        // Если не удалось получить данные пользователя, очищаем токен
-                        console.error('Failed to restore user data:', error);
-                        if (error.status === 401) {
-                            this.authService.logout();
-                        }
+            // Проверяем и валидируем токен при старте приложения
+            this.authService.validateToken().subscribe({
+                next: (isValid) => {
+                    if (isValid) {
+                        console.log('User token validated successfully');
+                    } else {
+                        console.log('User token validation failed');
                     }
-                });
-            }
+                },
+                error: (error) => {
+                    console.error('Token validation error:', error);
+                }
+            });
         }
     }
 

@@ -4,8 +4,10 @@ import { ConfigService } from '../../../core/services/config.service';
 import { Observable } from 'rxjs';
 import { Teacher, TeacherResponse } from '../../../core/models/teacher.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
-import { ResponseFromBackend } from '../../../core/models/response.model';
+import { ApiResponse } from '../../../core/models/response.model';
 import { RepairingResults } from '../../../core/models/student.model';
+import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -29,7 +31,8 @@ export class TeacherService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        return this.http.get<TeacherResponse>(url);
+        return this.http.get<ApiResponse<TeacherResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getTeachersForFilter(params: FilterParams): Observable<TeacherResponse> {
@@ -37,39 +40,46 @@ export class TeacherService {
         if (params.schoolIds && params.schoolIds.length > 0) {
             url = `${url}?schoolIds=${params.schoolIds}`;
         }
-        return this.http.get<TeacherResponse>(url);
+        return this.http.get<ApiResponse<TeacherResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     createTeacher(teacher: Teacher): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers`;
-        return this.http.post(url, teacher, { withCredentials: true });
+        return this.http.post<ApiResponse<any>>(url, teacher, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     updateTeacher(teacher: Teacher): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacher._id}`;
-        return this.http.put(url, teacher, { withCredentials: true });
+        return this.http.put<ApiResponse<any>>(url, teacher, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     deleteTeacher(teacherId: string): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}`;
-        return this.http.delete(url, { withCredentials: true });
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     deleteTeachers(teacherIds: string): Observable<any> {
         console.log(teacherIds);
         const url: string = `${this.configService.getApiUrl()}/teachers/delete/${teacherIds}`;
-        return this.http.delete(url, { withCredentials: true });
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     repairTeachers(): Observable<RepairingResults> {
         const url: string = `${this.configService.getApiUrl()}/teachers/repair`;
-        return this.http.get<RepairingResults>(url, { withCredentials: true });
+        return this.http.get<ApiResponse<RepairingResults>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    uploadFile(file: File): Observable<ResponseFromBackend> {
+    uploadFile(file: File): Observable<any> {
         const formData = new FormData();
         formData.append('file', file);
 
-        return this.http.post<ResponseFromBackend>(`${this.configService.getApiUrl()}/teachers/upload`, formData, { withCredentials: true });
+        return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/teachers/upload`, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

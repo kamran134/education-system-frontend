@@ -4,6 +4,9 @@ import { ConfigService } from '../../../core/services/config.service';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { RepairingResults, Student, StudentResponse, StudentWithResult, StudentWithResultResponse, StudentApiResponse } from '../../../core/models/student.model';
 import { Observable } from 'rxjs';
+import { ApiResponse } from '../../../core/models/response.model';
+import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -37,48 +40,57 @@ export class StudentService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        return this.http.get<StudentApiResponse>(url);
+        return this.http.get<ApiResponse<StudentApiResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getStudentById(studentId: string): Observable<StudentWithResultResponse> {
         let url: string = `${this.configService.getApiUrl()}/students/${studentId}`;
-        return this.http.get<StudentWithResultResponse>(url);
+        return this.http.get<ApiResponse<StudentWithResultResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     searchStudents(searchString: string): Observable<StudentApiResponse> {
         let url: string = `${this.configService.getApiUrl()}/students/search/${searchString}`;
-        return this.http.get<StudentApiResponse>(url);
+        return this.http.get<ApiResponse<StudentApiResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     createStudent(student: Student): Observable<StudentWithResult> {
         const url: string = `${this.configService.getApiUrl()}/students`;
-        return this.http.post<StudentWithResult>(url, student, { withCredentials: true });
+        return this.http.post<ApiResponse<StudentWithResult>>(url, student, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     updateStudent(student: Student): Observable<StudentWithResult> {
         const url: string = `${this.configService.getApiUrl()}/students/${student._id}`;
-        return this.http.put<StudentWithResult>(url, student, { withCredentials: true });
+        return this.http.put<ApiResponse<StudentWithResult>>(url, student, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     deleteStudent(studentId: string): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/students/${studentId}`;
-        return this.http.delete(url, { withCredentials: true });
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     deleteStudents(studentIds: string): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/students/delete/${studentIds}`;
-        return this.http.delete(url, { withCredentials: true });
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     repairStudents(): Observable<RepairingResults> {
         const url: string = `${this.configService.getApiUrl()}/students/repair`;
-        return this.http.get<RepairingResults>(url, { withCredentials: true });
+        return this.http.get<ApiResponse<RepairingResults>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     uploadFile(file: File): Observable<any> {
         const formData = new FormData();
         formData.append('file', file);
 
-        return this.http.post(`${this.configService.getApiUrl()}/students/upload`, formData, { withCredentials: true });
+        return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/students/upload`, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

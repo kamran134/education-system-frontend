@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap, catchError, switchMap } from 'rxjs';
 import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -154,8 +154,24 @@ export class AuthService {
         return this.http.post<any>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
             .pipe(
                 tap(response => {
-                    if (response.success && response.data) {
+                    if (response.success && response.data && response.data.token) {
+                        // Сохраняем новый токен
                         localStorage.setItem('token', response.data.token);
+                        
+                        // Декодируем токен чтобы обновить данные пользователя
+                        try {
+                            const payload = JSON.parse(atob(response.data.token.split('.')[1]));
+                            if (payload.userId) {
+                                localStorage.setItem('id', payload.userId);
+                                this.userId.next(payload.userId);
+                            }
+                            if (payload.role) {
+                                localStorage.setItem('role', payload.role);
+                                this.userRole.next(payload.role);
+                            }
+                        } catch (error) {
+                            console.error('Error decoding refreshed token:', error);
+                        }
                     }
                 })
             );
@@ -166,10 +182,13 @@ export class AuthService {
             .pipe(
                 tap(response => {
                     if (response.success && response.data) {
-                        localStorage.setItem('id', response.data.id);
-                        localStorage.setItem('role', response.data.role);
+                        if (isPlatformBrowser(this.platformId)) {
+                            localStorage.setItem('id', response.data.id);
+                            localStorage.setItem('role', response.data.role);
+                        }
                         this.userId.next(response.data.id);
                         this.userRole.next(response.data.role);
+                        this.authStatus.next(true);
                     }
                 })
             );
@@ -186,6 +205,46 @@ export class AuthService {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem('token', token);
         }
+    }
+
+    /**
+     * Проверяет текущий токен и обновляет данные пользователя
+     */
+    validateToken(): Observable<boolean> {
+        const token = this.getToken();
+        if (!token) {
+            this.authStatus.next(false);
+            return new BehaviorSubject(false).asObservable();
+        }
+
+        return this.getCurrentUser().pipe(
+            map(() => {
+                this.authStatus.next(true);
+                return true;
+            }),
+            catchError(() => {
+                // Если не удалось получить данные пользователя, пробуем обновить токен
+                return this.refreshToken().pipe(
+                    switchMap(() => this.getCurrentUser()),
+                    map(() => {
+                        this.authStatus.next(true);
+                        return true;
+                    }),
+                    catchError(() => {
+                        // Если refresh тоже не сработал, очищаем все
+                        if (isPlatformBrowser(this.platformId)) {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('id');
+                            localStorage.removeItem('role');
+                        }
+                        this.authStatus.next(false);
+                        this.userId.next(null);
+                        this.userRole.next(null);
+                        return new BehaviorSubject(false).asObservable();
+                    })
+                );
+            })
+        );
     }
 
     logout(): void {

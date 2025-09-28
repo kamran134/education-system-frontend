@@ -5,6 +5,8 @@ import { UserParams } from "../../../core/models/filterParams.model";
 import { Observable } from "rxjs";
 import { UserResponse, UserEdit } from "../../../core/models/user.model";
 import { UserSettings } from "../../../core/models/settings.model";
+import { ResponseHandlerUtil } from "../../../core/utils/response-handler.util";
+import { map } from "rxjs/operators";
 
 @Injectable({
     providedIn: 'root'
@@ -59,11 +61,15 @@ export class DashboardService {
 
     getRatingColumns(id: string): Observable<UserSettings> {
         const url = `${this.configService.getApiUrl()}/user-settings?userId=${id}`;
-        return this.http.get<any>(url, { withCredentials: true });
+        return this.http.get<any>(url, { withCredentials: true }).pipe(
+            map(response => ResponseHandlerUtil.extractData<UserSettings>(response))
+        );
     }
 
     saveRatingColumns(settings: UserSettings): Observable<{userSettings: UserSettings, message: string}> {
         const url = `${this.configService.getApiUrl()}/user-settings`;
-        return this.http.put<{userSettings: UserSettings, message: string}>(url, settings, { withCredentials: true });
+        return this.http.put<any>(url, settings, { withCredentials: true }).pipe(
+            map(response => ResponseHandlerUtil.extractData<{userSettings: UserSettings, message: string}>(response))
+        );
     }
 }

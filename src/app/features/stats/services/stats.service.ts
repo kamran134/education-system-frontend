@@ -5,6 +5,9 @@ import { Observable } from 'rxjs';
 import { Stats, StatsResponse } from '../../../core/models/stats.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { Exam } from '../../../core/models/exam.model';
+import { ApiResponse } from '../../../core/models/response.model';
+import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -14,12 +17,14 @@ export class StatsService {
 
     updateStats(): Observable<any> {
         let url: string = `${this.configService.getApiUrl()}/stats`;
-        return this.http.post(url, {}, { withCredentials: true });
+        return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     updateStatsByRepublic(): Observable<any> {
         let url: string = `${this.configService.getApiUrl()}/stats/by-republic`;
-        return this.http.post(url, {}, { withCredentials: true });
+        return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getStudentsStats(params: FilterParams): Observable<StatsResponse> {
@@ -45,14 +50,16 @@ export class StatsService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
-        return this.http.get<StatsResponse>(url, {});
+        return this.http.get<ApiResponse<StatsResponse>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getStatsByExam(exam: Exam[]): Observable<StatsResponse> {
         // Используем первый экзамен из массива для получения статистики
         const examId = exam.length > 0 ? exam[0]._id : '';
         let url: string = `${this.configService.getApiUrl()}/stats/by-exam/${examId}`;
-        return this.http.get<StatsResponse>(url, {});
+        return this.http.get<ApiResponse<StatsResponse>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getTeachersStats(params: FilterParams): Observable<StatsResponse> {
@@ -73,7 +80,8 @@ export class StatsService {
             url = `${url}?${queryParams.join('&')}`;
         }
         
-        return this.http.get<StatsResponse>(url, {});
+        return this.http.get<ApiResponse<StatsResponse>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getSchoolsStats(params: FilterParams): Observable<StatsResponse> {
@@ -91,7 +99,8 @@ export class StatsService {
             url = `${url}?${queryParams.join('&')}`;
         }
         
-        return this.http.get<StatsResponse>(url, {});
+        return this.http.get<ApiResponse<StatsResponse>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     getDistrictsStats(params: FilterParams): Observable<StatsResponse> {
@@ -106,6 +115,7 @@ export class StatsService {
             url = `${url}?${queryParams.join('&')}`;
         }
         
-        return this.http.get<StatsResponse>(url, {});
+        return this.http.get<ApiResponse<StatsResponse>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }
