@@ -19,4 +19,28 @@ export class StudentTableComponent {
     onRowClick(studentId: string): void {
         this.rowClicked.emit(studentId);
     }
+
+    /**
+     * Форматирует достижения студента на основе числовых полей
+     */
+    formatStudentAchievements(result: any): string {
+        const achievements: string[] = [];
+        
+        // Проверяем развивающийся студент
+        if (result.developmentScore && result.developmentScore > 0) {
+            achievements.push('İnkişaf edən şagird');
+        }
+        
+        // Проверяем студент месяца по району
+        if (result.studentOfTheMonthScore && result.studentOfTheMonthScore > 0) {
+            achievements.push('Ayın şagirdi');
+        }
+        
+        // Проверяем студент месяца по республике
+        if (result.republicWideStudentOfTheMonthScore && result.republicWideStudentOfTheMonthScore > 0) {
+            achievements.push('Respublika üzrə ayın şagirdi');
+        }
+        
+        return achievements.join(', ');
+    }
 }

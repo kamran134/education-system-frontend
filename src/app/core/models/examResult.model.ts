@@ -11,5 +11,11 @@ export interface ExamResult {
     student: string;
     totalScore: number;
     studentData: Student;
+    participationScore?: number;
+    developmentScore?: number;
+    studentOfTheMonthScore?: number;
+    republicWideStudentOfTheMonthScore?: number;
     status?: string;
+    month?: number;
+    year?: number;
 }

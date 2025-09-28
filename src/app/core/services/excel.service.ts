@@ -13,6 +13,30 @@ import moment from "moment";
 export class ExcelService {
     constructor() { }
 
+    /**
+     * Форматирует достижения студента на основе числовых полей
+     */
+    private formatStudentAchievements(result: any): string {
+        const achievements: string[] = [];
+        
+        // Проверяем развивающийся студент
+        if (result.developmentScore && result.developmentScore > 0) {
+            achievements.push('İnkişaf edən şagird');
+        }
+        
+        // Проверяем студент месяца по району
+        if (result.studentOfTheMonthScore && result.studentOfTheMonthScore > 0) {
+            achievements.push('Ayın şagirdi');
+        }
+        
+        // Проверяем студент месяца по республике
+        if (result.republicWideStudentOfTheMonthScore && result.republicWideStudentOfTheMonthScore > 0) {
+            achievements.push('Respublika üzrə ayın şagirdi');
+        }
+        
+        return achievements.join(', ') || ' ';
+    }
+
     formatStudentData(students: ExamResult[]): any[] {
         return students.map(result => ({
             'Şagirdin kodu': (result.studentData || {}).code,
@@ -95,7 +119,7 @@ export class ExcelService {
                 'Məntiq': result.disciplines.logic || 0,
                 'Ümumi balı': result.totalScore || 0,
                 'Pilləsi': result.level || 'Pillə tapılmadı',
-                'Statusu': result.status || '',
+                'Statusu': this.formatStudentAchievements(result),
             }
             : 
             {
@@ -116,7 +140,7 @@ export class ExcelService {
                 'Məntiq': result.disciplines.logic || 0,
                 'Ümumi balı': result.totalScore || 0,
                 'Pilləsi': result.level || 'Pillə tapılmadı',
-                'Statusu': result.status || '',
+                'Statusu': this.formatStudentAchievements(result),
             }
         ));
     }
