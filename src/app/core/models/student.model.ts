@@ -42,6 +42,7 @@ export interface Student {
     status?: string;
     score?: number;
     averageScore?: number;
+    place?: number;
 }
 
 export interface StudentWithResult {
