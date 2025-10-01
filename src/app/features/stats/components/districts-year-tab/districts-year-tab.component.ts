@@ -35,4 +35,6 @@ export class DistrictsYearTabComponent {
     @Output() pageChanged = new EventEmitter<PageEvent>();
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
+
+
 }

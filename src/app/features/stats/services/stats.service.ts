@@ -75,6 +75,12 @@ export class StatsService {
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
         }
+        if (params.page) {
+            queryParams.push(`page=${params.page}`);
+        }
+        if (params.size) {
+            queryParams.push(`size=${params.size}`);
+        }
         
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -94,6 +100,12 @@ export class StatsService {
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
         }
+        if (params.page) {
+            queryParams.push(`page=${params.page}`);
+        }
+        if (params.size) {
+            queryParams.push(`size=${params.size}`);
+        }
         
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -109,6 +121,12 @@ export class StatsService {
         
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
+        }
+        if (params.page) {
+            queryParams.push(`page=${params.page}`);
+        }
+        if (params.size) {
+            queryParams.push(`size=${params.size}`);
         }
         
         if (queryParams.length > 0) {

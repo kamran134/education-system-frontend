@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -35,6 +36,12 @@ export class DistrictService {
     deleteDistrict(districtId: string): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    updateDistrictsStats(): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/districts/update-stats`;
+        return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

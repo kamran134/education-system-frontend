@@ -20,6 +20,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
@@ -44,7 +45,8 @@ import { TableComponent } from '../../../../shared/components/table/table.compon
         MatCardModule,
         FormsModule,
         ReactiveFormsModule,
-        TableComponent
+    TableComponent,
+    MatProgressSpinnerModule
     ],
     templateUrl: './teachers-list.component.html',
     styleUrl: './teachers-list.component.scss'
@@ -64,6 +66,21 @@ export class TeachersListComponent implements OnInit {
         duration: 5000,
         horizontalPosition: 'center',
         verticalPosition: 'top'
+    }
+    isUpdatingStats = false;
+    onUpdateTeachersStats(): void {
+        this.isUpdatingStats = true;
+        this.teacherService.updateTeachersStats().subscribe({
+            next: (response: any) => {
+                this.isUpdatingStats = false;
+                this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
+                this.loadTeachers();
+            },
+            error: (error) => {
+                this.isUpdatingStats = false;
+                this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+            }
+        });
     }
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];

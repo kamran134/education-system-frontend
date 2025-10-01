@@ -82,4 +82,10 @@ export class TeacherService {
         return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/teachers/upload`, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    updateTeachersStats(): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/teachers/update-stats`;
+        return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }

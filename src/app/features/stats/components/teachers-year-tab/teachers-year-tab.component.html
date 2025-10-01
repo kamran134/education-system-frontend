@@ -11,13 +11,13 @@
         </ng-container>
 
         <ng-container matColumnDef="score" *ngIf="displayedColumns.includes('score')">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Ümumi balı </th>
-        <td mat-cell *matCellDef="let result"> {{ result.score | roundNumber }} </td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Bal </th>
+        <td mat-cell *matCellDef="let result"> {{ (result.score || 0) | roundNumber }} </td>
         </ng-container>
 
         <ng-container matColumnDef="averageScore" *ngIf="displayedColumns.includes('averageScore')">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header=""> Orta balı </th>
-            <td mat-cell *matCellDef="let result"> {{ result.averageScore | roundNumber }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header=""> Orta bal </th>
+            <td mat-cell *matCellDef="let result"> {{ (result.averageScore || 0) | roundNumber }} </td>
         </ng-container>
 
         <ng-container matColumnDef="school" *ngIf="displayedColumns.includes('school')">
@@ -30,10 +30,15 @@
             <td mat-cell *matCellDef="let result"> {{ (result.district || '').name }} </td>
         </ng-container>
 
+        <ng-container matColumnDef="studentCount" *ngIf="displayedColumns.includes('studentCount')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Şagird sayı </th>
+            <td mat-cell *matCellDef="let result"> {{ result.studentCount || 0 }} </td>
+        </ng-container>
+
         <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
             <th mat-header-cell *matHeaderCellDef> Yer </th>
             <td mat-cell *matCellDef="let result; let i = index">
-                {{ i + 1 }}
+                {{ pageIndex * pageSize + i + 1 }}
             </td>
         </ng-container>
 

@@ -22,6 +22,7 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
@@ -43,8 +44,9 @@ import { SnackBarService } from '../../../commonComponents/services/snack-bar.se
         MatSelectModule,
         MatOption,
         MatCardModule,
-        FormsModule,
-        ReactiveFormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    MatProgressSpinnerModule
     ],
     templateUrl: './schools-list.component.html',
     styleUrl: './schools-list.component.scss'
@@ -63,6 +65,21 @@ export class SchoolsListComponent implements OnInit {
         duration: 5000,
         horizontalPosition: 'center',
         verticalPosition: 'top'
+    }
+    isUpdatingStats = false;
+    onUpdateSchoolsStats(): void {
+        this.isUpdatingStats = true;
+        this.schoolService.updateSchoolsStats().subscribe({
+            next: (response: any) => {
+                this.isUpdatingStats = false;
+                this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
+                this.loadSchools();
+            },
+            error: (error) => {
+                this.isUpdatingStats = false;
+                this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+            }
+        });
     }
     selectedDistrictIds: string[] = [];
     missingDistrictCodes: number[] = [];

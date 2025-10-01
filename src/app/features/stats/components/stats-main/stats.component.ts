@@ -111,9 +111,9 @@ export class StatsComponent implements OnInit {
     selectedTab: 'students' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' = 'students';
     monthStudentColumns: string[] = [];
     studentColumns: string[] = [];
-    teacherColumns: string[] = [];
-    schoolColumns: string[] = [];
-    districtColumns: string[] = [];
+    teacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
+    schoolColumns: string[] = ['code', 'name', 'district', 'studentCount', 'score', 'averageScore', 'place'];
+    districtColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
     developingStudentsLabel$ = new BehaviorSubject<string>('Cari ayda inkişaf edən şagirdlər');
     studentsOfMonthLabel$ = new BehaviorSubject<string>('Cari ayın şagirdləri');
     studentsOfMonthByRepublicLabel$ = new BehaviorSubject<string>('Respublika üzrə cari ayın şagirdləri');
@@ -121,9 +121,9 @@ export class StatsComponent implements OnInit {
     private readonly availableStudentColumns: string[] = [
         'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
     ];
-    private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'score', 'averageScore', 'place'];
-    private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'score', 'averageScore', 'place'];
-    private readonly availableDistrictColumns: string[] = ['code', 'name', 'score', 'averageScore', 'place'];
+    private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
+    private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'studentCount', 'score', 'averageScore', 'place'];
+    private readonly availableDistrictColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
     selectedDistrictIds: string[] = [];
@@ -179,8 +179,7 @@ export class StatsComponent implements OnInit {
                 this.loadSettings();
                 this.loadExams();
                 this.loadDistricts();
-                this.loadSchools();
-                this.loadTeachers();
+                // Не загружаем школы и учителей сразу, только по необходимости
 
                 this.route.queryParams.subscribe((params: Params) => {
                     this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',') : [];
@@ -188,7 +187,7 @@ export class StatsComponent implements OnInit {
                     this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',') : [];
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number) : [];
                     this.selectedExamIds = params['examIds'] ? params['examIds'].split(',') : [];
-                    this.selectedMonth = params['month'] || new Date().getFullYear() + '-0';
+                    this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
                     this.selectedTab = params['tab'] || 'students';
                     this.sortActive = params['sortActive'] || 'averageScore';
                     this.sortDirection = params['sortDirection'] || 'desc';
@@ -202,6 +201,15 @@ export class StatsComponent implements OnInit {
                     } else if (this.selectedTab === 'allStudents') {
                         this.selectedTabIndex = 1;
                         this.loadAllStudentsStats();
+                    } else if (this.selectedTab === 'allTeachers') {
+                        this.selectedTabIndex = 2;
+                        this.loadTeachersStats();
+                    } else if (this.selectedTab === 'allSchools') {
+                        this.selectedTabIndex = 3;
+                        this.loadSchoolsStats();
+                    } else if (this.selectedTab === 'allDistricts') {
+                        this.selectedTabIndex = 4;
+                        this.loadDistrictsStats();
                     }
 
                     if (this.selectedMonth.substring(5) !== '0') {
@@ -241,7 +249,10 @@ export class StatsComponent implements OnInit {
         }
 
         this.isloading = true;
-        this.stats = {};
+        // Не очищаем весь объект stats, только обнуляем поля для месячной статистики
+        this.stats.studentsOfMonth = [];
+        this.stats.studentsOfMonthByRepublic = [];
+        this.stats.developingStudents = [];
 
         const params: FilterParams = {
             districtIds: this.selectedDistrictIds.join(","),
@@ -282,7 +293,8 @@ export class StatsComponent implements OnInit {
         };
         
         this.isloading = true;
-        this.stats = {};
+        // Не очищаем весь объект stats, только обнуляем students
+        this.stats.students = [];
 
         this.studentService.getStudents(params).subscribe({
             next: (response) => {
@@ -301,7 +313,10 @@ export class StatsComponent implements OnInit {
 
     loadStatsByExam(): void {
         this.isloading = true;
-        this.stats = {};
+        // Не очищаем весь объект stats, только обнуляем нужные поля
+        this.stats.studentsOfMonth = [];
+        this.stats.studentsOfMonthByRepublic = [];
+        this.stats.developingStudents = [];
 
         if (!this.selectedExams) {
             this.isloading = false;
@@ -336,12 +351,11 @@ export class StatsComponent implements OnInit {
         this.statsService.getTeachersStats(params).subscribe({
             next: (response: any) => {
                 this.isloading = false;
-                const statsData = ResponseHandlerUtil.extractData<Teacher[]>(response);
+                const statsData = ResponseHandlerUtil.extractPaginatedData<Teacher>(response);
                 this.stats = {
-                    ...this.stats, teachers: statsData
+                    ...this.stats, teachers: statsData.data || []
                 };
-                // Для статистики totalCount может быть в самих данных или отдельно
-                this.totalCounts.allTeachersTotalCount = Array.isArray(statsData) ? statsData.length : 0;
+                this.totalCounts.allTeachersTotalCount = statsData.totalCount || 0;
                 this.teachersDataSource.data = this.stats.teachers || [];
             },
             error: (error: Error) => {
@@ -367,10 +381,9 @@ export class StatsComponent implements OnInit {
         this.statsService.getSchoolsStats(params).subscribe({
             next: (response) => {
                 this.isloading = false;
-                const statsData = ResponseHandlerUtil.extractData<School[]>(response);
-                this.stats = { ...this.stats, schools: statsData };
-                // Для статистики totalCount может быть в самих данных или отдельно  
-                this.totalCounts.allSchoolsTotalCount = Array.isArray(statsData) ? statsData.length : 0;
+                const statsData = ResponseHandlerUtil.extractPaginatedData<School>(response);
+                this.stats = { ...this.stats, schools: statsData.data || [] };
+                this.totalCounts.allSchoolsTotalCount = statsData.totalCount || 0;
                 this.schoolsDataSource.data = this.stats.schools || [];
             },
             error: (error: Error) => {
@@ -382,6 +395,8 @@ export class StatsComponent implements OnInit {
 
     loadDistrictsStats(): void {
         const params: FilterParams = {
+            page: this.pageIndex + 1,
+            size: this.pageSize,
             sortColumn: this.sortActive || 'averageScore',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
@@ -390,10 +405,9 @@ export class StatsComponent implements OnInit {
         this.statsService.getDistrictsStats(params).subscribe({
             next: (response: any) => {
                 this.isloading = false;
-                const statsData = ResponseHandlerUtil.extractData<District[]>(response);
-                this.stats = { ...this.stats, districts: statsData };
-                // Для статистики totalCount может быть в самих данных или отдельно
-                this.totalCounts.allDistrictsTotalCount = Array.isArray(statsData) ? statsData.length : 0;
+                const statsData = ResponseHandlerUtil.extractPaginatedData<District>(response);
+                this.stats = { ...this.stats, districts: statsData.data || [] };
+                this.totalCounts.allDistrictsTotalCount = statsData.totalCount || 0;
                 this.districtsDataSource.data = this.stats.districts || [];
             },
             error: (error: Error) => {
@@ -420,7 +434,6 @@ export class StatsComponent implements OnInit {
                 next: (response: TeacherResponse) => {
                     const data = ResponseHandlerUtil.extractData<Teacher[]>(response);
                     this.teachers = Array.isArray(data) ? data : [];
-                    console.log('Teachers loaded:', this.teachers);
                 },
                 error: (error: Error) => {
                     this.teachers = [];
@@ -444,7 +457,6 @@ export class StatsComponent implements OnInit {
                 next: (response: SchoolResponse) => {
                     const data = ResponseHandlerUtil.extractData<School[]>(response);
                     this.schools = Array.isArray(data) ? data : [];
-                    console.log('Schools loaded:', this.schools);
                 },
                 error: (error: Error) => {
                     this.schools = [];
@@ -465,7 +477,6 @@ export class StatsComponent implements OnInit {
                 next: (response: DistrictResponse) => {
                     const data = ResponseHandlerUtil.extractData<District[]>(response);
                     this.districts = Array.isArray(data) ? data : [];
-                    console.log('Districts loaded:', this.districts);
                 },
                 error: (error: Error) => {
                     this.districts = [];
@@ -480,7 +491,6 @@ export class StatsComponent implements OnInit {
                 next: (response: ExamResponse) => {
                     const data = ResponseHandlerUtil.extractData<Exam[]>(response);
                     this.exams = Array.isArray(data) ? data : [];
-                    console.log('Exams loaded:', this.exams);
                 },
                 error: (error: any) => {
                     this.exams = [];
@@ -521,12 +531,20 @@ export class StatsComponent implements OnInit {
 
         if (event.index === 0) {
             this.selectedTab = 'students';
+            // Для месячной статистики загружаем школы и учителей для фильтров
+            this.loadSchools();
+            this.loadTeachers();
             this.loadMonthStudentsStats();
         } else if (event.index === 1) {
             this.selectedTab = 'allStudents';
+            // Для годовой статистики студентов тоже нужны фильтры
+            this.loadSchools();
+            this.loadTeachers();
             this.loadAllStudentsStats();
         } else if (event.index === 2) {
             this.selectedTab = 'allTeachers';
+            // Для учителей нужны школы для фильтров
+            this.loadSchools();
             this.loadTeachersStats();
         } else if (event.index === 3) {
             this.selectedTab = 'allSchools'

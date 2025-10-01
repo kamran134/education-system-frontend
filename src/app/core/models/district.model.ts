@@ -15,4 +15,6 @@ export interface District {
     rate: number;
     score: number;
     averageScore: number;
+    studentCount: number;
+    districtOfTheYearScore?: number;
 }

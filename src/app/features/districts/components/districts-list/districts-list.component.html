@@ -55,12 +55,26 @@
             <tr mat-header-row *matHeaderRowDef="['code', 'name', 'rate', 'actions']"></tr>
             <tr mat-row *matRowDef="let row; columns: ['code', 'name', 'rate', 'actions'];"></tr>
         </table>
+        
+        <mat-paginator 
+            [length]="totalCount"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageIndex]="pageIndex"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+        </mat-paginator>
     </div>
 
     <div class="global-action-pannel" *ngIf="isAdminOrSuperAdmin()">
         <button mat-flat-button extended (click)="openAddDistrictDialog()">
             <mat-icon>add</mat-icon>
             Yeni rayon / şəhər əlavə et
+        </button>
+        <button mat-flat-button color="primary" [disabled]="isUpdatingStats" (click)="onUpdateDistrictsStats()">
+            <mat-icon *ngIf="!isUpdatingStats">refresh</mat-icon>
+            <mat-spinner *ngIf="isUpdatingStats" diameter="20" style="display:inline-block;vertical-align:middle;"></mat-spinner>
+            Statistikanı yenilə
         </button>
     </div>
 </div>

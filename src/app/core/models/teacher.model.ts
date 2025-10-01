@@ -17,6 +17,8 @@ export interface Teacher {
     district: District;
     score?: number;
     averageScore?: number;
+    studentCount?: number;
+    teacherOfTheYearScore?: number;
     active: boolean;
 }
 

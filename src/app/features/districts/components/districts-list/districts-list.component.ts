@@ -11,6 +11,8 @@ import { DistrictAddDialogComponent } from '../district-add-dialog/district-add-
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
@@ -19,7 +21,7 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 @Component({
     selector: 'app-districts-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatInputModule, MatTableModule, MatSnackBarModule],
+    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatInputModule, MatTableModule, MatSnackBarModule, MatProgressSpinnerModule, MatPaginatorModule],
     templateUrl: './districts-list.component.html',
     styleUrls: ['./districts-list.component.scss']
 })
@@ -29,10 +31,33 @@ export class DistrictsListComponent implements OnInit {
     hasError = false;
     errorMessage = '';
     data: any;
+    
+    // Pagination properties
+    totalCount = 0;
+    pageSize = 100;
+    pageIndex = 0;
+    pageSizeOptions = [25, 50, 100, 200];
+    
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
         verticalPosition: 'top'
+    }
+
+    isUpdatingStats = false;
+    onUpdateDistrictsStats(): void {
+        this.isUpdatingStats = true;
+        this.districtService.updateDistrictsStats().subscribe({
+            next: (response: any) => {
+                this.isUpdatingStats = false;
+                this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
+                this.loadDistricts();
+            },
+            error: (error) => {
+                this.isUpdatingStats = false;
+                this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+            }
+        });
     }
 
     constructor(
@@ -76,15 +101,17 @@ export class DistrictsListComponent implements OnInit {
     loadDistricts(): void {
         this.isLoading = true;
         const params: FilterParams = {
-            page: 1,
-            size: 1000,
+            page: this.pageIndex + 1,
+            size: this.pageSize,
             sortColumn: 'name',
             sortDirection: 'asc'
         }
         this.districtService.getDistricts(params)
             .subscribe({
                 next: (response: DistrictResponse) => {
-                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
+                    const paginatedData = ResponseHandlerUtil.extractPaginatedData<District>(response);
+                    this.districts = paginatedData.data;
+                    this.totalCount = paginatedData.totalCount;
                     this.isLoading = false;
                 },
                 error: (err: any) => {
@@ -93,6 +120,12 @@ export class DistrictsListComponent implements OnInit {
                     this.errorMessage = `Error fetching districts:  ${err.message}`;
                 }
             });
+    }
+
+    onPageChange(event: PageEvent): void {
+        this.pageIndex = event.pageIndex;
+        this.pageSize = event.pageSize;
+        this.loadDistricts();
     }
 
     onDistrictDelete(event: Event, district: District): void {

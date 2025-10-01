@@ -17,6 +17,8 @@ export interface School {
     district: District;
     score?: number;
     averageScore?: number;
+    studentCount?: number;
+    schoolOfTheYearScore?: number;
     active: boolean;
 }
 

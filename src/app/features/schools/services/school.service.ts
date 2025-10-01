@@ -79,7 +79,14 @@ export class SchoolService {
         const formData = new FormData();
         formData.append('file', file);
 
+
         return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/schools/upload`, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    updateSchoolsStats(): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/schools/update-stats`;
+        return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }
