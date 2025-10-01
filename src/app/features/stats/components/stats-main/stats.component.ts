@@ -212,7 +212,8 @@ export class StatsComponent implements OnInit {
                         this.loadDistrictsStats();
                     }
 
-                    if (this.selectedMonth.substring(5) !== '0') {
+                    const monthPart = this.selectedMonth.split('-')[1];
+                    if (monthPart !== '0') {
                         this.developingStudentsLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında inkişaf edən şagirdlər`);
                         this.studentsOfMonthLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında ayın şagirdləri`);
                         this.studentsOfMonthByRepublicLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında respublika üzrə ayın şagirdləri`);
@@ -243,7 +244,14 @@ export class StatsComponent implements OnInit {
     }
 
     loadMonthStudentsStats(): void {
-        if (this.selectedMonth.substring(5) === '0' && this.selectedExamIds.length === 0) {
+        // Не загружаем, если не на вкладке студентов по месяцам
+        if (this.selectedTabIndex !== 0) {
+            return;
+        }
+        
+        // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
+        const monthPart = this.selectedMonth.split('-')[1];
+        if (monthPart === '0' && this.selectedExamIds.length === 0) {
             this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
             return;
         }
@@ -271,9 +279,12 @@ export class StatsComponent implements OnInit {
                 this.isloading = false;
                 this.stats = { ...ResponseHandlerUtil.extractData<any>(response) };
             },
-            error: (error: Error) => {
+            error: (error: any) => {
                 this.isloading = false;
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                // Не показываем ошибку для 404 на stats/students, чтобы избежать спама
+                if (error.status !== 404) {
+                    this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                }
             }
         })
     }

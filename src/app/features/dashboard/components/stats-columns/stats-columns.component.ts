@@ -89,6 +89,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: false },
         { key: 'school', label: 'Məktəbi', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
     ];
@@ -98,6 +99,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'code', label: 'Kodu', selected: false },
         { key: 'name', label: 'Adı', selected: false },
         { key: 'district', label: 'Rayonu', selected: false },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false },
     ];
@@ -106,6 +108,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'place', label: 'Yer', selected: false },
         { key: 'code', label: 'Kodu', selected: false },
         { key: 'name', label: 'Adı', selected: false },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false },
         { key: 'score', label: 'Balı', selected: false },
         { key: 'averageScore', label: 'Orta balı', selected: false }
     ];
