@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { StatsService } from '../../services/stats.service';
@@ -79,7 +79,7 @@ import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-
     templateUrl: './stats.component.html',
     styleUrl: './stats.component.scss'
 })
-export class StatsComponent implements OnInit {
+export class StatsComponent implements OnInit, OnDestroy {
     @ViewChild('teacherSort') teacherSort!: MatSort;
     @ViewChild('schoolSort') schoolSort!: MatSort;
     @ViewChild('studentSort') studentSort!: MatSort;
@@ -197,7 +197,7 @@ export class StatsComponent implements OnInit {
 
                     if (this.selectedTab === 'students') {
                         this.selectedTabIndex = 0;
-                        this.loadMonthStudentsStats();
+                        // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
                     } else if (this.selectedTab === 'allStudents') {
                         this.selectedTabIndex = 1;
                         this.loadAllStudentsStats();
@@ -796,5 +796,10 @@ export class StatsComponent implements OnInit {
         this.excelService.formatHeaders(result);
         XLSX.utils.book_append_sheet(workbook, result, sheetName);
         XLSX.writeFile(workbook, `${sheetName}.xlsx`);
+    }
+
+    ngOnDestroy(): void {
+        console.log('StatsComponent destroyed - stopping all requests');
+        // Можно добавить отписку от активных подписок если нужно
     }
 }

@@ -19,6 +19,7 @@ export interface Teacher {
     averageScore?: number;
     studentCount?: number;
     teacherOfTheYearScore?: number;
+    place?: number;
     active: boolean;
 }
 

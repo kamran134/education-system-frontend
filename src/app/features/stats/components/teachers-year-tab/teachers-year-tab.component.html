@@ -37,8 +37,8 @@
 
         <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
             <th mat-header-cell *matHeaderCellDef> Yer </th>
-            <td mat-cell *matCellDef="let result; let i = index">
-                {{ pageIndex * pageSize + i + 1 }}
+            <td mat-cell *matCellDef="let result">
+                {{ result.place || 'N/A' }}
             </td>
         </ng-container>
 
