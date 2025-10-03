@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, map, Observable, tap, catchError, switchMap } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap, catchError, switchMap, throwError, of } from 'rxjs';
 import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
 import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, UserInfo } from '../models/auth.models';
@@ -126,11 +126,13 @@ export class AuthService {
     }
 
     login(credentials: { email: string; password: string }): Observable<any> {
+        console.log('[AUTH SERVICE] Logging in with withCredentials: true');
         return this.http.post<any>(
             `${this.configService.getAuthUrl()}/login`,
             credentials,
             { withCredentials: true }).pipe(
                 tap(response => {
+                    console.log('[AUTH SERVICE] Login response received:', response);
                     if (response.success && response.data) {
                         localStorage.setItem('token', response.data.token);
                         localStorage.setItem('id', response.data.user.id);
@@ -152,10 +154,17 @@ export class AuthService {
     }
 
     refreshToken(): Observable<any> {
+        console.log('[AUTH SERVICE] Attempting to refresh token...');
+        console.log('[AUTH SERVICE] Request URL:', `${this.configService.getAuthUrl()}/refresh`);
+        console.log('[AUTH SERVICE] withCredentials: true');
+        
         return this.http.post<any>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
             .pipe(
                 tap(response => {
+                    console.log('[AUTH SERVICE] Refresh response:', response);
+                    
                     if (response.success && response.data && response.data.token) {
+                        console.log('[AUTH SERVICE] Successfully refreshed token');
                         // Сохраняем новый токен
                         localStorage.setItem('token', response.data.token);
                         
@@ -173,7 +182,18 @@ export class AuthService {
                         } catch (error) {
                             console.error('Error decoding refreshed token:', error);
                         }
+                    } else {
+                        console.error('[AUTH SERVICE] Invalid refresh response:', response);
                     }
+                }),
+                catchError(error => {
+                    console.error('[AUTH SERVICE] Refresh token failed:', error);
+                    // Если refresh токен истек (401), делаем logout
+                    if (error.status === 401) {
+                        console.log('[AUTH SERVICE] Refresh token expired, logging out...');
+                        this.logout();
+                    }
+                    return throwError(() => error);
                 })
             );
     }
@@ -249,21 +269,33 @@ export class AuthService {
     }
 
     logout(): void {
+        console.log('[AUTH SERVICE] Logging out...');
+        
+        // Сначала очищаем локальные данные
+        this.clearLocalData();
+        
+        // Затем уведомляем сервер (но не зависим от результата)
         this.http.post(`${this.configService.getAuthUrl()}/logout`, {}, { withCredentials: true })
             .pipe(
-                tap(() => {
-                    if (isPlatformBrowser(this.platformId)) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('id');
-                        localStorage.removeItem('role');
-                    }
-                    this.userRole.next(null);
-                    this.userId.next(null);
-                    this.authStatus.next(false);
-                    this.router.navigate(['/login']);
+                catchError(error => {
+                    console.log('[AUTH SERVICE] Logout request failed, but continuing with local logout:', error);
+                    return of(null); // Игнорируем ошибку
                 })
             )
             .subscribe();
+    }
+
+    private clearLocalData(): void {
+        console.log('[AUTH SERVICE] Clearing local data...');
+        if (isPlatformBrowser(this.platformId)) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('id');
+            localStorage.removeItem('role');
+        }
+        this.userRole.next(null);
+        this.userId.next(null);
+        this.authStatus.next(false);
+        this.router.navigate(['/login']);
     }
 
     /**

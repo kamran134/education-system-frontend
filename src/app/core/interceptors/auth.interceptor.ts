@@ -10,6 +10,8 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     const authService = inject(AuthService);
     const token = authService.getToken();
 
+    console.log('[AUTH INTERCEPTOR] Request to:', req.url, 'Token exists:', !!token);
+
     // Добавляем токен к запросу если он есть
     if (token) {
         req = req.clone({
@@ -25,11 +27,14 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
+            console.log('[AUTH INTERCEPTOR] Error:', error.status, 'for URL:', req.url);
+            
             if (error.status === 401 && 
                 !req.url.includes('/refresh') && 
                 !req.url.includes('/login') &&
                 !req.url.includes('/register')) {
                 
+                console.log('[AUTH INTERCEPTOR] Attempting token refresh...');
                 return handle401Error(req, next, authService);
             }
             return throwError(() => error);
@@ -38,12 +43,24 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 };
 
 function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService): Observable<HttpEvent<unknown>> {
+    // Если это запрос на обновление токена и он вернул 401, то refresh токен истек
+    if (req.url.includes('/auth/refresh')) {
+        console.log('[AUTH INTERCEPTOR] Refresh token expired, logging out...');
+        isRefreshing = false;
+        refreshTokenSubject.next(null);
+        authService.logout();
+        return throwError(() => new Error('Refresh token expired'));
+    }
+
     if (!isRefreshing) {
         isRefreshing = true;
         refreshTokenSubject.next(null);
+        
+        console.log('[AUTH INTERCEPTOR] Starting token refresh...');
 
         return authService.refreshToken().pipe(
             switchMap((response: any) => {
+                console.log('[AUTH INTERCEPTOR] Token refresh successful');
                 isRefreshing = false;
                 refreshTokenSubject.next(response.data.token);
                 
@@ -56,7 +73,9 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
                 return next(newReq);
             }),
             catchError((error) => {
+                console.log('[AUTH INTERCEPTOR] Token refresh failed:', error);
                 isRefreshing = false;
+                refreshTokenSubject.next(null);
                 // Если обновление токена не удалось, логаут
                 authService.logout();
                 return throwError(() => error);
