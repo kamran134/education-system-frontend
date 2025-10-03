@@ -5,6 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './core/services/auth.service';
@@ -21,6 +23,8 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
         MatIconModule,
         MatSlideToggleModule,
         MatToolbarModule,
+        MatMenuModule,
+        MatDividerModule,
         HttpClientModule
     ],
     templateUrl: './app.component.html',
@@ -114,7 +118,71 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return;
         }
+        this.router.navigate(['/admin']);
+    }
+
+    goToAdminDashboard(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
         this.router.navigate(['/admin/dashboard']);
+    }
+
+    goToUsers(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/admin/users']);
+    }
+
+    goToRatingColumns(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/admin/rating-columns']);
+    }
+
+    goToStats(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/stats']);
+    }
+
+    goToDistricts(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/districts']);
+    }
+
+    goToSchools(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/schools']);
+    }
+
+    goToTeachers(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/teachers']);
+    }
+
+    goToStudents(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/students']);
     }
 
     isAdminOrSuperAdmin(): boolean {
