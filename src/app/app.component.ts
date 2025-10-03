@@ -11,6 +11,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './core/services/auth.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield } from 'lucide-angular';
+import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 
 @Component({
     selector: 'app-root',
@@ -25,7 +27,11 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
         MatToolbarModule,
         MatMenuModule,
         MatDividerModule,
-        HttpClientModule
+        HttpClientModule,
+        LucideAngularModule,
+        DropdownComponent,
+        DropdownItemComponent,
+        DropdownDividerComponent
     ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
@@ -42,6 +48,20 @@ export class AppComponent implements OnInit {
     darkMode: boolean = false;
     animationState: string = 'default';
     userId: string | null = null;
+
+    // Lucide Icons
+    readonly User = User;
+    readonly Settings = Settings;
+    readonly BarChart3 = BarChart3;
+    readonly Building2 = Building2;
+    readonly GraduationCap = GraduationCap;
+    readonly Users = Users;
+    readonly LogOut = LogOut;
+    readonly LogIn = LogIn;
+    readonly Sun = Sun;
+    readonly Moon = Moon;
+    readonly ChevronDown = ChevronDown;
+    readonly Shield = Shield;
 
     constructor(
         private matIconRegistry: MatIconRegistry, 

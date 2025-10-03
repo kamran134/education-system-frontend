@@ -1,86 +1,117 @@
-<header>
-    <mat-toolbar [color]="darkMode ? 'black' : 'white'" [ngClass]="darkMode ? 'header dark-mode' : 'header light-mode'">
-        <div class="header__left" routerLink="/" style="cursor: pointer;">
-            <span class="header__logo">
-                <img src="assets/isim.png" height="60px" alt="Logo" class="header__logo-img" />
-            </span>
-        </div>
-        <div class="header__right">
-            <div>
-                <mat-slide-toggle [checked] = "darkMode" (toggleChange)="darkModeToogleChanged()">
-                    <mat-icon [svgIcon]="darkMode ? 'dark_mode' : 'light_mode'" [@rotateAnimation]="animationState"></mat-icon>
-                </mat-slide-toggle>
-            </div>
-            <div *ngIf="isAuthorized()">
-                <button mat-flat-button [matMenuTriggerFor]="userMenu">
-                    <mat-icon>person</mat-icon>
-                    Profil
-                    <mat-icon>expand_more</mat-icon>
-                </button>
-                <mat-menu #userMenu="matMenu">
-                    <button mat-menu-item (click)="goToProfile()">
-                        <mat-icon>account_circle</mat-icon>
-                        <span>Şəxsi məlumatlar</span>
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="goToStats()">
-                        <mat-icon>analytics</mat-icon>
-                        <span>Statistika</span>
-                    </button>
-                    <button mat-menu-item (click)="goToDistricts()">
-                        <mat-icon>location_city</mat-icon>
-                        <span>Rayonlar</span>
-                    </button>
-                    <button mat-menu-item (click)="goToSchools()">
-                        <mat-icon>school</mat-icon>
-                        <span>Məktəblər</span>
-                    </button>
-                    <button mat-menu-item (click)="goToTeachers()">
-                        <mat-icon>person_outline</mat-icon>
-                        <span>Müəllimlər</span>
-                    </button>
-                    <button mat-menu-item (click)="goToStudents()">
-                        <mat-icon>groups</mat-icon>
-                        <span>Şagirdlər</span>
-                    </button>
-                </mat-menu>
-            </div>
-            <div *ngIf="isAuthorized() && isAdminOrSuperAdmin()">
-                <button mat-flat-button [matMenuTriggerFor]="adminMenu">
-                    <mat-icon>admin_panel_settings</mat-icon>
-                    İdarəetmə paneli
-                    <mat-icon>expand_more</mat-icon>
-                </button>
-                <mat-menu #adminMenu="matMenu">
-                    <button mat-menu-item (click)="goToAdminDashboard()">
-                        <mat-icon>dashboard</mat-icon>
-                        <span>Admin Dashboard</span>
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="goToUsers()">
-                        <mat-icon>people</mat-icon>
-                        <span>İstifadəçilər</span>
-                    </button>
-                    <button mat-menu-item (click)="goToRatingColumns()">
-                        <mat-icon>view_column</mat-icon>
-                        <span>Reytinq sütunları</span>
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="goToAdminPanel()">
-                        <mat-icon>settings</mat-icon>
-                        <span>Köhnə admin paneli</span>
-                    </button>
-                </mat-menu>
-            </div>
-            <div>
-                <button mat-flat-button (click)="logInOut()">
-                    <mat-icon>{{ isAuthorized() ? 'logout' : 'login' }}</mat-icon>
-                    {{ isAuthorized() ? 'Sistemdən çıxış' : 'Sistemə giriş' }}
-                </button>
-            </div>
-        </div>
-    </mat-toolbar>
+<header class="bg-white border-b border-gray-200 shadow-sm">
+  <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center cursor-pointer" routerLink="/">
+        <img src="assets/isim.png" alt="Logo" class="h-10 w-auto" />
+      </div>
+
+      <!-- Right side navigation -->
+      <div class="flex items-center space-x-4">
+        <!-- Theme Toggle -->
+        <button 
+          type="button"
+          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          (click)="darkModeToogleChanged()"
+        >
+          <lucide-icon 
+            [img]="darkMode ? Moon : Sun" 
+            class="h-5 w-5" 
+            [@rotateAnimation]="animationState">
+          </lucide-icon>
+        </button>
+
+        <!-- User Menu -->
+        <app-dropdown *ngIf="isAuthorized()" position="right">
+          <div slot="trigger" class="flex items-center space-x-1">
+            <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
+            <span class="hidden sm:block">Profil</span>
+            <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+          </div>
+          
+          <div slot="content">
+            <app-dropdown-item (clicked)="goToProfile()">
+              <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
+              Şəxsi məlumatlar
+            </app-dropdown-item>
+            
+            <app-dropdown-divider></app-dropdown-divider>
+            
+            <app-dropdown-item (clicked)="goToStats()">
+              <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
+              Statistika
+            </app-dropdown-item>
+            
+            <app-dropdown-item (clicked)="goToDistricts()">
+              <lucide-icon [img]="Building2" class="mr-3 h-4 w-4"></lucide-icon>
+              Rayonlar
+            </app-dropdown-item>
+            
+            <app-dropdown-item (clicked)="goToSchools()">
+              <lucide-icon [img]="GraduationCap" class="mr-3 h-4 w-4"></lucide-icon>
+              Məktəblər
+            </app-dropdown-item>
+            
+            <app-dropdown-item (clicked)="goToTeachers()">
+              <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
+              Müəllimlər  
+            </app-dropdown-item>
+            
+            <app-dropdown-item (clicked)="goToStudents()">
+              <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
+              Şagirdlər
+            </app-dropdown-item>
+          </div>
+        </app-dropdown>
+
+        <!-- Admin Menu -->
+        <app-dropdown *ngIf="isAuthorized() && isAdminOrSuperAdmin()" position="right">
+          <div slot="trigger" class="flex items-center space-x-1">
+            <lucide-icon [img]="Shield" class="h-5 w-5"></lucide-icon>
+            <span class="hidden sm:block">İdarəetmə</span>
+            <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+          </div>
+          
+          <div slot="content">
+            <app-dropdown-item (clicked)="goToAdminDashboard()">
+              <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
+              Admin Dashboard
+            </app-dropdown-item>
+            
+            <app-dropdown-divider></app-dropdown-divider>
+            
+            <app-dropdown-item (clicked)="goToUsers()">
+              <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
+              İstifadəçilər
+            </app-dropdown-item>
+            
+            <app-dropdown-item (clicked)="goToRatingColumns()">
+              <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+              Reytinq sütunları
+            </app-dropdown-item>
+            
+            <app-dropdown-divider></app-dropdown-divider>
+            
+            <app-dropdown-item (clicked)="goToAdminPanel()">
+              <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+              Köhnə admin paneli
+            </app-dropdown-item>
+          </div>
+        </app-dropdown>
+
+        <!-- Login/Logout Button -->
+        <button 
+          type="button"
+          class="inline-flex items-center space-x-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+          (click)="logInOut()"
+        >
+          <lucide-icon [img]="isAuthorized() ? LogOut : LogIn" class="h-4 w-4"></lucide-icon>
+          <span class="hidden sm:block">{{ isAuthorized() ? 'Sistemdən çıxış' : 'Sistemə giriş' }}</span>
+        </button>
+      </div>
+    </div>
+  </nav>
 </header>
-<div class="main-container" [ngClass]="darkMode ? 'dark-mode' : 'light-mode'">
+<main class="min-h-screen bg-gray-50" [class.dark]="darkMode">
     <router-outlet></router-outlet>
-</div>
+</main>

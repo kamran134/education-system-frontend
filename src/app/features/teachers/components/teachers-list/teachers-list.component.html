@@ -66,11 +66,6 @@
             <mat-icon>add</mat-icon>
             Yeni müəllim əlavə et
         </button>
-        <button mat-flat-button color="primary" [disabled]="isUpdatingStats" (click)="onUpdateTeachersStats()">
-            <mat-icon *ngIf="!isUpdatingStats">refresh</mat-icon>
-            <mat-spinner *ngIf="isUpdatingStats" diameter="20" style="display:inline-block;vertical-align:middle;"></mat-spinner>
-            Statistikanı yenilə
-        </button>
     </div>
 
     <div *ngIf="missingSchoolCodes.length > 0">

@@ -1,80 +1,22 @@
-<div>
-    <div class="breadcrumbs">
-        <button mat-raised-button extended routerLink="/">
-            <mat-icon>home</mat-icon>
-            Baş səhifə
-        </button>
-    </div>
-
-    <div *ngIf="isLoading">
-        Loading districts...
-    </div>
-      
-    <div *ngIf="hasError">
-        {{ errorMessage }}
-    </div>
-      
-    <div *ngIf="!isLoading && !hasError">
-        <table mat-table [dataSource]="districts" class="mat-elevation-z8">
-            <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef>
-                    Rayon / şəhər kodu
-                </th>
-                <td mat-cell *matCellDef="let district">
-                    {{ district.code }}
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>
-                    Adı
-                </th>
-                <td mat-cell *matCellDef="let district">
-                    {{ district.name }}
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="rate">
-                <th mat-header-cell *matHeaderCellDef>
-                    Əmsalı (İmtahan sayı)
-                </th>
-                <td mat-cell *matCellDef="let district">
-                    {{ district.rate }}
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>
-                    {{ '' }}
-                </th>
-                <td mat-cell *matCellDef="let district">
-                    <button mat-raised-button color="warn" *ngIf="isAdminOrSuperAdmin()" (click)="onDistrictDelete($event, district)"><mat-icon>delete</mat-icon>sil</button>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="['code', 'name', 'rate', 'actions']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['code', 'name', 'rate', 'actions'];"></tr>
-        </table>
-        
-        <mat-paginator 
-            [length]="totalCount"
-            [pageSize]="pageSize"
-            [pageSizeOptions]="pageSizeOptions"
-            [pageIndex]="pageIndex"
-            (page)="onPageChange($event)"
-            showFirstLastButtons>
-        </mat-paginator>
-    </div>
-
-    <div class="global-action-pannel" *ngIf="isAdminOrSuperAdmin()">
-        <button mat-flat-button extended (click)="openAddDistrictDialog()">
-            <mat-icon>add</mat-icon>
-            Yeni rayon / şəhər əlavə et
-        </button>
-        <button mat-flat-button color="primary" [disabled]="isUpdatingStats" (click)="onUpdateDistrictsStats()">
-            <mat-icon *ngIf="!isUpdatingStats">refresh</mat-icon>
-            <mat-spinner *ngIf="isUpdatingStats" diameter="20" style="display:inline-block;vertical-align:middle;"></mat-spinner>
-            Statistikanı yenilə
-        </button>
-    </div>
-</div>
+<app-list-layout
+  title="Rayonlar / şəhərlər"
+  description="Bütün rayonlar və şəhərlərin siyahısı"
+  [isLoading]="isLoading"
+  [hasError]="hasError"
+  [errorMessage]="errorMessage"
+  loadingText="Rayonlar yüklənir..."
+  [actionButtons]="actionButtons"
+>
+  <div slot="content">
+    <app-data-table
+      [data]="districts"
+      [columns]="tableColumns"
+      [actions]="tableActions"
+      [totalCount]="totalCount"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      (actionClicked)="onTableAction($event)"
+      (pageChanged)="onPageChange($event)"
+    ></app-data-table>
+  </div>
+</app-list-layout>

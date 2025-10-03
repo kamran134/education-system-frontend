@@ -10,18 +10,24 @@ import { MatDialog } from '@angular/material/dialog';
 import { DistrictAddDialogComponent } from '../district-add-dialog/district-add-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2 } from 'lucide-angular';
+import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
+import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
 @Component({
     selector: 'app-districts-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatInputModule, MatTableModule, MatSnackBarModule, MatProgressSpinnerModule, MatPaginatorModule],
+    imports: [
+        CommonModule, 
+        RouterModule, 
+        LucideAngularModule,
+        ListLayoutComponent, 
+        DataTableComponent
+    ],
     templateUrl: './districts-list.component.html',
     styleUrls: ['./districts-list.component.scss']
 })
@@ -30,13 +36,34 @@ export class DistrictsListComponent implements OnInit {
     isLoading = false;
     hasError = false;
     errorMessage = '';
-    data: any;
     
     // Pagination properties
     totalCount = 0;
     pageSize = 100;
     pageIndex = 0;
-    pageSizeOptions = [25, 50, 100, 200];
+    
+    // Table configuration
+    tableColumns: TableColumn[] = [
+        { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
+        { key: 'name', label: 'Adı', sortable: true, type: 'text' },
+        { key: 'rate', label: 'Əmsalı (İmtahan sayı)', sortable: true, type: 'number', align: 'center' }
+    ];
+    
+    tableActions: TableAction[] = [
+        {
+            key: 'delete',
+            label: 'Sil',
+            icon: Trash2,
+            variant: 'danger',
+            condition: () => this.isAdminOrSuperAdmin()
+        }
+    ];
+    
+    actionButtons: ActionButton[] = [];
+    
+    // Icons
+    readonly Plus = Plus;
+    readonly RefreshCw = RefreshCw;
     
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
@@ -47,14 +74,18 @@ export class DistrictsListComponent implements OnInit {
     isUpdatingStats = false;
     onUpdateDistrictsStats(): void {
         this.isUpdatingStats = true;
+        this.setupActionButtons(); // Обновляем кнопки с loading состоянием
+        
         this.districtService.updateDistrictsStats().subscribe({
             next: (response: any) => {
                 this.isUpdatingStats = false;
+                this.setupActionButtons(); // Обновляем кнопки без loading
                 this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
                 this.loadDistricts();
             },
             error: (error) => {
                 this.isUpdatingStats = false;
+                this.setupActionButtons(); // Обновляем кнопки без loading
                 this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
             }
         });
@@ -68,7 +99,31 @@ export class DistrictsListComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        this.setupActionButtons();
         this.loadDistricts();
+    }
+
+    private setupActionButtons(): void {
+        this.actionButtons = [];
+        
+        if (this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push(
+                {
+                    label: 'Yeni rayon / şəhər əlavə et',
+                    icon: this.Plus,
+                    action: () => this.openAddDistrictDialog(),
+                    variant: 'primary'
+                },
+                {
+                    label: 'Statistikanı yenilə',
+                    icon: this.RefreshCw,
+                    action: () => this.onUpdateDistrictsStats(),
+                    variant: 'secondary',
+                    loading: this.isUpdatingStats,
+                    disabled: this.isUpdatingStats
+                }
+            );
+        }
     }
 
     isAdminOrSuperAdmin(): boolean {
@@ -122,10 +177,18 @@ export class DistrictsListComponent implements OnInit {
             });
     }
 
-    onPageChange(event: PageEvent): void {
+    onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadDistricts();
+    }
+
+    onTableAction(event: { action: string; item: any }): void {
+        switch (event.action) {
+            case 'delete':
+                this.onDistrictDelete(new Event('click'), event.item);
+                break;
+        }
     }
 
     onDistrictDelete(event: Event, district: District): void {
