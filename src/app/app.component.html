@@ -12,10 +12,22 @@
                 </mat-slide-toggle>
             </div>
             <div *ngIf="isAuthorized()">
-                <button mat-flat-button (click)="goToAdminPanel()">İdarəetmə paneli</button>
+                <button mat-flat-button (click)="goToProfile()">
+                    <mat-icon>person</mat-icon>
+                    Profil
+                </button>
+            </div>
+            <div *ngIf="isAuthorized() && isAdminOrSuperAdmin()">
+                <button mat-flat-button (click)="goToAdminPanel()">
+                    <mat-icon>admin_panel_settings</mat-icon>
+                    İdarəetmə paneli
+                </button>
             </div>
             <div>
-                <button mat-flat-button (click)="logInOut()">{{ isAuthorized() ? 'Sistemdən çıxış' : 'Sistemə giriş' }}</button>
+                <button mat-flat-button (click)="logInOut()">
+                    <mat-icon>{{ isAuthorized() ? 'logout' : 'login' }}</mat-icon>
+                    {{ isAuthorized() ? 'Sistemdən çıxış' : 'Sistemə giriş' }}
+                </button>
             </div>
         </div>
     </mat-toolbar>

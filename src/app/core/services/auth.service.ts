@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, map, Observable, tap, catchError, switchMap } from 'rxjs';
 import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
+import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, UserInfo } from '../models/auth.models';
 
 @Injectable({
     providedIn: 'root'
@@ -263,6 +264,47 @@ export class AuthService {
                 })
             )
             .subscribe();
+    }
+
+    /**
+     * Выход из всех устройств (удаляет все refresh токены пользователя)
+     */
+    logoutFromAllDevices(): Observable<any> {
+        return this.http.post(`${this.configService.getAuthUrl()}/logout-all`, {}, { withCredentials: true })
+            .pipe(
+                tap(() => {
+                    if (isPlatformBrowser(this.platformId)) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('id');
+                        localStorage.removeItem('role');
+                    }
+                    this.userRole.next(null);
+                    this.userId.next(null);
+                    this.authStatus.next(false);
+                    this.router.navigate(['/login']);
+                })
+            );
+    }
+
+    /**
+     * Получить информацию об активных сессиях пользователя
+     */
+    getActiveSessions(): Observable<AuthResponse<ActiveSessionsInfo>> {
+        return this.http.get<AuthResponse<ActiveSessionsInfo>>(`${this.configService.getAuthUrl()}/sessions`, { withCredentials: true });
+    }
+
+    /**
+     * Админские методы для работы с токенами (только для админов/суперадминов)
+     */
+    getTokenStatistics(): Observable<AuthResponse<TokenStatistics>> {
+        return this.http.get<AuthResponse<TokenStatistics>>(`${this.configService.getAuthUrl()}/admin/token-stats`, { withCredentials: true });
+    }
+
+    /**
+     * Принудительная очистка истекших токенов (только для админов)
+     */
+    forceCleanupTokens(): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(`${this.configService.getAuthUrl()}/admin/cleanup-tokens`, {}, { withCredentials: true });
     }
 
     constructor(private configService: ConfigService) {

@@ -101,12 +101,24 @@ export class AppComponent implements OnInit {
         });
     }
 
+    goToProfile(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/profile']);
+    }
+
     goToAdminPanel(): void {
         if (!this.isAuthorized()) {
             this.router.navigate(['/login']);
             return;
         }
-        this.router.navigate(['/admin']);
+        this.router.navigate(['/admin/dashboard']);
+    }
+
+    isAdminOrSuperAdmin(): boolean {
+        return this.authService.isAdminOrSuperAdmin();
     }
 
     logInOut(): void {
