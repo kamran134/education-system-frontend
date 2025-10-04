@@ -27,25 +27,37 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
-            console.log('[AUTH INTERCEPTOR] Error:', error.status, 'for URL:', req.url);
+            console.log('[AUTH INTERCEPTOR] ❌ Error caught:', error.status, 'for URL:', req.url);
+            console.log('[AUTH INTERCEPTOR] Error details:', error);
             
-            if (error.status === 401 && 
-                !req.url.includes('/refresh') && 
-                !req.url.includes('/login') &&
-                !req.url.includes('/register')) {
+            if (error.status === 401) {
+                console.log('[AUTH INTERCEPTOR] 🔍 401 error detected!');
+                console.log('[AUTH INTERCEPTOR] URL check - refresh:', req.url.includes('/refresh'));
+                console.log('[AUTH INTERCEPTOR] URL check - login:', req.url.includes('/login'));
+                console.log('[AUTH INTERCEPTOR] URL check - register:', req.url.includes('/register'));
                 
-                console.log('[AUTH INTERCEPTOR] Attempting token refresh...');
-                return handle401Error(req, next, authService);
+                if (!req.url.includes('/refresh') && 
+                    !req.url.includes('/login') &&
+                    !req.url.includes('/register')) {
+                    
+                    console.log('[AUTH INTERCEPTOR] 🔄 Attempting token refresh...');
+                    return handle401Error(req, next, authService);
+                } else {
+                    console.log('[AUTH INTERCEPTOR] ❌ Skipping refresh for this URL');
+                }
             }
+            console.log('[AUTH INTERCEPTOR] 📤 Throwing error without refresh');
             return throwError(() => error);
         })
     );
 };
 
 function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService): Observable<HttpEvent<unknown>> {
+    console.log('[AUTH INTERCEPTOR] 🚀 handle401Error called for:', req.url);
+    
     // Если это запрос на обновление токена и он вернул 401, то refresh токен истек
     if (req.url.includes('/api/auth/refresh')) {
-        console.log('[AUTH INTERCEPTOR] Refresh token expired, logging out...');
+        console.log('[AUTH INTERCEPTOR] ❌ Refresh token expired, logging out...');
         isRefreshing = false;
         refreshTokenSubject.next(null);
         authService.logout();
@@ -53,10 +65,11 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
     }
 
     if (!isRefreshing) {
+        console.log('[AUTH INTERCEPTOR] 🔄 Setting isRefreshing to true');
         isRefreshing = true;
         refreshTokenSubject.next(null);
         
-        console.log('[AUTH INTERCEPTOR] Starting token refresh...');
+        console.log('[AUTH INTERCEPTOR] 📞 Calling authService.refreshToken()...');
 
         return authService.refreshToken().pipe(
             switchMap((response: any) => {
