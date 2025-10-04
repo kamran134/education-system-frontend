@@ -230,28 +230,53 @@ export class AuthService {
 
     /**
      * Проверяет текущий токен и обновляет данные пользователя
+     * Если токена нет, пробует получить новый через refresh token
      */
     validateToken(): Observable<boolean> {
         const token = this.getToken();
+        
+        console.log('[AUTH SERVICE - validateToken] Token exists:', !!token);
+        
+        // Если токена нет, пробуем refresh
         if (!token) {
-            this.authStatus.next(false);
-            return new BehaviorSubject(false).asObservable();
+            console.log('[AUTH SERVICE - validateToken] No token, attempting refresh...');
+            return this.refreshToken().pipe(
+                switchMap(() => this.getCurrentUser()),
+                map(() => {
+                    console.log('[AUTH SERVICE - validateToken] Refresh successful');
+                    this.authStatus.next(true);
+                    return true;
+                }),
+                catchError((error) => {
+                    console.log('[AUTH SERVICE - validateToken] Refresh failed:', error);
+                    this.authStatus.next(false);
+                    this.userId.next(null);
+                    this.userRole.next(null);
+                    return of(false);
+                })
+            );
         }
 
+        // Если токен есть, проверяем его валидность
+        console.log('[AUTH SERVICE - validateToken] Validating existing token...');
         return this.getCurrentUser().pipe(
             map(() => {
+                console.log('[AUTH SERVICE - validateToken] Token valid');
                 this.authStatus.next(true);
                 return true;
             }),
-            catchError(() => {
-                // Если не удалось получить данные пользователя, пробуем обновить токен
+            catchError((error) => {
+                console.log('[AUTH SERVICE - validateToken] Token invalid, attempting refresh...');
+                // Если токен невалиден, пробуем refresh
                 return this.refreshToken().pipe(
                     switchMap(() => this.getCurrentUser()),
                     map(() => {
+                        console.log('[AUTH SERVICE - validateToken] Refresh successful');
                         this.authStatus.next(true);
                         return true;
                     }),
-                    catchError(() => {
+                    catchError((refreshError) => {
+                        console.log('[AUTH SERVICE - validateToken] Refresh failed:', refreshError);
                         // Если refresh тоже не сработал, очищаем все
                         if (isPlatformBrowser(this.platformId)) {
                             localStorage.removeItem('token');
@@ -261,7 +286,7 @@ export class AuthService {
                         this.authStatus.next(false);
                         this.userId.next(null);
                         this.userRole.next(null);
-                        return new BehaviorSubject(false).asObservable();
+                        return of(false);
                     })
                 );
             })

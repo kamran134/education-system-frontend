@@ -1,20 +1,55 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { map, switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 
 export const authGuard: CanActivateFn = () => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    // Сначала проверяем и валидируем токен
-    return authService.validateToken().pipe(
-        map(isValid => {
-            if (!isValid) {
+    console.log('[AUTH GUARD] Checking authentication...');
+    
+    const token = authService.getToken();
+    
+    // Если токена нет, сразу пробуем refresh
+    if (!token) {
+        console.log('[AUTH GUARD] No token found, attempting refresh...');
+        return authService.refreshToken().pipe(
+            switchMap(() => authService.getCurrentUser()),
+            map(() => {
+                console.log('[AUTH GUARD] Refresh successful, access granted');
+                return true;
+            }),
+            catchError((error) => {
+                console.log('[AUTH GUARD] Refresh failed, redirecting to login:', error);
                 router.navigate(['/login']);
-                return false;
-            }
+                return of(false);
+            })
+        );
+    }
+    
+    // Если токен есть, проверяем его валидность через /me
+    console.log('[AUTH GUARD] Token exists, validating...');
+    return authService.getCurrentUser().pipe(
+        map(() => {
+            console.log('[AUTH GUARD] Token valid, access granted');
             return true;
+        }),
+        catchError((error) => {
+            console.log('[AUTH GUARD] Token invalid, attempting refresh...');
+            // Если токен невалиден, пробуем refresh
+            return authService.refreshToken().pipe(
+                switchMap(() => authService.getCurrentUser()),
+                map(() => {
+                    console.log('[AUTH GUARD] Refresh successful, access granted');
+                    return true;
+                }),
+                catchError((refreshError) => {
+                    console.log('[AUTH GUARD] Refresh failed, redirecting to login:', refreshError);
+                    router.navigate(['/login']);
+                    return of(false);
+                })
+            );
         })
     );
 };

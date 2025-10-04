@@ -80,18 +80,25 @@ export class AppComponent implements OnInit {
             this.setMode();
             
             // Проверяем и валидируем токен при старте приложения
-            this.authService.validateToken().subscribe({
-                next: (isValid) => {
-                    if (isValid) {
-                        console.log('User token validated successfully');
-                    } else {
-                        console.log('User token validation failed');
+            // Только если есть токен в localStorage
+            const token = this.authService.getToken();
+            if (token) {
+                console.log('[APP COMPONENT] Token found, validating...');
+                this.authService.validateToken().subscribe({
+                    next: (isValid) => {
+                        if (isValid) {
+                            console.log('[APP COMPONENT] User token validated successfully');
+                        } else {
+                            console.log('[APP COMPONENT] User token validation failed');
+                        }
+                    },
+                    error: (error) => {
+                        console.error('[APP COMPONENT] Token validation error:', error);
                     }
-                },
-                error: (error) => {
-                    console.error('Token validation error:', error);
-                }
-            });
+                });
+            } else {
+                console.log('[APP COMPONENT] No token found, skipping validation');
+            }
         }
     }
 
