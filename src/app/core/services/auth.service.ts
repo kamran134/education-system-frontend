@@ -154,17 +154,10 @@ export class AuthService {
     }
 
     refreshToken(): Observable<any> {
-        console.log('[AUTH SERVICE] Attempting to refresh token...');
-        console.log('[AUTH SERVICE] Request URL:', `${this.configService.getAuthUrl()}/refresh`);
-        console.log('[AUTH SERVICE] withCredentials: true');
-        
         return this.http.post<any>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
             .pipe(
                 tap(response => {
-                    console.log('[AUTH SERVICE] Refresh response:', response);
-                    
                     if (response.success && response.data && response.data.token) {
-                        console.log('[AUTH SERVICE] Successfully refreshed token');
                         // Сохраняем новый токен
                         localStorage.setItem('token', response.data.token);
                         
@@ -182,15 +175,11 @@ export class AuthService {
                         } catch (error) {
                             console.error('Error decoding refreshed token:', error);
                         }
-                    } else {
-                        console.error('[AUTH SERVICE] Invalid refresh response:', response);
                     }
                 }),
                 catchError(error => {
-                    console.error('[AUTH SERVICE] Refresh token failed:', error);
                     // Если refresh токен истек (401), делаем logout
                     if (error.status === 401) {
-                        console.log('[AUTH SERVICE] Refresh token expired, logging out...');
                         this.logout();
                     }
                     return throwError(() => error);
