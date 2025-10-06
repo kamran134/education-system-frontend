@@ -51,6 +51,7 @@ export class TeacherEditingDialogComponent implements OnInit{
             this.data.teacher = {
                 fullname: '',
                 code: 0,
+                studentCount: 0,
                 active: true,
             };
         }

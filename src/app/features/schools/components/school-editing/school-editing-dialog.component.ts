@@ -49,6 +49,7 @@ export class SchoolEditingDialogComponent implements OnInit {
                 code: 0,
                 name: '',
                 address: '',
+                studentCount: 0,
                 active: true,
             } as SchoolForCreation
         }

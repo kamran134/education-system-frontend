@@ -27,7 +27,7 @@ export class DistrictService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    addDistrict(district: {name: string, code: number}): Observable<any> {
+    addDistrict(district: {name: string, code: number, studentCount: number}): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts`;
         return this.http.post<ApiResponse<any>>(url, district, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));

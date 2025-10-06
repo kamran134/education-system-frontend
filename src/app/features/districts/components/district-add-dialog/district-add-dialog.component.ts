@@ -15,11 +15,11 @@ import { CommonModule } from '@angular/common';
 export class DistrictAddDialogComponent {
     constructor(
         public dialogRef: MatDialogRef<DistrictAddDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { name: string; code: string }
+        @Inject(MAT_DIALOG_DATA) public data: { name: string; code: string; studentCount: number }
     ) {}
 
     get isValid(): boolean {
-        return !!(this.data.name?.trim() && this.data.code?.trim());
+        return !!(this.data.name?.trim() && this.data.code?.trim() && this.data.studentCount >= 0);
     }
 
     onSave(): void {

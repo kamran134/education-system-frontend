@@ -24,6 +24,11 @@
         </mat-form-field>
 
         <mat-form-field appearance="fill">
+            <mat-label>Şagird sayı</mat-label>
+            <input matInput [(ngModel)]='data.school.studentCount' name="studentCount" type="number" min="0" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
             <mat-label>Məktəbi, müəllimlərini və şagirdlərini siyahıda göstər</mat-label>
             <mat-select [(ngModel)]="data.school.active" name="showInList" required>
                 <mat-option [value]="true">Bəli</mat-option>

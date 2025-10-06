@@ -29,5 +29,6 @@ export interface SchoolForCreation {
     code: number;
     districtCode?: number;
     district?: District;
+    studentCount?: number;
     active?: boolean;
 }

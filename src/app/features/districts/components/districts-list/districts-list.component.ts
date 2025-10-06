@@ -133,7 +133,7 @@ export class DistrictsListComponent implements OnInit {
     openAddDistrictDialog(): void {
         const dialogRef = this.dialog.open(DistrictAddDialogComponent, {
           width: '400px',
-          data: { name: '', code: '' },
+          data: { name: '', code: '', studentCount: 0 },
         });
     
         dialogRef.afterClosed().subscribe((result) => {
