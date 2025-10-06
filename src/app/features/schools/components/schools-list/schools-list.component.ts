@@ -52,7 +52,8 @@ export class SchoolsListComponent implements OnInit {
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Məktəb kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'Məktəb adı', sortable: true, type: 'text' },
-        { key: 'district.name', label: 'Rayon / şəhər', sortable: true, type: 'text' }
+        { key: 'district.name', label: 'Rayon / şəhər', sortable: true, type: 'text' },
+        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
     
     tableActions: TableAction[] = [

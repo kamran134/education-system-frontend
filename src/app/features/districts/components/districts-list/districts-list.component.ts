@@ -46,6 +46,7 @@ export class DistrictsListComponent implements OnInit {
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'Adı', sortable: true, type: 'text' },
+        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' },
         { key: 'rate', label: 'Əmsalı (İmtahan sayı)', sortable: true, type: 'number', align: 'center' }
     ];
     
