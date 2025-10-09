@@ -97,7 +97,14 @@ export class ListLayoutComponent {
   @Input() errorMessage = '';
   @Input() loadingText = '';
   @Input() hasFilters = false;
-  @Input() actionButtons: ActionButton[] = [];
+  @Input() set actionButtons(buttons: ActionButton[]) {
+    console.log('ListLayoutComponent received actionButtons:', buttons);
+    this._actionButtons = buttons;
+  }
+  get actionButtons(): ActionButton[] {
+    return this._actionButtons;
+  }
+  private _actionButtons: ActionButton[] = [];
 
   readonly Home = Home;
   readonly Plus = Plus;

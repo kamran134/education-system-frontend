@@ -1,0 +1,156 @@
+<div>
+    <div class="breadcrumbs">
+        <button mat-raised-button extended routerLink="/">
+            <mat-icon>home</mat-icon>
+            Baş səhifə
+        </button>
+    </div>
+
+    <div *ngIf="isLoading">
+        Müəllimlər yüklənir...
+    </div>
+      
+    <div *ngIf="hasError">
+        {{ errorMessage }}
+    </div>
+
+    <div class="filters" *ngIf="districts.length > 0">
+        <mat-form-field class="filters__districts">
+            <mat-label>Rayonlar / şəhərlər</mat-label>
+            <mat-select [(value)]="selectedDistrictIds" (selectionChange)="onDistrictSelectChanged()" multiple>
+                <mat-option *ngFor="let district of districts" [value]="district._id">
+                    {{ district.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    
+        <mat-form-field class="filters__schools">
+            <mat-label>Məktəblər</mat-label>
+            <mat-select [(value)]="selectedSchoolIds" (selectionChange)="onSchoolSelectChanged()" multiple>
+                <mat-option *ngFor="let school of schools" [value]="school._id">
+                    {{ school.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+    
+    <app-table
+            [data]="teachers"
+            [tableColumns]="columns"
+            [actions]="actions"
+            [isLoading]="isLoading"
+            [totalCount]="totalCount"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [isAdminOrSuperAdmin]="isAdminOrSuperAdmin()"
+            (edit)="onTeacherUpdate($event)"
+            (delete)="onTeacherDelete($event)"
+            (pageChange)="onPageChange($event)">
+    </app-table>
+
+    <div *ngIf="incorrectTeacherCodes.length > 0">
+        <mat-card appearance="outlined">
+            <mat-card-header>
+                <mat-card-title>
+                    Kodları yanlış olan müəllimlər. (Müəllim kodu 7 ədədli rəqəm olmalıdır)
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p *ngFor="let code of incorrectTeacherCodes">{{ code }}</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div *ngIf="isAdminOrSuperAdmin()">
+        <button mat-flat-button class="add-button" (click)="onTeacherCreate()">
+            <mat-icon>add</mat-icon>
+            Yeni müəllim əlavə et
+        </button>
+        
+        <button mat-flat-button extended (click)="onFileUpload()">
+            <mat-icon>attach_file</mat-icon>
+            Fayldan əlavə et
+        </button>
+    </div>
+
+    <div *ngIf="missingSchoolCodes.length > 0">
+        <mat-card appearance="outlined">
+            <mat-card-header>
+                <mat-card-title>
+                    Bazada olmayan məktəb kodları (məktəbi bazada olmayan müəllimlər yüklənmədi)
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p *ngFor="let schoolCode of missingSchoolCodes">{{ schoolCode }}</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div *ngIf="teacherCodesWithoutSchoolCodes.length > 0">
+        <mat-card appearance="outlined">
+            <mat-card-header>
+                <mat-card-title>
+                    Faylda məktəb kodu olmayan və yüklənməyən müəllimlər
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p *ngFor="let teacherCode of teacherCodesWithoutSchoolCodes">{{ teacherCode }}</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div *ngIf="repairingResults">
+        <mat-card appearance="outlined" *ngIf="(repairingResults.repairedTeachers || []).length > 0">
+            <mat-card-header>
+                <mat-card-title>
+                    Məlumatları tam və ya qismən bərpa olunan müəllimlərin kodları
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p *ngFor="let teacher of repairingResults.repairedTeachers">{{ teacher }}</p>
+            </mat-card-content>
+        </mat-card>
+        <mat-card appearance="outlined" *ngIf="(repairingResults.teachersWithoutDistrict || []).length > 0">
+            <mat-card-header>
+                <mat-card-title>
+                    Rayonları / şəhərləri tapılmayan müəllimlərin kodları
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p *ngFor="let teacher of repairingResults.teachersWithoutDistrict">{{ teacher }}</p>
+            </mat-card-content>
+        </mat-card>
+        <mat-card appearance="outlined" *ngIf="(repairingResults.teachersWithoutSchool || []).length > 0">
+            <mat-card-header>
+                <mat-card-title>
+                    Məktəbləri tapılmayan müəllimlərin kodları
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p *ngFor="let teacher of repairingResults.teachersWithoutSchool">{{ teacher }}</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="upload-file" *ngIf="isAdminOrSuperAdmin()">
+        <form (submit)="onSubmit($event)" enctype="multipart/form-data">
+            <input type="file" style="display: none;" #fileInput (change)="onFileChange($event)" accept=".xlsx, .xls" required />
+            <button mat-flat-button extended (click)="fileInput.click()">
+                <mat-icon fontIcon="attach_file"></mat-icon>
+                Fayldan yüklə
+            </button>
+            <div style="display: inline-block; width: 500px; padding: 0 20px;">
+                <label *ngIf="fileInput && fileInput.files && fileInput.files.length > 0">{{ fileInput.files[0].name}}</label>
+            </div>
+            <button mat-flat-button extended type="submit" *ngIf="fileInput && fileInput.files && fileInput.files.length > 0">
+                <mat-icon>upload</mat-icon>
+                Yüklə
+            </button>
+        </form>
+    </div>
+
+    <div class="global-action-pannel" *ngIf="isAdminOrSuperAdmin()">
+        <button mat-flat-button (click)="onTeachersRepair()">{{ isLoading ? 'Yenilənir...' : 'Qüsurları düzəlt' }}</button>
+        <button mat-flat-button color="warn" (click)="onAllTeachersDelete()">Ekranda olan müəllimləri sil</button>
+    </div>
+</div>

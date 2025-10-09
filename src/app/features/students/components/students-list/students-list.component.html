@@ -179,6 +179,11 @@
             <mat-icon>add</mat-icon>
             Yeni şagird əlavə et
         </button>
+        
+        <button mat-flat-button extended (click)="onFileUpload()">
+            <mat-icon>attach_file</mat-icon>
+            Fayldan əlavə et
+        </button>
     </div>
 
     <div *ngIf="repairingResults">

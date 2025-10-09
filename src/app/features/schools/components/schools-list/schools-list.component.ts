@@ -13,7 +13,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { AuthService } from '../../../../core/services/auth.service';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { FiltersComponent, FilterConfig } from '../../../../shared/components/ui/filters/filters.component';
@@ -78,6 +78,7 @@ export class SchoolsListComponent implements OnInit {
     // Icons
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
+    readonly Upload = Upload;
     
     isUpdatingStats = false;
     
@@ -104,6 +105,7 @@ export class SchoolsListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
+        console.log('Setting up action buttons, isAdmin:', this.isAdminOrSuperAdmin());
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
                 {
@@ -113,15 +115,20 @@ export class SchoolsListComponent implements OnInit {
                     variant: 'primary'
                 },
                 {
+                    label: 'Fayldan əlavə et',
+                    icon: this.Upload,
+                    action: () => this.onFileUpload(),
+                    variant: 'secondary'
+                },
+                {
                     label: 'Statistikanı yenilə',
                     icon: this.RefreshCw,
                     action: () => this.onUpdateSchoolsStats(),
-                    variant: 'secondary',
-                    loading: this.isUpdatingStats,
-                    disabled: this.isUpdatingStats
+                    variant: 'secondary'
                 }
             );
         }
+        console.log('Final actionButtons array:', this.actionButtons);
     }
 
     isAdminOrSuperAdmin(): boolean {
@@ -287,9 +294,39 @@ export class SchoolsListComponent implements OnInit {
         });
     }
 
+    onFileUpload(): void {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xlsx,.xls';
+        input.style.display = 'none';
+        
+        input.onchange = (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target?.files?.length) {
+                const file = target.files[0];
+                this.schoolService.uploadFile(file).subscribe({
+                    next: (response) => {
+                        this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla', this.matSnackConfig);
+                        this.loadSchools();
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        this.snackBar.open(error.error?.message || 'Fayl yüklənməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    }
+                });
+            }
+        };
+        
+        document.body.appendChild(input);
+        input.click();
+        document.body.removeChild(input);
+    }
+
     onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadSchools();
     }
+
+
 }

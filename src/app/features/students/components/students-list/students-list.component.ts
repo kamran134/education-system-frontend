@@ -494,4 +494,32 @@ export class StudentsListComponent implements OnInit, AfterViewInit {
             }
         });
     }
+
+    onFileUpload(): void {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xlsx,.xls';
+        input.style.display = 'none';
+        
+        input.onchange = (event: Event) => {
+            const target = event.target as HTMLInputElement;
+            if (target?.files?.length) {
+                const file = target.files[0];
+                this.studentService.uploadFile(file).subscribe({
+                    next: (response) => {
+                        this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla');
+                        this.loadStudents();
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        this.snackBar.open(error.error?.message || 'Fayl yüklənməsində xəta baş verdi', 'Bağla');
+                    }
+                });
+            }
+        };
+        
+        document.body.appendChild(input);
+        input.click();
+        document.body.removeChild(input);
+    }
 }

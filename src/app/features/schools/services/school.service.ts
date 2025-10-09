@@ -79,7 +79,6 @@ export class SchoolService {
         const formData = new FormData();
         formData.append('file', file);
 
-
         return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/schools/upload`, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }

@@ -3,23 +3,31 @@ import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model'
 import { TeacherService } from '../../services/teacher.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { FilterParams } from '../../../../core/models/filterParams.model';
+import { PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
+import { MatTableModule } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings } from 'lucide-angular';
-import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
-import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { FiltersComponent, FilterConfig } from '../../../../shared/components/ui/filters/filters.component';
+import { TableColumn } from '../../../../shared/models/tableColumn.model';
+import { TableComponent } from '../../../../shared/components/table/table.component';
 
 @Component({
     selector: 'app-teachers-list',
@@ -27,18 +35,30 @@ import { FiltersComponent, FilterConfig } from '../../../../shared/components/ui
     imports: [
         CommonModule,
         RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent,
-        FiltersComponent
+        MatSnackBarModule,
+        MatButtonModule,
+        MatIconModule,
+        MatPaginator,
+        MatFormFieldModule,
+        MatTableModule,
+        MatSelectModule,
+        MatCardModule,
+        FormsModule,
+        ReactiveFormsModule,
+    TableComponent,
+    MatProgressSpinnerModule
     ],
     templateUrl: './teachers-list.component.html',
-    styleUrls: ['./teachers-list.component.scss']
+    styleUrl: './teachers-list.component.scss'
 })
 export class TeachersListComponent implements OnInit {
+    file: File | null = null;
     teachers: Teacher[] = [];
     districts: District[] = [];
     schools: School[] = [];
+    totalCount: number = 0;
+    pageSize: number = 100;
+    pageIndex: number = 0;
     isLoading = false;
     hasError = false;
     errorMessage = '';
@@ -68,48 +88,14 @@ export class TeachersListComponent implements OnInit {
     teacherCodesWithoutSchoolCodes: number[] = [];
     incorrectTeacherCodes: number[] = [];
     repairingResults: RepairingResults = {};
-    
-    // Pagination
-    totalCount = 0;
-    pageSize = 100;
-    pageIndex = 0;
-    
-    // Filters
-    filterConfig: FilterConfig[] = [];
-    
-    // Table configuration
-    tableColumns: TableColumn[] = [
-        { key: 'code', label: 'Müəllimənin kodu', sortable: true, type: 'text' },
-        { key: 'fullname', label: 'Soyadı, adı və ata adı', sortable: true, type: 'text' },
-        { key: 'school.name', label: 'Məktəbi', sortable: true, type: 'text' },
-        { key: 'district.name', label: 'Rayonu / şəhəri', sortable: true, type: 'text' },
-        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
+    columns: TableColumn[] = [
+        { key: 'code', title: 'Müəllimənin kodu' },
+        { key: 'fullname', title: 'Soyadı, adı və ata adı' },
+        { key: 'school', title: 'Məktəbi', valueFormatter: (teacher: Teacher) => (teacher.school || '').name },
+        { key: 'district', title: 'Rayonu / şəhəri', valueFormatter: (teacher: Teacher) => (teacher.district || '').name },
+        { key: 'studentCount', title: 'Şagird sayı' }
     ];
-    
-    tableActions: TableAction[] = [
-        {
-            key: 'edit',
-            label: 'Düzəliş et',
-            icon: Edit,
-            variant: 'primary',
-            condition: () => this.isAdminOrSuperAdmin()
-        },
-        {
-            key: 'delete',
-            label: 'Sil',
-            icon: Trash2,
-            variant: 'danger',
-            condition: () => this.isAdminOrSuperAdmin()
-        }
-    ];
-    
-    actionButtons: ActionButton[] = [];
-    
-    // Icons
-    readonly Plus = Plus;
-    readonly RefreshCw = RefreshCw;
-    readonly Upload = Upload;
-    readonly Settings = Settings;
+    actions = { edit: true, delete: true };
 
     constructor(
         private teacherService: TeacherService,
@@ -120,97 +106,48 @@ export class TeachersListComponent implements OnInit {
         private dialog: MatDialog
     ) {}
 
+    onFileChange(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (input?.files?.length) {
+            this.file = input.files[0]
+        }
+    }
 
+    onSubmit(event: Event): void {
+        event.preventDefault();
 
+        if (this.file) {
+            this.teacherService.uploadFile(this.file).subscribe({
+                next: (response) => {
+                    this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'OK', this.matSnackConfig);
+                    this.missingSchoolCodes = response.missingSchoolCodes || [];
+                    this.teacherCodesWithoutSchoolCodes = response.teacherCodesWithoutSchoolCodes || [];
+                    this.incorrectTeacherCodes = response.incorrectTeacherCodes || [];
+                },
+                error: (err) => this.snackBar.open(`Fayl yüklənməsində xəta!\n${err.message}`, 'Bağla', this.matSnackConfig)
+            });
+        }
+        else {
+            this.snackBar.open('Fayl seçilməyib', 'Bağla', this.matSnackConfig);
+        }
+    }
 
+    onDistrictSelectChanged(): void {
+        this.loadSchools();
+        this.loadTeachers();
+    }
+
+    onSchoolSelectChanged(): void {
+        this.loadTeachers();
+    }
 
     ngOnInit(): void {
-        this.setupActionButtons();
         this.loadDistricts();
         this.loadTeachers();
     }
 
     isAdminOrSuperAdmin(): boolean {
         return this.authService.isAdminOrSuperAdmin();
-    }
-
-    private setupActionButtons(): void {
-        this.actionButtons = [];
-        
-        if (this.isAdminOrSuperAdmin()) {
-            this.actionButtons.push(
-                {
-                    label: 'Müəllim əlavə et',
-                    icon: this.Plus,
-                    action: () => this.onTeacherCreate(),
-                    variant: 'primary'
-                },
-                {
-                    label: 'Fayldan əlavə et',
-                    icon: this.Upload,
-                    action: () => this.onFileUpload(),
-                    variant: 'secondary'
-                },
-                {
-                    label: 'Qüsurları düzəlt',
-                    icon: this.Settings,
-                    action: () => this.onTeachersRepair(),
-                    variant: 'secondary'
-                },
-                {
-                    label: 'Statistikanı yenilə',
-                    icon: this.RefreshCw,
-                    action: () => this.onUpdateTeachersStats(),
-                    variant: 'secondary'
-                }
-            );
-        }
-    }
-
-    private setupFilters(): void {
-        this.filterConfig = [];
-        
-        if (this.districts.length > 0) {
-            this.filterConfig.push({
-                key: 'districts',
-                label: 'Rayonlar / şəhərlər',
-                type: 'multi-select',
-                options: this.districts.map(d => ({ value: d._id, label: d.name }))
-            });
-        }
-        
-        if (this.schools.length > 0) {
-            this.filterConfig.push({
-                key: 'schools',
-                label: 'Məktəblər',
-                type: 'multi-select',
-                options: this.schools.map(s => ({ value: s._id, label: s.name }))
-            });
-        }
-    }
-
-    onFilterChange(filterData: any): void {
-        if (filterData.districts !== undefined) {
-            this.selectedDistrictIds = filterData.districts;
-            this.loadSchools();
-        }
-        
-        if (filterData.schools !== undefined) {
-            this.selectedSchoolIds = filterData.schools;
-        }
-        
-        this.loadTeachers();
-    }
-
-    onTableAction(event: { action: string; item: any }): void {
-        switch (event.action) {
-            case 'edit':
-                this.onTeacherUpdate(event.item);
-                break;
-            case 'delete':
-                this.onTeacherDelete(event.item._id);
-                break;
-        }
     }
 
     loadTeachers(): void {
@@ -247,7 +184,6 @@ export class TeachersListComponent implements OnInit {
             .subscribe({
                 next: (data: SchoolResponse) => {
                     this.schools = data.data;
-                    this.setupFilters();
                 },
                 error: (err: any) => {
                     this.isLoading = false;
@@ -269,7 +205,6 @@ export class TeachersListComponent implements OnInit {
             .subscribe({
                 next: (response: DistrictResponse) => {
                     this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                    this.setupFilters();
                 },
                 error: (err: any) => {
                     this.isLoading = false;
@@ -279,7 +214,7 @@ export class TeachersListComponent implements OnInit {
             });
     }
 
-    onPageChange(event: PaginationEvent): void {
+    onPageChange(event: PageEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadTeachers();
