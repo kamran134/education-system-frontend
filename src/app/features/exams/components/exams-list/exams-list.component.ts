@@ -174,23 +174,33 @@ export class ExamsListComponent implements OnInit {
     }
 
     onFilterChange(filterData: any): void {
+        console.log('Filter change triggered:', filterData);
+        
         // Handle search filter
         if (filterData.search !== undefined) {
             this.searchString = filterData.search || '';
+            console.log('Search updated:', this.searchString);
         }
 
         // Handle year filter
         if (filterData.year !== undefined) {
             this.selectedYear = filterData.year || null;
+            console.log('Year updated:', this.selectedYear);
         }
 
         // Handle month filter
         if (filterData.month !== undefined) {
             this.selectedMonth = filterData.month || null;
+            console.log('Month updated:', this.selectedMonth);
         }
 
         // Reset pagination and reload data
         this.pageIndex = 0;
+        console.log('Loading exams with filters:', {
+            search: this.searchString,
+            year: this.selectedYear,
+            month: this.selectedMonth
+        });
         this.loadExams();
     }
 
@@ -214,23 +224,38 @@ export class ExamsListComponent implements OnInit {
     loadExams(): void {
         const params: FilterParams = {
             page: this.pageIndex + 1,
-            size: this.pageSize,
-            search: this.searchString,
-            year: this.selectedYear?.toString(),
-            month: this.selectedMonth?.toString()
+            size: this.pageSize
         };
+
+        // Добавляем параметры только если они не пустые
+        if (this.searchString && this.searchString.trim() !== '') {
+            params.search = this.searchString.trim();
+        }
+
+        if (this.selectedYear) {
+            params.year = this.selectedYear.toString();
+        }
+
+        if (this.selectedMonth) {
+            params.month = this.selectedMonth.toString();
+        }
+
+        console.log('Loading exams with params:', params);
 
         this.isLoading = true;
         this.examService.getExams(params).subscribe({
             next: (response: ExamResponse) => {
+                console.log('Exams loaded successfully:', response);
                 this.exams = response.data;
                 this.totalCount = response.totalCount;
                 this.isLoading = false;
+                this.hasError = false; // Сбрасываем флаг ошибки при успешной загрузке
             },
             error: (err: any) => {
+                console.error('Error loading exams:', err);
                 this.isLoading = false;
                 this.hasError = true;
-                this.errorMessage = `Error fetching exams: ${err.message}`;
+                this.errorMessage = `Error fetching exams: ${err.message || 'Неизвестная ошибка'}`;
             }
         });
     }

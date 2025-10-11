@@ -17,9 +17,35 @@ export class ExamService {
 
     getExams(params: FilterParams): Observable<ExamResponse> {
         let url: string = `${this.configService.getApiUrl()}/exams`;
+        const queryParams: string[] = [];
+
+        // Добавляем пагинацию
         if (params.page && params.size) {
-            url = `${url}?page=${params.page}&size=${params.size}`;
+            queryParams.push(`page=${params.page}`);
+            queryParams.push(`size=${params.size}`);
         }
+
+        // Добавляем фильтры (только если они не пустые)
+        if (params.search && params.search.trim() !== '') {
+            queryParams.push(`search=${encodeURIComponent(params.search.trim())}`);
+        }
+        
+        if (params.year && params.year !== 'null' && params.year !== '') {
+            queryParams.push(`year=${params.year}`);
+        }
+        
+        if (params.month && params.month !== 'null' && params.month !== '') {
+            queryParams.push(`month=${params.month}`);
+        }
+
+        // Собираем URL с параметрами
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+
+        console.log('Exam API request URL:', url); // Для отладки
+        console.log('Request params:', params); // Для отладки
+        
         return this.http.get<ApiResponse<ExamResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
