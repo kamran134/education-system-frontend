@@ -2,3 +2,55 @@
   max-height: 475px; /* или любая другая высота */
   overflow-y: auto;
 }
+
+// Filter toggle animation
+.filters-collapsed {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.filters-expanded {
+  max-height: 1000px;
+  transition: max-height 0.3s ease-in;
+}
+
+// Custom styles for multi-select elements
+select[multiple] {
+  background-image: none;
+  
+  option {
+    padding: 0.25rem 0.5rem;
+    
+    &:checked {
+      background-color: #3b82f6;
+      color: white;
+    }
+  }
+}
+
+// Hover effects for filter cards
+.filter-card {
+  transition: box-shadow 0.2s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+// Focus styles consistency
+input:focus,
+select:focus {
+  --tw-ring-color: #3b82f6;
+  --tw-border-opacity: 1;
+  border-color: #3b82f6;
+}
+
+// Disabled state consistency
+input:disabled,
+select:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

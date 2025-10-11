@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { FilterParams } from '../../../../core/models/filterParams.model';
@@ -19,18 +20,18 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { FiltersComponent, FilterConfig } from '../../../../shared/components/ui/filters/filters.component';
+import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 
 @Component({
     selector: 'app-teachers-list',
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule,
         LucideAngularModule,
         ListLayoutComponent,
-        DataTableComponent,
-        FiltersComponent
+        DataTableComponent
     ],
     templateUrl: './teachers-list.component.html',
     styleUrls: ['./teachers-list.component.scss']
@@ -75,7 +76,7 @@ export class TeachersListComponent implements OnInit {
     pageIndex = 0;
     
     // Filters
-    filterConfig: FilterConfig[] = [];
+    filterConfig: FilterField[] = [];
     
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -168,36 +169,46 @@ export class TeachersListComponent implements OnInit {
     }
 
     private setupFilters(): void {
-        this.filterConfig = [];
-        
-        if (this.districts.length > 0) {
-            this.filterConfig.push({
+        this.filterConfig = [
+            {
                 key: 'districts',
                 label: 'Rayonlar / şəhərlər',
                 type: 'multi-select',
-                options: this.districts.map(d => ({ value: d._id, label: d.name }))
-            });
-        }
-        
-        if (this.schools.length > 0) {
-            this.filterConfig.push({
+                options: this.districts.map(d => ({ value: d._id, label: d.name })),
+                placeholder: 'Rayonları seçin...',
+                searchable: true,
+                clearable: true,
+                width: 'md'
+            },
+            {
                 key: 'schools',
                 label: 'Məktəblər',
                 type: 'multi-select',
-                options: this.schools.map(s => ({ value: s._id, label: s.name }))
-            });
-        }
+                options: this.schools.map(s => ({ value: s._id, label: s.name })),
+                placeholder: 'Məktəbləri seçin...',
+                searchable: true,
+                clearable: true,
+                width: 'md',
+                dependsOn: 'districts'
+            }
+        ];
     }
 
     onFilterChange(filterData: any): void {
+        // Handle district filter change
         if (filterData.districts !== undefined) {
-            this.selectedDistrictIds = filterData.districts;
-            this.loadSchools();
+            this.selectedDistrictIds = filterData.districts || [];
+            this.selectedSchoolIds = []; // Clear school selection when districts change
+            this.loadSchools(); // Reload schools for selected districts
         }
         
+        // Handle school filter change
         if (filterData.schools !== undefined) {
-            this.selectedSchoolIds = filterData.schools;
+            this.selectedSchoolIds = filterData.schools || [];
         }
+
+        // Reset pagination and reload data
+        this.pageIndex = 0;
         
         this.loadTeachers();
     }

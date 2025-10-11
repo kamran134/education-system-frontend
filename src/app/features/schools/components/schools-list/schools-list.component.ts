@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { SchoolService } from '../../services/school.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { FilterParams } from '../../../../core/models/filterParams.model';
@@ -16,18 +17,18 @@ import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { FiltersComponent, FilterConfig } from '../../../../shared/components/ui/filters/filters.component';
+import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 
 @Component({
     selector: 'app-schools-list',
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule,
         LucideAngularModule,
         ListLayoutComponent,
-        DataTableComponent,
-        FiltersComponent
+        DataTableComponent
     ],
     templateUrl: './schools-list.component.html',
     styleUrls: ['./schools-list.component.scss']
@@ -46,7 +47,7 @@ export class SchoolsListComponent implements OnInit {
     
     // Filters
     selectedDistrictIds: string[] = [];
-    filterConfig: FilterConfig[] = [];
+    filterConfig: FilterField[] = [];
     
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -98,6 +99,7 @@ export class SchoolsListComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupActionButtons();
+        this.setupFilters(); // Initialize empty filters first
         this.loadDistricts();
         this.loadSchools();
     }
@@ -105,7 +107,7 @@ export class SchoolsListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
-        console.log('Setting up action buttons, isAdmin:', this.isAdminOrSuperAdmin());
+
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
                 {
@@ -159,8 +161,11 @@ export class SchoolsListComponent implements OnInit {
             {
                 type: 'multi-select',
                 key: 'districtIds',
-                label: 'Rayon / şəhər',
-                options: this.districts.map(d => ({ value: d._id, label: d.name }))
+                label: 'Rayon / şəhər seçin',
+                options: this.districts.map(d => ({ value: d._id, label: d.name })),
+                placeholder: 'Rayonları seçin...',
+                searchable: true,
+                clearable: true
             }
         ];
     }
