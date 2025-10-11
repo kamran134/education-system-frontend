@@ -1,18 +1,17 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-format.pipe';
+import { MatButtonModule } from '@angular/material/button';
 import { ExamService } from '../../services/exam.service';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
+import { MatIcon } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { Error } from '../../../../core/models/error.model';
-import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
-import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { LucideAngularModule, Upload, Save, Trash2 } from 'lucide-angular';
 
 @Component({
     selector: 'app-exam-result-dialog',
     standalone: true,
-    imports: [CommonModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
+    imports: [CommonModule, MomentDateFormatPipe, MatDialogModule, MatButtonModule, MatIcon],
     templateUrl: './exam-result-dialog.component.html',
     styleUrl: './exam-result-dialog.component.scss',
 })
@@ -25,30 +24,12 @@ export class ExamResultDialogComponent implements OnInit {
         horizontalPosition: this.horizontalPosition,
         verticalPosition: this.verticalPosition
     }
-
-    readonly Upload = Upload;
-    readonly Save = Save;
-    readonly Trash2 = Trash2;
     
     constructor(
         public dialogRef: MatDialogRef<ExamResultDialogComponent>,
         private examService: ExamService,
         private snackBar: MatSnackBar,
         @Inject(MAT_DIALOG_DATA) public data: any) {}
-
-    get modalButtons(): ModalButton[] {
-        return [
-            {
-                label: 'Bağla',
-                variant: 'outline',
-                action: () => this.onClose()
-            }
-        ];
-    }
-
-    get fileName(): string {
-        return this.file?.name || '';
-    }
 
     ngOnInit(): void {
         console.log(this.data);
@@ -92,9 +73,5 @@ export class ExamResultDialogComponent implements OnInit {
 
     onClose(): void {
         this.dialogRef.close();
-    }
-
-    onModalClose(): void {
-        this.onClose();
     }
 }

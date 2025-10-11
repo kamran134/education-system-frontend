@@ -2,13 +2,13 @@ import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
-import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-district-add-dialog',
     standalone: true,
-    imports: [CommonModule, InputComponent, FormsModule, ModalComponent],
+    imports: [CommonModule, InputComponent, ButtonComponent, FormsModule],
     templateUrl: './district-add-dialog.component.html',
     styleUrl: './district-add-dialog.component.scss'
 })
@@ -22,22 +22,6 @@ export class DistrictAddDialogComponent {
         return !!(this.data.name?.trim() && this.data.code?.trim() && this.data.studentCount >= 0);
     }
 
-    get modalButtons(): ModalButton[] {
-        return [
-            {
-                label: 'Ləğv et',
-                variant: 'outline',
-                action: () => this.onCancel()
-            },
-            {
-                label: 'Yadda saxla',
-                variant: 'primary',
-                disabled: !this.isValid,
-                action: () => this.onSave()
-            }
-        ];
-    }
-
     onSave(): void {
         if (this.isValid) {
             this.dialogRef.close(this.data);
@@ -46,9 +30,5 @@ export class DistrictAddDialogComponent {
 
     onCancel(): void {
         this.dialogRef.close();
-    }
-
-    onModalClose(): void {
-        this.onCancel();
     }
 }

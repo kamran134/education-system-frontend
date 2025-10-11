@@ -14,7 +14,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     }
   ],
   template: `
-    <div class="space-y-2">
+    <div class="input-wrapper space-y-2">
       <label *ngIf="label" [for]="inputId" class="block text-sm font-medium text-gray-700">
         {{ label }}
         <span *ngIf="required" class="text-red-500 ml-1">*</span>
@@ -41,6 +41,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       <p *ngIf="hint && !error" class="text-sm text-gray-500">{{ hint }}</p>
     </div>
   `,
+  styleUrl: './input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent implements ControlValueAccessor {
@@ -64,17 +65,19 @@ export class InputComponent implements ControlValueAccessor {
   private onTouched = () => {};
 
   get inputClasses(): string {
-    const baseClasses = 'block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500';
+    const baseClasses = 'block w-full rounded-lg px-3 text-gray-900 placeholder-gray-500 focus:outline-none transition-all duration-200 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500';
     
     const sizeClasses = {
       sm: 'text-sm py-1.5',
-      md: 'text-sm py-2',
+      md: 'text-sm py-2', 
       lg: 'text-base py-3'
     };
 
-    const errorClasses = this.error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : '';
+    const borderClasses = this.error 
+      ? 'border border-red-300 bg-white focus:border-red-500 focus:ring-1 focus:ring-red-500' 
+      : 'border border-gray-300 bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
 
-    return `${baseClasses} ${sizeClasses[this.size]} ${errorClasses}`.trim();
+    return `${baseClasses} ${sizeClasses[this.size]} ${borderClasses}`.trim();
   }
 
   onInput(event: any): void {

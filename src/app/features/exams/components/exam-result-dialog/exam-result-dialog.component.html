@@ -1,20 +1,77 @@
-<h2 mat-dialog-title>İmtahan detalları</h2>
-<mat-dialog-content>
-    <p><strong>Kod:</strong> {{ data.exam.code }}</p>
-    <p><strong>Ad:</strong> {{ data.exam.name }}</p>
-    <p><strong>Tarix:</strong> {{ data.exam.date | momentDateFormat: 'DD.MM.YYYY' }}</p>
-</mat-dialog-content>
-<mat-dialog-actions>
-    <form (submit)="onSubmit($event)" enctype="multipart/form-data">
-        <div class="d-flex justify-content-between">
-            <input type="file" style="display: none;" #fileInput (change)="onFileChange($event)" accept=".xlsx, .xls" required />
-            <button mat-button (click)="fileInput.click()"><mat-icon>upload</mat-icon> Fayl əlavə et</button>
-            <div style="display: inline-block; width: 450px; padding: 0 20px;">
-                <label *ngIf="fileInput && fileInput.files && fileInput.files.length > 0">{{ fileInput.files[0].name}}</label>
-            </div>
-            <button mat-button type="submit" [disabled]="!fileInput.files || fileInput.files.length === 0"><mat-icon>save</mat-icon> Yüklə</button>
-            <button mat-button (click)="onDelete($event)"><mat-icon>delete</mat-icon> Nəticələri sil</button>
-            <button mat-button (click)="onClose()">Bağla</button>
+<app-modal
+  title="İmtahan detalları"
+  subtitle="İmtahan məlumatları və nəticələrin idarə edilməsi"
+  size="lg"
+  [buttons]="modalButtons"
+  (closed)="onModalClose()"
+>
+  <div class="space-y-6">
+    <!-- Exam Info -->
+    <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+      <p><strong>Kod:</strong> {{ data.exam.code }}</p>
+      <p><strong>Ad:</strong> {{ data.exam.name }}</p>
+      <p><strong>Tarix:</strong> {{ data.exam.date | momentDateFormat: 'DD.MM.YYYY' }}</p>
+    </div>
+
+    <!-- File Upload Section -->
+    <form (submit)="onSubmit($event)" enctype="multipart/form-data" class="space-y-4">
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+        <input 
+          type="file" 
+          class="hidden" 
+          #fileInput 
+          (change)="onFileChange($event)" 
+          accept=".xlsx, .xls" 
+          required 
+        />
+        
+        <div class="text-center space-y-4">
+          <div class="mx-auto w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+            <lucide-icon [img]="Upload" class="w-6 h-6 text-gray-500"></lucide-icon>
+          </div>
+          
+          <div>
+            <app-button 
+              variant="outline" 
+              (clicked)="fileInput.click()"
+            >
+              <div class="flex items-center space-x-2">
+                <lucide-icon [img]="Upload" class="w-4 h-4"></lucide-icon>
+                <span>Fayl əlavə et</span>
+              </div>
+            </app-button>
+            <p class="text-xs text-gray-500 mt-2">Excel faylları (.xlsx, .xls)</p>
+          </div>
+          
+          <div *ngIf="fileName" class="bg-blue-50 border border-blue-200 rounded p-2">
+            <p class="text-sm text-blue-800">Seçilmiş fayl: {{ fileName }}</p>
+          </div>
         </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-3">
+        <app-button 
+          variant="primary" 
+          type="submit" 
+          [disabled]="!file"
+        >
+          <div class="flex items-center space-x-2">
+            <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+            <span>Yüklə</span>
+          </div>
+        </app-button>
+        
+        <app-button 
+          variant="danger" 
+          (clicked)="onDelete($event)"
+        >
+          <div class="flex items-center space-x-2">
+            <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+            <span>Nəticələri sil</span>
+          </div>
+        </app-button>
+      </div>
     </form>
-</mat-dialog-actions>
+  </div>
+</app-modal>

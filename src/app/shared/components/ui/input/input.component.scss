@@ -1,0 +1,50 @@
+/* Custom styles for input component - clean and consistent */
+
+:host {
+  display: block;
+  
+  .input-wrapper {
+    input {
+      /* Reset and ensure clean styling */
+      background-image: none !important;
+      background-color: white !important;
+      border-width: 1px !important;
+      border-style: solid !important;
+      border-radius: 0.5rem !important;
+      box-shadow: none !important;
+      transition: all 0.2s ease-in-out !important;
+      
+      /* Focus state with proper ring */
+      &:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 1px var(--tw-ring-color) !important;
+      }
+      
+      /* Remove number input spinners */
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      
+      /* Firefox number input */
+      &[type=number] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+      }
+      
+      /* Disabled state */
+      &:disabled {
+        background-color: #f9fafb !important;
+        color: #6b7280 !important;
+        cursor: not-allowed !important;
+        opacity: 1 !important;
+      }
+      
+      /* Hover state */
+      &:hover:not(:disabled):not(:focus) {
+        border-color: #9ca3af !important;
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>İstifadəçinin redaktə edilməsi</h2>
+<mat-dialog-content>
+    <form>
+        <mat-form-field appearance="fill">
+            <mat-label>E-mail</mat-label>
+            <input matInput [(ngModel)]='dataSource.email' name="email" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill" *ngIf="!dataSource._id">
+            <mat-label>Şifrə</mat-label>
+            <input matInput [(ngModel)]='dataSource.password' name="password" type="password" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill" *ngIf="!dataSource._id">
+            <mat-label>Şifrəni təkrarlayın</mat-label>
+            <input matInput [(ngModel)]='repeatedPassword' name="repeatedPassword" type="password" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Vəzifəsi</mat-label>
+            <mat-select [(value)]="dataSource.role" name="role" required>
+                <mat-option value="admin">Admin</mat-option>
+                <mat-option value="moderator">Moderator</mat-option>
+                <mat-option value="teacher">Müəllim</mat-option>
+                <mat-option value="user">İstifadəçi</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-label>Təsdiq</mat-label>
+        <mat-checkbox [(ngModel)]="dataSource.isApproved" name="isApproved">
+            Təsdiq edilmiş
+        </mat-checkbox>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close (click)="onClose()">Ləğv et</button>
+    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!dataSource.email || !dataSource.role || dataSource.isApproved === undefined">
+        Yadda saxla
+    </button>
+</mat-dialog-actions>

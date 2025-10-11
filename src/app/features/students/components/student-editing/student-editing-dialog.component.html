@@ -1,70 +1,80 @@
-<h2 mat-dialog-title>Şagirdin redaktə edilməsi</h2>
-<mat-dialog-content>
-    <form>
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin kodu</mat-label>
-            <input matInput [(ngModel)]='data.student.code' name="code" required />
-        </mat-form-field>
+<app-modal
+  [title]="modalTitle"
+  [subtitle]="modalSubtitle"
+  size="md"
+  [buttons]="modalButtons"
+  (closed)="onModalClose()"
+>
+  <form class="space-y-6">
+    <app-input
+      label="Şagirdin kodu"
+      placeholder="Şagirdin kodunu daxil edin"
+      [(ngModel)]="data.student.code"
+      name="code"
+      type="number"
+      [required]="true"
+    ></app-input>
 
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin soyadı</mat-label>
-            <input matInput [(ngModel)]='data.student.lastName' name="lastName" required />
-        </mat-form-field>
+    <app-input
+      label="Şagirdin soyadı"
+      placeholder="Şagirdin soyadını daxil edin"
+      [(ngModel)]="data.student.lastName"
+      name="lastName"
+      [required]="true"
+    ></app-input>
 
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin adı</mat-label>
-            <input matInput [(ngModel)]='data.student.firstName' name="firstName" required />
-        </mat-form-field>
+    <app-input
+      label="Şagirdin adı"
+      placeholder="Şagirdin adını daxil edin"
+      [(ngModel)]="data.student.firstName"
+      name="firstName"
+      [required]="true"
+    ></app-input>
 
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin ata adı</mat-label>
-            <input matInput [(ngModel)]='data.student.middleName' name="middleName" required />
-        </mat-form-field>
+    <app-input
+      label="Şagirdin ata adı"
+      placeholder="Şagirdin ata adını daxil edin"
+      [(ngModel)]="data.student.middleName"
+      name="middleName"
+      [required]="true"
+    ></app-input>
 
-        <!--
-        Сюда нужно добавить select, который будет позволять выбирать школу и где выбранная школа будет data.teacher.school
-        -->
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin rayonu / şəhəri</mat-label>
-            <mat-select [(value)]="selectedDistrict" (selectionChange)="onDistrictSelectChanged()" required>
-                <mat-option *ngFor="let district of districts" [value]="district">
-                    {{ district.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin məktəbi</mat-label>
-            <mat-select [(value)]="selectedSchool" (selectionChange)="onSchoolSelectChanged()" required>
-                <mat-option *ngFor="let school of schools" [value]="school">
-                    {{ school.name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+    <app-select
+      label="Şagirdin rayonu / şəhəri"
+      placeholder="Rayonu və ya şəhəri seçin"
+      [options]="districtOptions"
+      [(ngModel)]="selectedDistrictId"
+      name="district"
+      [required]="true"
+    ></app-select>
 
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin sinfi</mat-label>
-            <mat-select [(value)]="selectedGrade" (selectionChange)="onGradeSelectChanged()" required>
-                <mat-option *ngFor="let grade of grades" [value]="grade">
-                    {{ grade }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+    <app-select
+      label="Şagirdin məktəbi"
+      placeholder="Məktəbi seçin"
+      [options]="schoolOptions"
+      [(ngModel)]="selectedSchoolId"
+      name="school"
+      [required]="true"
+      [disabled]="!selectedDistrict"
+    ></app-select>
 
-        <mat-form-field appearance="fill">
-            <mat-label>Şagirdin müəllimi</mat-label>
-            <mat-select [(value)]="selectedTeacher" (selectionChange)="onTeacherSelectChanged()" required>
-                <mat-option *ngFor="let teacher of teachers" [value]="teacher">
-                    {{ teacher.fullname }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </form>
-</mat-dialog-content>
+    <app-select
+      label="Şagirdin sinfi"
+      placeholder="Sinfi seçin"
+      [options]="gradeOptions"
+      [(ngModel)]="data.student.grade"
+      name="grade"
+      [required]="true"
+    ></app-select>
 
-<mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close (click)="onClose()">Ləğv et</button>
-    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!data.student">
-        Yadda saxla
-    </button>
-</mat-dialog-actions>
+    <app-select
+      label="Şagirdin müəllimi"
+      placeholder="Müəllimi seçin"
+      [options]="teacherOptions"
+      [(ngModel)]="selectedTeacherId"
+      name="teacher"
+      [required]="true"
+      [disabled]="!selectedSchool"
+    ></app-select>
+  </form>
+</app-modal>

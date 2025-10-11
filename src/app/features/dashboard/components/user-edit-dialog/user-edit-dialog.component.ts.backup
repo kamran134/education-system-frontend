@@ -1,23 +1,29 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogContent, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { UserEdit } from '../../../../core/models/user.model';
 import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
-import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
-import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-user-edit-dialog',
     standalone: true,
     imports: [
-        CommonModule,
+        MatDialogContent,
+        MatInputModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatCheckboxModule,
         FormsModule,
-        InputComponent,
-        ModalComponent,
-        SelectComponent
+        CommonModule
     ],
     templateUrl: './user-edit-dialog.component.html',
     styleUrl: './user-edit-dialog.component.scss'
@@ -37,62 +43,6 @@ export class UserEditDialogComponent {
         private authService: AuthService,
         private matSnackBar: MatSnackBar,
     ) {}
-
-    get modalTitle(): string {
-        return this.isNewUser() ? 'Yeni istifadəçi əlavə et' : 'İstifadəçinin redaktə edilməsi';
-    }
-
-    get modalSubtitle(): string {
-        return 'İstifadəçinin məlumatlarını daxil edin';
-    }
-
-    get roleOptions(): SelectOption[] {
-        return [
-            { value: 'admin', label: 'Admin' },
-            { value: 'moderator', label: 'Moderator' },
-            { value: 'teacher', label: 'Müəllim' },
-            { value: 'user', label: 'İstifadəçi' }
-        ];
-    }
-
-    get approvalOptions(): SelectOption[] {
-        return [
-            { value: true, label: 'Təsdiq edilmiş' },
-            { value: false, label: 'Təsdiq edilməmiş' }
-        ];
-    }
-
-    get isFormValid(): boolean {
-        const basicValidation = !!(
-            this.dataSource.email?.trim() &&
-            this.dataSource.role &&
-            this.dataSource.isApproved !== undefined
-        );
-
-        if (this.isNewUser()) {
-            return basicValidation && 
-                   !!(this.dataSource.password?.trim()) &&
-                   this.dataSource.password === this.repeatedPassword;
-        }
-
-        return basicValidation;
-    }
-
-    get modalButtons(): ModalButton[] {
-        return [
-            {
-                label: 'Ləğv et',
-                variant: 'outline',
-                action: () => this.onClose()
-            },
-            {
-                label: 'Yadda saxla',
-                variant: 'primary',
-                disabled: !this.isFormValid,
-                action: () => this.onSave()
-            }
-        ];
-    }
 
     isSuperAdmin(): boolean {
         return this.authService.isSuperAdmin();
@@ -133,9 +83,5 @@ export class UserEditDialogComponent {
 
     onClose(): void {
         this.dialogRef.close();
-    }
-
-    onModalClose(): void {
-        this.onClose();
     }
 }

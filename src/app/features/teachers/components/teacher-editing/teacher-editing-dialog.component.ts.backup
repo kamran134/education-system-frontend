@@ -1,27 +1,33 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import { Teacher, TeacherForCreation } from '../../../../core/models/teacher.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { SchoolService } from '../../../schools/services/school.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
+import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
+import { MatOptionModule } from '@angular/material/core';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
-import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
-import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-teacher-editing-dialog',
     standalone: true,
     imports: [
-        CommonModule,
+        MatDialogContent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDialogActions,
+        MatButtonModule,
+        MatSelectModule,
+        MatOptionModule,
         FormsModule,
-        InputComponent,
-        ModalComponent,
-        SelectComponent
+        CommonModule
     ],
     templateUrl: './teacher-editing-dialog.component.html',
     styleUrl: './teacher-editing-dialog.component.scss'
@@ -38,79 +44,6 @@ export class TeacherEditingDialogComponent implements OnInit{
         private districtService: DistrictService,
         private schoolService: SchoolService
     ) { }
-
-    get modalTitle(): string {
-        return this.data.isEditing ? 'Müəllimin redaktə edilməsi' : 'Yeni müəllim əlavə et';
-    }
-
-    get modalSubtitle(): string {
-        return 'Müəllimin məlumatlarını daxil edin';
-    }
-
-    get isValid(): boolean {
-        return !!(
-            this.data.teacher.code &&
-            this.data.teacher.fullname?.trim() &&
-            this.data.teacher.district &&
-            this.data.teacher.school &&
-            (this.data.teacher.studentCount !== undefined && this.data.teacher.studentCount >= 0)
-        );
-    }
-
-    get districtOptions(): SelectOption[] {
-        return this.districts.map(district => ({
-            value: district._id,
-            label: district.name
-        }));
-    }
-
-    get schoolOptions(): SelectOption[] {
-        return this.schools.map(school => ({
-            value: school._id,
-            label: school.name
-        }));
-    }
-
-    get selectedDistrictId(): string {
-        return this.data.teacher.district?._id || '';
-    }
-
-    set selectedDistrictId(districtId: string) {
-        this.selectedDistrict = this.districts.find(d => d._id === districtId) || null;
-        this.onDistrictSelectChanged();
-    }
-
-    get selectedSchoolId(): string {
-        return this.data.teacher.school?._id || '';
-    }
-
-    set selectedSchoolId(schoolId: string) {
-        this.selectedSchool = this.schools.find(s => s._id === schoolId) || null;
-        this.onSchoolSelectChanged();
-    }
-
-    get activeOptions(): SelectOption[] {
-        return [
-            { value: true, label: 'Bəli' },
-            { value: false, label: 'Xeyr' }
-        ];
-    }
-
-    get modalButtons(): ModalButton[] {
-        return [
-            {
-                label: 'Ləğv et',
-                variant: 'outline',
-                action: () => this.onClose()
-            },
-            {
-                label: 'Yadda saxla',
-                variant: 'primary',
-                disabled: !this.isValid,
-                action: () => this.onSave()
-            }
-        ];
-    }
 
     ngOnInit(): void {
         this.loadDistricts();
@@ -174,9 +107,5 @@ export class TeacherEditingDialogComponent implements OnInit{
 
     onClose(): void {
         this.dialogRef.close();
-    }
-
-    onModalClose(): void {
-        this.onClose();
     }
 }

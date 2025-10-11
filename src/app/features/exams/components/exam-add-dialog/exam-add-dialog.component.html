@@ -1,31 +1,33 @@
-<h2 mat-dialog-title>Yeni imtahanın əlavə edilməsi</h2>
-<mat-dialog-content>
-    <form>
-        <mat-form-field appearance="fill">
-            <mat-label>İmtahan adı</mat-label>
-            <input matInput [(ngModel)]='data.name' name="name" required />
-        </mat-form-field>
+<app-modal
+  title="Yeni imtahanın əlavə edilməsi"
+  subtitle="İmtahan məlumatlarını daxil edin"
+  size="md"
+  [buttons]="modalButtons"
+  (closed)="onModalClose()"
+>
+  <form class="space-y-6">
+    <app-input
+      label="İmtahan adı"
+      placeholder="İmtahan adını daxil edin"
+      [(ngModel)]="data.name"
+      name="name"
+      [required]="true"
+    ></app-input>
 
-        <mat-form-field appearance="fill">
-            <mat-label>İmtahan kodu</mat-label>
-            <input matInput [(ngModel)]='data.code' name="code" required />
-        </mat-form-field>
+    <app-input
+      label="İmtahan kodu"
+      placeholder="İmtahan kodunu daxil edin"
+      [(ngModel)]="data.code"
+      name="code"
+      [required]="true"
+    ></app-input>
 
-        <mat-form-field appearance="fill">
-            <mat-form-field>
-                <mat-label>İmtahan tarixi</mat-label>
-                <input matInput [matDatepicker]="picker" [(ngModel)]='data.date' name="date" required>
-                <mat-hint>DD.MM.YYYY</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker (monthSelected)="setMonthAndYear($event, picker)"></mat-datepicker>
-            </mat-form-field>
-        </mat-form-field>
-    </form>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close (click)="onClose()">Ləğv et</button>
-    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="!data.name || !data.code">
-        Yadda saxla
-    </button>
-</mat-dialog-actions>
+    <app-input
+      label="İmtahan tarixi"
+      placeholder="YYYY-MM-DD formatında"
+      [(ngModel)]="data.date"
+      name="date"
+      [required]="true"
+    ></app-input>
+  </form>
+</app-modal>

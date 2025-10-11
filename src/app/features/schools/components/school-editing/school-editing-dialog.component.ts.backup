@@ -1,26 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatOptionModule } from '@angular/material/core';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { District } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../services/school.service';
 import { School, SchoolForCreation } from '../../../../core/models/school.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
-import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
-import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-school-editing-dialog',
     standalone: true,
     imports: [
-        CommonModule,
+        MatDialogContent,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDialogActions,
+        MatButtonModule,
+        MatSelectModule,
+        MatOptionModule,
         FormsModule,
-        InputComponent,
-        ModalComponent,
-        SelectComponent
+        CommonModule
     ],
     templateUrl: './school-editing-dialog.component.html',
     styleUrl: './school-editing-dialog.component.scss'
@@ -34,62 +40,6 @@ export class SchoolEditingDialogComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) public data: { school: School | SchoolForCreation, isEditing: boolean },
         private districtService: DistrictService
     ) {}
-
-    get modalTitle(): string {
-        return this.data.isEditing ? 'Məktəbin redaktə edilməsi' : 'Yeni məktəb əlavə et';
-    }
-
-    get modalSubtitle(): string {
-        return 'Məktəbin məlumatlarını daxil edin';
-    }
-
-    get isValid(): boolean {
-        return !!(
-            this.data.school.code &&
-            this.data.school.name?.trim() &&
-            this.data.school.district &&
-            (this.data.school.studentCount !== undefined && this.data.school.studentCount >= 0)
-        );
-    }
-
-    get districtOptions(): SelectOption[] {
-        return this.districts.map(district => ({
-            value: district._id,
-            label: district.name
-        }));
-    }
-
-    get selectedDistrictId(): string {
-        return this.data.school.district?._id || '';
-    }
-
-    set selectedDistrictId(districtId: string) {
-        this.selectedDistrict = this.districts.find(d => d._id === districtId) || null;
-        this.onDistrictSelectChanged();
-    }
-
-    get activeOptions(): SelectOption[] {
-        return [
-            { value: true, label: 'Bəli' },
-            { value: false, label: 'Xeyr' }
-        ];
-    }
-
-    get modalButtons(): ModalButton[] {
-        return [
-            {
-                label: 'Ləğv et',
-                variant: 'outline',
-                action: () => this.onClose()
-            },
-            {
-                label: 'Yadda saxla',
-                variant: 'primary',
-                disabled: !this.isValid,
-                action: () => this.onSave()
-            }
-        ];
-    }
 
     ngOnInit(): void {
         this.loadDistricts();
@@ -134,9 +84,5 @@ export class SchoolEditingDialogComponent implements OnInit {
 
     onClose(): void {
         this.dialogRef.close();
-    }
-
-    onModalClose(): void {
-        this.onClose();
     }
 }
