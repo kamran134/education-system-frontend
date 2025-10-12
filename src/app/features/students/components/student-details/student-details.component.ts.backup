@@ -1,25 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { StudentService } from '../../services/student.service';
-import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Params, RouterModule } from '@angular/router';
 import { StudentWithResult } from '../../../../core/models/student.model';
 import { Error } from '../../../../core/models/error.model';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { LucideAngularModule, ArrowLeft, Download, Loader } from 'lucide-angular';
-import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { CardComponent } from '../../../../shared/components/ui/card/card.component';
 
 @Component({
     selector: 'app-student-details',
     standalone: true,
     imports: [
-        CommonModule,
+        MatCardModule, MatDividerModule, MatTableModule, MatProgressSpinner, MatIconModule, MatButtonModule,
         RouterModule,
-        LucideAngularModule,
-        ButtonComponent,
-        CardComponent
+        CommonModule
     ],
     templateUrl: './student-details.component.html',
     styleUrl: './student-details.component.scss'
@@ -31,17 +32,10 @@ export class StudentDetailsComponent implements OnInit {
     prevPageIndex: number = 0;
     filterParams: any = {};
     source: string = 'students';
-    isLoading: boolean = true;
-
-    // Icons
-    readonly ArrowLeft = ArrowLeft;
-    readonly Download = Download;
-    readonly Loader = Loader;
 
     constructor(
         private studentService: StudentService,
         private route: ActivatedRoute,
-        private router: Router,
         private excelService: ExcelService
     ) { }
 
@@ -62,23 +56,15 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     private loadStudent(): void {
-        this.isLoading = true;
         this.studentService.getStudentById(this.studentId).subscribe({
             next: (response) => {
                 this.student = ResponseHandlerUtil.extractData<StudentWithResult>(response);
-                this.isLoading = false;
             },
             error: (error: Error) => {
                 console.error('Şagirdin alınmasında xəta!', error.error);
                 this.student = null;
-                this.isLoading = false;
             }
         });
-    }
-
-    goBack(): void {
-        const backUrl = this.source === 'stats' ? '/stats' : '/students';
-        this.router.navigate([backUrl], { queryParams: this.filterParams });
     }
 
     exportToExcel() {

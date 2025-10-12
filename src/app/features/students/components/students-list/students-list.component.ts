@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -133,7 +133,8 @@ export class StudentsListComponent implements OnInit {
         private teacherService: TeacherService,
         private examService: ExamService,
         private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private router: Router
     ) {}
 
     ngOnInit(): void {
@@ -394,6 +395,23 @@ export class StudentsListComponent implements OnInit {
                 });
             }
         });
+    }
+
+    onStudentView(student: Student): void {
+        // Сохраняем текущие параметры фильтров и пагинации для возврата
+        const queryParams = {
+            pageIndex: this.pageIndex,
+            pageSize: this.pageSize,
+            districts: this.selectedDistrictIds,
+            schools: this.selectedSchoolIds,
+            teachers: this.selectedTeacherIds,
+            grades: this.selectedGrades,
+            exams: this.selectedExamIds,
+            search: this.searchString,
+            defective: this.checkedDefective
+        };
+
+        this.router.navigate(['/students', student._id], { queryParams });
     }
 
     onStudentsRepair(): void {

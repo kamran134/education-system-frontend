@@ -63,7 +63,7 @@ export interface PaginationEvent {
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let item of data; let i = index" class="hover:bg-gray-50 transition-colors">
+            <tr *ngFor="let item of data; let i = index" class="hover:bg-gray-50 transition-colors cursor-pointer" (click)="onRowClick(item)">
               <td
                 *ngFor="let column of columns"
                 [class]="getCellClass(column)"
@@ -106,7 +106,7 @@ export interface PaginationEvent {
               
               <!-- Actions -->
               <td *ngIf="actions.length > 0" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex items-center justify-end space-x-2">
+                <div class="flex items-center justify-end space-x-2" (click)="$event.stopPropagation()">
                   <app-button
                     *ngFor="let action of actions"
                     [variant]="action.variant || 'outline'"
@@ -214,6 +214,7 @@ export class DataTableComponent {
   @Output() actionClicked = new EventEmitter<{ action: string; item: any }>();
   @Output() pageChanged = new EventEmitter<PaginationEvent>();
   @Output() sortChanged = new EventEmitter<{ column: string; direction: 'asc' | 'desc' }>();
+  @Output() rowClicked = new EventEmitter<any>();
 
   readonly Edit = Edit;
   readonly Trash2 = Trash2;
@@ -279,5 +280,9 @@ export class DataTableComponent {
 
   getDisplayEnd(): number {
     return Math.min((this.pageIndex + 1) * this.pageSize, this.totalCount);
+  }
+
+  onRowClick(item: any): void {
+    this.rowClicked.emit(item);
   }
 }

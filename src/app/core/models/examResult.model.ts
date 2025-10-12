@@ -1,9 +1,18 @@
 import { Exam } from "./exam.model";
 import { Student } from "./student.model";
 
+interface IDisciplines {
+    az: number;
+    math: number;
+    lifeKnowledge: number;
+    logic: number;
+    english: number;
+}
+
 export interface ExamResult {
     _id: string;
-    disciplines: { az: number; math: number; lifeKnowledge: number; logic: number; }
+    disciplines: IDisciplines;
+    questionCounts: IDisciplines;
     exam: Exam;
     grade: number;
     level: string;

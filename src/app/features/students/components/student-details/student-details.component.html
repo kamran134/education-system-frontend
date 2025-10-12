@@ -1,81 +1,146 @@
-<div class="container">
-    <div class="breadcrumbs">
-        <button mat-raised-button extended [routerLink]="source === 'stats' ? '/stats' : '/students'" [queryParams]="filterParams">
-            <mat-icon>keyboard_arrow_left</mat-icon>
-            {{ 'Geri' }}
-        </button>
+<div class="main-container p-6 space-y-6">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+        <lucide-icon [img]="Loader" class="animate-spin text-blue-500" size="24"></lucide-icon>
+        <span class="ml-2 text-gray-600">Məlumatlar yüklənir...</span>
     </div>
 
-    <ng-container *ngIf="student; else loadingTemplate">
-        <mat-card class="student-card">
-            <mat-card-header>
-                <mat-card-title>{{ student.lastName }} {{ student.firstName }} {{ student.middleName }}</mat-card-title>
-            </mat-card-header>
-
-            <mat-card-content style="margin-top: 12px">
-                <p><strong>Sinfi:</strong> {{ student.grade }}</p>
-                <p><strong>Müəllimi:</strong> {{ student.teacher.fullname }}</p>
-                <p><strong>Məktəbi:</strong> {{ student.school.name }}</p>
-                <p><strong>Rayonu / şəhəri:</strong> {{ student.district.name }}</p>
-                <p><strong>Kodu: {{ student.code }}</strong></p>
-
-                <mat-divider></mat-divider>
-
-                <div class="student-card__exam-results"><h3>İmtahan nəticələri</h3></div>
-                <table mat-table [dataSource]="student.results || []" class="mat-elevation-z8">
-                    <!-- Экзамен -->
-                    <ng-container matColumnDef="examDate">
-                        <th mat-header-cell *matHeaderCellDef> İmtahan tarixi</th>
-                        <td mat-cell *matCellDef="let result">{{ result.exam.date | date: 'dd.MM.YYYY' }}</td>
-                    </ng-container>
-
-                    <!-- Уровень -->
-                    <ng-container matColumnDef="level">
-                        <th mat-header-cell *matHeaderCellDef> Pillə </th>
-                        <td mat-cell *matCellDef="let result"> {{ result.level }} </td>
-                    </ng-container>
-
-                    <!-- Общий балл -->
-                    <ng-container matColumnDef="totalScore">
-                        <th mat-header-cell *matHeaderCellDef> Ümumi bal </th>
-                        <td mat-cell *matCellDef="let result"> {{ result.totalScore }} </td>
-                    </ng-container>
-
-                    <!-- Дисциплины -->
-                    <ng-container matColumnDef="disciplines">
-                        <th mat-header-cell *matHeaderCellDef> Fənnlər üzrə ballar </th>
-                        <td mat-cell *matCellDef="let result">
-                            Azərbaycan dili: {{ result.disciplines.az }} | 
-                            Riyaziyyat: {{ result.disciplines.math }} |
-                            <!-- Если student.grade === 5, то скрывать эту строчку, иначе написать Həyat bilgisi: {{ result.disciplines.lifeKnowledge }} -->
-                            {{ student.grade === 5 ? '' : 'Həyat bilgisi: ' + result.disciplines.lifeKnowledge + ' | ' }}
-                            <!--{{ student.grade !== 5 ? <>Həyat bilgisi: {{result.disciplines.lifeKnowledge}}</> }} | -->
-                            Məntiq: {{ result.disciplines.logic }}
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="status">
-                        <th mat-header-cell *matHeaderCellDef> İmtahan üzrə uğuru </th>
-                        <td mat-cell *matCellDef="let result">
-                            {{ formatStudentAchievements(result) || '' }}
-                        </td>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="['examDate', 'level', 'totalScore', 'disciplines', 'status']"></tr>
-                    <tr mat-row *matRowDef="let row; columns: ['examDate', 'level', 'totalScore', 'disciplines', 'status'];"></tr>
-                </table>
-                <mat-divider></mat-divider>
-            </mat-card-content>
-        </mat-card>
-        <div *ngIf="student" class="export-to-excel">
-            <button mat-raised-button (click)="exportToExcel()"><mat-icon>file_download</mat-icon> Excel-ə eksport et</button>
+    <!-- Content -->
+    <div *ngIf="!isLoading && student">
+        <!-- Student Header Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        {{ student.lastName }} {{ student.firstName }} {{ student.middleName }}
+                    </h1>
+                    <p class="text-gray-600 mt-1">Kod: {{ student.code }}</p>
+                </div>
+                <app-button
+                    variant="outline"
+                    (clicked)="goBack()">
+                    <div class="flex items-center space-x-2">
+                        <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+                        <span>Geri</span>
+                    </div>
+                </app-button>
+            </div>
         </div>
-    </ng-container>
 
-    <ng-template #loadingTemplate>
-        <div class="loading-container">
-        <mat-spinner></mat-spinner>
-        <p>Məlumatlar yüklənir...</p>
+        <!-- Student Information Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Şagird haqqında məlumat</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <div>
+                        <span class="font-medium text-gray-700">Sinfi:</span>
+                        <span class="ml-2 text-gray-900">{{ student.grade }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Müəllimi:</span>
+                        <span class="ml-2 text-gray-900">{{ student.teacher.fullname }}</span>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <span class="font-medium text-gray-700">Məktəbi:</span>
+                        <span class="ml-2 text-gray-900">{{ student.school.name }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Rayonu / şəhəri:</span>
+                        <span class="ml-2 text-gray-900">{{ student.district.name }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-    </ng-template>
+
+        <!-- Exam Results Card -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-900">İmtahan nəticələri</h2>
+                    <app-button
+                        variant="primary"
+                        (clicked)="exportToExcel()">
+                        <div class="flex items-center space-x-2">
+                            <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
+                            <span>Excel-ə eksport et</span>
+                        </div>
+                    </app-button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div *ngIf="!student.results || student.results.length === 0" class="text-center py-8">
+                    <p class="text-gray-500">İmtahan nəticələri tapılmadı</p>
+                </div>
+
+                <div *ngIf="student.results && student.results.length > 0" class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                                    Fənnlər üzrə ballar
+                                    <span class="text-xs text-gray-500">(Sual sayı)</span>
+                                </th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan üzrə uğuru</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let result of student.results" class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                    {{ result.exam.date | date: 'dd.MM.YYYY' }}
+                                </td>
+                                <td class="px-4 py-3 text-sm border-b border-gray-100">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full"
+                                          [ngClass]="{
+                                            'bg-green-100 text-green-800': result.level === 'Yüksək',
+                                            'bg-yellow-100 text-yellow-800': result.level === 'Orta', 
+                                            'bg-red-100 text-red-800': result.level === 'Aşağı',
+                                            'bg-gray-100 text-gray-800': !result.level || (result.level !== 'Yüksək' && result.level !== 'Orta' && result.level !== 'Aşağı')
+                                          }">
+                                        {{ result.level || 'Müəyyən edilməyib' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                                    {{ result.totalScore }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                    <div class="space-y-1">
+                                        <div *ngIf="result.disciplines && result.disciplines.az !== undefined">
+                                            Azərbaycan dili: <span class="font-medium">{{ result.disciplines.az }}</span>
+                                            <span *ngIf="result.questionCounts.az" class="text-xs text-gray-500"> ({{ result.questionCounts.az }})</span>
+                                        </div>
+                                        <div *ngIf="result.disciplines && result.disciplines.math !== undefined">
+                                            Riyaziyyat: <span class="font-medium">{{ result.disciplines.math }}</span>
+                                            <span *ngIf="result.questionCounts.math" class="text-xs text-gray-500"> ({{ result.questionCounts.math }})</span>
+                                        </div>
+                                        <div *ngIf="result.disciplines && result.disciplines.lifeKnowledge !== undefined">
+                                            Həyat bilgisi: <span class="font-medium">{{ result.disciplines.lifeKnowledge }}</span>
+                                            <span *ngIf="result.questionCounts.lifeKnowledge" class="text-xs text-gray-500"> ({{ result.questionCounts.lifeKnowledge }})</span>
+                                        </div>
+                                        <div *ngIf="result.disciplines && result.disciplines.logic !== undefined">
+                                            Məntiq: <span class="font-medium">{{ result.disciplines.logic }}</span>
+                                            <span *ngIf="result.questionCounts.logic" class="text-xs text-gray-500"> ({{ result.questionCounts.logic }})</span>
+                                        </div>
+                                        <div *ngIf="result.disciplines && result.disciplines.english !== undefined">
+                                            İngilis dili: <span class="font-medium">{{ result.disciplines.english }}</span>
+                                            <span *ngIf="result.questionCounts.english" class="text-xs text-gray-500"> ({{ result.questionCounts.english }})</span>
+                                        </div>
+
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                    {{ formatStudentAchievements(result) || '' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
