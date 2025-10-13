@@ -53,11 +53,12 @@ export class ExamAddDialogComponent {
 
     onSave(): void {
         // Преобразуем строку обратно в Date при сохранении
-        const result = {
-            ...this.data,
-            date: new Date(this.data.date)
-        };
-        this.dialogRef.close(result);
+        const dateParts = this.data.date.split('.');
+        if (dateParts.length === 3) {
+            const [day, month, year] = dateParts.map((part: string) => parseInt(part, 10));
+            this.data.date = new Date(year, month - 1, day);
+        }
+        this.dialogRef.close(this.data);
     }
 
     onClose(): void {

@@ -12,7 +12,6 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 // Services
 import { ExamService } from '../../services/exam.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 // UI Components
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Calendar, ChevronDown, ChevronUp } from 'lucide-angular';
@@ -240,12 +239,9 @@ export class ExamsListComponent implements OnInit {
             params.month = this.selectedMonth.toString();
         }
 
-        console.log('Loading exams with params:', params);
-
         this.isLoading = true;
         this.examService.getExams(params).subscribe({
             next: (response: ExamResponse) => {
-                console.log('Exams loaded successfully:', response);
                 this.exams = response.data;
                 this.totalCount = response.totalCount;
                 this.isLoading = false;
