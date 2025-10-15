@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { LucideAngularModule, RefreshCw } from 'lucide-angular';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { School } from '../../../../core/models/school.model';
+import { SchoolService } from '../../../schools/services/school.service';
 
 @Component({
     selector: 'app-schools-year-tab',
@@ -18,6 +21,8 @@ import { School } from '../../../../core/models/school.model';
         MatSortModule,
         MatButtonModule,
         MatIconModule,
+        LucideAngularModule,
+        ButtonComponent,
         RoundNumberPipe
     ],
     templateUrl: './schools-year-tab.component.html',
@@ -36,5 +41,19 @@ export class SchoolsYearTabComponent {
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
 
+    private schoolService = inject(SchoolService);
+    isUpdating = false;
+    RefreshCw = RefreshCw;
 
+    updateSchoolsStats(): void {
+        this.isUpdating = true;
+        this.schoolService.updateSchoolsStats().subscribe({
+            next: () => {
+                this.isUpdating = false;
+            },
+            error: () => {
+                this.isUpdating = false;
+            }
+        });
+    }
 }

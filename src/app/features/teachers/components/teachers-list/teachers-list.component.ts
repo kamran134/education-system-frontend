@@ -121,10 +121,6 @@ export class TeachersListComponent implements OnInit {
         private dialog: MatDialog
     ) {}
 
-
-
-
-
     ngOnInit(): void {
         this.setupActionButtons();
         this.loadDistricts();

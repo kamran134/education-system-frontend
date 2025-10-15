@@ -1,4 +1,17 @@
 <div>
+    <!-- Update button for teachers -->
+    <div class="mb-4 flex justify-end">
+        <app-button 
+            variant="secondary" 
+            (clicked)="updateTeachersStats()"
+            [disabled]="isUpdating">
+            <div class="flex items-center space-x-2">
+                <lucide-icon [img]="RefreshCw" [class]="isUpdating ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
+                <span>{{isUpdating ? 'Yenilənir...' : 'Müəllimlərin reytinqini yenilə'}}</span>
+            </div>
+        </app-button>
+    </div>
+
     <table mat-table [dataSource]="isLoading ? [] : teachers" class="mat-elevation-z8" matSort #teacherSort (matSortChange)="sortChanged.emit($event)">
         <ng-container matColumnDef="code" *ngIf="displayedColumns.includes('code')">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Müəllimin kodu </th>

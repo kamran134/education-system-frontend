@@ -1,9 +1,15 @@
-<div class="breadcrumbs">
-    <button mat-raised-button extended routerLink="/">
-        <mat-icon>home</mat-icon>
-        Baş səhifə
-    </button>
-</div>
+<div class="p-6 space-y-6">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center space-x-2">
+        <app-button 
+            variant="outline" 
+            routerLink="/">
+            <div class="flex items-center space-x-2">
+                <lucide-icon [img]="Home" class="w-4 h-4"></lucide-icon>
+                <span>Baş səhifə</span>
+            </div>
+        </app-button>
+    </div>
 
 <app-stats-filters
     [selectedTab]="selectedTab"
@@ -27,83 +33,120 @@
     (searchStringChanged)="onSearchChange($event)"
 ></app-stats-filters>
 
-<mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" (selectedTabChange)="onTabChange($event)" [(selectedIndex)]="selectedTabIndex">
-    <mat-tab label="Ayın şagirdləri" [className]="darkMode ? 'dark-mode' : 'light-mode'">
-        <app-students-month-tab
-            [stats]="stats"
-            [monthStudentColumns]="monthStudentColumns"
-            [isLoading]="isloading"
-            [labels]="{
-                developing$: developingStudentsLabel$,
-                ofMonth$: studentsOfMonthLabel$,
-                republic$: studentsOfMonthByRepublicLabel$
-            }"
-            (sortChanged)="onSortChange($event)"
-            (excelExport)="exportToExcel($event)"
-            (rowClicked)="openStudentDetails($event)"
-        ></app-students-month-tab>
-    </mat-tab>
-    <mat-tab label="İlin şagirdləri">
-        <app-students-year-tab
-          [students]="stats.students ?? []"
-          [displayedColumns]="studentColumns"
-          [totalCount]="totalCounts.allStudentsTotalCount ?? 0"
-          [pageIndex]="pageIndex"
-          [pageSize]="studentsPageSize"
-          [isLoading]="isloading"
-          (sortChanged)="onSortChange($event)"
-          (pageChanged)="onPageChange($event)"
-          (exportClicked)="exportToExcel('allStudents')"
-          (rowClicked)="openStudentDetails($event)"
-        ></app-students-year-tab>
-      </mat-tab>
-    <mat-tab label="İlin müəllimləri">
-        <app-teachers-year-tab
-            [teachers]="stats.teachers ?? []"
-            [displayedColumns]="teacherColumns"
-            [totalCount]="totalCounts.allTeachersTotalCount ?? 0"
-            [pageIndex]="pageIndex"
-            [pageSize]="pageSize"
-            [isLoading]="isloading"
-            (sortChanged)="onSortChange($event)"
-            (pageChanged)="onPageChange($event)"
-            (exportClicked)="exportToExcel('allTeachers')"
-        ></app-teachers-year-tab>
-    </mat-tab>
-    <mat-tab label="İlin məktəbləri">
-        <app-schools-year-tab
-            [schools]="stats.schools ?? []"
-            [displayedColumns]="schoolColumns"
-            [totalCount]="totalCounts.allSchoolsTotalCount ?? 0"
-            [pageIndex]="pageIndex"
-            [pageSize]="pageSize"
-            [isLoading]="isloading"
-            (sortChanged)="onSortChange($event)"
-            (pageChanged)="onPageChange($event)"
-            (exportClicked)="exportToExcel('allSchools')"
-        ></app-schools-year-tab>
-    </mat-tab>
-    <mat-tab label="İlin rayonları / şəhərləri">
-        <app-districts-year-tab
-            [districts]="stats.districts ?? []"
-            [displayedColumns]="districtColumns"
-            [totalCount]="totalCounts.allDistrictsTotalCount ?? 0"
-            [pageIndex]="pageIndex"
-            [pageSize]="pageSize"
-            [isLoading]="isloading"
-            (sortChanged)="onSortChange($event)"
-            (pageChanged)="onPageChange($event)"
-            (exportClicked)="exportToExcel('allDistricts')"
-        ></app-districts-year-tab>
-    </mat-tab>
-</mat-tab-group>
-
-<div class="stats-container" *ngIf="isloading">Statistika yüklənir...</div>
-
-<mat-grid-list cols="4" rowHeight="100px" *ngIf="isAdminOrSuperAdmin$ | async">
-    <mat-grid-tile [colspan]="2" [rowspan]="1">
-        <div class="statistics-action">
-            <button mat-raised-button (click)="updateStats()"><mat-icon>update</mat-icon> {{isUpdating ? 'Yenilənir...' : 'Statistikanı yenilə'}}</button>
+    <!-- Custom Tabs -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200">
+        <!-- Tab Headers -->
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                <button
+                    *ngFor="let tab of tabs; let i = index"
+                    [class]="getTabClasses(i)"
+                    (click)="selectTab(i)">
+                    {{ tab.label }}
+                </button>
+            </nav>
         </div>
-    </mat-grid-tile>
-</mat-grid-list>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+            <!-- Students Month Tab -->
+            <div *ngIf="selectedTabIndex === 0">
+                <app-students-month-tab
+                    [stats]="stats"
+                    [monthStudentColumns]="monthStudentColumns"
+                    [isLoading]="isloading"
+                    [labels]="{
+                        developing$: developingStudentsLabel$,
+                        ofMonth$: studentsOfMonthLabel$,
+                        republic$: studentsOfMonthByRepublicLabel$
+                    }"
+                    (sortChanged)="onSortChange($event)"
+                    (excelExport)="exportToExcel($event)"
+                    (rowClicked)="openStudentDetails($event)"
+                ></app-students-month-tab>
+            </div>
+
+            <!-- Students Year Tab -->
+            <div *ngIf="selectedTabIndex === 1">
+                <app-students-year-tab
+                    [students]="stats.students ?? []"
+                    [displayedColumns]="studentColumns"
+                    [totalCount]="totalCounts.allStudentsTotalCount ?? 0"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="studentsPageSize"
+                    [isLoading]="isloading"
+                    (sortChanged)="onSortChange($event)"
+                    (pageChanged)="onPageChange($event)"
+                    (exportClicked)="exportToExcel('allStudents')"
+                    (rowClicked)="openStudentDetails($event)"
+                ></app-students-year-tab>
+            </div>
+
+            <!-- Teachers Year Tab -->
+            <div *ngIf="selectedTabIndex === 2">
+                <app-teachers-year-tab
+                    [teachers]="stats.teachers ?? []"
+                    [displayedColumns]="teacherColumns"
+                    [totalCount]="totalCounts.allTeachersTotalCount ?? 0"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="pageSize"
+                    [isLoading]="isloading"
+                    (sortChanged)="onSortChange($event)"
+                    (pageChanged)="onPageChange($event)"
+                    (exportClicked)="exportToExcel('allTeachers')"
+                ></app-teachers-year-tab>
+            </div>
+
+            <!-- Schools Year Tab -->
+            <div *ngIf="selectedTabIndex === 3">
+                <app-schools-year-tab
+                    [schools]="stats.schools ?? []"
+                    [displayedColumns]="schoolColumns"
+                    [totalCount]="totalCounts.allSchoolsTotalCount ?? 0"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="pageSize"
+                    [isLoading]="isloading"
+                    (sortChanged)="onSortChange($event)"
+                    (pageChanged)="onPageChange($event)"
+                    (exportClicked)="exportToExcel('allSchools')"
+                ></app-schools-year-tab>
+            </div>
+
+            <!-- Districts Year Tab -->
+            <div *ngIf="selectedTabIndex === 4">
+                <app-districts-year-tab
+                    [districts]="stats.districts ?? []"
+                    [displayedColumns]="districtColumns"
+                    [totalCount]="totalCounts.allDistrictsTotalCount ?? 0"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="pageSize"
+                    [isLoading]="isloading"
+                    (sortChanged)="onSortChange($event)"
+                    (pageChanged)="onPageChange($event)"
+                    (exportClicked)="exportToExcel('allDistricts')"
+                ></app-districts-year-tab>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isloading" class="flex justify-center items-center py-8">
+        <lucide-icon [img]="Loader" class="animate-spin text-blue-500" size="24"></lucide-icon>
+        <span class="ml-2 text-gray-600">Reytinqlər yüklənir...</span>
+    </div>
+
+    <!-- Admin Actions -->
+    <!-- <div *ngIf="isAdminOrSuperAdmin$ | async" class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div class="statistics-action">
+            <app-button 
+                variant="primary" 
+                (clicked)="updateStats()"
+                [disabled]="isUpdating">
+                <div class="flex items-center space-x-2">
+                    <lucide-icon [img]="RefreshCw" [class]="isUpdating ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
+                    <span>{{isUpdating ? 'Yenilənir...' : 'Statistikanı yenilə'}}</span>
+                </div>
+            </app-button>
+        </div>
+    </div> -->
+</div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -6,7 +6,10 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { LucideAngularModule, RefreshCw } from 'lucide-angular';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
+import { TeacherService } from '../../../teachers/services/teacher.service';
 
 @Component({
     selector: 'app-teachers-year-tab',
@@ -18,6 +21,8 @@ import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
         MatSortModule,
         MatButtonModule,
         MatIconModule,
+        LucideAngularModule,
+        ButtonComponent,
         RoundNumberPipe
     ],
     templateUrl: './teachers-year-tab.component.html',
@@ -35,4 +40,20 @@ export class TeachersYearTabComponent {
     @Output() pageChanged = new EventEmitter<PageEvent>();
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
+
+    private teacherService = inject(TeacherService);
+    isUpdating = false;
+    RefreshCw = RefreshCw;
+
+    updateTeachersStats(): void {
+        this.isUpdating = true;
+        this.teacherService.updateTeachersStats().subscribe({
+            next: () => {
+                this.isUpdating = false;
+            },
+            error: () => {
+                this.isUpdating = false;
+            }
+        });
+    }
 }

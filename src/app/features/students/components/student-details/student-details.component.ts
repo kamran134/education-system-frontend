@@ -9,7 +9,6 @@ import { ExcelService } from '../../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { LucideAngularModule, ArrowLeft, Download, Loader } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { CardComponent } from '../../../../shared/components/ui/card/card.component';
 
 @Component({
     selector: 'app-student-details',
@@ -18,8 +17,7 @@ import { CardComponent } from '../../../../shared/components/ui/card/card.compon
         CommonModule,
         RouterModule,
         LucideAngularModule,
-        ButtonComponent,
-        CardComponent
+        ButtonComponent
     ],
     templateUrl: './student-details.component.html',
     styleUrl: './student-details.component.scss'

@@ -1,12 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { LucideAngularModule, RefreshCw } from 'lucide-angular';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { Student } from '../../../../core/models/student.model';
+import { StudentService } from '../../../students/services/student.service';
+import { StatsService } from '../../services/stats.service';
 
 @Component({
     selector: 'app-students-year-tab',
@@ -18,6 +22,8 @@ import { Student } from '../../../../core/models/student.model';
         MatSortModule,
         MatButtonModule,
         MatIconModule,
+        LucideAngularModule,
+        ButtonComponent,
         RoundNumberPipe
     ],
     templateUrl: './students-year-tab.component.html',
@@ -37,11 +43,28 @@ export class StudentsYearTabComponent implements OnChanges {
     @Output() rowClicked = new EventEmitter<string>();
 
     dataSource = new MatTableDataSource<Student>([]);
+    
+    private studentService = inject(StudentService);
+    private statsService = inject(StatsService);
+    isUpdating = false;
+    RefreshCw = RefreshCw;
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['students']) {
             // Ensure we always pass an array; fallback to empty array
             this.dataSource.data = Array.isArray(this.students) ? this.students : [];
         }
+    }
+
+    updateStudentsStats(): void {
+        this.isUpdating = true;
+        this.statsService.updateStats().subscribe({
+            next: () => {
+                this.isUpdating = false;
+            },
+            error: () => {
+                this.isUpdating = false;
+            }
+        });
     }
 }

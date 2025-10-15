@@ -1,27 +1,16 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { StatsService } from '../../services/stats.service';
-import { MatSnackBar, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Error } from '../../../../core/models/error.model';
-import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { Stats } from '../../../../core/models/stats.model';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTabsModule } from '@angular/material/tabs';
 import { Exam, ExamResponse } from '../../../../core/models/exam.model';
 import { ExamService } from '../../../exams/services/exam.service';
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { Sort } from '@angular/material/sort';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
@@ -32,7 +21,9 @@ import { DistrictService } from '../../../districts/services/district.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Student } from '../../../../core/models/student.model';
 import { StudentService } from '../../../students/services/student.service';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 import { StatsFiltersComponent } from "../stats-filters/stats-filters.component";
 import { StatsPagination } from '../../../../core/models/pagination.model';
 import * as XLSX from 'xlsx';
@@ -47,27 +38,19 @@ import { TeachersYearTabComponent } from "../teachers-year-tab/teachers-year-tab
 import { SchoolsYearTabComponent } from "../schools-year-tab/schools-year-tab.component";
 import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-tab.component";
 
+// UI Components
+import { LucideAngularModule, Home, RefreshCw, Loader } from 'lucide-angular';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+
 @Component({
     selector: 'app-stats',
     standalone: true,
     imports: [
-    MatGridListModule,
-    MatButtonModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatCardModule,
-    MatTableModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatPaginatorModule,
-    MatInputModule,
-    MatTabsModule,
-    MatSortModule,
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    LucideAngularModule,
+    ButtonComponent,
     StatsFiltersComponent,
     StudentsMonthTabComponent,
     StudentsYearTabComponent,
@@ -84,6 +67,12 @@ export class StatsComponent implements OnInit, OnDestroy {
     @ViewChild('schoolSort') schoolSort!: MatSort;
     @ViewChild('studentSort') studentSort!: MatSort;
     @ViewChild('districtSort') districtSort!: MatSort;
+    
+    // Icons
+    readonly Home = Home;
+    readonly RefreshCw = RefreshCw;
+    readonly Loader = Loader;
+    
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
@@ -133,6 +122,13 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedExams: Exam[] | undefined = undefined;
     selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
+    tabs = [
+        { label: 'Ayın şagirdləri', key: 'students' },
+        { label: 'İlin şagirdləri', key: 'allStudents' },
+        { label: 'İlin müəllimləri', key: 'allTeachers' },
+        { label: 'İlin məktəbləri', key: 'allSchools' },
+        { label: 'İlin rayonları / şəhərləri', key: 'allDistricts' }
+    ];
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
@@ -796,6 +792,22 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.excelService.formatHeaders(result);
         XLSX.utils.book_append_sheet(workbook, result, sheetName);
         XLSX.writeFile(workbook, `${sheetName}.xlsx`);
+    }
+
+    selectTab(index: number): void {
+        this.selectedTabIndex = index;
+        const tabKey = this.tabs[index].key;
+        this.onTabChange({ index, tab: { textLabel: this.tabs[index].label } });
+    }
+
+    getTabClasses(index: number): string {
+        const baseClasses = 'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm focus:outline-none cursor-pointer transition-colors';
+        
+        if (index === this.selectedTabIndex) {
+            return `${baseClasses} border-blue-500 text-blue-600`;
+        } else {
+            return `${baseClasses} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`;
+        }
     }
 
     ngOnDestroy(): void {

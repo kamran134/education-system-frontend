@@ -1,59 +1,105 @@
-<div class="filters">
-    <mat-form-field class="filters__calendar-month" *ngIf="selectedTab === 'students'">
-        <mat-label>Ay seçin</mat-label>
-        <mat-select [formControl]="monthControl">
-            <mat-option *ngFor="let month of months" [value]="month.value">
-                {{ month.name }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <!-- Filter Header -->
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+            <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
+            Filtrlər
+        </h3>
+        <button 
+            type="button"
+            (click)="toggleFilters()"
+            class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
+            <span>{{ filtersExpanded ? 'Gizlət' : 'Göstər' }}</span>
+            <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
+        </button>
+    </div>
 
-    <mat-form-field class="filters__calendar-year" *ngIf="selectedTab === 'students'">
-        <mat-label>İl seçin</mat-label>
-        <mat-select [formControl]="yearControl">
-            <mat-option *ngFor="let year of years" [value]="year">
-                {{ year }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+    <!-- Filters Grid -->
+    <div [class]="filtersExpanded ? 'block' : 'hidden'">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <!-- Month Filter -->
+            <div *ngIf="selectedTab === 'students'">
+                <app-select
+                    label="Ay seçin"
+                    [formControl]="monthControl"
+                    [options]="monthOptions">
+                </app-select>
+            </div>
 
-    <mat-form-field class="filters__districts" *ngIf="selectedTab !== 'allDistricts'">
-        <mat-label>Rayonlar / şəhərlər</mat-label>
-        <mat-select [(value)]="selectedDistrictIds" (selectionChange)="onDistrictSelectChanged()" multiple>
-        <mat-option *ngFor="let district of districts" [value]="district._id">{{ district.name }}</mat-option>
-        </mat-select>
-    </mat-form-field>
+            <!-- Year Filter -->
+            <div *ngIf="selectedTab === 'students'">
+                <app-select
+                    label="İl seçin"
+                    [formControl]="yearControl"
+                    [options]="yearOptions">
+                </app-select>
+            </div>
 
-    <mat-form-field class="filters__schools" *ngIf="['students', 'allStudents', 'allTeachers'].includes(selectedTab)">
-        <mat-label>Məktəblər</mat-label>
-        <mat-select [(value)]="selectedSchoolIds" (selectionChange)="onSchoolSelectChanged()" multiple>
-        <mat-option *ngFor="let school of schools" [value]="school._id">{{ school.name }}</mat-option>
-        </mat-select>
-    </mat-form-field>
+            <!-- Districts Filter -->
+            <div *ngIf="selectedTab !== 'allDistricts'">
+                <app-select
+                    label="Rayonlar / şəhərlər"
+                    [multiple]="true"
+                    [(ngModel)]="selectedDistrictIds"
+                    [options]="districtOptions"
+                    (ngModelChange)="onDistrictSelectChanged($event)">
+                </app-select>
+            </div>
 
-    <mat-form-field class="filters__teachers" *ngIf="['students', 'allStudents'].includes(selectedTab)">
-        <mat-label>Müəllimlər</mat-label>
-        <mat-select [(value)]="selectedTeacherIds" (selectionChange)="onTeacherSelectChanged()" multiple>
-        <mat-option *ngFor="let teacher of teachers" [value]="teacher._id">{{ teacher.fullname }}</mat-option>
-        </mat-select>
-    </mat-form-field>
+            <!-- Schools Filter -->
+            <div *ngIf="['students', 'allStudents', 'allTeachers'].includes(selectedTab)">
+                <app-select
+                    label="Məktəblər"
+                    [multiple]="true"
+                    [(ngModel)]="selectedSchoolIds"
+                    [options]="schoolOptions"
+                    (ngModelChange)="onSchoolSelectChanged($event)">
+                </app-select>
+            </div>
 
-    <mat-form-field class="filters__grades" *ngIf="['students', 'allStudents'].includes(selectedTab)">
-        <mat-label>Siniflər</mat-label>
-        <mat-select [(value)]="selectedGrades" (selectionChange)="onGradeSelectChanged()" multiple>
-        <mat-option *ngFor="let grade of gradesOptions" [value]="grade">{{ grade }}</mat-option>
-        </mat-select>
-    </mat-form-field>
+            <!-- Teachers Filter -->
+            <div *ngIf="['students', 'allStudents'].includes(selectedTab)">
+                <app-select
+                    label="Müəllimlər"
+                    [multiple]="true"
+                    [(ngModel)]="selectedTeacherIds"
+                    [options]="teacherOptions"
+                    (ngModelChange)="onTeacherSelectChanged($event)">
+                </app-select>
+            </div>
 
-    <mat-form-field class="filters__exams" *ngIf="['students', 'allStudents'].includes(selectedTab)">
-        <mat-label>İmtahanlar</mat-label>
-        <mat-select [(value)]="selectedExamIds" (selectionChange)="onExamSelectChanged()" multiple>
-            <mat-option *ngFor="let exam of exams" [value]="exam._id">{{ exam.name }}</mat-option>
-        </mat-select>
-    </mat-form-field>
+            <!-- Grades Filter -->
+            <div *ngIf="['students', 'allStudents'].includes(selectedTab)">
+                <app-select
+                    label="Siniflər"
+                    [multiple]="true"
+                    [(ngModel)]="selectedGrades"
+                    [options]="gradeOptionsForSelect"
+                    (ngModelChange)="onGradeSelectChanged($event)">
+                </app-select>
+            </div>
 
-    <mat-form-field class="filters__search-by-code">
-        <mat-label>Kod üzrə axtarış</mat-label>
-        <input matInput [(ngModel)]="searchString" (input)="onSearchChange()" >
-    </mat-form-field>
+            <!-- Exams Filter -->
+            <div *ngIf="['students', 'allStudents'].includes(selectedTab)">
+                <app-select
+                    label="İmtahanlar"
+                    [multiple]="true"
+                    [(ngModel)]="selectedExamIds"
+                    [options]="examOptions"
+                    (ngModelChange)="onExamSelectChanged($event)">
+                </app-select>
+            </div>
+
+            <!-- Search Filter -->
+            <div>
+                <app-input
+                    label="Kod üzrə axtarış"
+                    placeholder="Kod daxil edin..."
+                    [leftIcon]="Search"
+                    [(ngModel)]="searchString"
+                    (ngModelChange)="onSearchChange()">
+                </app-input>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,18 +1,27 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Exam } from '../../../../core/models/exam.model';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
 import { CommonModule } from '@angular/common';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSortModule } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
-
-// UI Components
-import { LucideAngularModule, Search, Filter, ChevronDown, ChevronUp } from 'lucide-angular';
-import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
-import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 
 @Component({
     selector: 'app-stats-filters',
@@ -20,22 +29,27 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
     styleUrls: ['./stats-filters.component.scss'],
     standalone: true,
     imports: [
+        MatGridListModule,
+        MatButtonModule,
+        MatSnackBarModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatCardModule,
+        MatTableModule,
+        MatDatepickerModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        MatPaginatorModule,
+        MatInputModule,
+        MatTabsModule,
+        MatSortModule,
         CommonModule,
         ReactiveFormsModule,
         RouterModule,
-        FormsModule,
-        LucideAngularModule,
-        SelectComponent,
-        InputComponent
+        FormsModule
     ],
 })
 export class StatsFiltersComponent {
-    // Icons
-    readonly Search = Search;
-    readonly Filter = Filter;
-    readonly ChevronDown = ChevronDown;
-    readonly ChevronUp = ChevronUp;
-    
     @Input() selectedTab: string = 'students';
     @Input() districts: District[] = [];
     @Input() schools: School[] = [];
@@ -59,7 +73,6 @@ export class StatsFiltersComponent {
 
     searchString: string = '';
     private searchTerms = new Subject<string>();
-    filtersExpanded: boolean = true;
 
     // Контролы для месяца и года
     monthControl = new FormControl(Number(this.selectedMonth.substring(5))); // 0-11
@@ -82,35 +95,6 @@ export class StatsFiltersComponent {
         { value: 12, name: 'Dekabr' }
     ];
     years: number[] = [];
-
-    // Options for select components
-    get monthOptions() {
-        return this.months.map(month => ({ label: month.name, value: month.value }));
-    }
-
-    get yearOptions() {
-        return this.years.map(year => ({ label: year.toString(), value: year }));
-    }
-
-    get districtOptions() {
-        return this.districts.map(district => ({ label: district.name, value: district._id }));
-    }
-
-    get schoolOptions() {
-        return this.schools.map(school => ({ label: school.name, value: school._id }));
-    }
-
-    get teacherOptions() {
-        return this.teachers.map(teacher => ({ label: teacher.fullname, value: teacher._id }));
-    }
-
-    get gradeOptionsForSelect() {
-        return this.gradesOptions.map(grade => ({ label: grade.toString(), value: grade }));
-    }
-
-    get examOptions() {
-        return this.exams.map(exam => ({ label: exam.name, value: exam._id }));
-    }
 
     constructor() {
         this.setupSearch();
@@ -145,46 +129,29 @@ export class StatsFiltersComponent {
         }
     }
 
-
-
-    onExamSelectChanged(examIds?: string[]) {
-        if (examIds !== undefined) {
-            this.selectedExamIds = examIds;
-        }
+    onExamSelectChanged() {
         this.examChanged.emit(this.selectedExamIds);
     }
 
-    onDistrictSelectChanged(districtIds?: string[]) {
-        if (districtIds !== undefined) {
-            this.selectedDistrictIds = districtIds;
-        }
+    onDistrictSelectChanged() {
         this.districtChanged.emit(this.selectedDistrictIds);
     }
 
-    onSchoolSelectChanged(schoolIds?: string[]) {
-        if (schoolIds !== undefined) {
-            this.selectedSchoolIds = schoolIds;
-        }
+    onSchoolSelectChanged() {
         this.schoolChanged.emit(this.selectedSchoolIds);
     }
 
-    onTeacherSelectChanged(teacherIds?: string[]) {
-        if (teacherIds !== undefined) {
-            this.selectedTeacherIds = teacherIds;
-        }
+    onTeacherSelectChanged() {
         this.teacherChanged.emit(this.selectedTeacherIds);
     }
 
-    onGradeSelectChanged(grades?: number[]) {
-        if (grades !== undefined) {
-            this.selectedGrades = grades;
-        }
+    onGradeSelectChanged() {
         this.gradeChanged.emit(this.selectedGrades);
     }
 
-    toggleFilters(): void {
-        this.filtersExpanded = !this.filtersExpanded;
-    }
+    // onExamSelectChanged() {
+    //     this.examChanged.emit(this.selectedExam);
+    // }
 
     onSearchChange(): void {
         console.log(this.searchString);
