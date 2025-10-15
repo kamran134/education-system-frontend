@@ -85,6 +85,7 @@ export class TeacherService {
 
     updateTeachersStats(): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers/update-stats`;
+        console.log('updateTeachersStats called');
         return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
