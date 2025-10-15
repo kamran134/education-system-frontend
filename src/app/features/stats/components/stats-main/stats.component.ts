@@ -32,7 +32,9 @@ import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-forma
 import { DashboardService } from '../../../dashboard/services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
 import { BehaviorSubject } from 'rxjs';
-import { StudentsMonthTabComponent } from '../students-month-tab/students-month-tab.component';
+import { DevelopingStudentsTabComponent } from '../developing-students-tab/developing-students-tab.component';
+import { MonthStudentsTabComponent } from '../month-students-tab/month-students-tab.component';
+import { RepublicMonthStudentsTabComponent } from '../republic-month-students-tab/republic-month-students-tab.component';
 import { StudentsYearTabComponent } from '../students-year-tab/students-year-tab.component';
 import { TeachersYearTabComponent } from "../teachers-year-tab/teachers-year-tab.component";
 import { SchoolsYearTabComponent } from "../schools-year-tab/schools-year-tab.component";
@@ -52,7 +54,9 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
     LucideAngularModule,
     ButtonComponent,
     StatsFiltersComponent,
-    StudentsMonthTabComponent,
+    DevelopingStudentsTabComponent,
+    MonthStudentsTabComponent,
+    RepublicMonthStudentsTabComponent,
     StudentsYearTabComponent,
     TeachersYearTabComponent,
     SchoolsYearTabComponent,
@@ -97,7 +101,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         allSchoolsTotalCount: 0,
         allDistrictsTotalCount: 0
     };
-    selectedTab: 'students' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' = 'students';
+    selectedTab: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' = 'developingStudents';
     monthStudentColumns: string[] = [];
     studentColumns: string[] = [];
     teacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
@@ -123,7 +127,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
     tabs = [
-        { label: 'Ayın şagirdləri', key: 'students' },
+        { label: 'İnkişaf edən şagirdlər', key: 'developingStudents' },
+        { label: 'Ayın şagirdləri', key: 'studentsOfMonth' },
+        { label: 'Respublika üzrə ayın şagirdləri', key: 'studentsOfMonthByRepublic' },
         { label: 'İlin şagirdləri', key: 'allStudents' },
         { label: 'İlin müəllimləri', key: 'allTeachers' },
         { label: 'İlin məktəbləri', key: 'allSchools' },
@@ -168,6 +174,11 @@ export class StatsComponent implements OnInit, OnDestroy {
         private dashboardService: DashboardService
     ) { }
 
+    // Helper function to check if current tab is a student month tab
+    isStudentMonthTab(): boolean {
+        return ['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(this.selectedTab);
+    }
+
     ngOnInit(): void {
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             if (isLoggedIn) {
@@ -191,20 +202,26 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : 1000;
                     this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
 
-                    if (this.selectedTab === 'students') {
+                    if (this.selectedTab === 'developingStudents') {
                         this.selectedTabIndex = 0;
                         // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
-                    } else if (this.selectedTab === 'allStudents') {
+                    } else if (this.selectedTab === 'studentsOfMonth') {
                         this.selectedTabIndex = 1;
+                        // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
+                    } else if (this.selectedTab === 'studentsOfMonthByRepublic') {
+                        this.selectedTabIndex = 2;
+                        // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
+                    } else if (this.selectedTab === 'allStudents') {
+                        this.selectedTabIndex = 3;
                         this.loadAllStudentsStats();
                     } else if (this.selectedTab === 'allTeachers') {
-                        this.selectedTabIndex = 2;
+                        this.selectedTabIndex = 4;
                         this.loadTeachersStats();
                     } else if (this.selectedTab === 'allSchools') {
-                        this.selectedTabIndex = 3;
+                        this.selectedTabIndex = 5;
                         this.loadSchoolsStats();
                     } else if (this.selectedTab === 'allDistricts') {
-                        this.selectedTabIndex = 4;
+                        this.selectedTabIndex = 6;
                         this.loadDistrictsStats();
                     }
 
@@ -537,26 +554,38 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.isloading = true;
 
         if (event.index === 0) {
-            this.selectedTab = 'students';
+            this.selectedTab = 'developingStudents';
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
             this.loadMonthStudentsStats();
         } else if (event.index === 1) {
+            this.selectedTab = 'studentsOfMonth';
+            // Для месячной статистики загружаем школы и учителей для фильтров
+            this.loadSchools();
+            this.loadTeachers();
+            this.loadMonthStudentsStats();
+        } else if (event.index === 2) {
+            this.selectedTab = 'studentsOfMonthByRepublic';
+            // Для месячной статистики загружаем школы и учителей для фильтров
+            this.loadSchools();
+            this.loadTeachers();
+            this.loadMonthStudentsStats();
+        } else if (event.index === 3) {
             this.selectedTab = 'allStudents';
             // Для годовой статистики студентов тоже нужны фильтры
             this.loadSchools();
             this.loadTeachers();
             this.loadAllStudentsStats();
-        } else if (event.index === 2) {
+        } else if (event.index === 4) {
             this.selectedTab = 'allTeachers';
             // Для учителей нужны школы для фильтров
             this.loadSchools();
             this.loadTeachersStats();
-        } else if (event.index === 3) {
+        } else if (event.index === 5) {
             this.selectedTab = 'allSchools'
             this.loadSchoolsStats();
-        } else if (event.index === 4) {
+        } else if (event.index === 6) {
             this.selectedTab = 'allDistricts'
             this.loadDistrictsStats();
         }
@@ -564,7 +593,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     onDistrictSelectChanged(districtIds: string[]) {
         this.selectedDistrictIds = districtIds;
-        if (this.selectedTab === 'students') {
+        if (this.isStudentMonthTab()) {
             this.loadSchools();
             this.loadTeachers();
             this.loadMonthStudentsStats();
@@ -585,7 +614,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     onSchoolSelectChanged(schoolIds: string[]) {
         this.selectedSchoolIds = schoolIds;
-        if (this.selectedTab === 'students') {
+        if (this.isStudentMonthTab()) {
             this.loadTeachers();
             this.loadMonthStudentsStats();
         }
@@ -600,7 +629,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     onTeacherSelectChanged(teacherIds: string[]) {
         this.selectedTeacherIds = teacherIds;
-        if (this.selectedTab === 'students') {
+        if (this.isStudentMonthTab()) {
             this.loadMonthStudentsStats();
         }
         else if (this.selectedTab === 'allStudents') {
@@ -610,7 +639,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     onGradeSelectChanged(grades: number[]) {
         this.selectedGrades = grades;
-        if (this.selectedTab === 'students') {
+        if (this.isStudentMonthTab()) {
             this.loadMonthStudentsStats();
         }
         else if (this.selectedTab === 'allStudents') {
@@ -621,7 +650,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     onExamSelectChanged(examIds: string[]) {
         this.selectedExamIds = examIds;
         this.selectedMonth = `${new Date().getFullYear()}-0`; // Сбрасываем месяц при смене экзамена
-        if (this.selectedTab === 'students') {
+        if (this.isStudentMonthTab()) {
             this.loadMonthStudentsStats();
             
             if (this.selectedExams && this.selectedExams.length > 0) {
@@ -684,7 +713,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.sortDirection = sortState.direction;
         this.sortActive = sortState.active;
         if (sortState.direction) {
-            if (this.selectedTab === 'students') {
+            if (this.isStudentMonthTab()) {
                 this.loadMonthStudentsStats();
                 // if (this.stats.developingStudents && this.stats.developingStudents.length > 0) {
                 //     const key = this.sortActive as keyof Student;
@@ -733,7 +762,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     onSearchChange(searchString: string) {
         this.pageIndex = 0; // Сбрасываем страницу
         this.searchString = searchString;
-        if (this.selectedTab === 'students') {
+        if (this.isStudentMonthTab()) {
             this.loadMonthStudentsStats();
         } else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();

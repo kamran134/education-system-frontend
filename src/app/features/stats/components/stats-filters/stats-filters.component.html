@@ -18,7 +18,7 @@
     <div [class]="filtersExpanded ? 'block' : 'hidden'">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <!-- Month Filter -->
-            <div *ngIf="selectedTab === 'students'">
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
                 <app-select
                     label="Ay seçin"
                     [formControl]="monthControl"
@@ -27,7 +27,7 @@
             </div>
 
             <!-- Year Filter -->
-            <div *ngIf="selectedTab === 'students'">
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
                 <app-select
                     label="İl seçin"
                     [formControl]="yearControl"
@@ -47,7 +47,7 @@
             </div>
 
             <!-- Schools Filter -->
-            <div *ngIf="['students', 'allStudents', 'allTeachers'].includes(selectedTab)">
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents', 'allTeachers'].includes(selectedTab)">
                 <app-select
                     label="Məktəblər"
                     [multiple]="true"
@@ -58,7 +58,7 @@
             </div>
 
             <!-- Teachers Filter -->
-            <div *ngIf="['students', 'allStudents'].includes(selectedTab)">
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
                 <app-select
                     label="Müəllimlər"
                     [multiple]="true"
@@ -69,7 +69,7 @@
             </div>
 
             <!-- Grades Filter -->
-            <div *ngIf="['students', 'allStudents'].includes(selectedTab)">
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
                 <app-select
                     label="Siniflər"
                     [multiple]="true"
@@ -80,7 +80,7 @@
             </div>
 
             <!-- Exams Filter -->
-            <div *ngIf="['students', 'allStudents'].includes(selectedTab)">
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
                 <app-select
                     label="İmtahanlar"
                     [multiple]="true"

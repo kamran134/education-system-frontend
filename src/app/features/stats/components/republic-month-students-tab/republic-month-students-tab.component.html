@@ -1,0 +1,13 @@
+<div>
+    <div class="stats-container">
+        <app-student-rating-table
+          [title]="(republicLabel$ | async) ?? 'Respublika üzrə cari ayın şagirdləri'"
+          tableName="studentsOfMonthByRepublic"
+          [dataSource]="stats.studentsOfMonthByRepublic || []"
+          [columns]="monthStudentColumns"
+          (excelExport)="excelExport.emit('studentsOfMonthByRepublic')"
+          (rowClicked)="rowClicked.emit($event)"
+          (sortChanged)="sortChanged.emit($event)"
+        ></app-student-rating-table>
+    </div>
+</div>

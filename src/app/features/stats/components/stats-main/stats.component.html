@@ -49,25 +49,47 @@
 
         <!-- Tab Content -->
         <div class="p-6">
-            <!-- Students Month Tab -->
+            <!-- Developing Students Tab -->
             <div *ngIf="selectedTabIndex === 0">
-                <app-students-month-tab
+                <app-developing-students-tab
                     [stats]="stats"
                     [monthStudentColumns]="monthStudentColumns"
                     [isLoading]="isloading"
-                    [labels]="{
-                        developing$: developingStudentsLabel$,
-                        ofMonth$: studentsOfMonthLabel$,
-                        republic$: studentsOfMonthByRepublicLabel$
-                    }"
+                    [developingLabel$]="developingStudentsLabel$"
                     (sortChanged)="onSortChange($event)"
                     (excelExport)="exportToExcel($event)"
                     (rowClicked)="openStudentDetails($event)"
-                ></app-students-month-tab>
+                ></app-developing-students-tab>
+            </div>
+
+            <!-- Month Students Tab -->
+            <div *ngIf="selectedTabIndex === 1">
+                <app-month-students-tab
+                    [stats]="stats"
+                    [monthStudentColumns]="monthStudentColumns"
+                    [isLoading]="isloading"
+                    [ofMonthLabel$]="studentsOfMonthLabel$"
+                    (sortChanged)="onSortChange($event)"
+                    (excelExport)="exportToExcel($event)"
+                    (rowClicked)="openStudentDetails($event)"
+                ></app-month-students-tab>
+            </div>
+
+            <!-- Republic Month Students Tab -->
+            <div *ngIf="selectedTabIndex === 2">
+                <app-republic-month-students-tab
+                    [stats]="stats"
+                    [monthStudentColumns]="monthStudentColumns"
+                    [isLoading]="isloading"
+                    [republicLabel$]="studentsOfMonthByRepublicLabel$"
+                    (sortChanged)="onSortChange($event)"
+                    (excelExport)="exportToExcel($event)"
+                    (rowClicked)="openStudentDetails($event)"
+                ></app-republic-month-students-tab>
             </div>
 
             <!-- Students Year Tab -->
-            <div *ngIf="selectedTabIndex === 1">
+            <div *ngIf="selectedTabIndex === 3">
                 <app-students-year-tab
                     [students]="stats.students ?? []"
                     [displayedColumns]="studentColumns"
@@ -83,7 +105,7 @@
             </div>
 
             <!-- Teachers Year Tab -->
-            <div *ngIf="selectedTabIndex === 2">
+            <div *ngIf="selectedTabIndex === 4">
                 <app-teachers-year-tab
                     [teachers]="stats.teachers ?? []"
                     [displayedColumns]="teacherColumns"
@@ -98,7 +120,7 @@
             </div>
 
             <!-- Schools Year Tab -->
-            <div *ngIf="selectedTabIndex === 3">
+            <div *ngIf="selectedTabIndex === 5">
                 <app-schools-year-tab
                     [schools]="stats.schools ?? []"
                     [displayedColumns]="schoolColumns"
@@ -113,7 +135,7 @@
             </div>
 
             <!-- Districts Year Tab -->
-            <div *ngIf="selectedTabIndex === 4">
+            <div *ngIf="selectedTabIndex === 6">
                 <app-districts-year-tab
                     [districts]="stats.districts ?? []"
                     [displayedColumns]="districtColumns"
