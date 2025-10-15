@@ -30,6 +30,7 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 // Dialogs
 import { StudentEditingDialogComponent } from '../student-editing/student-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-students-list',
@@ -40,7 +41,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
         RouterModule,
         LucideAngularModule,
         ListLayoutComponent,
-        DataTableComponent
+        DataTableComponent,
+        SelectComponent
     ],
     templateUrl: './students-list.component.html',
     styleUrls: ['./students-list.component.scss']
@@ -74,6 +76,11 @@ export class StudentsListComponent implements OnInit {
     
     // Filter options
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    districtOptions: SelectOption[] = [];
+    schoolOptions: SelectOption[] = [];
+    teacherOptions: SelectOption[] = [];
+    gradeOptions: SelectOption[] = [];
+    examOptions: SelectOption[] = [];
     
     // UI State
     filtersExpanded = false;
@@ -139,6 +146,7 @@ export class StudentsListComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupActionButtons();
+        this.setupGradeOptions();
         this.loadDistricts();
         this.loadExams();
         this.loadStudents();
@@ -163,6 +171,13 @@ export class StudentsListComponent implements OnInit {
                 }
             );
         }
+    }
+
+    private setupGradeOptions(): void {
+        this.gradeOptions = this.gradesOptions.map(grade => ({
+            value: grade,
+            label: grade.toString()
+        }));
     }
 
     isAdminOrSuperAdmin(): boolean {
@@ -293,7 +308,11 @@ export class StudentsListComponent implements OnInit {
 
         this.districtService.getDistricts(params).subscribe({
             next: (response: DistrictResponse) => {
-                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
+                this.districtOptions = this.districts.map(district => ({
+                    value: district._id,
+                    label: district.name
+                }));
             },
             error: (err: any) => {
                 console.error('Error loading districts:', err);
@@ -313,7 +332,11 @@ export class StudentsListComponent implements OnInit {
 
         this.schoolService.getSchoolsForFilter(params).subscribe({
             next: (data: SchoolResponse) => {
-                this.schools = data.data;
+                this.schools = data.data || [];
+                this.schoolOptions = this.schools.map(school => ({
+                    value: school._id,
+                    label: school.name
+                }));
             },
             error: (err: any) => {
                 console.error('Error loading schools:', err);
@@ -334,7 +357,11 @@ export class StudentsListComponent implements OnInit {
         this.teacherService.getTeachersForFilter(params).subscribe({
             next: (response: any) => {
                 const paginatedData = ResponseHandlerUtil.extractPaginatedData<Teacher>(response);
-                this.teachers = paginatedData.data;
+                this.teachers = paginatedData.data || [];
+                this.teacherOptions = this.teachers.map(teacher => ({
+                    value: teacher._id,
+                    label: teacher.fullname
+                }));
             },
             error: (err: any) => {
                 console.error('Error loading teachers:', err);
@@ -352,7 +379,11 @@ export class StudentsListComponent implements OnInit {
 
         this.examService.getExams(params).subscribe({
             next: (response: any) => {
-                this.exams = ResponseHandlerUtil.extractData<Exam[]>(response);
+                this.exams = ResponseHandlerUtil.extractData<Exam[]>(response) || [];
+                this.examOptions = this.exams.map(exam => ({
+                    value: exam._id,
+                    label: `${exam.name} (${new Date(exam.date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
+                }));
             },
             error: (err: any) => {
                 console.error('Error loading exams:', err);

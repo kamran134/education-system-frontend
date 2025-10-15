@@ -26,41 +26,27 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- District Filter -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Rayonlar / şəhərlər</label>
-            <select 
-              [(ngModel)]="selectedDistrictIds" 
-              (change)="onFilterChange({districts: selectedDistrictIds})"
+            <app-select
+              label="Rayonlar / şəhərlər"
+              [multiple]="true"
+              [(ngModel)]="selectedDistrictIds"
+              [options]="districtOptions"
               [disabled]="districts.length === 0"
-              multiple
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[100px] disabled:bg-gray-50 disabled:text-gray-500">
-              <option *ngFor="let district of districts" [value]="district._id">
-                {{ district.name }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1" *ngIf="districts.length > 0">
-              {{ districts.length }} rayon mövcuddur. Ctrl+klik ilə çoxlu seçim edin.
-            </p>
+              (ngModelChange)="onFilterChange({districts: $event})">
+            </app-select>
           </div>
           
           <!-- School Filter -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Məktəblər</label>
-            <select 
+            <app-select
+              label="Məktəblər"
+              [multiple]="true"
               [(ngModel)]="selectedSchoolIds"
-              (change)="onFilterChange({schools: selectedSchoolIds})"
+              [options]="schoolOptions"
               [disabled]="schools.length === 0"
-              multiple
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[100px] disabled:bg-gray-50 disabled:text-gray-500">
-              <option *ngFor="let school of schools" [value]="school._id">
-                {{ school.name }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1" *ngIf="schools.length > 0">
-              {{ schools.length }} məktəb mövcuddur.
-            </p>
-            <p class="text-xs text-gray-400 mt-1" *ngIf="schools.length === 0 && selectedDistrictIds.length === 0">
-              Əvvəl rayon seçin.
-            </p>
+              placeholder="Əvvəl rayon seçin"
+              (ngModelChange)="onFilterChange({schools: $event})">
+            </app-select>
           </div>
         </div>
 
@@ -68,40 +54,26 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Teachers Filter -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Müəllimlər</label>
-            <select 
+            <app-select
+              label="Müəllimlər"
+              [multiple]="true"
               [(ngModel)]="selectedTeacherIds"
-              (change)="onFilterChange({teachers: selectedTeacherIds})"
+              [options]="teacherOptions"
               [disabled]="teachers.length === 0"
-              multiple
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[80px] disabled:bg-gray-50 disabled:text-gray-500">
-              <option *ngFor="let teacher of teachers" [value]="teacher._id">
-                {{ teacher.fullname }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1" *ngIf="teachers.length > 0">
-              {{ teachers.length }} müəllim mövcuddur.
-            </p>
-            <p class="text-xs text-gray-400 mt-1" *ngIf="teachers.length === 0 && selectedSchoolIds.length === 0">
-              Əvvəl məktəb seçin.
-            </p>
+              placeholder="Əvvəl məktəb seçin"
+              (ngModelChange)="onFilterChange({teachers: $event})">
+            </app-select>
           </div>
 
           <!-- Grades Filter -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Siniflər</label>
-            <select 
+            <app-select
+              label="Siniflər"
+              [multiple]="true"
               [(ngModel)]="selectedGrades"
-              (change)="onFilterChange({grades: selectedGrades})"
-              multiple
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[80px]">
-              <option *ngFor="let grade of gradesOptions" [value]="grade">
-                {{ grade }}-ci sinif
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">
-              Ctrl+klik ilə çoxlu seçim edin.
-            </p>
+              [options]="gradeOptions"
+              (ngModelChange)="onFilterChange({grades: $event})">
+            </app-select>
           </div>
         </div>
 
@@ -109,19 +81,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Exams Filter -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">İmtahanlar</label>
-            <select 
+            <app-select
+              label="İmtahanlar"
+              [multiple]="true"
               [(ngModel)]="selectedExamIds"
-              (change)="onFilterChange({exams: selectedExamIds})"
-              multiple
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[80px]">
-              <option *ngFor="let exam of exams" [value]="exam._id">
-                {{ exam.name }} - {{ exam.date | date:'dd.MM.yyyy' }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1" *ngIf="exams.length > 0">
-              {{ exams.length }} imtahan mövcuddur.
-            </p>
+              [options]="examOptions"
+              (ngModelChange)="onFilterChange({exams: $event})">
+            </app-select>
           </div>
 
           <!-- Search & Defective -->

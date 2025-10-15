@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
@@ -29,14 +29,14 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
         InputComponent
     ],
 })
-export class StatsFiltersComponent {
+export class StatsFiltersComponent implements OnInit, OnChanges {
     // Icons
     readonly Search = Search;
     readonly Filter = Filter;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
     
-    @Input() selectedTab: string = 'students';
+    @Input() selectedTab: string = 'developingStudents';
     @Input() districts: District[] = [];
     @Input() schools: School[] = [];
     @Input() teachers: Teacher[] = [];
@@ -93,23 +93,23 @@ export class StatsFiltersComponent {
     }
 
     get districtOptions() {
-        return this.districts.map(district => ({ label: district.name, value: district._id }));
+        return (this.districts || []).map(district => ({ label: district.name, value: district._id }));
     }
 
     get schoolOptions() {
-        return this.schools.map(school => ({ label: school.name, value: school._id }));
+        return (this.schools || []).map(school => ({ label: school.name, value: school._id }));
     }
 
     get teacherOptions() {
-        return this.teachers.map(teacher => ({ label: teacher.fullname, value: teacher._id }));
+        return (this.teachers || []).map(teacher => ({ label: teacher.fullname, value: teacher._id }));
     }
 
     get gradeOptionsForSelect() {
-        return this.gradesOptions.map(grade => ({ label: grade.toString(), value: grade }));
+        return (this.gradesOptions || []).map(grade => ({ label: grade.toString(), value: grade }));
     }
 
     get examOptions() {
-        return this.exams.map(exam => ({ label: exam.name, value: exam._id }));
+        return (this.exams || []).map(exam => ({ label: exam.name, value: exam._id }));
     }
 
     constructor() {
@@ -118,6 +118,17 @@ export class StatsFiltersComponent {
         this.setupYears();
         // this.setupExamChange();
         
+    }
+
+    ngOnInit() {
+        // Component initialized
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        // Trigger change detection when input data changes
+        if (changes['districts'] || changes['schools'] || changes['teachers'] || changes['exams']) {
+            // Data has been updated, component will re-render
+        }
     }
 
     setupYears() {

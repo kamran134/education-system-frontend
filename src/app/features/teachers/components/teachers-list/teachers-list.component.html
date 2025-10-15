@@ -20,42 +20,26 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- District Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Rayonlar / şəhərlər</label>
-          <select 
-            [(ngModel)]="selectedDistrictIds" 
-            (change)="onFilterChange({districts: selectedDistrictIds})"
+          <app-select
+            label="Rayonlar / şəhərlər"
+            [multiple]="true"
+            [(ngModel)]="selectedDistrictIds"
+            [options]="districtOptions"
             [disabled]="districts.length === 0"
-            multiple
-            class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[100px] disabled:bg-gray-50 disabled:text-gray-500">
-            <option value="" disabled *ngIf="districts.length === 0">Rayonlar yüklənir...</option>
-            <option *ngFor="let district of districts" [value]="district._id">
-              {{ district.name }}
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1" *ngIf="districts.length > 0">
-            {{ districts.length }} rayon mövcuddur. Ctrl+klik ilə çoxlu seçim edin.
-          </p>
+            (ngModelChange)="onDistrictChange($event)">
+          </app-select>
         </div>
         
         <!-- School Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Məktəblər</label>
-          <select 
-            [(ngModel)]="selectedSchoolIds" 
-            (change)="onFilterChange({schools: selectedSchoolIds})"
+          <app-select
+            label="Məktəblər"
+            [multiple]="true"
+            [(ngModel)]="selectedSchoolIds"
+            [options]="schoolOptions"
             [disabled]="schools.length === 0"
-            multiple
-            class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 min-h-[100px] disabled:bg-gray-50 disabled:text-gray-500">
-            <option value="" disabled *ngIf="schools.length === 0">
-              {{ selectedDistrictIds.length > 0 ? 'Məktəblər yüklənir...' : 'Əvvəlcə rayon seçin' }}
-            </option>
-            <option *ngFor="let school of schools" [value]="school._id">
-              {{ school.name }}
-            </option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1" *ngIf="schools.length > 0">
-            {{ schools.length }} məktəb mövcuddur. Ctrl+klik ilə çoxlu seçim edin.
-          </p>
+            (ngModelChange)="onSchoolChange($event)">
+          </app-select>
         </div>
       </div>
     </div>

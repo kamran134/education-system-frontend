@@ -21,6 +21,7 @@ import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings } 
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-teachers-list',
@@ -31,7 +32,8 @@ import { AdvancedFiltersComponent, FilterField } from '../../../../shared/compon
         RouterModule,
         LucideAngularModule,
         ListLayoutComponent,
-        DataTableComponent
+        DataTableComponent,
+        SelectComponent
     ],
     templateUrl: './teachers-list.component.html',
     styleUrls: ['./teachers-list.component.scss']
@@ -65,6 +67,8 @@ export class TeachersListComponent implements OnInit {
     }
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
+    districtOptions: SelectOption[] = [];
+    schoolOptions: SelectOption[] = [];
     missingSchoolCodes: number[] = [];
     teacherCodesWithoutSchoolCodes: number[] = [];
     incorrectTeacherCodes: number[] = [];
@@ -190,23 +194,36 @@ export class TeachersListComponent implements OnInit {
         ];
     }
 
+    onDistrictChange(selectedDistricts: string[]): void {
+        console.log('🎯 onDistrictChange called with:', selectedDistricts);
+        this.selectedDistrictIds = selectedDistricts || [];
+        this.selectedSchoolIds = []; // Clear school selection when districts change
+        console.log('🔄 About to call loadSchools...');
+        this.loadSchools(); // Reload schools for selected districts
+        
+        // Reset pagination and reload data
+        this.pageIndex = 0;
+        this.loadTeachers();
+    }
+
+    onSchoolChange(selectedSchools: string[]): void {
+        this.selectedSchoolIds = selectedSchools || [];
+        
+        // Reset pagination and reload data
+        this.pageIndex = 0;
+        this.loadTeachers();
+    }
+
     onFilterChange(filterData: any): void {
         // Handle district filter change
         if (filterData.districts !== undefined) {
-            this.selectedDistrictIds = filterData.districts || [];
-            this.selectedSchoolIds = []; // Clear school selection when districts change
-            this.loadSchools(); // Reload schools for selected districts
+            this.onDistrictChange(filterData.districts);
         }
         
         // Handle school filter change
         if (filterData.schools !== undefined) {
-            this.selectedSchoolIds = filterData.schools || [];
+            this.onSchoolChange(filterData.schools);
         }
-
-        // Reset pagination and reload data
-        this.pageIndex = 0;
-        
-        this.loadTeachers();
     }
 
     onTableAction(event: { action: string; item: any }): void {
@@ -246,15 +263,42 @@ export class TeachersListComponent implements OnInit {
     }
 
     loadSchools(): void {
-        const params: FilterParams = {
-            districtIds: this.selectedDistrictIds.join(",")
+        console.log('📚 loadSchools called with selectedDistrictIds:', this.selectedDistrictIds);
+        if (this.selectedDistrictIds.length === 0) {
+            this.schools = [];
+            this.schoolOptions = [];
+            console.log('❌ No districts selected, clearing schools');
+            return;
         }
 
+        const params: FilterParams = {
+            districtIds: this.selectedDistrictIds.join(","),
+            page: 1,
+            size: 1000,
+            sortColumn: 'name',
+            sortDirection: 'asc'
+        }
+
+        console.log('📞 Calling schoolService.getSchoolsForFilter with params:', params);
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
                 next: (data: SchoolResponse) => {
-                    this.schools = data.data;
-                    this.setupFilters();
+                    console.log('✅ Schools response received:', data);
+                    console.log('📊 data.data:', data.data);
+                    console.log('🔍 Direct data:', data);
+                    
+                    // Попробуем разные варианты структуры ответа
+                    this.schools = data.data || data || [];
+                    console.log('🏗️ this.schools after assignment:', this.schools);
+                    
+                    this.schoolOptions = this.schools.map(school => {
+                        console.log('🏫 Processing school:', school);
+                        return {
+                            value: school._id,
+                            label: school.name
+                        };
+                    });
+                    console.log('🏫 Updated schoolOptions:', this.schoolOptions);
                 },
                 error: (err: any) => {
                     this.isLoading = false;
@@ -275,8 +319,11 @@ export class TeachersListComponent implements OnInit {
         this.districtService.getDistricts(params)
             .subscribe({
                 next: (response: DistrictResponse) => {
-                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                    this.setupFilters();
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
+                    this.districtOptions = this.districts.map(district => ({
+                        value: district._id,
+                        label: district.name
+                    }));
                 },
                 error: (err: any) => {
                     this.isLoading = false;

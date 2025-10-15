@@ -195,7 +195,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number) : [];
                     this.selectedExamIds = params['examIds'] ? params['examIds'].split(',') : [];
                     this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-                    this.selectedTab = params['tab'] || 'students';
+                    this.selectedTab = params['tab'] || 'developingStudents';
                     this.sortActive = params['sortActive'] || 'averageScore';
                     this.sortDirection = params['sortDirection'] || 'desc';
                     this.pageSize = params['pageSize'] ? +params['pageSize'] : 100;
@@ -204,18 +204,27 @@ export class StatsComponent implements OnInit, OnDestroy {
 
                     if (this.selectedTab === 'developingStudents') {
                         this.selectedTabIndex = 0;
-                        // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
+                        this.loadSchools();
+                        this.loadTeachers();
+                        this.loadMonthStudentsStats();
                     } else if (this.selectedTab === 'studentsOfMonth') {
                         this.selectedTabIndex = 1;
-                        // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
+                        this.loadSchools();
+                        this.loadTeachers();
+                        this.loadMonthStudentsStats();
                     } else if (this.selectedTab === 'studentsOfMonthByRepublic') {
                         this.selectedTabIndex = 2;
-                        // this.loadMonthStudentsStats(); // Убираем автозагрузку чтобы избежать 404
+                        this.loadSchools();
+                        this.loadTeachers();
+                        this.loadMonthStudentsStats();
                     } else if (this.selectedTab === 'allStudents') {
                         this.selectedTabIndex = 3;
+                        this.loadSchools();
+                        this.loadTeachers();
                         this.loadAllStudentsStats();
                     } else if (this.selectedTab === 'allTeachers') {
                         this.selectedTabIndex = 4;
+                        this.loadSchools();
                         this.loadTeachersStats();
                     } else if (this.selectedTab === 'allSchools') {
                         this.selectedTabIndex = 5;

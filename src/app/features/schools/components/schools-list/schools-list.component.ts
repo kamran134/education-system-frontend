@@ -18,6 +18,7 @@ import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload } from 'luci
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-schools-list',
@@ -28,7 +29,8 @@ import { AdvancedFiltersComponent, FilterField } from '../../../../shared/compon
         RouterModule,
         LucideAngularModule,
         ListLayoutComponent,
-        DataTableComponent
+        DataTableComponent,
+        SelectComponent
     ],
     templateUrl: './schools-list.component.html',
     styleUrls: ['./schools-list.component.scss']
@@ -48,6 +50,7 @@ export class SchoolsListComponent implements OnInit {
     // Filters
     selectedDistrictIds: string[] = [];
     filterConfig: FilterField[] = [];
+    districtOptions: SelectOption[] = [];
     
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -147,8 +150,11 @@ export class SchoolsListComponent implements OnInit {
 
         this.districtService.getDistricts(params).subscribe({
             next: (response: DistrictResponse) => {
-                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                this.setupFilters();
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
+                this.districtOptions = this.districts.map(district => ({
+                    value: district._id,
+                    label: district.name
+                }));
             },
             error: (err: any) => {
                 console.error('Error loading districts:', err);
