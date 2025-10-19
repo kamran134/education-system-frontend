@@ -3,7 +3,7 @@ import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { SchoolService } from '../../services/school.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
@@ -14,7 +14,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { AuthService } from '../../../../core/services/auth.service';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, ArrowLeft } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
@@ -47,7 +47,8 @@ export class SchoolsListComponent implements OnInit {
     pageSize = 100;
     pageIndex = 0;
     
-    // Filters
+    // Navigation & Filters
+    districtId?: string; // ID района из маршрута для фильтрации
     selectedDistrictIds: string[] = [];
     filterConfig: FilterField[] = [];
     districtOptions: SelectOption[] = [];
@@ -83,6 +84,7 @@ export class SchoolsListComponent implements OnInit {
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
     readonly Upload = Upload;
+    readonly ArrowLeft = ArrowLeft;
     
     isUpdatingStats = false;
     
@@ -97,12 +99,37 @@ export class SchoolsListComponent implements OnInit {
         private districtService: DistrictService,
         private authService: AuthService,
         private snackBar: MatSnackBar,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private route: ActivatedRoute,
+        private router: Router
     ) {}
 
     ngOnInit(): void {
         this.setupActionButtons();
-        this.setupFilters(); // Initialize empty filters first
+        
+        // Check if we're viewing schools for a specific district
+        this.route.params.subscribe(params => {
+            this.districtId = params['id'];
+            if (this.districtId) {
+                this.selectedDistrictIds = [this.districtId];
+            }
+        });
+        
+        // Restore state from query parameters if coming back
+        this.route.queryParams.subscribe(queryParams => {
+            if (queryParams['schoolPage'] !== undefined) {
+                this.pageIndex = parseInt(queryParams['schoolPage']) || 0;
+            }
+            if (queryParams['schoolPageSize'] !== undefined) {
+                this.pageSize = parseInt(queryParams['schoolPageSize']) || 100;
+            }
+            if (queryParams['selectedDistrictIds'] && !this.districtId) {
+                // Only restore district selection if not in filtered view
+                this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+        });
+        
+        this.setupFilters();
         this.loadDistricts();
         this.loadSchools();
     }
@@ -110,6 +137,15 @@ export class SchoolsListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
+        // Add back button if we're in filtered view (from district)
+        if (this.districtId) {
+            this.actionButtons.push({
+                label: 'Rayonlara qayıt',
+                icon: this.ArrowLeft,
+                action: () => this.goBack(),
+                variant: 'secondary'
+            });
+        }
 
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
@@ -254,6 +290,43 @@ export class SchoolsListComponent implements OnInit {
                 this.onSchoolDelete(new Event('click'), event.item);
                 break;
         }
+    }
+
+    onSchoolView(school: any): void {
+        // Save current state in query parameters for back navigation
+        const queryParams: any = {
+            schoolPage: this.pageIndex,
+            schoolPageSize: this.pageSize,
+            selectedDistrictIds: this.selectedDistrictIds.join(',')
+        };
+        
+        // If we came from districts, preserve district state
+        this.route.queryParams.subscribe(currentParams => {
+            if (currentParams['districtPage'] !== undefined) {
+                queryParams.districtPage = currentParams['districtPage'];
+            }
+            if (currentParams['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = currentParams['districtPageSize'];
+            }
+        });
+        
+        this.router.navigate(['/schools', school._id, 'teachers'], { 
+            queryParams 
+        });
+    }
+
+    goBack(): void {
+        // Navigate back to districts with preserved state
+        this.route.queryParams.subscribe(params => {
+            const queryParams: any = {};
+            if (params['districtPage'] !== undefined) {
+                queryParams.districtPage = params['districtPage'];
+            }
+            if (params['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = params['districtPageSize'];
+            }
+            this.router.navigate(['/districts'], { queryParams });
+        });
     }
 
     onSchoolEdit(school: School): void {

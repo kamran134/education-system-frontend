@@ -3,7 +3,7 @@ import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model'
 import { TeacherService } from '../../services/teacher.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { DistrictService } from '../../../districts/services/district.service';
@@ -17,7 +17,7 @@ import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
@@ -45,6 +45,7 @@ export class TeachersListComponent implements OnInit {
     isLoading = false;
     hasError = false;
     errorMessage = '';
+    schoolId: string | null = null;
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
@@ -115,6 +116,7 @@ export class TeachersListComponent implements OnInit {
     readonly RefreshCw = RefreshCw;
     readonly Upload = Upload;
     readonly Settings = Settings;
+    readonly ArrowLeft = ArrowLeft;
 
     constructor(
         private teacherService: TeacherService,
@@ -122,11 +124,41 @@ export class TeachersListComponent implements OnInit {
         private schoolService: SchoolService,
         private authService: AuthService,
         private snackBar: MatSnackBar,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private route: ActivatedRoute,
+        private router: Router
     ) {}
 
     ngOnInit(): void {
         this.setupActionButtons();
+        
+        // Check if we're viewing teachers for a specific school
+        this.route.params.subscribe(params => {
+            this.schoolId = params['id'];
+            if (this.schoolId) {
+                this.selectedSchoolIds = [this.schoolId];
+            }
+        });
+        
+        // Restore state from query parameters if coming back
+        this.route.queryParams.subscribe(queryParams => {
+            if (queryParams['teacherPage'] !== undefined) {
+                this.pageIndex = parseInt(queryParams['teacherPage']) || 0;
+            }
+            if (queryParams['teacherPageSize'] !== undefined) {
+                this.pageSize = parseInt(queryParams['teacherPageSize']) || 100;
+            }
+            if (queryParams['selectedDistrictIds'] && !this.schoolId) {
+                // Only restore district selection if not in filtered view
+                this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['selectedSchoolIds'] && !this.schoolId) {
+                // Only restore school selection if not in filtered view
+                this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+        });
+        
+        this.setupFilters();
         this.loadDistricts();
         this.loadTeachers();
     }
@@ -137,6 +169,16 @@ export class TeachersListComponent implements OnInit {
 
     private setupActionButtons(): void {
         this.actionButtons = [];
+        
+        // Add back button if we're in filtered view (from school)
+        if (this.schoolId) {
+            this.actionButtons.push({
+                label: 'Məktəblərə qayıt',
+                icon: this.ArrowLeft,
+                action: () => this.goBack(),
+                variant: 'secondary'
+            });
+        }
         
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
@@ -235,6 +277,68 @@ export class TeachersListComponent implements OnInit {
                 this.onTeacherDelete(event.item._id);
                 break;
         }
+    }
+
+    onTeacherView(teacher: any): void {
+        // Save current state in query parameters for back navigation
+        const queryParams: any = {
+            teacherPage: this.pageIndex,
+            teacherPageSize: this.pageSize,
+            selectedDistrictIds: this.selectedDistrictIds.join(','),
+            selectedSchoolIds: this.selectedSchoolIds.join(',')
+        };
+        
+        // Preserve previous states if they exist
+        this.route.queryParams.subscribe(currentParams => {
+            if (currentParams['districtPage'] !== undefined) {
+                queryParams.districtPage = currentParams['districtPage'];
+            }
+            if (currentParams['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = currentParams['districtPageSize'];
+            }
+            if (currentParams['schoolPage'] !== undefined) {
+                queryParams.schoolPage = currentParams['schoolPage'];
+            }
+            if (currentParams['schoolPageSize'] !== undefined) {
+                queryParams.schoolPageSize = currentParams['schoolPageSize'];
+            }
+        });
+        
+        this.router.navigate(['/teachers', teacher._id, 'students'], { 
+            queryParams 
+        });
+    }
+
+    goBack(): void {
+        // Navigate back to schools with preserved state
+        this.route.queryParams.subscribe(params => {
+            const queryParams: any = {};
+            
+            // Preserve all previous states
+            if (params['districtPage'] !== undefined) {
+                queryParams.districtPage = params['districtPage'];
+            }
+            if (params['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = params['districtPageSize'];
+            }
+            if (params['schoolPage'] !== undefined) {
+                queryParams.schoolPage = params['schoolPage'];
+            }
+            if (params['schoolPageSize'] !== undefined) {
+                queryParams.schoolPageSize = params['schoolPageSize'];
+            }
+            if (params['selectedDistrictIds']) {
+                queryParams.selectedDistrictIds = params['selectedDistrictIds'];
+            }
+            
+            // Navigate back to schools filtered by district if we have the context
+            if (this.schoolId) {
+                // Navigate back to the specific school's context
+                this.router.navigate(['/schools'], { queryParams });
+            } else {
+                this.router.navigate(['/schools'], { queryParams });
+            }
+        });
     }
 
     loadTeachers(): void {

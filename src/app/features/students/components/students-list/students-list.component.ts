@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -23,7 +23,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 // UI Components
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -73,6 +73,7 @@ export class StudentsListComponent implements OnInit {
     selectedExamIds: string[] = [];
     searchString: string = '';
     checkedDefective: boolean = false;
+    teacherId: string | null = null;
     
     // Filter options
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -125,6 +126,7 @@ export class StudentsListComponent implements OnInit {
     readonly Trash2 = Trash2;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
+    readonly ArrowLeft = ArrowLeft;
     
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
@@ -141,12 +143,41 @@ export class StudentsListComponent implements OnInit {
         private examService: ExamService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit(): void {
         this.setupActionButtons();
         this.setupGradeOptions();
+        
+        // Check if we're viewing students for a specific teacher
+        this.route.params.subscribe(params => {
+            this.teacherId = params['id'];
+            if (this.teacherId) {
+                this.selectedTeacherIds = [this.teacherId];
+            }
+        });
+        
+        // Restore state from query parameters if coming back
+        this.route.queryParams.subscribe(queryParams => {
+            if (queryParams['studentPage'] !== undefined) {
+                this.pageIndex = parseInt(queryParams['studentPage']) || 0;
+            }
+            if (queryParams['studentPageSize'] !== undefined) {
+                this.pageSize = parseInt(queryParams['studentPageSize']) || 100;
+            }
+            if (queryParams['selectedDistrictIds'] && !this.teacherId) {
+                this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['selectedSchoolIds'] && !this.teacherId) {
+                this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['selectedTeacherIds'] && !this.teacherId) {
+                this.selectedTeacherIds = queryParams['selectedTeacherIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+        });
+        
         this.loadDistricts();
         this.loadExams();
         this.loadStudents();
@@ -154,6 +185,16 @@ export class StudentsListComponent implements OnInit {
 
     private setupActionButtons(): void {
         this.actionButtons = [];
+        
+        // Add back button if we're in filtered view (from teacher)
+        if (this.teacherId) {
+            this.actionButtons.push({
+                label: 'Müəllimlərə qayıt',
+                icon: this.ArrowLeft,
+                action: () => this.goBack(),
+                variant: 'secondary'
+            });
+        }
         
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
@@ -246,6 +287,41 @@ export class StudentsListComponent implements OnInit {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadStudents();
+    }
+
+    goBack(): void {
+        // Navigate back to teachers with preserved state
+        this.route.queryParams.subscribe(params => {
+            const queryParams: any = {};
+            
+            // Preserve all previous states
+            if (params['districtPage'] !== undefined) {
+                queryParams.districtPage = params['districtPage'];
+            }
+            if (params['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = params['districtPageSize'];
+            }
+            if (params['schoolPage'] !== undefined) {
+                queryParams.schoolPage = params['schoolPage'];
+            }
+            if (params['schoolPageSize'] !== undefined) {
+                queryParams.schoolPageSize = params['schoolPageSize'];
+            }
+            if (params['teacherPage'] !== undefined) {
+                queryParams.teacherPage = params['teacherPage'];
+            }
+            if (params['teacherPageSize'] !== undefined) {
+                queryParams.teacherPageSize = params['teacherPageSize'];
+            }
+            if (params['selectedDistrictIds']) {
+                queryParams.selectedDistrictIds = params['selectedDistrictIds'];
+            }
+            if (params['selectedSchoolIds']) {
+                queryParams.selectedSchoolIds = params['selectedSchoolIds'];
+            }
+            
+            this.router.navigate(['/teachers'], { queryParams });
+        });
     }
 
     onFileUpload(): void {

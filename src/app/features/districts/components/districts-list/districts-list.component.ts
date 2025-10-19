@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../services/district.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -96,11 +96,24 @@ export class DistrictsListComponent implements OnInit {
         private dialog: MatDialog,
         private authService: AuthService,
         private districtService: DistrictService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private router: Router,
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit(): void {
         this.setupActionButtons();
+        
+        // Restore state from query parameters if coming back
+        this.route.queryParams.subscribe(params => {
+            if (params['districtPage'] !== undefined) {
+                this.pageIndex = parseInt(params['districtPage']) || 0;
+            }
+            if (params['districtPageSize'] !== undefined) {
+                this.pageSize = parseInt(params['districtPageSize']) || 100;
+            }
+        });
+        
         this.loadDistricts();
     }
 
@@ -212,6 +225,17 @@ export class DistrictsListComponent implements OnInit {
                     }
                 });
             }
+        });
+    }
+
+    onDistrictView(district: District): void {
+        // Save current state in query parameters for back navigation
+        const queryParams = {
+            districtPage: this.pageIndex,
+            districtPageSize: this.pageSize
+        };
+        this.router.navigate(['/districts', district._id, 'schools'], { 
+            queryParams 
         });
     }
 }

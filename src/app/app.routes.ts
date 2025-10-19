@@ -15,8 +15,11 @@ import { RegisterComponent } from './features/auth/register/register/register.co
 export const routes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard] },
+    { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard] },
     { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard] },
+    { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard] },
     { path: 'teachers', component: TeachersListComponent, canActivate: [authGuard] },
+    { path: 'teachers/:id/students', component: StudentsListComponent, canActivate: [authGuard] },
     { path: 'students', component: StudentsListComponent, canActivate: [authGuard] },
     { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard] },
     { path: 'exams', component: ExamsListComponent, canActivate: [authGuard] },
