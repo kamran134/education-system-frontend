@@ -265,12 +265,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             });
     }
 
-    loadMonthStudentsStats(): void {
-        // Не загружаем, если не на вкладке студентов по месяцам
-        if (this.selectedTabIndex !== 0) {
-            return;
-        }
-        
+    // Метод для загрузки развивающихся студентов
+    loadDevelopingStudentsStats(): void {
         // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
         const monthPart = this.selectedMonth.split('-')[1];
         if (monthPart === '0' && this.selectedExamIds.length === 0) {
@@ -279,9 +275,6 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
 
         this.isloading = true;
-        // Не очищаем весь объект stats, только обнуляем поля для месячной статистики
-        this.stats.studentsOfMonth = [];
-        this.stats.studentsOfMonthByRepublic = [];
         this.stats.developingStudents = [];
 
         const params: FilterParams = {
@@ -296,19 +289,106 @@ export class StatsComponent implements OnInit, OnDestroy {
             month: this.selectedMonth,
         };
 
-        this.statsService.getStudentsStats(params).subscribe({
+        this.statsService.getDevelopingStudentsStats(params).subscribe({
             next: (response) => {
                 this.isloading = false;
-                this.stats = { ...ResponseHandlerUtil.extractData<any>(response) };
+                this.stats.developingStudents = ResponseHandlerUtil.extractData<any[]>(response) || [];
             },
             error: (error: any) => {
                 this.isloading = false;
-                // Не показываем ошибку для 404 на stats/students, чтобы избежать спама
                 if (error.status !== 404) {
                     this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
                 }
             }
-        })
+        });
+    }
+
+    // Метод для загрузки студентов месяца по районам
+    loadStudentsOfMonthStats(): void {
+        // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
+        const monthPart = this.selectedMonth.split('-')[1];
+        if (monthPart === '0' && this.selectedExamIds.length === 0) {
+            this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
+            return;
+        }
+
+        this.isloading = true;
+        this.stats.studentsOfMonth = [];
+
+        const params: FilterParams = {
+            districtIds: this.selectedDistrictIds.join(","),
+            schoolIds: this.selectedSchoolIds.join(","),
+            teacherIds: this.selectedTeacherIds.join(","),
+            grades: this.selectedGrades.join(","),
+            sortColumn: this.sortActive || 'averageScore',
+            sortDirection: this.sortDirection || 'desc',
+            code: this.searchString || undefined,
+            examIds: this.selectedExamIds.join(',') || '',
+            month: this.selectedMonth,
+        };
+
+        this.statsService.getStudentsOfMonthStats(params).subscribe({
+            next: (response) => {
+                this.isloading = false;
+                this.stats.studentsOfMonth = ResponseHandlerUtil.extractData<any[]>(response) || [];
+            },
+            error: (error: any) => {
+                this.isloading = false;
+                if (error.status !== 404) {
+                    this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                }
+            }
+        });
+    }
+
+    // Метод для загрузки студентов месяца по республике
+    loadStudentsOfMonthByRepublicStats(): void {
+        // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
+        const monthPart = this.selectedMonth.split('-')[1];
+        if (monthPart === '0' && this.selectedExamIds.length === 0) {
+            this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
+            return;
+        }
+
+        this.isloading = true;
+        this.stats.studentsOfMonthByRepublic = [];
+
+        const params: FilterParams = {
+            districtIds: this.selectedDistrictIds.join(","),
+            schoolIds: this.selectedSchoolIds.join(","),
+            teacherIds: this.selectedTeacherIds.join(","),
+            grades: this.selectedGrades.join(","),
+            sortColumn: this.sortActive || 'averageScore',
+            sortDirection: this.sortDirection || 'desc',
+            code: this.searchString || undefined,
+            examIds: this.selectedExamIds.join(',') || '',
+            month: this.selectedMonth,
+        };
+
+        this.statsService.getStudentsOfMonthByRepublicStats(params).subscribe({
+            next: (response) => {
+                this.isloading = false;
+                this.stats.studentsOfMonthByRepublic = ResponseHandlerUtil.extractData<any[]>(response) || [];
+            },
+            error: (error: any) => {
+                this.isloading = false;
+                if (error.status !== 404) {
+                    this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                }
+            }
+        });
+    }
+
+    // Общий метод для совместимости (можно удалить позже)
+    loadMonthStudentsStats(): void {
+        // Вызываем соответствующий метод в зависимости от активного таба
+        if (this.selectedTabIndex === 0) {
+            this.loadDevelopingStudentsStats();
+        } else if (this.selectedTabIndex === 1) {
+            this.loadStudentsOfMonthStats();
+        } else if (this.selectedTabIndex === 2) {
+            this.loadStudentsOfMonthByRepublicStats();
+        }
     }
 
     loadAllStudentsStats(): void {
@@ -553,7 +633,14 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.selectedMonth = month;
         this.selectedExams = [];
         this.selectedExamIds = [];
-        this.loadMonthStudentsStats();
+        // Вызываем соответствующий метод в зависимости от активного таба
+        if (this.selectedTabIndex === 0) {
+            this.loadDevelopingStudentsStats();
+        } else if (this.selectedTabIndex === 1) {
+            this.loadStudentsOfMonthStats();
+        } else if (this.selectedTabIndex === 2) {
+            this.loadStudentsOfMonthByRepublicStats();
+        }
         this.developingStudentsLabel$.next(`${this.monthNamePipe.transform(month)} ayında inkişaf edən şagirdlər`);
         this.studentsOfMonthLabel$.next(`${this.monthNamePipe.transform(month)} ayında ayın şagirdləri`);
         this.studentsOfMonthByRepublicLabel$.next(`${this.monthNamePipe.transform(month)} ayında respublika üzrə ayın şagirdləri`);
@@ -567,19 +654,19 @@ export class StatsComponent implements OnInit, OnDestroy {
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
-            this.loadMonthStudentsStats();
+            this.loadDevelopingStudentsStats();
         } else if (event.index === 1) {
             this.selectedTab = 'studentsOfMonth';
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
-            this.loadMonthStudentsStats();
+            this.loadStudentsOfMonthStats();
         } else if (event.index === 2) {
             this.selectedTab = 'studentsOfMonthByRepublic';
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
-            this.loadMonthStudentsStats();
+            this.loadStudentsOfMonthByRepublicStats();
         } else if (event.index === 3) {
             this.selectedTab = 'allStudents';
             // Для годовой статистики студентов тоже нужны фильтры
@@ -605,7 +692,14 @@ export class StatsComponent implements OnInit, OnDestroy {
         if (this.isStudentMonthTab()) {
             this.loadSchools();
             this.loadTeachers();
-            this.loadMonthStudentsStats();
+            // Вызываем соответствующий метод в зависимости от активного таба
+            if (this.selectedTabIndex === 0) {
+                this.loadDevelopingStudentsStats();
+            } else if (this.selectedTabIndex === 1) {
+                this.loadStudentsOfMonthStats();
+            } else if (this.selectedTabIndex === 2) {
+                this.loadStudentsOfMonthByRepublicStats();
+            }
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadSchools();

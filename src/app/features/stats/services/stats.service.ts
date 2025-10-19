@@ -54,6 +54,90 @@ export class StatsService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    // Отдельный метод для получения развивающихся студентов
+    getDevelopingStudentsStats(params: FilterParams): Observable<any[]> {
+        let url: string = `${this.configService.getApiUrl()}/stats/students/developing?month=${params.month}`;
+        if (params.districtIds && params.districtIds.length > 0) {
+            url = `${url}&districtIds=${params.districtIds}`;
+        }
+        if (params.schoolIds && params.schoolIds.length > 0) {
+            url = `${url}&schoolIds=${params.schoolIds}`;
+        }
+        if (params.teacherIds && params.teacherIds.length > 0) {
+            url = `${url}&teacherIds=${params.teacherIds}`;
+        }
+        if (params.grades && params.grades.length > 0) {
+            url = `${url}&grades=${params.grades}`;
+        }
+        if (params.code) {
+            url = `${url}&code=${params.code}`;
+        }
+        if (params.examIds) {
+            url = `${url}&examIds=${params.examIds}`;
+        }
+        if (params.sortColumn && params.sortDirection) {
+            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+        }
+        return this.http.get<ApiResponse<any[]>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    // Отдельный метод для получения студентов месяца по районам
+    getStudentsOfMonthStats(params: FilterParams): Observable<any[]> {
+        let url: string = `${this.configService.getApiUrl()}/stats/students/month?month=${params.month}`;
+        if (params.districtIds && params.districtIds.length > 0) {
+            url = `${url}&districtIds=${params.districtIds}`;
+        }
+        if (params.schoolIds && params.schoolIds.length > 0) {
+            url = `${url}&schoolIds=${params.schoolIds}`;
+        }
+        if (params.teacherIds && params.teacherIds.length > 0) {
+            url = `${url}&teacherIds=${params.teacherIds}`;
+        }
+        if (params.grades && params.grades.length > 0) {
+            url = `${url}&grades=${params.grades}`;
+        }
+        if (params.code) {
+            url = `${url}&code=${params.code}`;
+        }
+        if (params.examIds) {
+            url = `${url}&examIds=${params.examIds}`;
+        }
+        if (params.sortColumn && params.sortDirection) {
+            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+        }
+        return this.http.get<ApiResponse<any[]>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    // Отдельный метод для получения студентов месяца по республике
+    getStudentsOfMonthByRepublicStats(params: FilterParams): Observable<any[]> {
+        let url: string = `${this.configService.getApiUrl()}/stats/students/month-republic?month=${params.month}`;
+        if (params.districtIds && params.districtIds.length > 0) {
+            url = `${url}&districtIds=${params.districtIds}`;
+        }
+        if (params.schoolIds && params.schoolIds.length > 0) {
+            url = `${url}&schoolIds=${params.schoolIds}`;
+        }
+        if (params.teacherIds && params.teacherIds.length > 0) {
+            url = `${url}&teacherIds=${params.teacherIds}`;
+        }
+        if (params.grades && params.grades.length > 0) {
+            url = `${url}&grades=${params.grades}`;
+        }
+        if (params.code) {
+            url = `${url}&code=${params.code}`;
+        }
+        if (params.examIds) {
+            url = `${url}&examIds=${params.examIds}`;
+        }
+        if (params.sortColumn && params.sortDirection) {
+            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+        }
+        return this.http.get<ApiResponse<any[]>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
     getStatsByExam(exam: Exam[]): Observable<StatsResponse> {
         // Используем первый экзамен из массива для получения статистики
         const examId = exam.length > 0 ? exam[0]._id : '';
