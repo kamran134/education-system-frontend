@@ -491,13 +491,19 @@ export class TeachersListComponent implements OnInit {
         
         dialogRef.afterClosed().subscribe((result: Teacher) => {
             if (result) {
+                this.isLoading = true;
                 this.teacherService.createTeacher(result).subscribe({
                     next: (response: ResponseFromBackend) => {
-                        this.teachers = [...this.teachers, ResponseHandlerUtil.extractData<Teacher>(response)];
+                        const newTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
+                        // Добавляем нового учителя в начало списка
+                        this.teachers = [newTeacher, ...this.teachers];
+                        this.totalCount++;
+                        this.isLoading = false;
                         this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yaradıldı', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);
+                        this.isLoading = false;
                         this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                     }
                 });
@@ -513,14 +519,25 @@ export class TeachersListComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result: Teacher) => {
             if (result) {
+                this.isLoading = true;
                 this.teacherService.updateTeacher(result).subscribe({
                     next: (response) => {
+                        const updatedTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
                         const index = this.teachers.findIndex(s => s._id === result._id);
-                        this.teachers[index] = ResponseHandlerUtil.extractData<Teacher>(response);
+                        if (index !== -1) {
+                            // Создаем новый массив для триггера change detection
+                            this.teachers = [
+                                ...this.teachers.slice(0, index),
+                                updatedTeacher,
+                                ...this.teachers.slice(index + 1)
+                            ];
+                        }
+                        this.isLoading = false;
                         this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);
+                        this.isLoading = false;
                         this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                     }
                 });

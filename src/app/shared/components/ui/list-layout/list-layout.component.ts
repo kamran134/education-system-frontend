@@ -45,10 +45,20 @@ export interface ActionButton {
         </app-card>
 
         <!-- Loading State -->
-        <div *ngIf="isLoading" class="flex items-center justify-center py-12">
-          <div class="flex items-center space-x-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <span class="text-lg text-gray-600">{{ loadingText || 'Yüklənir...' }}</span>
+        <div *ngIf="isLoading" class="flex items-center justify-center py-24">
+          <div class="relative">
+            <!-- Outer Ring -->
+            <div class="w-16 h-16 rounded-full border-4 border-gray-200"></div>
+            <!-- Spinning Ring -->
+            <div class="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-transparent border-t-primary-600 border-r-primary-600 animate-spin"></div>
+            <!-- Center Dot -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div class="w-3 h-3 rounded-full bg-primary-600 animate-pulse"></div>
+            </div>
+          </div>
+          <div class="ml-4">
+            <p class="text-lg font-medium text-gray-900">{{ loadingText || 'Yüklənir...' }}</p>
+            <p class="text-sm text-gray-500 mt-1">Zəhmət olmasa gözləyin</p>
           </div>
         </div>
 

@@ -245,12 +245,18 @@ export class SchoolsListComponent implements OnInit {
     
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
+                this.isLoading = true;
                 this.schoolService.createSchool(result).subscribe({
                     next: (response: ResponseFromBackend) => {
+                        const newSchool = ResponseHandlerUtil.extractData<School>(response);
+                        // Добавляем новую школу в начало списка
+                        this.schools = [newSchool, ...this.schools];
+                        this.totalCount++;
+                        this.isLoading = false;
                         this.snackBar.open(response.message || 'Məktəb uğurla yaradıldı', 'OK', this.matSnackConfig);
-                        this.loadSchools();
                     },
                     error: (error) => {
+                        this.isLoading = false;
                         this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                     }
                 });
@@ -337,13 +343,25 @@ export class SchoolsListComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result: School) => {
             if (result) {
+                this.isLoading = true;
                 this.schoolService.updateSchool(result).subscribe({
                     next: (response) => {
+                        const updatedSchool = ResponseHandlerUtil.extractData<School>(response);
+                        const index = this.schools.findIndex(s => s._id === result._id);
+                        if (index !== -1) {
+                            // Создаем новый массив для триггера change detection
+                            this.schools = [
+                                ...this.schools.slice(0, index),
+                                updatedSchool,
+                                ...this.schools.slice(index + 1)
+                            ];
+                        }
+                        this.isLoading = false;
                         this.snackBar.open(response.message || 'Məktəb uğurla yeniləndi', 'Bağla', this.matSnackConfig);
-                        this.loadSchools();
                     },
                     error: (error) => {
                         console.error(error);
+                        this.isLoading = false;
                         this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                     }
                 });

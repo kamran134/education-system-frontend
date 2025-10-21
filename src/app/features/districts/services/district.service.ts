@@ -33,6 +33,12 @@ export class DistrictService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    updateDistrict(districtId: string, district: {name: string, code: number, studentCount: number}): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
+        return this.http.put<ApiResponse<any>>(url, district, { withCredentials: true })
+            .pipe(map(response => response));
+    }
+
     deleteDistrict(districtId: string): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })

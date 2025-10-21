@@ -1,28 +1,27 @@
 import { Component, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { District } from '../../../../core/models/district.model';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
-import { CommonModule } from '@angular/common';
-
-interface DistrictData {
-    _id?: string;
-    name: string;
-    code: string;
-    studentCount: number;
-}
 
 @Component({
-    selector: 'app-district-add-dialog',
+    selector: 'app-district-editing-dialog',
     standalone: true,
-    imports: [CommonModule, InputComponent, FormsModule, ModalComponent],
-    templateUrl: './district-add-dialog.component.html',
-    styleUrl: './district-add-dialog.component.scss'
+    imports: [
+        CommonModule,
+        FormsModule,
+        InputComponent,
+        ModalComponent
+    ],
+    templateUrl: './district-editing-dialog.component.html',
+    styleUrl: './district-editing-dialog.component.scss'
 })
-export class DistrictAddDialogComponent {
+export class DistrictEditingDialogComponent {
     constructor(
-        public dialogRef: MatDialogRef<DistrictAddDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { district: DistrictData; isEditing: boolean }
+        public dialogRef: MatDialogRef<DistrictEditingDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: { district: District, isEditing: boolean }
     ) {}
 
     get modalTitle(): string {
@@ -34,7 +33,11 @@ export class DistrictAddDialogComponent {
     }
 
     get isValid(): boolean {
-        return !!(this.data.district.name?.trim() && this.data.district.code?.trim() && this.data.district.studentCount >= 0);
+        return !!(
+            this.data.district.code &&
+            this.data.district.name?.trim() &&
+            (this.data.district.studentCount !== undefined && this.data.district.studentCount >= 0)
+        );
     }
 
     get modalButtons(): ModalButton[] {
@@ -42,7 +45,7 @@ export class DistrictAddDialogComponent {
             {
                 label: 'Ləğv et',
                 variant: 'outline',
-                action: () => this.onCancel()
+                action: () => this.onClose()
             },
             {
                 label: 'Yadda saxla',
@@ -59,11 +62,11 @@ export class DistrictAddDialogComponent {
         }
     }
 
-    onCancel(): void {
+    onClose(): void {
         this.dialogRef.close();
     }
 
     onModalClose(): void {
-        this.onCancel();
+        this.onClose();
     }
 }

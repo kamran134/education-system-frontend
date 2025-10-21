@@ -7,18 +7,19 @@
 >
   <form class="space-y-6">
     <app-input
-      label="Rayon / şəhər adı"
-      placeholder="Rayon və ya şəhər adını daxil edin"
-      [(ngModel)]="data.district.name"
-      name="name"
-      [required]="true"
-    ></app-input>
-
-    <app-input
       label="Rayon / şəhər kodu"
       placeholder="Rayon və ya şəhər kodunu daxil edin"
       [(ngModel)]="data.district.code"
       name="code"
+      type="number"
+      [required]="true"
+    ></app-input>
+
+    <app-input
+      label="Rayon / şəhər adı"
+      placeholder="Rayon və ya şəhər adını daxil edin"
+      [(ngModel)]="data.district.name"
+      name="name"
       [required]="true"
     ></app-input>
 

@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
-import { DistrictAddDialogComponent } from '../district-add-dialog/district-add-dialog.component';
+import { DistrictEditingDialogComponent } from '../district-editing-dialog/district-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -46,11 +46,17 @@ export class DistrictsListComponent implements OnInit {
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'Adı', sortable: true, type: 'text' },
-        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' },
-        { key: 'rate', label: 'Əmsalı (İmtahan sayı)', sortable: true, type: 'number', align: 'center' }
+        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
     
     tableActions: TableAction[] = [
+        {
+            key: 'edit',
+            label: 'Düzəliş et',
+            icon: Edit,
+            variant: 'primary',
+            condition: () => this.isAdminOrSuperAdmin()
+        },
         {
             key: 'delete',
             label: 'Sil',
@@ -145,18 +151,25 @@ export class DistrictsListComponent implements OnInit {
     }
 
     openAddDistrictDialog(): void {
-        const dialogRef = this.dialog.open(DistrictAddDialogComponent, {
+        const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
           width: '400px',
-          data: { name: '', code: '', studentCount: 0 },
+          data: { 
+            district: { name: '', code: '', studentCount: 0 },
+            isEditing: false
+          },
         });
     
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
+                this.isLoading = true;
                 this.districtService.addDistrict(result).subscribe({
                     next: (response: ResponseFromBackend) => {
+                        const newDistrict = ResponseHandlerUtil.extractData<District>(response);
+                        // Добавляем новый район в начало списка
+                        this.districts = [newDistrict, ...this.districts];
+                        this.totalCount++;
                         this.isLoading = false;
-                        this.snackBar.open(response.message || '', 'OK', this.matSnackConfig);
-                        this.loadDistricts();
+                        this.snackBar.open(response.message || 'Rayon / şəhər uğurla yaradıldı', 'OK', this.matSnackConfig);
                     },
                     error: (error) => {
                         this.isLoading = false;
@@ -199,10 +212,54 @@ export class DistrictsListComponent implements OnInit {
 
     onTableAction(event: { action: string; item: any }): void {
         switch (event.action) {
+            case 'edit':
+                this.onDistrictEdit(event.item);
+                break;
             case 'delete':
                 this.onDistrictDelete(new Event('click'), event.item);
                 break;
         }
+    }
+
+    onDistrictEdit(district: District): void {
+        const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
+            width: '400px',
+            data: { 
+                district: {
+                    _id: district._id,
+                    name: district.name, 
+                    code: district.code, 
+                    studentCount: district.studentCount
+                },
+                isEditing: true
+            },
+        });
+    
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.isLoading = true;
+                this.districtService.updateDistrict(district._id, result).subscribe({
+                    next: (response: ResponseFromBackend) => {
+                        const updatedDistrict = ResponseHandlerUtil.extractData<District>(response);
+                        const index = this.districts.findIndex(d => d._id === district._id);
+                        if (index !== -1) {
+                            // Создаем новый массив для триггера change detection
+                            this.districts = [
+                                ...this.districts.slice(0, index),
+                                updatedDistrict,
+                                ...this.districts.slice(index + 1)
+                            ];
+                        }
+                        this.isLoading = false;
+                        this.snackBar.open(response.message || 'Rayon / şəhər uğurla yeniləndi', 'Bağla', this.matSnackConfig);
+                    },
+                    error: (error: any) => {
+                        this.isLoading = false;
+                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    }
+                });
+            }
+        });
     }
 
     onDistrictDelete(event: Event, district: District): void {
@@ -215,12 +272,18 @@ export class DistrictsListComponent implements OnInit {
 
         confirmRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
+                this.isLoading = true;
                 this.districtService.deleteDistrict(district._id).subscribe({
                     next: (data) => {
-                        this.loadDistricts();
+                        // Удаляем район из списка без перезагрузки
+                        this.districts = this.districts.filter(d => d._id !== district._id);
+                        this.totalCount--;
+                        this.isLoading = false;
+                        this.snackBar.open('Rayon / şəhər uğurla silindi', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);
+                        this.isLoading = false;
                         this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                     }
                 });

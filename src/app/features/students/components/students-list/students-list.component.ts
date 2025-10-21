@@ -475,7 +475,27 @@ export class StudentsListComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.loadStudents();
+                this.isLoading = true;
+                this.studentService.updateStudent(result).subscribe({
+                    next: (response: any) => {
+                        const updatedStudent = ResponseHandlerUtil.extractData<Student>(response);
+                        const index = this.students.findIndex(s => s._id === result._id);
+                        if (index !== -1) {
+                            // Создаем новый массив для триггера change detection
+                            this.students = [
+                                ...this.students.slice(0, index),
+                                updatedStudent,
+                                ...this.students.slice(index + 1)
+                            ];
+                        }
+                        this.isLoading = false;
+                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Şagird uğurla yeniləndi', 'OK', this.matSnackConfig);
+                    },
+                    error: (err: any) => {
+                        this.isLoading = false;
+                        this.snackBar.open('Şagird yenilənməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    }
+                });
             }
         });
     }
@@ -485,18 +505,23 @@ export class StudentsListComponent implements OnInit {
             width: '400px',
             data: {
                 title: 'Şagirdi sil',
-                message: 'Bu şagirdi silmək istədiyinizə əminsinizmi?'
+                text: 'Bu şagirdi silmək istədiyinizə əminsinizmi?'
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
+                this.isLoading = true;
                 this.studentService.deleteStudent(studentId).subscribe({
                     next: () => {
+                        // Удаляем студента из списка без перезагрузки
+                        this.students = this.students.filter(s => s._id !== studentId);
+                        this.totalCount--;
+                        this.isLoading = false;
                         this.snackBar.open('Şagird uğurla silindi', 'OK', this.matSnackConfig);
-                        this.loadStudents();
                     },
                     error: (err: any) => {
+                        this.isLoading = false;
                         this.snackBar.open('Şagird silinməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
                     }
                 });
