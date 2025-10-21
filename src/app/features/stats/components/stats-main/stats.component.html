@@ -116,6 +116,7 @@
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allTeachers')"
+                    (rowClicked)="onTeacherRowClick($event)"
                 ></app-teachers-year-tab>
             </div>
 
@@ -131,6 +132,7 @@
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allSchools')"
+                    (rowClicked)="onSchoolRowClick($event)"
                 ></app-schools-year-tab>
             </div>
 
@@ -146,6 +148,7 @@
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allDistricts')"
+                    (rowClicked)="onDistrictRowClick($event)"
                 ></app-districts-year-tab>
             </div>
         </div>

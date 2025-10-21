@@ -942,6 +942,28 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
     }
 
+    // Navigation between stats tabs with filtering
+    onDistrictRowClick(districtId: string): void {
+        // Navigate to Schools Year tab (index 5) with district filter
+        this.selectedDistrictIds = [districtId];
+        this.selectedSchoolIds = [];
+        this.selectedTeacherIds = [];
+        this.selectTab(5); // Schools Year tab
+    }
+
+    onSchoolRowClick(schoolId: string): void {
+        // Navigate to Teachers Year tab (index 4) with school filter
+        this.selectedSchoolIds = [schoolId];
+        this.selectedTeacherIds = [];
+        this.selectTab(4); // Teachers Year tab
+    }
+
+    onTeacherRowClick(teacherId: string): void {
+        // Navigate to Students Year tab (index 3) with teacher filter
+        this.selectedTeacherIds = [teacherId];
+        this.selectTab(3); // Students Year tab
+    }
+
     ngOnDestroy(): void {
         console.log('StatsComponent destroyed - stopping all requests');
         // Можно добавить отписку от активных подписок если нужно

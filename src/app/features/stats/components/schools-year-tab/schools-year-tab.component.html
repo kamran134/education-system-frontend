@@ -51,7 +51,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="cursor-pointer hover:bg-gray-50" (click)="rowClicked.emit(row._id)"></tr>
     </table>
 
     <div *ngIf="!isLoading && schools.length > 0">
