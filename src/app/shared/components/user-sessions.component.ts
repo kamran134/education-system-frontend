@@ -1,125 +1,90 @@
 import { Component, OnInit } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { ActiveSessionsInfo } from '../../core/models/auth.models';
+import { LucideAngularModule, Monitor, Clock, AlertCircle, RefreshCw, LogOut, CheckCircle, XCircle } from 'lucide-angular';
+import { ButtonComponent } from './ui/button/button.component';
 
 @Component({
     selector: 'app-user-sessions',
     standalone: true,
     imports: [
         CommonModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSnackBarModule
+        LucideAngularModule,
+        ButtonComponent
     ],
     template: `
-        <mat-card class="sessions-card">
-            <mat-card-header>
-                <mat-card-title>
-                    <mat-icon>devices</mat-icon>
-                    Aktiv Sessiyalar
-                </mat-card-title>
-                <mat-card-subtitle>Cihaz və sessiya idarəetməsi</mat-card-subtitle>
-            </mat-card-header>
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 max-w-2xl mx-auto my-5">
+            <!-- Header -->
+            <div class="mb-6">
+                <div class="flex items-center space-x-2 mb-2">
+                    <lucide-icon [img]="Monitor" class="w-6 h-6 text-blue-600"></lucide-icon>
+                    <h2 class="text-2xl font-semibold text-gray-800">Aktiv Sessiyalar</h2>
+                </div>
+                <p class="text-sm text-gray-500">Cihaz və sessiya idarəetməsi</p>
+            </div>
             
-            <mat-card-content>
-                <div class="sessions-info" *ngIf="sessionInfo">
-                    <div class="info-item">
-                        <mat-icon>smartphone</mat-icon>
-                        <span>Aktiv cihazlar: <strong>{{sessionInfo.activeSessionsCount}}</strong></span>
-                    </div>
-                    
-                    <div class="info-item" *ngIf="sessionInfo.lastLoginAt">
-                        <mat-icon>access_time</mat-icon>
-                        <span>Son giriş: <strong>{{formatDate(sessionInfo.lastLoginAt)}}</strong></span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <mat-icon [class.current-device]="sessionInfo.currentSession">
-                            {{sessionInfo.currentSession ? 'computer' : 'device_unknown'}}
-                        </mat-icon>
-                        <span>Bu cihaz: <strong>{{sessionInfo.currentSession ? 'Aktiv' : 'Deaktiv'}}</strong></span>
-                    </div>
+            <!-- Sessions Info -->
+            <div class="space-y-3 mb-6" *ngIf="sessionInfo">
+                <div class="info-item">
+                    <lucide-icon [img]="Monitor" class="w-5 h-5 text-gray-600"></lucide-icon>
+                    <span class="text-gray-700">Aktiv cihazlar: <strong class="text-gray-900">{{sessionInfo.activeSessionsCount}}</strong></span>
                 </div>
                 
-                <div class="loading" *ngIf="loading">
-                    <mat-icon>refresh</mat-icon>
-                    Yüklənir...
+                <div class="info-item" *ngIf="sessionInfo.lastLoginAt">
+                    <lucide-icon [img]="Clock" class="w-5 h-5 text-gray-600"></lucide-icon>
+                    <span class="text-gray-700">Son giriş: <strong class="text-gray-900">{{formatDate(sessionInfo.lastLoginAt)}}</strong></span>
                 </div>
                 
-                <div class="error" *ngIf="error">
-                    <mat-icon>error</mat-icon>
-                    {{error}}
+                <div class="info-item">
+                    <lucide-icon 
+                        [img]="sessionInfo.currentSession ? CheckCircle : XCircle" 
+                        [class]="sessionInfo.currentSession ? 'w-5 h-5 text-green-600' : 'w-5 h-5 text-gray-400'">
+                    </lucide-icon>
+                    <span class="text-gray-700">Bu cihaz: <strong [class]="sessionInfo.currentSession ? 'text-green-600' : 'text-gray-500'">{{sessionInfo.currentSession ? 'Aktiv' : 'Deaktiv'}}</strong></span>
                 </div>
-            </mat-card-content>
+            </div>
             
-            <mat-card-actions>
-                <button mat-button (click)="refreshSessions()" [disabled]="loading">
-                    <mat-icon>refresh</mat-icon>
-                    Yenilə
-                </button>
+            <!-- Loading State -->
+            <div class="flex items-center justify-center space-x-2 py-8" *ngIf="loading">
+                <lucide-icon [img]="RefreshCw" class="w-5 h-5 animate-spin text-blue-500"></lucide-icon>
+                <span class="text-gray-600">Yüklənir...</span>
+            </div>
+            
+            <!-- Error State -->
+            <div class="flex items-center space-x-2 text-red-600 py-4" *ngIf="error">
+                <lucide-icon [img]="AlertCircle" class="w-5 h-5"></lucide-icon>
+                <span>{{error}}</span>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-200">
+                <app-button 
+                    variant="secondary" 
+                    (clicked)="refreshSessions()" 
+                    [disabled]="loading">
+                    <div class="flex items-center space-x-2">
+                        <lucide-icon [img]="RefreshCw" class="w-4 h-4"></lucide-icon>
+                        <span>Yenilə</span>
+                    </div>
+                </app-button>
                 
-                <button mat-raised-button 
-                        color="warn" 
-                        (click)="logoutFromAllDevices()" 
-                        [disabled]="loading">
-                    <mat-icon>logout</mat-icon>
-                    Bütün cihazlardan çıx
-                </button>
-            </mat-card-actions>
-        </mat-card>
+                <app-button 
+                    variant="danger" 
+                    (clicked)="logoutFromAllDevices()" 
+                    [disabled]="loading">
+                    <div class="flex items-center space-x-2">
+                        <lucide-icon [img]="LogOut" class="w-4 h-4"></lucide-icon>
+                        <span>Bütün cihazlardan çıx</span>
+                    </div>
+                </app-button>
+            </div>
+        </div>
     `,
     styles: [`
-        .sessions-card {
-            max-width: 500px;
-            margin: 20px auto;
-        }
-        
-        .sessions-info {
-            margin: 16px 0;
-        }
-        
         .info-item {
-            display: flex;
-            align-items: center;
-            margin: 12px 0;
-            gap: 12px;
-        }
-        
-        .info-item mat-icon {
-            color: #666;
-        }
-        
-        .current-device {
-            color: #4caf50 !important;
-        }
-        
-        .loading, .error {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 16px 0;
-        }
-        
-        .error {
-            color: #f44336;
-        }
-        
-        mat-card-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-        
-        mat-card-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            @apply flex items-center space-x-3;
         }
     `]
 })
@@ -127,6 +92,15 @@ export class UserSessionsComponent implements OnInit {
     sessionInfo: ActiveSessionsInfo | null = null;
     loading = false;
     error: string | null = null;
+
+    // Icons
+    readonly Monitor = Monitor;
+    readonly Clock = Clock;
+    readonly AlertCircle = AlertCircle;
+    readonly RefreshCw = RefreshCw;
+    readonly LogOut = LogOut;
+    readonly CheckCircle = CheckCircle;
+    readonly XCircle = XCircle;
 
     constructor(
         private authService: AuthService,
