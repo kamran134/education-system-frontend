@@ -28,6 +28,9 @@ export class TeacherService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
+        if (params.search) {
+            url = `${url}&search=${encodeURIComponent(params.search)}`;
+        }
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }

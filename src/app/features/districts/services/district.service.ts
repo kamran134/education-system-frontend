@@ -20,6 +20,10 @@ export class DistrictService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}?sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
+        if (params.search) {
+            // append search param for name-based lookups
+            url = `${url}&search=${encodeURIComponent(params.search)}`;
+        }
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }

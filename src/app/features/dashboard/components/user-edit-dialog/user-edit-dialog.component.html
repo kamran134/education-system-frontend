@@ -44,6 +44,98 @@
       [required]="true"
     ></app-select>
 
+    <!-- District selection for District Representer -->
+    <div *ngIf="needsDistrictSelection" class="relative">
+      <app-input
+        label="Rayon"
+        placeholder="Rayon adını daxil edin (min. 2 hərf)"
+        [(ngModel)]="districtSearchTerm"
+        (ngModelChange)="onDistrictSearchChange($event)"
+        name="districtSearch"
+        type="text"
+      ></app-input>
+      
+      <!-- Inline autocomplete dropdown -->
+      <div *ngIf="districtOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          *ngFor="let option of districtOptions" 
+          (click)="selectDistrict(option)"
+          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+        >
+          {{ option.label }}
+        </div>
+      </div>
+    </div>
+
+    <!-- School selection for School Director -->
+    <div *ngIf="needsSchoolSelection" class="relative">
+      <app-input
+        label="Məktəb"
+        placeholder="Məktəb adını daxil edin (min. 2 hərf)"
+        [(ngModel)]="schoolSearchTerm"
+        (ngModelChange)="onSchoolSearchChange($event)"
+        name="schoolSearch"
+        type="text"
+      ></app-input>
+      
+      <!-- Inline autocomplete dropdown -->
+      <div *ngIf="schoolOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          *ngFor="let option of schoolOptions" 
+          (click)="selectSchool(option)"
+          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+        >
+          {{ option.label }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher selection for Teacher -->
+    <div *ngIf="needsTeacherSelection" class="relative">
+      <app-input
+        label="Müəllim"
+        placeholder="Soyadı, adı, ata adı daxil edin (min. 2 hərf)"
+        [(ngModel)]="teacherSearchTerm"
+        (ngModelChange)="onTeacherSearchChange($event)"
+        name="teacherSearch"
+        type="text"
+      ></app-input>
+      
+      <!-- Inline autocomplete dropdown -->
+      <div *ngIf="teacherOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          *ngFor="let option of teacherOptions" 
+          (click)="selectTeacher(option)"
+          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+        >
+          {{ option.label }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Student selection for Student -->
+    <div *ngIf="needsStudentSelection" class="relative">
+      <app-input
+        label="Şagird"
+        placeholder="Soyad, ad, ata adı daxil edin (min. 2 hərf)"
+        [(ngModel)]="studentSearchTerm"
+        (ngModelChange)="onStudentSearchChange($event)"
+        name="studentSearch"
+        type="text"
+      ></app-input>
+      
+      <!-- Inline autocomplete dropdown -->
+      <div *ngIf="studentOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          *ngFor="let option of studentOptions" 
+          (click)="selectStudent(option)"
+          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+        >
+          {{ option.label }}
+        </div>
+      </div>
+    </div>
+
     <app-select
       label="Təsdiq vəziyyəti"
       placeholder="Təsdiq vəziyyətini seçin"
