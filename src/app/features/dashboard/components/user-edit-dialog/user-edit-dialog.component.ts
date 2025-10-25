@@ -82,70 +82,120 @@ export class UserEditDialogComponent implements OnInit {
 
     /**
      * Loads the names of existing entities (district, school, teacher, student)
-     * when editing a user, so they appear in the search fields
+     * when editing a user, so they appear in the search fields.
+     * Loads only the entity that matches the user's role.
      */
     private loadExistingEntityData(): void {
-        // Load district name if districtId exists
-        if (this.dataSource.districtId) {
-            this.districtService.getDistrictById(this.dataSource.districtId)
-                .subscribe({
-                    next: (district: District) => {
-                        if (district) {
-                            this.districtSearchTerm = district.name;
-                        }
-                    },
-                    error: (error) => console.error('Error loading district:', error)
-                });
-        }
+        // Load only the entity that corresponds to the user's role
+        console.log('Loading entity for role:', this.dataSource.role, 'User data:', {
+            districtId: this.dataSource.districtId,
+            schoolId: this.dataSource.schoolId,
+            teacherId: this.dataSource.teacherId,
+            studentId: this.dataSource.studentId
+        });
 
-        // Load school name if schoolId exists
-        if (this.dataSource.schoolId) {
-            this.schoolService.getSchoolById(this.dataSource.schoolId)
-                .subscribe({
-                    next: (school: School) => {
-                        if (school) {
-                            this.schoolSearchTerm = `${school.name} (${school.code})`;
-                        }
-                    },
-                    error: (error) => console.error('Error loading school:', error)
-                });
-        }
+        switch (this.dataSource.role) {
+            case 'districtRepresenter':
+                if (this.dataSource.districtId) {
+                    this.districtService.getDistrictById(this.dataSource.districtId)
+                        .subscribe({
+                            next: (district: any) => {
+                                if (district) {
+                                    this.districtSearchTerm = district.name;
+                                }
+                            },
+                            error: (error) => console.error('Error loading district:', error)
+                        });
+                }
+                break;
 
-        // Load teacher name if teacherId exists
-        if (this.dataSource.teacherId) {
-            this.teacherService.getTeacherById(this.dataSource.teacherId)
-                .subscribe({
-                    next: (teacher: Teacher) => {
-                        if (teacher) {
-                            this.teacherSearchTerm = `${teacher.fullname} (${teacher.code})`;
-                        }
-                    },
-                    error: (error) => console.error('Error loading teacher:', error)
-                });
-        }
+            case 'schoolDirector':
+                if (this.dataSource.schoolId) {
+                    this.schoolService.getSchoolById(this.dataSource.schoolId)
+                        .subscribe({
+                            next: (school: any) => {
+                                if (school) {
+                                    this.schoolSearchTerm = `${school.name} (${school.code})`;
+                                }
+                            },
+                            error: (error) => console.error('Error loading school:', error)
+                        });
+                }
+                break;
 
-        // Load student name if studentId exists
-        if (this.dataSource.studentId) {
-            this.studentService.getStudentById(this.dataSource.studentId)
-                .subscribe({
-                    next: (response: any) => {
-                        // getStudentById returns student with results, extract student data
-                        const student = response.student || response;
-                        if (student) {
-                            this.studentSearchTerm = `${student.lastName} ${student.firstName} ${student.middleName} (${student.code})`;
-                        }
-                    },
-                    error: (error) => console.error('Error loading student:', error)
-                });
+            case 'teacher':
+                if (this.dataSource.teacherId) {
+                    this.teacherService.getTeacherById(this.dataSource.teacherId)
+                        .subscribe({
+                            next: (teacher: any) => {
+                                if (teacher) {
+                                    this.teacherSearchTerm = `${teacher.fullname} (${teacher.code})`;
+                                }
+                            },
+                            error: (error) => console.error('Error loading teacher:', error)
+                        });
+                }
+                break;
+
+            case 'student':
+                if (this.dataSource.studentId) {
+                    this.studentService.getStudentById(this.dataSource.studentId)
+                        .subscribe({
+                            next: (response: any) => {
+                                // getStudentById returns student with results, extract student data
+                                const student = response.student || response;
+                                if (student) {
+                                    this.studentSearchTerm = `${student.lastName} ${student.firstName} ${student.middleName} (${student.code})`;
+                                }
+                            },
+                            error: (error) => console.error('Error loading student:', error)
+                        });
+                }
+                break;
+
+            // For superadmin, admin, moderator - no entity to load
+            default:
+                break;
         }
     }
 
     get modalTitle(): string {
-        return this.isNewUser() ? 'Yeni istifadəçi əlavə et' : 'İstifadəçinin redaktə edilməsi';
+        if (this.isNewUser()) {
+            return 'Yeni istifadəçi əlavə et';
+        }
+
+        // Show role-specific title when editing
+        const roleTitles: Record<string, string> = {
+            'superadmin': 'Super Admin',
+            'admin': 'Admin',
+            'moderator': 'Moderator',
+            'districtRepresenter': 'Rayon nümayəndəsi',
+            'schoolDirector': 'Məktəb direktoru',
+            'teacher': 'Müəllim',
+            'student': 'Şagird'
+        };
+
+        const roleTitle = roleTitles[this.dataSource.role] || 'İstifadəçi';
+        return `${roleTitle}nin redaktə edilməsi`;
     }
 
     get modalSubtitle(): string {
-        return 'İstifadəçinin məlumatlarını daxil edin';
+        if (this.isNewUser()) {
+            return 'İstifadəçinin məlumatlarını daxil edin';
+        }
+
+        // Show role-specific subtitle when editing
+        const roleSubtitles: Record<string, string> = {
+            'superadmin': 'Super Admin məlumatlarını redaktə edin',
+            'admin': 'Admin məlumatlarını redaktə edin',
+            'moderator': 'Moderator məlumatlarını redaktə edin',
+            'districtRepresenter': 'Rayon nümayəndəsinin məlumatlarını redaktə edin',
+            'schoolDirector': 'Məktəb direktorunun məlumatlarını redaktə edin',
+            'teacher': 'Müəllimin məlumatlarını redaktə edin',
+            'student': 'Şagirdin məlumatlarını redaktə edin'
+        };
+
+        return roleSubtitles[this.dataSource.role] || 'İstifadəçinin məlumatlarını redaktə edin';
     }
 
     get roleOptions(): SelectOption[] {
