@@ -17,24 +17,46 @@ export class TeacherService {
   constructor(private http: HttpClient, private configService: ConfigService) { }
 
     getTeachers(params: FilterParams): Observable<TeacherResponse> {
-        let url: string = `${this.configService.getApiUrl()}/teachers?page=${params.page}&size=${params.size}`;
-
+        let url: string = `${this.configService.getApiUrl()}/teachers`;
+        const queryParams: string[] = [];
+        
+        if (params.page && params.size) {
+            queryParams.push(`page=${params.page}`);
+            queryParams.push(`size=${params.size}`);
+        }
+        
         if (params.districtIds && params.districtIds.length > 0) {
-            url = `${url}&districtIds=${params.districtIds}`;
+            queryParams.push(`districtIds=${params.districtIds}`);
         }
+        
         if (params.schoolIds && params.schoolIds.length > 0) {
-            url = `${url}&schoolIds=${params.schoolIds}`;
+            queryParams.push(`schoolIds=${params.schoolIds}`);
         }
+        
         if (params.sortColumn && params.sortDirection) {
-            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+            queryParams.push(`sortColumn=${params.sortColumn}`);
+            queryParams.push(`sortDirection=${params.sortDirection}`);
         }
+        
         if (params.search) {
-            url = `${url}&search=${encodeURIComponent(params.search)}`;
+            queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
+        
         if (params.code) {
-            url = `${url}&code=${params.code}`;
+            queryParams.push(`code=${params.code}`);
         }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<ApiResponse<TeacherResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    getTeacherById(teacherId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}`;
+        return this.http.get<ApiResponse<any>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 

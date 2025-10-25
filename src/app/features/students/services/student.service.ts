@@ -15,31 +15,55 @@ export class StudentService {
     constructor(private http: HttpClient, private configService: ConfigService) { }
 
     getStudents(params: FilterParams): Observable<StudentApiResponse> {
-        let url: string = `${this.configService.getApiUrl()}/students?page=${params.page}&size=${params.size}`;
+        let url: string = `${this.configService.getApiUrl()}/students`;
+        const queryParams: string[] = [];
+        
+        if (params.page && params.size) {
+            queryParams.push(`page=${params.page}`);
+            queryParams.push(`size=${params.size}`);
+        }
+        
         if (params.defective) {
-            url = `${url}&defective=true`;
+            queryParams.push('defective=true');
         }
+        
         if (params.districtIds && params.districtIds.length > 0) {
-            url = `${url}&districtIds=${params.districtIds}`;
+            queryParams.push(`districtIds=${params.districtIds}`);
         }
+        
         if (params.schoolIds && params.schoolIds.length > 0) {
-            url = `${url}&schoolIds=${params.schoolIds}`;
+            queryParams.push(`schoolIds=${params.schoolIds}`);
         }
+        
         if (params.teacherIds && params.teacherIds.length > 0) {
-            url = `${url}&teacherIds=${params.teacherIds}`;
+            queryParams.push(`teacherIds=${params.teacherIds}`);
         }
+        
         if (params.grades && params.grades.length > 0) {
-            url = `${url}&grades=${params.grades}`;
+            queryParams.push(`grades=${params.grades}`);
         }
+        
         if (params.examIds && params.examIds.length > 0) {
-            url = `${url}&examIds=${params.examIds}`
+            queryParams.push(`examIds=${params.examIds}`);
         }
+        
         if (params.sortColumn && params.sortDirection) {
-            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+            queryParams.push(`sortColumn=${params.sortColumn}`);
+            queryParams.push(`sortDirection=${params.sortDirection}`);
         }
+        
+        if (params.search) {
+            queryParams.push(`search=${encodeURIComponent(params.search)}`);
+        }
+        
         if (params.code) {
-            url = `${url}&code=${params.code}`;
+            queryParams.push(`code=${params.code}`);
         }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<ApiResponse<StudentApiResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }

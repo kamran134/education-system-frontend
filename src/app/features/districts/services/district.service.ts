@@ -17,17 +17,32 @@ export class DistrictService {
 
     getDistricts(params: FilterParams): Observable<DistrictResponse> {
         let url: string = `${this.configService.getApiUrl()}/districts`;
+        const queryParams: string[] = [];
+        
         if (params.sortColumn && params.sortDirection) {
-            url = `${url}?sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+            queryParams.push(`sortColumn=${params.sortColumn}`);
+            queryParams.push(`sortDirection=${params.sortDirection}`);
         }
+        
         if (params.search) {
-            // append search param for name-based lookups
-            url = `${url}&search=${encodeURIComponent(params.search)}`;
+            queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
+        
         if (params.code) {
-            url = `${url}&code=${params.code}`;
+            queryParams.push(`code=${params.code}`);
         }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<ApiResponse<DistrictResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    getDistrictById(districtId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
+        return this.http.get<ApiResponse<any>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 

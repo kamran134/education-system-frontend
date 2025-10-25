@@ -55,7 +55,7 @@ export interface ModalButton {
           </div>
 
           <!-- Content -->
-          <div [id]="contentId" class="py-4">
+          <div [id]="contentId" class="py-4 max-h-[60vh] overflow-y-auto">
             <ng-content></ng-content>
           </div>
 

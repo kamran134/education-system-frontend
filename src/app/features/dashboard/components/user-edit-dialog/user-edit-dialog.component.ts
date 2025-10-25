@@ -75,6 +75,69 @@ export class UserEditDialogComponent implements OnInit {
         this.schoolSearch$.pipe(debounceTime(300)).subscribe(term => this.searchSchools(term));
         this.teacherSearch$.pipe(debounceTime(300)).subscribe(term => this.searchTeachers(term));
         this.studentSearch$.pipe(debounceTime(300)).subscribe(term => this.searchStudents(term));
+
+        // Load existing entity data for editing
+        this.loadExistingEntityData();
+    }
+
+    /**
+     * Loads the names of existing entities (district, school, teacher, student)
+     * when editing a user, so they appear in the search fields
+     */
+    private loadExistingEntityData(): void {
+        // Load district name if districtId exists
+        if (this.dataSource.districtId) {
+            this.districtService.getDistrictById(this.dataSource.districtId)
+                .subscribe({
+                    next: (district: District) => {
+                        if (district) {
+                            this.districtSearchTerm = district.name;
+                        }
+                    },
+                    error: (error) => console.error('Error loading district:', error)
+                });
+        }
+
+        // Load school name if schoolId exists
+        if (this.dataSource.schoolId) {
+            this.schoolService.getSchoolById(this.dataSource.schoolId)
+                .subscribe({
+                    next: (school: School) => {
+                        if (school) {
+                            this.schoolSearchTerm = `${school.name} (${school.code})`;
+                        }
+                    },
+                    error: (error) => console.error('Error loading school:', error)
+                });
+        }
+
+        // Load teacher name if teacherId exists
+        if (this.dataSource.teacherId) {
+            this.teacherService.getTeacherById(this.dataSource.teacherId)
+                .subscribe({
+                    next: (teacher: Teacher) => {
+                        if (teacher) {
+                            this.teacherSearchTerm = `${teacher.fullname} (${teacher.code})`;
+                        }
+                    },
+                    error: (error) => console.error('Error loading teacher:', error)
+                });
+        }
+
+        // Load student name if studentId exists
+        if (this.dataSource.studentId) {
+            this.studentService.getStudentById(this.dataSource.studentId)
+                .subscribe({
+                    next: (response: any) => {
+                        // getStudentById returns student with results, extract student data
+                        const student = response.student || response;
+                        if (student) {
+                            this.studentSearchTerm = `${student.lastName} ${student.firstName} ${student.middleName} (${student.code})`;
+                        }
+                    },
+                    error: (error) => console.error('Error loading student:', error)
+                });
+        }
     }
 
     get modalTitle(): string {
@@ -287,8 +350,11 @@ export class UserEditDialogComponent implements OnInit {
         this.studentService.searchStudents(term)
             .subscribe({
                 next: (response: any) => {
-                    const data = response.data?.data || response.data || [];
-                    this.studentOptions = data.map((s: Student) => ({
+                    // Response is already extracted by ResponseHandlerUtil
+                    // It should be an array of students directly
+                    const students = Array.isArray(response) ? response : (response.data || []);
+                    console.log('Student search response:', students);
+                    this.studentOptions = students.map((s: Student) => ({
                         value: s._id,
                         label: `${s.lastName} ${s.firstName} ${s.middleName} (${s.code})`
                     }));

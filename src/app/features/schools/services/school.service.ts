@@ -17,25 +17,41 @@ export class SchoolService {
 
     getSchools(params: FilterParams): Observable<SchoolResponse> {
         let url: string = `${this.configService.getApiUrl()}/schools`;
+        const queryParams: string[] = [];
+        
         if (params.page && params.size) {
-            url = `${url}?page=${params.page}&size=${params.size}`;
+            queryParams.push(`page=${params.page}`);
+            queryParams.push(`size=${params.size}`);
         }
-        if ((!params.page || !params.size) && params.districtIds) {
-            url = `${url}?districtIds=${params.districtIds}`;
-        } else if (params.districtIds) {
-            url = `${url}&districtIds=${params.districtIds}`;
+        
+        if (params.districtIds) {
+            queryParams.push(`districtIds=${params.districtIds}`);
         }
+        
         if (params.sortColumn && params.sortDirection) {
-            url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+            queryParams.push(`sortColumn=${params.sortColumn}`);
+            queryParams.push(`sortDirection=${params.sortDirection}`);
         }
+        
         if (params.search) {
-            // append search param for name-based lookups
-            url = `${url}&search=${encodeURIComponent(params.search)}`;
+            queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
+        
         if (params.code) {
-            url = `${url}&code=${params.code}`;
+            queryParams.push(`code=${params.code}`);
         }
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
         return this.http.get<ApiResponse<SchoolResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    getSchoolById(schoolId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/schools/${schoolId}`;
+        return this.http.get<ApiResponse<any>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
