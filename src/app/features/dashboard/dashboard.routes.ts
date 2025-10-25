@@ -8,11 +8,10 @@ export const routes: Routes = [
     {
         path: '',
         component: AdminLayoutComponent,
-        canActivate: [adminGuard],
         children: [
             { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
             { path: 'rating-columns', component: StatsColumnsComponent },
-            { path: '', redirectTo: 'users', pathMatch: 'full' }
+            { path: '', redirectTo: 'rating-columns', pathMatch: 'full' }
         ]
     }
 ];

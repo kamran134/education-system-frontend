@@ -51,7 +51,6 @@ export class StudentsYearTabComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['students']) {
-            // Ensure we always pass an array; fallback to empty array
             this.dataSource.data = Array.isArray(this.students) ? this.students : [];
         }
     }

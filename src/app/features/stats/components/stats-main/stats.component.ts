@@ -406,16 +406,14 @@ export class StatsComponent implements OnInit, OnDestroy {
         };
         
         this.isloading = true;
-        // Не очищаем весь объект stats, только обнуляем students
         this.stats.students = [];
 
         this.studentService.getStudents(params).subscribe({
             next: (response) => {
                 this.isloading = false;
                 const paginatedData = ResponseHandlerUtil.extractPaginatedData<Student>(response);
-                this.stats.students = paginatedData.data;
-                this.studentsDataSource.data = paginatedData.data;
-                this.totalCounts.allStudentsTotalCount = paginatedData.totalCount;
+                this.stats.students = paginatedData.data || [];
+                this.totalCounts.allStudentsTotalCount = paginatedData.totalCount || 0;
             },
             error: (error: Error) => {
                 this.isloading = false;

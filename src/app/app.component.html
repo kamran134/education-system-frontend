@@ -35,6 +35,11 @@
               Şəxsi məlumatlar
             </app-dropdown-item>
             
+            <app-dropdown-item (clicked)="goToRatingColumns()">
+              <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+              Reytinq sütunları
+            </app-dropdown-item>
+            
             <app-dropdown-divider></app-dropdown-divider>
             
             <app-dropdown-item (clicked)="goToStats()">
