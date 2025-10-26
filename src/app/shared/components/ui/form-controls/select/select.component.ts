@@ -93,7 +93,7 @@ export interface SelectOption {
 
         <!-- Dropdown -->
         <div *ngIf="isOpen" 
-             class="absolute z-50 mt-1 w-full rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-auto">
+             class="absolute z-[100] mt-1 w-full rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-auto">
           <div *ngIf="searchable" class="px-3 py-2 border-b border-gray-100">
             <input
               type="text"
@@ -139,7 +139,7 @@ export interface SelectOption {
 
     <!-- Overlay to close dropdown -->
     <div *ngIf="isOpen" 
-         class="fixed inset-0 z-40" 
+         class="fixed inset-0 z-[90]" 
          (click)="closeDropdown()">
     </div>
   `,

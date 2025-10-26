@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { District } from '../../../../core/models/district.model';
@@ -11,6 +11,7 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-school-editing-dialog',
@@ -25,9 +26,11 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
     templateUrl: './school-editing-dialog.component.html',
     styleUrl: './school-editing-dialog.component.scss'
 })
-export class SchoolEditingDialogComponent implements OnInit {
+export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
     districts: District[] = [];
     selectedDistrict: District | null = null;
+
+    private destroy$ = new Subject<void>();
 
     constructor(
         public dialogRef: MatDialogRef<SchoolEditingDialogComponent>,
@@ -113,15 +116,17 @@ export class SchoolEditingDialogComponent implements OnInit {
             sortDirection: 'asc'
         }
 
-        this.districtService.getDistricts(params).subscribe({
-            next: (response) => {
-                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                this.selectedDistrict = this.districts.find(d => d._id === this.data.school.district?._id) || null;
-            },
-            error: (error) => {
-                console.error('error', error);
-            }
-        });
+        this.districtService.getDistricts(params)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
+                    this.selectedDistrict = this.districts.find(d => d._id === this.data.school.district?._id) || null;
+                },
+                error: (error) => {
+                    console.error('error', error);
+                }
+            });
     }
 
     onDistrictSelectChanged(): void {
@@ -134,6 +139,11 @@ export class SchoolEditingDialogComponent implements OnInit {
 
     onClose(): void {
         this.dialogRef.close();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onModalClose(): void {

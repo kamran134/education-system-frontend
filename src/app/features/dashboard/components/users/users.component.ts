@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User, UserResponse, UserEdit } from '../../../../core/models/user.model';
 import { DashboardService } from '../../services/dashboard.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { LucideAngularModule, UserPlus, Edit, Trash2, Users } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-users',
@@ -18,7 +19,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss'
 })
-export class UsersComponent implements OnInit{
+export class UsersComponent implements OnInit, OnDestroy {
     dataSource: User[] = [];
     totalCount: number = 0;
     matSnackConfig: MatSnackBarConfig = {
@@ -27,6 +28,8 @@ export class UsersComponent implements OnInit{
         verticalPosition: 'top'
     }
     authorizedUserRole: string | null = null;
+    
+    private destroy$ = new Subject<void>();
     
     // Icons
     readonly UserPlus = UserPlus;
@@ -48,16 +51,22 @@ export class UsersComponent implements OnInit{
 
     ngOnInit(): void {
         // Initial load of users or rating columns based on user role
-        this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-            if (isLoggedIn) {
-                this.authorizedUserRole = this.authService.getRole();
-                if (this.authorizedUserRole === 'admin' || this.authorizedUserRole === 'superadmin') this.loadUsers();
-                else this.router.navigate(['/admin/rating-columns']);
-            } else {
-                this.router.navigate(['/login']);
-            }
-        });
-        
+        this.authService.isLoggedIn$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(isLoggedIn => {
+                if (isLoggedIn) {
+                    this.authorizedUserRole = this.authService.getRole();
+                    if (this.authorizedUserRole === 'admin' || this.authorizedUserRole === 'superadmin') this.loadUsers();
+                    else this.router.navigate(['/admin/rating-columns']);
+                } else {
+                    this.router.navigate(['/login']);
+                }
+            });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     isLevelUpUser(user: User): boolean {
@@ -74,15 +83,17 @@ export class UsersComponent implements OnInit{
     }
 
     loadUsers(): void {
-        this.dashboardService.getUsers({ page: 1, size: 10 }).subscribe({
-            next: (data: UserResponse) => {
-                this.dataSource = data.data;
-                this.totalCount = data.totalCount;
-            },
-            error: (err) => {
-                console.error('Error loading users:', err);
-            }
-        });
+        this.dashboardService.getUsers({ page: 1, size: 10 })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (data: UserResponse) => {
+                    this.dataSource = data.data;
+                    this.totalCount = data.totalCount;
+                },
+                error: (err) => {
+                    console.error('Error loading users:', err);
+                }
+            });
     }
 
     onUserCreate(): void {
@@ -98,28 +109,31 @@ export class UsersComponent implements OnInit{
             }
         });
 
-        dialogRef.afterClosed().subscribe((result: UserEdit) => {
-            if (result) {
-                this.dashboardService.createUser(result).subscribe({
-                    next: () => {
-                        this.loadUsers();
-                        this.snackBar.open('Yeni istifadəçi yaradıldı', 'Bağla', this.matSnackConfig);
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
-                    }
-                });
-            }
-        });
+        dialogRef.afterClosed()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((result: UserEdit) => {
+                if (result) {
+                    this.dashboardService.createUser(result)
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe({
+                            next: () => {
+                                this.loadUsers();
+                                this.snackBar.open('Yeni istifadəçi yaradıldı', 'Bağla', this.matSnackConfig);
+                            },
+                            error: (error) => {
+                                console.error(error);
+                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                            }
+                        });
+                }
+            });
     }
 
     onUserUpdate(user: User): void {
-        this.authService.isAdminOrSuperAdmin$.subscribe(isAdminOrSuperAdmin => {
-            if (isAdminOrSuperAdmin) {
-                this.openEditDialog(user);
-            }
-        });   
+        // Синхронная проверка прав вместо подписки на Observable
+        if (this.authService.isAdminOrSuperAdmin()) {
+            this.openEditDialog(user);
+        }
     }
 
     onUserDelete(user: User): void {
@@ -129,21 +143,19 @@ export class UsersComponent implements OnInit{
         });
 
         confirmRef.afterClosed().subscribe((confirmed: boolean) => {
-            if (confirmed) {
-                this.authService.isAdminOrSuperAdmin$.subscribe(isAdminOrSuperAdmin => {
-                    if (isAdminOrSuperAdmin) {
-                        this.dashboardService.deleteUser(user._id).subscribe({
-                            next: () => {
-                                this.loadUsers();
-                                this.snackBar.open('İstifadəçi silindi', 'Bağla', this.matSnackConfig);
-                            },
-                            error: (error) => {
-                                console.error(error);
-                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
-                            }
-                        });
-                    }
-                });
+            if (confirmed && this.authService.isAdminOrSuperAdmin()) {
+                this.dashboardService.deleteUser(user._id)
+                    .pipe(takeUntil(this.destroy$))
+                    .subscribe({
+                        next: () => {
+                            this.loadUsers();
+                            this.snackBar.open('İstifadəçi silindi', 'Bağla', this.matSnackConfig);
+                        },
+                        error: (error) => {
+                            console.error(error);
+                            this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        }
+                    });
             }
         });
     }
@@ -154,20 +166,24 @@ export class UsersComponent implements OnInit{
             data: user
         });
 
-        dialogRef.afterClosed().subscribe((result: UserEdit) => {
-            if (result) {
-                this.dashboardService.editUser(result).subscribe({
-                    next: () => {
-                        this.loadUsers();
-                        this.snackBar.open('İstifadəçi məlumatları yeniləndi', 'Bağla', this.matSnackConfig);
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
-                    }
-                });
-            }
-        });
+        dialogRef.afterClosed()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((result: UserEdit) => {
+                if (result) {
+                    this.dashboardService.editUser(result)
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe({
+                            next: () => {
+                                this.loadUsers();
+                                this.snackBar.open('İstifadəçi məlumatları yeniləndi', 'Bağla', this.matSnackConfig);
+                            },
+                            error: (error) => {
+                                console.error(error);
+                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                            }
+                        });
+                }
+            });
     }
 
     openUserDetails(user: User): void {
@@ -176,18 +192,22 @@ export class UsersComponent implements OnInit{
             data: user
         });
 
-        dialogRef.afterClosed().subscribe((result: UserEdit) => {
-            if (result) {
-                this.dashboardService.editUser(result).subscribe({
-                    next: () => {
-                        this.loadUsers();
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
-                    }
-                });
-            }
-        });
+        dialogRef.afterClosed()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((result: UserEdit) => {
+                if (result) {
+                    this.dashboardService.editUser(result)
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe({
+                            next: () => {
+                                this.loadUsers();
+                            },
+                            error: (error) => {
+                                console.error(error);
+                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                            }
+                        });
+                }
+            });
     }
 }

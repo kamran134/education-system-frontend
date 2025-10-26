@@ -56,7 +56,7 @@
       ></app-input>
       
       <!-- Inline autocomplete dropdown -->
-      <div *ngIf="districtOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+      <div *ngIf="districtOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
         <div 
           *ngFor="let option of districtOptions" 
           (click)="selectDistrict(option)"
@@ -79,7 +79,7 @@
       ></app-input>
       
       <!-- Inline autocomplete dropdown -->
-      <div *ngIf="schoolOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+      <div *ngIf="schoolOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
         <div 
           *ngFor="let option of schoolOptions" 
           (click)="selectSchool(option)"
@@ -102,7 +102,7 @@
       ></app-input>
       
       <!-- Inline autocomplete dropdown -->
-      <div *ngIf="teacherOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+      <div *ngIf="teacherOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
         <div 
           *ngFor="let option of teacherOptions" 
           (click)="selectTeacher(option)"
@@ -125,7 +125,7 @@
       ></app-input>
       
       <!-- Inline autocomplete dropdown -->
-      <div *ngIf="studentOptions.length > 0" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+      <div *ngIf="studentOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
         <div 
           *ngFor="let option of studentOptions" 
           (click)="selectStudent(option)"
@@ -136,13 +136,38 @@
       </div>
     </div>
 
-    <app-select
-      label="Təsdiq vəziyyəti"
-      placeholder="Təsdiq vəziyyətini seçin"
-      [options]="approvalOptions"
-      [(ngModel)]="dataSource.isApproved"
-      name="isApproved"
-      [required]="true"
-    ></app-select>
+    <!-- Approval Status - Radio Buttons -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">
+        Təsdiq vəziyyəti
+        <span class="text-red-500 ml-1">*</span>
+      </label>
+      <div class="flex gap-4">
+        <label class="flex items-center cursor-pointer group">
+          <input
+            type="radio"
+            name="isApproved"
+            [value]="true"
+            [(ngModel)]="dataSource.isApproved"
+            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-2 focus:ring-primary-500 cursor-pointer"
+          />
+          <span class="ml-2 text-sm text-gray-700 group-hover:text-primary-600 transition-colors">
+            Təsdiq edilmiş
+          </span>
+        </label>
+        <label class="flex items-center cursor-pointer group">
+          <input
+            type="radio"
+            name="isApproved"
+            [value]="false"
+            [(ngModel)]="dataSource.isApproved"
+            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-2 focus:ring-primary-500 cursor-pointer"
+          />
+          <span class="ml-2 text-sm text-gray-700 group-hover:text-primary-600 transition-colors">
+            Təsdiq edilməmiş
+          </span>
+        </label>
+      </div>
+    </div>
   </form>
 </app-modal>

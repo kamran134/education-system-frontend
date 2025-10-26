@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UserEdit } from '../../../../core/models/user.model';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Student } from '../../../../core/models/student.model';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-user-edit-dialog',
@@ -31,7 +31,7 @@ import { debounceTime, Subject } from 'rxjs';
     templateUrl: './user-edit-dialog.component.html',
     styleUrl: './user-edit-dialog.component.scss'
 })
-export class UserEditDialogComponent implements OnInit {
+export class UserEditDialogComponent implements OnInit, OnDestroy {
     repeatedPassword: string = '';
     emailPattern: string = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
     matSnackConfig: MatSnackBarConfig = {
@@ -58,6 +58,9 @@ export class UserEditDialogComponent implements OnInit {
     private teacherSearch$ = new Subject<string>();
     private studentSearch$ = new Subject<string>();
 
+    // Destroy subject to unsubscribe all observables
+    private destroy$ = new Subject<void>();
+
     constructor(
         public dialogRef: MatDialogRef<UserEditDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public dataSource: UserEdit,
@@ -71,13 +74,40 @@ export class UserEditDialogComponent implements OnInit {
 
     ngOnInit(): void {
         // Setup debounced search
-        this.districtSearch$.pipe(debounceTime(300)).subscribe(term => this.searchDistricts(term));
-        this.schoolSearch$.pipe(debounceTime(300)).subscribe(term => this.searchSchools(term));
-        this.teacherSearch$.pipe(debounceTime(300)).subscribe(term => this.searchTeachers(term));
-        this.studentSearch$.pipe(debounceTime(300)).subscribe(term => this.searchStudents(term));
+        this.districtSearch$.pipe(
+            debounceTime(300),
+            takeUntil(this.destroy$)
+        ).subscribe(term => this.searchDistricts(term));
+        
+        this.schoolSearch$.pipe(
+            debounceTime(300),
+            takeUntil(this.destroy$)
+        ).subscribe(term => this.searchSchools(term));
+        
+        this.teacherSearch$.pipe(
+            debounceTime(300),
+            takeUntil(this.destroy$)
+        ).subscribe(term => this.searchTeachers(term));
+        
+        this.studentSearch$.pipe(
+            debounceTime(300),
+            takeUntil(this.destroy$)
+        ).subscribe(term => this.searchStudents(term));
 
         // Load existing entity data for editing
         this.loadExistingEntityData();
+    }
+
+    ngOnDestroy(): void {
+        // Complete all subscriptions
+        this.destroy$.next();
+        this.destroy$.complete();
+        
+        // Complete search subjects
+        this.districtSearch$.complete();
+        this.schoolSearch$.complete();
+        this.teacherSearch$.complete();
+        this.studentSearch$.complete();
     }
 
     /**
@@ -98,6 +128,7 @@ export class UserEditDialogComponent implements OnInit {
             case 'districtRepresenter':
                 if (this.dataSource.districtId) {
                     this.districtService.getDistrictById(this.dataSource.districtId)
+                        .pipe(takeUntil(this.destroy$))
                         .subscribe({
                             next: (district: any) => {
                                 if (district) {
@@ -112,6 +143,7 @@ export class UserEditDialogComponent implements OnInit {
             case 'schoolDirector':
                 if (this.dataSource.schoolId) {
                     this.schoolService.getSchoolById(this.dataSource.schoolId)
+                        .pipe(takeUntil(this.destroy$))
                         .subscribe({
                             next: (school: any) => {
                                 if (school) {
@@ -126,6 +158,7 @@ export class UserEditDialogComponent implements OnInit {
             case 'teacher':
                 if (this.dataSource.teacherId) {
                     this.teacherService.getTeacherById(this.dataSource.teacherId)
+                        .pipe(takeUntil(this.destroy$))
                         .subscribe({
                             next: (teacher: any) => {
                                 if (teacher) {
@@ -140,6 +173,7 @@ export class UserEditDialogComponent implements OnInit {
             case 'student':
                 if (this.dataSource.studentId) {
                     this.studentService.getStudentById(this.dataSource.studentId)
+                        .pipe(takeUntil(this.destroy$))
                         .subscribe({
                             next: (response: any) => {
                                 // getStudentById returns student with results, extract student data
@@ -233,13 +267,6 @@ export class UserEditDialogComponent implements OnInit {
         return this.dataSource.role === 'student';
     }
 
-    get approvalOptions(): SelectOption[] {
-        return [
-            { value: true, label: 'Təsdiq edilmiş' },
-            { value: false, label: 'Təsdiq edilməmiş' }
-        ];
-    }
-
     get isFormValid(): boolean {
         const basicValidation = !!(
             this.dataSource.email?.trim() &&
@@ -248,12 +275,36 @@ export class UserEditDialogComponent implements OnInit {
         );
 
         if (this.isNewUser()) {
-            return basicValidation && 
-                   !!(this.dataSource.password?.trim()) &&
-                   this.dataSource.password === this.repeatedPassword;
+            const passwordValid = !!(this.dataSource.password?.trim()) &&
+                                  this.dataSource.password === this.repeatedPassword;
+            
+            if (!basicValidation || !passwordValid) {
+                return false;
+            }
+        } else {
+            if (!basicValidation) {
+                return false;
+            }
         }
 
-        return basicValidation;
+        // Role-specific validation
+        if (this.needsDistrictSelection && !this.dataSource.districtId) {
+            return false;
+        }
+
+        if (this.needsSchoolSelection && !this.dataSource.schoolId) {
+            return false;
+        }
+
+        if (this.needsTeacherSelection && !this.dataSource.teacherId) {
+            return false;
+        }
+
+        if (this.needsStudentSelection && !this.dataSource.studentId) {
+            return false;
+        }
+
+        return true;
     }
 
     get modalButtons(): ModalButton[] {
@@ -330,6 +381,7 @@ export class UserEditDialogComponent implements OnInit {
 
         // Use `search` param (name) for autocomplete-friendly backend queries
         this.districtService.getDistricts({ search: term, sortColumn: 'name', sortDirection: 'asc' })
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response) => {
                     const districts = response.data || [];
@@ -353,6 +405,7 @@ export class UserEditDialogComponent implements OnInit {
 
         // Use `search` param to look up schools by name
         this.schoolService.getSchools({ search: term, sortColumn: 'name', sortDirection: 'asc' })
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response) => {
                     const schools = response.data || [];
@@ -376,6 +429,7 @@ export class UserEditDialogComponent implements OnInit {
 
         // Use `search` param to match teacher fullnames
         this.teacherService.getTeachers({ search: term, sortColumn: 'fullname', sortDirection: 'asc' })
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response) => {
                     const teachers = response.data || [];
@@ -398,6 +452,7 @@ export class UserEditDialogComponent implements OnInit {
         }
 
         this.studentService.searchStudents(term)
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response: any) => {
                     // Response is already extracted by ResponseHandlerUtil

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { District } from '../../../../core/models/district.model';
@@ -14,6 +14,7 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-student-editing',
@@ -28,7 +29,7 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
     templateUrl: './student-editing-dialog.component.html',
     styleUrl: './student-editing-dialog.component.scss'
 })
-export class StudentEditingDialogComponent implements OnInit {
+export class StudentEditingDialogComponent implements OnInit, OnDestroy {
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
@@ -37,6 +38,8 @@ export class StudentEditingDialogComponent implements OnInit {
     selectedSchool: School | null = null;
     selectedTeacher: Teacher | null = null;
     selectedGrade: number | null = null;
+
+    private destroy$ = new Subject<void>();
 
     constructor(
         public dialogRef: MatDialogRef<StudentEditingDialogComponent>,
@@ -150,45 +153,51 @@ export class StudentEditingDialogComponent implements OnInit {
             sortDirection: 'asc'
         }
 
-        this.districtService.getDistricts(params).subscribe({
-            next: (response) => {
-                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                this.selectedDistrict = this.districts.find(d => d._id === this.data.student.district?._id) || null;
-                if (this.selectedDistrict) {
-                    this.loadSchools(); // Загружаем школы только если район есть
+        this.districtService.getDistricts(params)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
+                    this.selectedDistrict = this.districts.find(d => d._id === this.data.student.district?._id) || null;
+                    if (this.selectedDistrict) {
+                        this.loadSchools(); // Загружаем школы только если район есть
+                    }
+                },
+                error: (error) => {
+                    console.error('error', error);
                 }
-            },
-            error: (error) => {
-                console.error('error', error);
-            }
-        });
+            });
     }
 
     loadSchools(): void {
-        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id }).subscribe({
-            next: (response) => {
-                this.schools = ResponseHandlerUtil.extractData<School[]>(response);
-                this.selectedSchool = this.schools.find(s => s._id === this.data.student.school?._id) || null;
-                if (this.selectedSchool) {
-                    this.loadTeachers(); // Загружаем учителей только если школа есть
+        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.schools = ResponseHandlerUtil.extractData<School[]>(response);
+                    this.selectedSchool = this.schools.find(s => s._id === this.data.student.school?._id) || null;
+                    if (this.selectedSchool) {
+                        this.loadTeachers(); // Загружаем учителей только если школа есть
+                    }
+                },
+                error: (error) => {
+                    console.error('error', error);
                 }
-            },
-            error: (error) => {
-                console.error('error', error);
-            }
-        });
+            });
     }
 
     loadTeachers(): void {
-        this.teacherService.getTeachersForFilter({ schoolIds: this.selectedSchool?._id }).subscribe({
-            next: (response) => {
-                this.teachers = ResponseHandlerUtil.extractData<Teacher[]>(response);
-                this.selectedTeacher = this.teachers.find(t => t._id === this.data.student.teacher?._id) || null;
-            },
-            error: (error) => {
-                console.error('error', error);
-            }
-        });
+        this.teacherService.getTeachersForFilter({ schoolIds: this.selectedSchool?._id })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.teachers = ResponseHandlerUtil.extractData<Teacher[]>(response);
+                    this.selectedTeacher = this.teachers.find(t => t._id === this.data.student.teacher?._id) || null;
+                },
+                error: (error) => {
+                    console.error('error', error);
+                }
+            });
     }
 
     onDistrictSelectChanged(): void {
@@ -218,6 +227,11 @@ export class StudentEditingDialogComponent implements OnInit {
 
     onClose(): void {
         this.dialogRef.close();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onModalClose(): void {

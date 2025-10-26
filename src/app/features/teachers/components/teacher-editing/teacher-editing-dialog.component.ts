@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Teacher, TeacherForCreation } from '../../../../core/models/teacher.model';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-teacher-editing-dialog',
@@ -26,11 +27,13 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
     templateUrl: './teacher-editing-dialog.component.html',
     styleUrl: './teacher-editing-dialog.component.scss'
 })
-export class TeacherEditingDialogComponent implements OnInit{
+export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
     districts: District[] = [];
     selectedDistrict: District | null = null;
     selectedSchool: School | null = null;
     schools: School[] = [];
+    
+    private destroy$ = new Subject<void>();
     
     constructor(
         public dialogRef: MatDialogRef<TeacherEditingDialogComponent>,
@@ -132,30 +135,34 @@ export class TeacherEditingDialogComponent implements OnInit{
             sortDirection: 'asc'
         }
 
-        this.districtService.getDistricts(params).subscribe({
-            next: (response) => {
-                this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                this.selectedDistrict = this.districts.find(d => d._id === this.data.teacher.district?._id) || null;
-                if (this.selectedDistrict) {
-                    this.loadSchools(); // Загружаем школы только если район есть
+        this.districtService.getDistricts(params)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.districts = ResponseHandlerUtil.extractData<District[]>(response);
+                    this.selectedDistrict = this.districts.find(d => d._id === this.data.teacher.district?._id) || null;
+                    if (this.selectedDistrict) {
+                        this.loadSchools(); // Загружаем школы только если район есть
+                    }
+                },
+                error: (error) => {
+                    console.error('error', error);
                 }
-            },
-            error: (error) => {
-                console.error('error', error);
-            }
-        });
+            });
     }
 
     loadSchools(): void {
-        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id }).subscribe({
-            next: (response) => {
-                this.schools = ResponseHandlerUtil.extractData<School[]>(response);
-                this.selectedSchool = this.schools.find(s => s._id === this.data.teacher.school?._id) || null;
-            },
-            error: (error) => {
-                console.error('error', error);
-            }
-        });
+        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.schools = ResponseHandlerUtil.extractData<School[]>(response);
+                    this.selectedSchool = this.schools.find(s => s._id === this.data.teacher.school?._id) || null;
+                },
+                error: (error) => {
+                    console.error('error', error);
+                }
+            });
     }
 
     onDistrictSelectChanged(): void {
@@ -174,6 +181,11 @@ export class TeacherEditingDialogComponent implements OnInit{
 
     onClose(): void {
         this.dialogRef.close();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onModalClose(): void {
