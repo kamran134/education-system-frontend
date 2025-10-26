@@ -10,6 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './core/services/auth.service';
+import { PermissionsService } from './core/services/permissions.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
@@ -67,7 +68,8 @@ export class AppComponent implements OnInit {
         private matIconRegistry: MatIconRegistry, 
         private domSanitizer: DomSanitizer, 
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        public permissions: PermissionsService
     ) {
         this.matIconRegistry.addSvgIcon('dark_mode', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/dark_mode.svg'));
         this.matIconRegistry.addSvgIcon('light_mode', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/light_mode.svg'));
@@ -83,7 +85,6 @@ export class AppComponent implements OnInit {
             // Только если есть токен в localStorage
             const token = this.authService.getToken();
             if (token) {
-                console.log('[APP COMPONENT] Token found, validating...');
                 this.authService.validateToken().subscribe({
                     next: (isValid) => {
                         if (isValid) {
@@ -153,12 +154,20 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return;
         }
+        if (!this.permissions.canAccessRoute('canAccessAdminPanel')) {
+            this.router.navigate(['/']);
+            return;
+        }
         this.router.navigate(['/admin/dashboard']);
     }
 
     goToUsers(): void {
         if (!this.isAuthorized()) {
             this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessUserManagement')) {
+            this.router.navigate(['/']);
             return;
         }
         this.router.navigate(['/admin/users']);
@@ -169,12 +178,20 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return;
         }
+        if (!this.permissions.canAccessRoute('canAccessRatingColumns')) {
+            this.router.navigate(['/']);
+            return;
+        }
         this.router.navigate(['/admin/rating-columns']);
     }
 
     goToStats(): void {
         if (!this.isAuthorized()) {
             this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessStats')) {
+            this.router.navigate(['/']);
             return;
         }
         this.router.navigate(['/stats']);
@@ -185,12 +202,20 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return;
         }
+        if (!this.permissions.canAccessRoute('canAccessDistricts')) {
+            this.router.navigate(['/']);
+            return;
+        }
         this.router.navigate(['/districts']);
     }
 
     goToSchools(): void {
         if (!this.isAuthorized()) {
             this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessSchools')) {
+            this.router.navigate(['/']);
             return;
         }
         this.router.navigate(['/schools']);
@@ -201,12 +226,20 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return;
         }
+        if (!this.permissions.canAccessRoute('canAccessTeachers')) {
+            this.router.navigate(['/']);
+            return;
+        }
         this.router.navigate(['/teachers']);
     }
 
     goToStudents(): void {
         if (!this.isAuthorized()) {
             this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessStudents')) {
+            this.router.navigate(['/']);
             return;
         }
         this.router.navigate(['/students']);

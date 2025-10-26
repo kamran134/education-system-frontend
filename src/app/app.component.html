@@ -42,27 +42,27 @@
             
             <app-dropdown-divider></app-dropdown-divider>
             
-            <app-dropdown-item (clicked)="goToStats()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStats')" (clicked)="goToStats()">
               <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
               Statistika
             </app-dropdown-item>
             
-            <app-dropdown-item (clicked)="goToDistricts()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessDistricts')" (clicked)="goToDistricts()">
               <lucide-icon [img]="Building2" class="mr-3 h-4 w-4"></lucide-icon>
               Rayonlar
             </app-dropdown-item>
             
-            <app-dropdown-item (clicked)="goToSchools()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessSchools')" (clicked)="goToSchools()">
               <lucide-icon [img]="GraduationCap" class="mr-3 h-4 w-4"></lucide-icon>
               Məktəblər
             </app-dropdown-item>
             
-            <app-dropdown-item (clicked)="goToTeachers()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessTeachers')" (clicked)="goToTeachers()">
               <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
               Müəllimlər  
             </app-dropdown-item>
             
-            <app-dropdown-item (clicked)="goToStudents()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStudents')" (clicked)="goToStudents()">
               <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
               Şagirdlər
             </app-dropdown-item>
@@ -70,7 +70,7 @@
         </app-dropdown>
 
         <!-- Admin Menu -->
-        <app-dropdown *ngIf="isAuthorized() && isAdminOrSuperAdmin()" position="right">
+        <app-dropdown *ngIf="isAuthorized() && permissions.canShowUI('showAdminMenu')" position="right">
           <div slot="trigger" class="flex items-center space-x-1">
             <lucide-icon [img]="Shield" class="h-5 w-5"></lucide-icon>
             <span class="hidden sm:block">İdarəetmə</span>
@@ -85,19 +85,19 @@
             
             <app-dropdown-divider></app-dropdown-divider>
             
-            <app-dropdown-item (clicked)="goToUsers()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessUserManagement')" (clicked)="goToUsers()">
               <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
               İstifadəçilər
             </app-dropdown-item>
             
-            <app-dropdown-item (clicked)="goToRatingColumns()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessRatingColumns')" (clicked)="goToRatingColumns()">
               <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
               Reytinq sütunları
             </app-dropdown-item>
             
-            <app-dropdown-divider></app-dropdown-divider>
+            <app-dropdown-divider *ngIf="permissions.isAdmin()"></app-dropdown-divider>
             
-            <app-dropdown-item (clicked)="goToAdminPanel()">
+            <app-dropdown-item *ngIf="permissions.isAdmin()" (clicked)="goToAdminPanel()">
               <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
               Köhnə admin paneli
             </app-dropdown-item>
