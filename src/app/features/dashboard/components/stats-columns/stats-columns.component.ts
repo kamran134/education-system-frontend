@@ -1,18 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
 import { DashboardService } from '../../services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
 import { CommonModule } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../core/services/auth.service';
+import { LucideAngularModule, Home, Save, RotateCcw, CheckSquare, Square } from 'lucide-angular';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { Router } from '@angular/router';
 
 interface Column {
     key: string;
@@ -25,20 +20,22 @@ interface Column {
     standalone: true,
     imports: [
         FormsModule,
-        MatButtonModule,
-        MatCheckboxModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        MatTabsModule,
-        MatIconModule,
-        MatTableModule,
-        CommonModule
+        CommonModule,
+        LucideAngularModule
     ],
     templateUrl: './stats-columns.component.html',
     styleUrl: './stats-columns.component.scss'
 })
 export class StatsColumnsComponent implements OnInit{
+    // Icons
+    readonly Home = Home;
+    readonly Save = Save;
+    readonly RotateCcw = RotateCcw;
+    readonly CheckSquare = CheckSquare;
+    readonly Square = Square;
+    
+    activeTab: number = 0;
+    
     displayedColumns: string[] = ['id', 'name', 'actions'];
     dataSource: UserSettings = {
         userId: '', // Assuming userId is a string, you can set it to the current user's ID if needed
@@ -115,7 +112,12 @@ export class StatsColumnsComponent implements OnInit{
 
     userId: string = '';
 
-    constructor(private authService: AuthService, private dashboardService: DashboardService, private snackBar: MatSnackBar) {}
+    constructor(
+        private authService: AuthService, 
+        private dashboardService: DashboardService, 
+        private snackBar: MatSnackBar,
+        public router: Router
+    ) {}
 
     ngOnInit(): void {
         // Assuming userId is set from a service or route parameter

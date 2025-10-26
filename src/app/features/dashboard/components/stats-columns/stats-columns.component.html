@@ -1,71 +1,184 @@
-<h2>Reytinq sütunları</h2>
-<mat-tab-group>
-    <mat-tab label="Ayın şagirdləri">
-        <ng-template mat-tab-label>
-            <mat-icon>view_column</mat-icon>
-            Ayın şagirdləri
-        </ng-template>
-        <div class="tab-content">
-            <!-- Student Columns -->
-            <div>
-                <div *ngFor="let column of monthStudentColumnOptions">
-                    <mat-checkbox [(ngModel)]="column.selected">
-                        {{ column.label }}
-                    </mat-checkbox>
+<div class="min-h-screen bg-gray-50 p-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- Breadcrumbs -->
+        <div class="flex items-center space-x-2 mb-6">
+            <button 
+                class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+                (click)="router.navigate(['/'])">
+                <lucide-icon [img]="Home" class="w-4 h-4"></lucide-icon>
+                <span>Baş səhifə</span>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Reytinq sütunları</h1>
+                    <p class="text-gray-600">Reytinq cədvəllərində göstəriləcək sütunları seçin</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button
+                        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                        (click)="resetColumns()">
+                        <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
+                        <span>Sıfırla</span>
+                    </button>
+                    <button
+                        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors shadow-sm"
+                        (click)="saveColumnSettings()">
+                        <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+                        <span>Yadda saxla</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </mat-tab>
-    <mat-tab label="İlin şagirdləri">
-        <div class="tab-content">
-            <!-- Student Columns -->
-            <div>
-                <div *ngFor="let column of studentColumnOptions">
-                    <mat-checkbox [(ngModel)]="column.selected">
-                        {{ column.label }}
-                    </mat-checkbox>
+
+        <!-- Custom Tabs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <!-- Tab Headers -->
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                    <button
+                        [class]="activeTab === 0 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 0">
+                        Ayın şagirdləri
+                    </button>
+                    <button
+                        [class]="activeTab === 1 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 1">
+                        İlin şagirdləri
+                    </button>
+                    <button
+                        [class]="activeTab === 2 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 2">
+                        İlin müəllimləri
+                    </button>
+                    <button
+                        [class]="activeTab === 3 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 3">
+                        İlin məktəbləri
+                    </button>
+                    <button
+                        [class]="activeTab === 4 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 4">
+                        İlin rayonları
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+                <!-- Month Students Tab -->
+                <div *ngIf="activeTab === 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div 
+                        *ngFor="let column of monthStudentColumnOptions"
+                        class="flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-all cursor-pointer"
+                        (click)="column.selected = !column.selected">
+                        <div class="flex items-center flex-1">
+                            <lucide-icon 
+                                [img]="column.selected ? CheckSquare : Square" 
+                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                                class="w-5 h-5 mr-3">
+                            </lucide-icon>
+                            <span 
+                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                                class="text-sm">
+                                {{ column.label }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Students Tab -->
+                <div *ngIf="activeTab === 1" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div 
+                        *ngFor="let column of studentColumnOptions"
+                        class="flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-all cursor-pointer"
+                        (click)="column.selected = !column.selected">
+                        <div class="flex items-center flex-1">
+                            <lucide-icon 
+                                [img]="column.selected ? CheckSquare : Square" 
+                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                                class="w-5 h-5 mr-3">
+                            </lucide-icon>
+                            <span 
+                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                                class="text-sm">
+                                {{ column.label }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teachers Tab -->
+                <div *ngIf="activeTab === 2" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div 
+                        *ngFor="let column of teacherColumnOptions"
+                        class="flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-all cursor-pointer"
+                        (click)="column.selected = !column.selected">
+                        <div class="flex items-center flex-1">
+                            <lucide-icon 
+                                [img]="column.selected ? CheckSquare : Square" 
+                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                                class="w-5 h-5 mr-3">
+                            </lucide-icon>
+                            <span 
+                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                                class="text-sm">
+                                {{ column.label }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schools Tab -->
+                <div *ngIf="activeTab === 3" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div 
+                        *ngFor="let column of schoolColumnOptions"
+                        class="flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-all cursor-pointer"
+                        (click)="column.selected = !column.selected">
+                        <div class="flex items-center flex-1">
+                            <lucide-icon 
+                                [img]="column.selected ? CheckSquare : Square" 
+                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                                class="w-5 h-5 mr-3">
+                            </lucide-icon>
+                            <span 
+                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                                class="text-sm">
+                                {{ column.label }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Districts Tab -->
+                <div *ngIf="activeTab === 4" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div 
+                        *ngFor="let column of districtColumnOptions"
+                        class="flex items-center p-4 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-all cursor-pointer"
+                        (click)="column.selected = !column.selected">
+                        <div class="flex items-center flex-1">
+                            <lucide-icon 
+                                [img]="column.selected ? CheckSquare : Square" 
+                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                                class="w-5 h-5 mr-3">
+                            </lucide-icon>
+                            <span 
+                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                                class="text-sm">
+                                {{ column.label }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </mat-tab>
-    <mat-tab label="İlin müəllimləri">
-        <div class="tab-content">
-            <!-- Teacher Columns -->
-            <div>
-                <div *ngFor="let column of teacherColumnOptions">
-                    <mat-checkbox [(ngModel)]="column.selected">
-                        {{ column.label }}
-                    </mat-checkbox>
-                </div>
-            </div>
-        </div>
-    </mat-tab>
-    <mat-tab label="İlin məktəbləri">
-        <div class="tab-content">
-            <!-- School Columns -->
-            <div>
-                <div *ngFor="let column of schoolColumnOptions">
-                    <mat-checkbox [(ngModel)]="column.selected">
-                        {{ column.label }}
-                    </mat-checkbox>
-                </div>
-            </div>
-        </div>
-    </mat-tab>
-    <mat-tab label="İlin rayonları">
-        <div class="tab-content">
-            <!-- District Columns -->
-            <div>
-                <div *ngFor="let column of districtColumnOptions">
-                    <mat-checkbox [(ngModel)]="column.selected">
-                        {{ column.label }}
-                    </mat-checkbox>
-                </div>
-            </div>
-        </div>
-    </mat-tab>
-</mat-tab-group>
-<div class="actions">
-    <button mat-raised-button color="primary" (click)="saveColumnSettings()">Sütunları yadda saxla</button>
-    <button mat-raised-button color="warn" (click)="resetColumns()">Sıfırla</button>
+    </div>
 </div>
