@@ -29,8 +29,9 @@ export class LoginComponent {
         this.authService.login(this.loginForm.getRawValue()).subscribe({
             next: (response) => {
                 if (response.success) {
-                    // Токен уже сохранен в сервисе, просто очищаем ошибку
+                    // Токен уже сохранен в сервисе, очищаем ошибку и редиректим на главную
                     this.errorMessage.set(null);
+                    this.router.navigate(['/']);
                 } else {
                     this.errorMessage.set(response.message || 'Girişdə xəta');
                 }

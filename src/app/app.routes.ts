@@ -13,7 +13,7 @@ import { LoginComponent } from './features/auth/components/login/login.component
 import { RegisterComponent } from './features/auth/register/register/register.component';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
+    { path: '', component: HomeComponent, canActivate: [authGuard] },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard] },
     { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard] },
     { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard] },
