@@ -39,6 +39,7 @@ import { StudentsYearTabComponent } from '../students-year-tab/students-year-tab
 import { TeachersYearTabComponent } from "../teachers-year-tab/teachers-year-tab.component";
 import { SchoolsYearTabComponent } from "../schools-year-tab/schools-year-tab.component";
 import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-tab.component";
+import { PermissionsService } from '../../../../core/services/permissions.service';
 
 // UI Components
 import { LucideAngularModule, Home, RefreshCw, Loader } from 'lucide-angular';
@@ -126,15 +127,24 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedExams: Exam[] | undefined = undefined;
     selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
-    tabs = [
-        { label: 'İnkişaf edən şagirdlər', key: 'developingStudents' },
-        { label: 'Ayın şagirdləri', key: 'studentsOfMonth' },
-        { label: 'Respublika üzrə ayın şagirdləri', key: 'studentsOfMonthByRepublic' },
-        { label: 'İlin şagirdləri', key: 'allStudents' },
-        { label: 'İlin müəllimləri', key: 'allTeachers' },
-        { label: 'İlin məktəbləri', key: 'allSchools' },
-        { label: 'İlin rayonları / şəhərləri', key: 'allDistricts' }
+    
+    // Все возможные табы
+    private allTabs = [
+        { label: 'İnkişaf edən şagirdlər', key: 'developingStudents', permission: 'showStudentsTab' },
+        { label: 'Ayın şagirdləri', key: 'studentsOfMonth', permission: 'showStudentsTab' },
+        { label: 'Respublika üzrə ayın şagirdləri', key: 'studentsOfMonthByRepublic', permission: 'showStudentsTab' },
+        { label: 'İlin şagirdləri', key: 'allStudents', permission: 'showStudentsTab' },
+        { label: 'İlin müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
+        { label: 'İlin məktəbləri', key: 'allSchools', permission: 'showSchoolsTab' },
+        { label: 'İlin rayonları / şəhərləri', key: 'allDistricts', permission: 'showDistrictsTab' }
     ];
+    
+    // Геттер для фильтрации табов по правам доступа
+    get tabs() {
+        return this.allTabs.filter(tab => 
+            this.permissions.canShowUI(tab.permission as any)
+        );
+    }
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
@@ -171,7 +181,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
         private monthNamePipe: MonthNamePipe,
-        private dashboardService: DashboardService
+        private dashboardService: DashboardService,
+        public permissions: PermissionsService
     ) { }
 
     // Helper function to check if current tab is a student month tab

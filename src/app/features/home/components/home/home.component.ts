@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MatIcon } from '@angular/material/icon';
 import { LucideAngularModule, Building2, GraduationCap, Users, UserCheck, FileText, TrendingUp } from 'lucide-angular';
+import { PermissionsService } from '../../../../core/services/permissions.service';
 
 @Component({
     selector: 'app-home',
     standalone: true,
-    imports: [CommonModule, RouterModule, MatIcon, LucideAngularModule],
+    imports: [CommonModule, RouterModule, LucideAngularModule],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
 })
@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
     readonly FileText = FileText;
     readonly TrendingUp = TrendingUp;
 
-    constructor() {}
+    constructor(public permissions: PermissionsService) {}
 
     ngOnInit(): void {}
 }

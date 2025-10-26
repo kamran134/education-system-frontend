@@ -70,6 +70,18 @@ export interface RolePermissions {
         showStatsUpdateButton: boolean;
         showExportButtons: boolean;
         showBulkActions: boolean;
+        // Главная страница - секции
+        showDistrictsSection: boolean;
+        showSchoolsSection: boolean;
+        showTeachersSection: boolean;
+        showStudentsSection: boolean;
+        showExamsSection: boolean;
+        showStatsSection: boolean;
+        // Рейтинги - табы
+        showDistrictsTab: boolean;
+        showSchoolsTab: boolean;
+        showTeachersTab: boolean;
+        showStudentsTab: boolean;
     };
 }
 
@@ -130,6 +142,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: true,
             showExportButtons: true,
             showBulkActions: true,
+            // Суперадмин видит все
+            showDistrictsSection: true,
+            showSchoolsSection: true,
+            showTeachersSection: true,
+            showStudentsSection: true,
+            showExamsSection: true,
+            showStatsSection: true,
+            showDistrictsTab: true,
+            showSchoolsTab: true,
+            showTeachersTab: true,
+            showStudentsTab: true,
         },
     },
 
@@ -186,6 +209,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: true,
             showExportButtons: true,
             showBulkActions: true,
+            // Админ видит все
+            showDistrictsSection: true,
+            showSchoolsSection: true,
+            showTeachersSection: true,
+            showStudentsSection: true,
+            showExamsSection: true,
+            showStatsSection: true,
+            showDistrictsTab: true,
+            showSchoolsTab: true,
+            showTeachersTab: true,
+            showStudentsTab: true,
         },
     },
 
@@ -242,6 +276,18 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
+            // Районный представитель НЕ видит секцию районов и экзаменов
+            showDistrictsSection: false,
+            showSchoolsSection: true,
+            showTeachersSection: true,
+            showStudentsSection: true,
+            showExamsSection: false,
+            showStatsSection: true,
+            // В рейтингах вкладка районов показывает только его район
+            showDistrictsTab: true,
+            showSchoolsTab: true,
+            showTeachersTab: true,
+            showStudentsTab: true,
         },
     },
 
@@ -298,6 +344,18 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
+            // Директор школы НЕ видит секции районов, школ и экзаменов
+            showDistrictsSection: false,
+            showSchoolsSection: false,
+            showTeachersSection: true,
+            showStudentsSection: true,
+            showExamsSection: false,
+            showStatsSection: true,
+            // В рейтингах нет вкладки районов, вкладка школ показывает только его школу
+            showDistrictsTab: false,
+            showSchoolsTab: true,
+            showTeachersTab: true,
+            showStudentsTab: true,
         },
     },
 
@@ -354,6 +412,18 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
+            // Учитель НЕ видит секции районов, школ, учителей и экзаменов
+            showDistrictsSection: false,
+            showSchoolsSection: false,
+            showTeachersSection: false,
+            showStudentsSection: true,
+            showExamsSection: false,
+            showStatsSection: true,
+            // В рейтингах нет вкладок районов и школ, вкладка учителей показывает только его
+            showDistrictsTab: false,
+            showSchoolsTab: false,
+            showTeachersTab: true,
+            showStudentsTab: true,
         },
     },
 
@@ -410,6 +480,18 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: false,
             showBulkActions: false,
+            // Студент видит только себя в секции студентов и рейтингах, не видит экзамены
+            showDistrictsSection: false,
+            showSchoolsSection: false,
+            showTeachersSection: false,
+            showStudentsSection: true,
+            showExamsSection: false,
+            showStatsSection: true,
+            // В рейтингах видит только вкладку студентов (себя)
+            showDistrictsTab: false,
+            showSchoolsTab: false,
+            showTeachersTab: false,
+            showStudentsTab: true,
         },
     },
 };
