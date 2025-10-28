@@ -167,6 +167,12 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
     authorizedUserRole: string | null = null;
+    
+    // Данные текущего пользователя
+    currentUser: any = null;
+    currentUserName: string = '';
+    currentSchoolName: string = '';
+    currentDistrictName: string = '';
 
     constructor(
         private authService: AuthService,
@@ -194,6 +200,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.authService.isLoggedIn$.subscribe(isLoggedIn => {
             if (isLoggedIn) {
                 this.authorizedUserRole = this.authService.getRole();
+                this.loadCurrentUserData();
                 this.loadSettings();
                 this.loadExams();
                 this.loadDistricts();
@@ -274,6 +281,127 @@ export class StatsComponent implements OnInit, OnDestroy {
                     console.error('Error loading settings:', error);
                 }
             });
+    }
+
+    // Загрузка данных текущего пользователя для отображения заголовков
+    private loadCurrentUserData(): void {
+        // Сначала проверяем, есть ли уже данные в AuthService
+        const cachedUser = this.authService.getCurrentUserValue();
+        
+        if (cachedUser) {
+            // Используем кешированные данные, не делаем запрос
+            this.currentUser = cachedUser;
+            this.setupUserContext();
+        } else {
+            // Только если данных нет - делаем запрос
+            this.authService.getCurrentUser().subscribe({
+                next: (response) => {
+                    if (response.success && response.data) {
+                        this.currentUser = response.data;
+                        this.setupUserContext();
+                    }
+                },
+                error: (error) => {
+                    console.error('Error loading current user:', error);
+                }
+            });
+        }
+    }
+
+    // Настройка контекста пользователя (заголовки, фильтры)
+    private setupUserContext(): void {
+        if (!this.currentUser) return;
+
+        const role = this.currentUser.role;
+        
+        if (role === 'schoolDirector' && this.currentUser.schoolId) {
+            // Для директора школы - загружаем данные школы
+            this.schoolService.getSchoolById(this.currentUser.schoolId).subscribe({
+                next: (school) => {
+                    this.currentSchoolName = school.name;
+                    if (school.district) {
+                        this.currentDistrictName = school.district.name;
+                    }
+                    // Автоматически устанавливаем фильтры для директора
+                    this.selectedSchoolIds = [this.currentUser.schoolId];
+                    if (school.district?._id) {
+                        this.selectedDistrictIds = [school.district._id];
+                    }
+                },
+                error: (error) => console.error('Error loading school data:', error)
+            });
+        } else if (role === 'districtRepresenter' && this.currentUser.districtId) {
+            // Для представителя района - загружаем данные района
+            this.districtService.getDistrictById(this.currentUser.districtId).subscribe({
+                next: (district) => {
+                    this.currentDistrictName = district.name;
+                    // Автоматически устанавливаем фильтр для представителя района
+                    this.selectedDistrictIds = [this.currentUser.districtId];
+                },
+                error: (error) => console.error('Error loading district data:', error)
+            });
+        } else if (role === 'teacher' && this.currentUser.teacherId) {
+            // Для учителя - загружаем данные учителя
+            this.teacherService.getTeacherById(this.currentUser.teacherId).subscribe({
+                next: (teacher) => {
+                    this.currentUserName = teacher.fullname;
+                    // Автоматически устанавливаем фильтры для учителя
+                    this.selectedTeacherIds = [this.currentUser.teacherId];
+                    if (teacher.school?._id) {
+                        this.selectedSchoolIds = [teacher.school._id];
+                        this.currentSchoolName = teacher.school.name;
+                    }
+                    if (teacher.district?._id) {
+                        this.selectedDistrictIds = [teacher.district._id];
+                        this.currentDistrictName = teacher.district.name;
+                    }
+                },
+                error: (error) => console.error('Error loading teacher data:', error)
+            });
+        }
+    }
+
+    // Геттеры для отображения заголовков страницы
+    get pageTitle(): string {
+        const role = this.authorizedUserRole;
+        
+        if (role === 'schoolDirector') {
+            return this.currentDistrictName && this.currentSchoolName 
+                ? `${this.currentDistrictName} rayon ${this.currentSchoolName}` 
+                : 'Məktəb direktoru';
+        } else if (role === 'teacher') {
+            return this.currentUserName 
+                ? `Layihə müəllimi: ${this.currentUserName}` 
+                : 'Müəllim';
+        } else if (role === 'districtRepresenter') {
+            return this.currentDistrictName 
+                ? `${this.currentDistrictName} rayon` 
+                : 'Rayon nümayəndəsi';
+        }
+        
+        return '';
+    }
+
+    // Проверка, должны ли быть отключены фильтры
+    get shouldDisableFilters(): boolean {
+        const role = this.authorizedUserRole;
+        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter';
+    }
+
+    // Методы для проверки конкретных фильтров
+    get shouldDisableDistrictFilter(): boolean {
+        const role = this.authorizedUserRole;
+        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter';
+    }
+
+    get shouldDisableSchoolFilter(): boolean {
+        const role = this.authorizedUserRole;
+        return role === 'schoolDirector' || role === 'teacher';
+    }
+
+    get shouldDisableTeacherFilter(): boolean {
+        const role = this.authorizedUserRole;
+        return role === 'teacher';
     }
 
     // Метод для загрузки развивающихся студентов

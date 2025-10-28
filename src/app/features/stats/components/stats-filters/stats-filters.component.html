@@ -42,6 +42,7 @@
                     [multiple]="true"
                     [(ngModel)]="selectedDistrictIds"
                     [options]="districtOptions"
+                    [disabled]="disableDistrictFilter"
                     (ngModelChange)="onDistrictSelectChanged($event)">
                 </app-select>
             </div>
@@ -53,6 +54,7 @@
                     [multiple]="true"
                     [(ngModel)]="selectedSchoolIds"
                     [options]="schoolOptions"
+                    [disabled]="disableSchoolFilter"
                     (ngModelChange)="onSchoolSelectChanged($event)">
                 </app-select>
             </div>
@@ -64,6 +66,7 @@
                     [multiple]="true"
                     [(ngModel)]="selectedTeacherIds"
                     [options]="teacherOptions"
+                    [disabled]="disableTeacherFilter"
                     (ngModelChange)="onTeacherSelectChanged($event)">
                 </app-select>
             </div>

@@ -48,6 +48,11 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedGrades: number[] = [];
     @Input() selectedExamIds: string[] | [] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
+    
+    // Role-based filter disabling
+    @Input() disableDistrictFilter: boolean = false;
+    @Input() disableSchoolFilter: boolean = false;
+    @Input() disableTeacherFilter: boolean = false;
 
     @Output() monthUpdated = new EventEmitter<string>();
     @Output() districtChanged = new EventEmitter<string[]>();

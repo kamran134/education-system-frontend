@@ -11,6 +11,11 @@
         </app-button>
     </div>
 
+    <!-- Role-based page title -->
+    <div *ngIf="pageTitle" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <h2 class="text-xl font-semibold text-gray-800">{{ pageTitle }}</h2>
+    </div>
+
 <app-stats-filters
     [selectedTab]="selectedTab"
     [districts]="districts"
@@ -24,6 +29,9 @@
     [selectedGrades]="selectedGrades"
     [selectedExamIds]="selectedExamIds || []"
     [selectedMonth]="selectedMonth"
+    [disableDistrictFilter]="shouldDisableDistrictFilter"
+    [disableSchoolFilter]="shouldDisableSchoolFilter"
+    [disableTeacherFilter]="shouldDisableTeacherFilter"
     (monthUpdated)="updateMonth($event)"
     (districtChanged)="onDistrictSelectChanged($event)"
     (schoolChanged)="onSchoolSelectChanged($event)"

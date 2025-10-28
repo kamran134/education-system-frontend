@@ -23,9 +23,18 @@ export class AuthService {
     private userRole = new BehaviorSubject<string | null>(
         isPlatformBrowser(this.platformId) ? localStorage.getItem('role') : null
     );
+    private currentUserData = new BehaviorSubject<any>(null);
 
     get isLoggedIn$(): Observable<boolean> {
         return this.authStatus.asObservable();
+    }
+
+    get currentUser$(): Observable<any> {
+        return this.currentUserData.asObservable();
+    }
+
+    getCurrentUserValue(): any {
+        return this.currentUserData.value;
     }
 
     get userRole$(): Observable<string | null> {
@@ -198,6 +207,7 @@ export class AuthService {
                         }
                         this.userId.next(response.data.id);
                         this.userRole.next(response.data.role);
+                        this.currentUserData.next(response.data); // Сохраняем полные данные пользователя
                         this.authStatus.next(true);
                     }
                 })
@@ -308,6 +318,7 @@ export class AuthService {
         }
         this.userRole.next(null);
         this.userId.next(null);
+        this.currentUserData.next(null); // Очищаем данные пользователя
         this.authStatus.next(false);
         this.router.navigate(['/login']);
     }

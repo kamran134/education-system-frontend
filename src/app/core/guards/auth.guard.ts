@@ -10,6 +10,13 @@ export const authGuard: CanActivateFn = () => {
     console.log('[AUTH GUARD] Checking authentication...');
     
     const token = authService.getToken();
+    const cachedUser = authService.getCurrentUserValue();
+    
+    // Если есть токен И кешированные данные пользователя - сразу пропускаем
+    if (token && cachedUser) {
+        console.log('[AUTH GUARD] Token and user data cached, access granted');
+        return true;
+    }
     
     // Если токена нет, сразу пробуем refresh
     if (!token) {
@@ -28,7 +35,7 @@ export const authGuard: CanActivateFn = () => {
         );
     }
     
-    // Если токен есть, проверяем его валидность через /me
+    // Если токен есть но данных пользователя нет, проверяем его валидность через /me
     console.log('[AUTH GUARD] Token exists, validating...');
     return authService.getCurrentUser().pipe(
         map(() => {
