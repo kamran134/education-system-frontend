@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { ApiResponse } from '../../../core/models/response.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 import { map } from 'rxjs/operators';
+import { ExamResult } from '../../../core/models/examResult.model';
 
 @Injectable({
     providedIn: 'root'
@@ -115,6 +116,12 @@ export class StudentService {
         formData.append('file', file);
 
         return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/students/upload`, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    updateStudentResult(resultId: string, result: Partial<ExamResult>): Observable<ExamResult> {
+        const url: string = `${this.configService.getApiUrl()}/student-results/${resultId}`;
+        return this.http.put<ApiResponse<ExamResult>>(url, result, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

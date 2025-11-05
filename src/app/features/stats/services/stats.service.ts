@@ -21,6 +21,12 @@ export class StatsService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    updateAllStats(): Observable<any> {
+        let url: string = `${this.configService.getApiUrl()}/stats/all`;
+        return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
     updateStatsByRepublic(): Observable<any> {
         let url: string = `${this.configService.getApiUrl()}/stats/by-republic`;
         return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })

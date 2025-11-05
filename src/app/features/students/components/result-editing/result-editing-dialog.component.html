@@ -1,0 +1,85 @@
+<app-modal
+    [title]="modalTitle"
+    [subtitle]="modalSubtitle"
+    [buttons]="modalButtons"
+    width="800px">
+    <div class="space-y-6">
+        <!-- Exam Info (Read-only) -->
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">İmtahan məlumatı</h3>
+            <div class="text-sm text-gray-600">
+                <div><span class="font-medium">Tarix:</span> {{ data.result.exam.date | date: 'dd.MM.YYYY' }}</div>
+                <div><span class="font-medium">Pillə:</span> {{ data.result.level || 'Müəyyən edilməyib' }}</div>
+                <div><span class="font-medium">Ümumi bal:</span> {{ data.result.totalScore }}</div>
+            </div>
+        </div>
+
+        <!-- Discipline Scores -->
+        <div class="space-y-4">
+            <h3 class="text-sm font-semibold text-gray-700">Fənnlər üzrə ballar</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <app-input
+                    label="Azərbaycan dili"
+                    type="number"
+                    [(ngModel)]="editedResult.disciplines!.az"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="Riyaziyyat"
+                    type="number"
+                    [(ngModel)]="editedResult.disciplines!.math"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="Həyat bilgisi"
+                    type="number"
+                    [(ngModel)]="editedResult.disciplines!.lifeKnowledge"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="Məntiq"
+                    type="number"
+                    [(ngModel)]="editedResult.disciplines!.logic"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="İngilis dili"
+                    type="number"
+                    [(ngModel)]="editedResult.disciplines!.english"
+                    placeholder="Balı daxil edin" />
+            </div>
+        </div>
+
+        <!-- Additional Scores -->
+        <div class="space-y-4">
+            <h3 class="text-sm font-semibold text-gray-700">Əlavə ballar</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <app-input
+                    label="İştirak balı"
+                    type="number"
+                    [(ngModel)]="editedResult.participationScore"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="İnkişaf balı"
+                    type="number"
+                    [(ngModel)]="editedResult.developmentScore"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="Ayın şagirdi balı"
+                    type="number"
+                    [(ngModel)]="editedResult.studentOfTheMonthScore"
+                    placeholder="Balı daxil edin" />
+
+                <app-input
+                    label="Respublika üzrə ayın şagirdi balı"
+                    type="number"
+                    [(ngModel)]="editedResult.republicWideStudentOfTheMonthScore"
+                    placeholder="Balı daxil edin" />
+            </div>
+        </div>
+    </div>
+</app-modal>

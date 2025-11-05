@@ -7,8 +7,11 @@ import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { LucideAngularModule, ArrowLeft, Download, Loader } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ResultEditingDialogComponent } from '../result-editing/result-editing-dialog.component';
+import { ExamResult } from '../../../../core/models/examResult.model';
 
 @Component({
     selector: 'app-student-details',
@@ -35,12 +38,14 @@ export class StudentDetailsComponent implements OnInit {
     readonly ArrowLeft = ArrowLeft;
     readonly Download = Download;
     readonly Loader = Loader;
+    readonly Edit2 = Edit2;
 
     constructor(
         private studentService: StudentService,
         private route: ActivatedRoute,
         private router: Router,
-        private excelService: ExcelService
+        private excelService: ExcelService,
+        private dialog: MatDialog
     ) { }
 
     ngOnInit(): void {
@@ -119,5 +124,36 @@ export class StudentDetailsComponent implements OnInit {
         }
         
         return achievements.join(', ');
+    }
+
+    /**
+     * Opens the edit dialog for a student result
+     */
+    onEditResult(result: ExamResult): void {
+        const dialogRef = this.dialog.open(ResultEditingDialogComponent, {
+            width: '800px',
+            data: { result }
+        });
+
+        dialogRef.afterClosed().subscribe((editedResult: Partial<ExamResult> | undefined) => {
+            if (editedResult) {
+                this.updateResult(result._id, editedResult);
+            }
+        });
+    }
+
+    /**
+     * Updates a student result via API
+     */
+    private updateResult(resultId: string, editedResult: Partial<ExamResult>): void {
+        this.studentService.updateStudentResult(resultId, editedResult).subscribe({
+            next: () => {
+                console.log('Nəticə uğurla yeniləndi');
+                this.loadStudent(); // Reload to show updated data
+            },
+            error: (error: Error) => {
+                console.error('Nəticənin yenilənməsində xəta!', error);
+            }
+        });
     }
 }

@@ -42,7 +42,7 @@ import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-
 import { PermissionsService } from '../../../../core/services/permissions.service';
 
 // UI Components
-import { LucideAngularModule, Home, RefreshCw, Loader } from 'lucide-angular';
+import { LucideAngularModule, Home, RefreshCw, Loader, AlertCircle } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 
 @Component({
@@ -77,6 +77,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     readonly Home = Home;
     readonly RefreshCw = RefreshCw;
     readonly Loader = Loader;
+    readonly AlertCircle = AlertCircle;
     
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
@@ -85,6 +86,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
     isloading: boolean = false;
     isUpdating: boolean = false;
+    isUpdatingAll: boolean = false;
     stats: Stats = {
         studentsOfMonth: [],
         studentsOfMonthByRepublic: [],
@@ -762,6 +764,28 @@ export class StatsComponent implements OnInit, OnDestroy {
             error: (error: Error) => {
                 this.isUpdating = false;
                 this.snackBar.open(`${error.error.message}`, 'Bağla', this.matSnackConfig);
+            }
+        });
+    }
+
+    updateAllStats(): void {
+        this.isUpdatingAll = true;
+        this.snackBar.open('Bütün tədris ili üçün statistika yenilənir. Bu bir neçə dəqiqə çəkə bilər...', 'OK', {
+            duration: 10000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top'
+        });
+        
+        this.statsService.updateAllStats().subscribe({
+            next: (response) => {
+                this.isUpdatingAll = false;
+                this.snackBar.open('Bütün tədris ili üçün statistika uğurla yeniləndi!', 'OK', this.matSnackConfig);
+                // Перезагружаем данные в зависимости от активного таба
+                this.loadMonthStudentsStats();
+            },
+            error: (error: Error) => {
+                this.isUpdatingAll = false;
+                this.snackBar.open(`Xəta: ${error.error.message}`, 'Bağla', this.matSnackConfig);
             }
         });
     }
