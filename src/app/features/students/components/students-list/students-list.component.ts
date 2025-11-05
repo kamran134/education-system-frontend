@@ -65,6 +65,10 @@ export class StudentsListComponent implements OnInit {
     pageSize = 100;
     pageIndex = 0;
     
+    // Sorting
+    sortColumn = 'lastName';
+    sortDirection: 'asc' | 'desc' = 'asc';
+    
     // Filters
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
@@ -289,6 +293,13 @@ export class StudentsListComponent implements OnInit {
         this.loadStudents();
     }
 
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortColumn = event.column;
+        this.sortDirection = event.direction;
+        this.pageIndex = 0; // Reset to first page
+        this.loadStudents();
+    }
+
     goBack(): void {
         // Navigate back to teachers with preserved state
         this.route.queryParams.subscribe(params => {
@@ -355,7 +366,9 @@ export class StudentsListComponent implements OnInit {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            examIds: this.selectedExamIds.join(",")
+            examIds: this.selectedExamIds.join(","),
+            sortColumn: this.sortColumn,
+            sortDirection: this.sortDirection
         };
 
         this.isLoading = true;
@@ -469,8 +482,8 @@ export class StudentsListComponent implements OnInit {
 
     onStudentUpdate(student: Student): void {
         const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
-            width: '600px',
-            data: student
+            width: '1000px',
+            data: { student, isEditing: true }
         });
 
         dialogRef.afterClosed().subscribe(result => {

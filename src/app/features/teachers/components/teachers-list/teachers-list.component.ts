@@ -80,6 +80,10 @@ export class TeachersListComponent implements OnInit {
     pageSize = 100;
     pageIndex = 0;
     
+    // Sorting
+    sortColumn = 'fullname';
+    sortDirection: 'asc' | 'desc' = 'asc';
+    
     // Filters
     filterConfig: FilterField[] = [];
     
@@ -347,6 +351,8 @@ export class TeachersListComponent implements OnInit {
             size: this.pageSize,
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
+            sortColumn: this.sortColumn,
+            sortDirection: this.sortDirection
         }
 
         this.isLoading = true;
@@ -440,6 +446,13 @@ export class TeachersListComponent implements OnInit {
     onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
+        this.loadTeachers();
+    }
+
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortColumn = event.column;
+        this.sortDirection = event.direction;
+        this.pageIndex = 0;
         this.loadTeachers();
     }
 

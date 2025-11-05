@@ -47,6 +47,10 @@ export class SchoolsListComponent implements OnInit {
     pageSize = 100;
     pageIndex = 0;
     
+    // Sorting
+    sortColumn = 'name';
+    sortDirection: 'asc' | 'desc' = 'asc';
+    
     // Navigation & Filters
     districtId?: string; // ID района из маршрута для фильтрации
     selectedDistrictIds: string[] = [];
@@ -268,7 +272,9 @@ export class SchoolsListComponent implements OnInit {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
-            districtIds: this.selectedDistrictIds.join(",")
+            districtIds: this.selectedDistrictIds.join(","),
+            sortColumn: this.sortColumn,
+            sortDirection: this.sortDirection
         };
         
         this.isLoading = true;
@@ -430,5 +436,11 @@ export class SchoolsListComponent implements OnInit {
         this.loadSchools();
     }
 
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortColumn = event.column;
+        this.sortDirection = event.direction;
+        this.pageIndex = 0;
+        this.loadSchools();
+    }
 
 }
