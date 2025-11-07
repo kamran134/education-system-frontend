@@ -7,6 +7,7 @@ import { ExamsListComponent } from './features/exams/components/exams-list/exams
 import { StatsComponent } from './features/stats/components/stats-main/stats.component';
 import { StudentsListComponent } from './features/students/components/students-list/students-list.component';
 import { StudentDetailsComponent } from './features/students/components/student-details/student-details.component';
+import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { LoginComponent } from './features/auth/components/login/login.component';
@@ -23,6 +24,7 @@ export const routes: Routes = [
     { path: 'students', component: StudentsListComponent, canActivate: [authGuard] },
     { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard] },
     { path: 'exams', component: ExamsListComponent, canActivate: [authGuard] },
+    { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard] },
     { path: 'stats', component: StatsComponent, canActivate: [authGuard] },
     { path: 'profile', loadChildren: () => import('./features/profile/profile.routes').then(m => m.PROFILE_ROUTES), canActivate: [authGuard] },
     { path: 'admin', loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.routes), canActivate: [authGuard] },

@@ -1,0 +1,232 @@
+<div class="p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">İmtahan nəticələri</h1>
+        
+        <div class="flex items-center gap-4">
+            <app-button
+                variant="outline"
+                (clicked)="toggleFilters()">
+                <div class="flex items-center space-x-2">
+                    <lucide-icon [img]="Filter" class="w-4 h-4"></lucide-icon>
+                    <span>Filtrlər</span>
+                </div>
+            </app-button>
+            
+            <app-button
+                variant="primary"
+                (clicked)="exportToExcel()">
+                <div class="flex items-center space-x-2">
+                    <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
+                    <span>Excel-ə eksport et</span>
+                </div>
+            </app-button>
+        </div>
+    </div>
+
+    <!-- Filters Panel -->
+    <div *ngIf="showFilters" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Filtrlər</h3>
+            <button
+                (click)="clearFilters()"
+                class="text-sm text-red-600 hover:text-red-800 flex items-center gap-1">
+                <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
+                Filtrlərı təmizlə
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Search by name -->
+            <app-input
+                label="Ad və soyada görə axtarış"
+                placeholder="Ad və ya soyadı daxil edin"
+                [(ngModel)]="searchText"
+                (ngModelChange)="onSearch()">
+            </app-input>
+
+            <!-- Student code -->
+            <app-input
+                label="Şagird kodu"
+                placeholder="Şagird kodunu daxil edin"
+                type="number"
+                [(ngModel)]="studentCode"
+                (ngModelChange)="onStudentCodeChange()">
+            </app-input>
+
+            <!-- Date from -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium text-gray-700 mb-1">Tarix (başlanğıc)</label>
+                <input 
+                    type="date"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    [(ngModel)]="selectedDateFrom"
+                    (ngModelChange)="onDateRangeChange()">
+            </div>
+
+            <!-- Date to -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium text-gray-700 mb-1">Tarix (son)</label>
+                <input 
+                    type="date"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    [(ngModel)]="selectedDateTo"
+                    (ngModelChange)="onDateRangeChange()">
+            </div>
+
+            <!-- District filter -->
+            <app-select
+                label="Rayonlar"
+                [options]="districtOptions"
+                [multiple]="true"
+                [(ngModel)]="selectedDistrictIds"
+                (ngModelChange)="onDistrictChange($event)"
+                placeholder="Rayonları seçin">
+            </app-select>
+
+            <!-- School filter -->
+            <app-select
+                label="Məktəblər"
+                [options]="schoolOptions"
+                [multiple]="true"
+                [disabled]="selectedDistrictIds.length === 0"
+                [(ngModel)]="selectedSchoolIds"
+                (ngModelChange)="onSchoolChange($event)"
+                placeholder="Məktəbləri seçin">
+            </app-select>
+
+            <!-- Teacher filter -->
+            <app-select
+                label="Müəllimlər"
+                [options]="teacherOptions"
+                [multiple]="true"
+                [disabled]="selectedSchoolIds.length === 0"
+                [(ngModel)]="selectedTeacherIds"
+                (ngModelChange)="onTeacherChange($event)"
+                placeholder="Müəllimləri seçin">
+            </app-select>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Nəticələr</h2>
+                    <span class="text-sm text-gray-500">
+                        Cəmi: {{ totalCount }} nəticə
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th *ngFor="let column of displayedColumns"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                            [class.cursor-not-allowed]="!column.sortable"
+                            (click)="column.sortable && onSortChange({column: column.key, direction: sortColumn === column.key && sortDirection === 'asc' ? 'desc' : 'asc'})">
+                            <div class="flex items-center space-x-1">
+                                <span>{{ column.label }}</span>
+                                <span *ngIf="column.sortable && sortColumn === column.key"
+                                      class="text-blue-500">
+                                    {{ sortDirection === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr *ngFor="let result of examResults" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ formatDate(result.exam.date) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ result.studentData?.code || result.student }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.studentData?.lastName }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.studentData?.firstName }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.grade }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.studentData?.school?.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.studentData?.teacher?.fullname }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ result.studentData?.district?.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                            {{ result.totalScore }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                  [ngClass]="getLevelBadgeClass(result.level)">
+                                {{ result.level || 'Müəyyən edilməyib' }}
+                            </span>
+                        </td>
+                    </tr>
+                    
+                    <!-- Empty state -->
+                    <tr *ngIf="!isLoading && examResults.length === 0">
+                        <td [attr.colspan]="displayedColumns.length" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center space-y-2">
+                                <lucide-icon [img]="Search" class="w-8 h-8 text-gray-400"></lucide-icon>
+                                <p>Nəticə tapılmadı</p>
+                                <p class="text-sm">Fərqli filtrlər istifadə edərək yenidən cəhd edin</p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Loading state -->
+                    <tr *ngIf="isLoading">
+                        <td [attr.colspan]="displayedColumns.length" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center space-y-2">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                <p>Nəticələr yüklənir...</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!isLoading && examResults.length > 0" class="px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Göstərilən: {{ pageIndex * pageSize + 1 }} - {{ Math.min((pageIndex + 1) * pageSize, totalCount) }} / {{ totalCount }}
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <app-button
+                        variant="outline"
+                        [disabled]="pageIndex === 0"
+                        (clicked)="onPageChange({pageIndex: pageIndex - 1, pageSize: pageSize})">
+                        Əvvəlki
+                    </app-button>
+                    
+                    <span class="text-sm text-gray-700">
+                        Səhifə {{ pageIndex + 1 }} / {{ Math.ceil(totalCount / pageSize) }}
+                    </span>
+                    
+                    <app-button
+                        variant="outline"
+                        [disabled]="(pageIndex + 1) * pageSize >= totalCount"
+                        (clicked)="onPageChange({pageIndex: pageIndex + 1, pageSize: pageSize})">
+                        Növbəti
+                    </app-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

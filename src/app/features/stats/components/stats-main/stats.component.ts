@@ -540,8 +540,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'averageScore',
-            sortDirection: this.sortDirection || 'desc',
+            sortColumn: this.sortActive || 'place',
+            sortDirection: this.sortDirection || 'asc',
             code: this.searchString || undefined,
             examIds: this.selectedExamIds.join(',') || '',
         };
@@ -595,8 +595,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'averageScore',
-            sortDirection: this.sortDirection || 'desc',
+            sortColumn: this.sortActive || 'place',
+            sortDirection: this.sortDirection || 'asc',
             code: this.searchString || undefined,
         }
 
@@ -625,8 +625,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'averageScore',
-            sortDirection: this.sortDirection || 'desc',
+            sortColumn: this.sortActive || 'place',
+            sortDirection: this.sortDirection || 'asc',
             code: this.searchString || undefined,
         }
 
@@ -649,8 +649,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
-            sortColumn: this.sortActive || 'averageScore',
-            sortDirection: this.sortDirection || 'desc',
+            sortColumn: this.sortActive || 'place',
+            sortDirection: this.sortDirection || 'asc',
             code: this.searchString || undefined,
         }
 
@@ -830,20 +830,32 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.loadStudentsOfMonthByRepublicStats();
         } else if (event.index === 3) {
             this.selectedTab = 'allStudents';
+            // Сбрасываем сортировку для рейтинга по умолчанию
+            this.sortActive = '';
+            this.sortDirection = 'asc';
             // Для годовой статистики студентов тоже нужны фильтры
             this.loadSchools();
             this.loadTeachers();
             this.loadAllStudentsStats();
         } else if (event.index === 4) {
             this.selectedTab = 'allTeachers';
+            // Сбрасываем сортировку для рейтинга по умолчанию
+            this.sortActive = '';
+            this.sortDirection = 'asc';
             // Для учителей нужны школы для фильтров
             this.loadSchools();
             this.loadTeachersStats();
         } else if (event.index === 5) {
             this.selectedTab = 'allSchools'
+            // Сбрасываем сортировку для рейтинга по умолчанию
+            this.sortActive = '';
+            this.sortDirection = 'asc';
             this.loadSchoolsStats();
         } else if (event.index === 6) {
             this.selectedTab = 'allDistricts'
+            // Сбрасываем сортировку для рейтинга по умолчанию
+            this.sortActive = '';
+            this.sortDirection = 'asc';
             this.loadDistrictsStats();
         }
     }

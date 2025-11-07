@@ -19,7 +19,7 @@ export interface ExamResult {
     score: number;
     student: string;
     totalScore: number;
-    studentData: Student;
+    studentData?: Student;
     participationScore?: number;
     developmentScore?: number;
     studentOfTheMonthScore?: number;
