@@ -18,9 +18,14 @@ export interface RepairingResults {
     studentsWithoutDistrict?: string[];
     studentsWithoutSchool?: string[];
     studentsWithoutTeacher?: string[];
+    missedDistricts?: number[];
+    missedSchools?: number[];
+    missedTeachers?: number[];
+    failedStudents?: Array<{ code: number, reason: string }>;
     repairedTeachers?: string[];
     teachersWithoutDistrict?: string[];
     teachersWithoutSchool?: string[];
+    failedTeachers?: Array<{ code: number, reason: string }>;
     repairedSchools?: string[];
     schoolsWithoutDistrict?: string[];
 }

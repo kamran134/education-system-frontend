@@ -368,7 +368,8 @@ export class StudentsListComponent implements OnInit {
             grades: this.selectedGrades.join(","),
             examIds: this.selectedExamIds.join(","),
             sortColumn: this.sortColumn,
-            sortDirection: this.sortDirection
+            sortDirection: this.sortDirection,
+            search: this.searchString || undefined
         };
 
         this.isLoading = true;

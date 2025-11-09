@@ -109,22 +109,34 @@
         </div>
 
         <!-- Teachers Without District -->
-        <div *ngIf="(repairingResults.teachersWithoutDistrict || []).length > 0" class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div *ngIf="(repairingResults.missedDistricts || []).length > 0" class="bg-purple-50 border border-purple-200 rounded-lg p-4">
             <h3 class="text-lg font-medium text-purple-800 mb-3">
                 Rayonları / şəhərləri tapılmayan müəllimlərin kodları
             </h3>
             <div class="text-sm text-purple-700 space-y-1">
-                <p *ngFor="let teacher of repairingResults.teachersWithoutDistrict">{{ teacher }}</p>
+                <p *ngFor="let teacher of repairingResults.missedDistricts">{{ teacher }}</p>
             </div>
         </div>
 
         <!-- Teachers Without School -->
-        <div *ngIf="(repairingResults.teachersWithoutSchool || []).length > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div *ngIf="(repairingResults.missedSchools || []).length > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 class="text-lg font-medium text-blue-800 mb-3">
                 Məktəbləri tapılmayan müəllimlərin kodları
             </h3>
             <div class="text-sm text-blue-700 space-y-1">
-                <p *ngFor="let teacher of repairingResults.teachersWithoutSchool">{{ teacher }}</p>
+                <p *ngFor="let teacher of repairingResults.missedSchools">{{ teacher }}</p>
+            </div>
+        </div>
+
+        <!-- Failed Teachers -->
+        <div *ngIf="(repairingResults.failedTeachers || []).length > 0" class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h3 class="text-lg font-medium text-red-800 mb-3">
+                Xəta baş verən müəllimlər
+            </h3>
+            <div class="text-sm text-red-700 space-y-1">
+                <p *ngFor="let teacher of repairingResults.failedTeachers">
+                    Kod: {{ teacher.code }} - Səbəb: {{ teacher.reason }}
+                </p>
             </div>
         </div>
     </div>

@@ -609,5 +609,5 @@ export class TeachersListComponent implements OnInit {
         document.body.appendChild(input);
         input.click();
         document.body.removeChild(input);
-    }    
+    }
 }
