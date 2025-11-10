@@ -23,7 +23,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 // UI Components
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -131,6 +131,7 @@ export class StudentsListComponent implements OnInit {
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
     readonly ArrowLeft = ArrowLeft;
+    readonly Trash = Trash;
     
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
@@ -212,6 +213,12 @@ export class StudentsListComponent implements OnInit {
                     label: 'Qüsurları düzəlt',
                     icon: this.Settings,
                     action: () => this.onStudentsRepair(),
+                    variant: 'secondary'
+                },
+                {
+                    label: 'Ekranda olanları sil',
+                    icon: this.Trash,
+                    action: () => this.onAllStudentsDelete(),
                     variant: 'secondary'
                 }
             );
@@ -537,6 +544,32 @@ export class StudentsListComponent implements OnInit {
                     error: (err: any) => {
                         this.isLoading = false;
                         this.snackBar.open('Şagird silinməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    }
+                });
+            }
+        });
+    }
+
+    onAllStudentsDelete(): void {
+        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '350px',
+            data: { 
+                title: 'Silinməyə razılıq', 
+                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?' 
+            }
+        });
+
+        confirmRef.afterClosed().subscribe((result: boolean) => {
+            if (result) {
+                const studentIds = this.students.map(s => s._id).join(",");
+                this.studentService.deleteStudents(studentIds).subscribe({
+                    next: (response) => {
+                        this.loadStudents();
+                        this.snackBar.open('Şagirdlər uğurla silindi', 'Bağla', this.matSnackConfig);
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
                     }
                 });
             }

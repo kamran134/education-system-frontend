@@ -14,7 +14,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { AuthService } from '../../../../core/services/auth.service';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
@@ -89,6 +89,7 @@ export class SchoolsListComponent implements OnInit {
     readonly RefreshCw = RefreshCw;
     readonly Upload = Upload;
     readonly ArrowLeft = ArrowLeft;
+    readonly Trash = Trash;
     
     isUpdatingStats = false;
     
@@ -169,6 +170,12 @@ export class SchoolsListComponent implements OnInit {
                     label: 'Statistikanı yenilə',
                     icon: this.RefreshCw,
                     action: () => this.onUpdateSchoolsStats(),
+                    variant: 'secondary'
+                },
+                {
+                    label: 'Ekranda olanları sil',
+                    icon: this.Trash,
+                    action: () => this.onAllSchoolsDelete(),
                     variant: 'secondary'
                 }
             );
@@ -396,6 +403,32 @@ export class SchoolsListComponent implements OnInit {
                     error: (error) => {
                         console.error(error);
                         this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    }
+                });
+            }
+        });
+    }
+
+    onAllSchoolsDelete(): void {
+        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '350px',
+            data: { 
+                title: 'Silinməyə razılıq', 
+                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəblər silinərkən onlara bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!' 
+            }
+        });
+
+        confirmRef.afterClosed().subscribe((result: boolean) => {
+            if (result) {
+                const schoolIds = this.schools.map(s => s._id).join(",");
+                this.schoolService.deleteSchools(schoolIds).subscribe({
+                    next: (response) => {
+                        this.loadSchools();
+                        this.snackBar.open('Məktəblər uğurla silindi', 'Bağla', this.matSnackConfig);
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
                     }
                 });
             }

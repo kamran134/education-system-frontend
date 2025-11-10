@@ -17,7 +17,7 @@ import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
@@ -121,6 +121,7 @@ export class TeachersListComponent implements OnInit {
     readonly Upload = Upload;
     readonly Settings = Settings;
     readonly ArrowLeft = ArrowLeft;
+    readonly Trash = Trash;
 
     constructor(
         private teacherService: TeacherService,
@@ -208,6 +209,12 @@ export class TeachersListComponent implements OnInit {
                     label: 'Statistikanı yenilə',
                     icon: this.RefreshCw,
                     action: () => this.onUpdateTeachersStats(),
+                    variant: 'secondary'
+                },
+                {
+                    label: 'Ekranda olanları sil',
+                    icon: this.Trash,
+                    action: () => this.onAllTeachersDelete(),
                     variant: 'secondary'
                 }
             );
