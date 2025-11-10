@@ -27,6 +27,11 @@ export interface PaginationEvent {
   length: number;
 }
 
+export interface PageSizeOption {
+  value: number;
+  label: string;
+}
+
 @Component({
   selector: 'app-data-table',
   standalone: true,
@@ -136,9 +141,9 @@ export interface PaginationEvent {
       </div>
       
       <!-- Pagination -->
-      <div *ngIf="totalCount > pageSize" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
+      <div *ngIf="totalCount > 0" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+          <div class="flex items-center space-x-4">
             <p class="text-sm text-gray-700">
               <span class="font-medium">{{ getDisplayStart() }}</span>
               -
@@ -147,6 +152,20 @@ export interface PaginationEvent {
               <span class="font-medium">{{ totalCount }}</span>
               nəticədən
             </p>
+            
+            <!-- Page Size Selector -->
+            <div class="flex items-center space-x-2">
+              <label class="text-sm text-gray-700">Səhifə ölçüsü:</label>
+              <select 
+                [value]="pageSize"
+                (change)="onPageSizeChange($event)"
+                class="block rounded-md border-gray-300 py-1 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              >
+                <option *ngFor="let option of pageSizeOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
           </div>
           
           <div class="flex items-center space-x-2">
@@ -210,6 +229,12 @@ export class DataTableComponent {
   @Input() pageIndex = 0;
   @Input() sortBy = '';
   @Input() sortDirection: 'asc' | 'desc' = 'asc';
+  @Input() pageSizeOptions: PageSizeOption[] = [
+    { value: 100, label: '100' },
+    { value: 500, label: '500' },
+    { value: 1000, label: '1000' },
+    { value: 10000, label: '10000' }
+  ];
 
   @Output() actionClicked = new EventEmitter<{ action: string; item: any }>();
   @Output() pageChanged = new EventEmitter<PaginationEvent>();
@@ -268,6 +293,16 @@ export class DataTableComponent {
         length: this.totalCount
       });
     }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const newPageSize = parseInt(target.value, 10);
+    this.pageChanged.emit({
+      pageIndex: 0, // Reset to first page when changing page size
+      pageSize: newPageSize,
+      length: this.totalCount
+    });
   }
 
   getTotalPages(): number {

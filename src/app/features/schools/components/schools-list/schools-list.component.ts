@@ -44,7 +44,7 @@ export class SchoolsListComponent implements OnInit {
     
     // Pagination
     totalCount = 0;
-    pageSize = 100;
+    pageSize = 1000;
     pageIndex = 0;
     
     // Sorting

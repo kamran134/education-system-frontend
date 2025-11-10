@@ -77,7 +77,7 @@ export class TeachersListComponent implements OnInit {
     
     // Pagination
     totalCount = 0;
-    pageSize = 100;
+    pageSize = 1000;
     pageIndex = 0;
     
     // Sorting
@@ -150,7 +150,7 @@ export class TeachersListComponent implements OnInit {
                 this.pageIndex = parseInt(queryParams['teacherPage']) || 0;
             }
             if (queryParams['teacherPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['teacherPageSize']) || 100;
+                this.pageSize = parseInt(queryParams['teacherPageSize']) || 1000;
             }
             if (queryParams['selectedDistrictIds'] && !this.schoolId) {
                 // Only restore district selection if not in filtered view

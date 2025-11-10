@@ -152,7 +152,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     teachers: Teacher[] = [];
     students: Student[] = [];
     totalCount: number = 0;
-    pageSize: number = 100;
+    pageSize: number = 1000;
     studentsPageSize: number = 1000;
     pageIndex: number = 0;
     exams: Exam[] = [];
@@ -218,7 +218,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.selectedTab = params['tab'] || 'developingStudents';
                     this.sortActive = params['sortActive'] || 'averageScore';
                     this.sortDirection = params['sortDirection'] || 'desc';
-                    this.pageSize = params['pageSize'] ? +params['pageSize'] : 100;
+                    this.pageSize = params['pageSize'] ? +params['pageSize'] : 1000;
                     this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : 1000;
                     this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
 

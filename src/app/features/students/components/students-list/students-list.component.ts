@@ -62,7 +62,7 @@ export class StudentsListComponent implements OnInit {
     
     // Pagination
     totalCount = 0;
-    pageSize = 100;
+    pageSize = 1000;
     pageIndex = 0;
     
     // Sorting
@@ -169,7 +169,7 @@ export class StudentsListComponent implements OnInit {
                 this.pageIndex = parseInt(queryParams['studentPage']) || 0;
             }
             if (queryParams['studentPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['studentPageSize']) || 100;
+                this.pageSize = parseInt(queryParams['studentPageSize']) || 1000;
             }
             if (queryParams['selectedDistrictIds'] && !this.teacherId) {
                 this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
