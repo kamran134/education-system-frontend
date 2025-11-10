@@ -432,7 +432,7 @@ export class TeachersListComponent implements OnInit {
                     this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
                     this.districtOptions = this.districts.map(district => ({
                         value: district._id,
-                        label: district.name
+                        label: `${district.name} (${district.studentCount || 0} şagird)`
                     }));
                 },
                 error: (err: any) => {
