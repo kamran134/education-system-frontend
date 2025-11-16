@@ -83,9 +83,9 @@ export class ExamResultsComponent implements OnInit {
         { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
         { key: 'studentData.firstName', label: 'Adı', sortable: true },
         { key: 'grade', label: 'Sinif', sortable: true },
-        { key: 'studentData.school.name', label: 'Məktəb', sortable: false },
-        { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: false },
-        { key: 'studentData.district.name', label: 'Rayon', sortable: false },
+        { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
+        { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
+        { key: 'studentData.district.name', label: 'Rayon', sortable: true },
         { key: 'totalScore', label: 'Ümumi bal', sortable: true },
         { key: 'level', label: 'Pillə', sortable: true }
     ];
