@@ -1,6 +1,6 @@
 <app-list-layout
   title="Məktəblər"
-  description="Bütün məktəblərin siyahısı"
+  [description]="totalCount + ' məktəb'"
   [isLoading]="isLoading"
   [hasError]="hasError"
   [errorMessage]="errorMessage"

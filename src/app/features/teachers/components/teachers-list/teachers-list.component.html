@@ -1,6 +1,6 @@
 <app-list-layout
   title="Müəllimlər"
-  description="Bütün müəllimlərin siyahısı"
+  [description]="totalCount + ' müəllim'"
   [isLoading]="isLoading"
   [hasError]="hasError"
   [errorMessage]="errorMessage"
