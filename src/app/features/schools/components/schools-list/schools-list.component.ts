@@ -15,7 +15,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
-import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
+import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -83,6 +83,7 @@ export class SchoolsListComponent implements OnInit {
     ];
     
     actionButtons: ActionButton[] = [];
+    backButton?: BackButton;
     
     // Icons
     readonly Plus = Plus;
@@ -110,14 +111,14 @@ export class SchoolsListComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.setupActionButtons();
-        
         // Check if we're viewing schools for a specific district
         this.route.params.subscribe(params => {
             this.districtId = params['id'];
             if (this.districtId) {
                 this.selectedDistrictIds = [this.districtId];
             }
+            // Setup buttons after we know if districtId exists
+            this.setupActionButtons();
         });
         
         // Restore state from query parameters if coming back
@@ -142,15 +143,11 @@ export class SchoolsListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
-        // Add back button if we're in filtered view (from district)
-        if (this.districtId) {
-            this.actionButtons.push({
-                label: 'Rayonlara qayıt',
-                icon: this.ArrowLeft,
-                action: () => this.goBack(),
-                variant: 'secondary'
-            });
-        }
+        // Setup back button - always show it
+        this.backButton = {
+            show: true,
+            action: () => this.goBack()
+        };
 
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
@@ -335,17 +332,22 @@ export class SchoolsListComponent implements OnInit {
     }
 
     goBack(): void {
-        // Navigate back to districts with preserved state
-        this.route.queryParams.subscribe(params => {
-            const queryParams: any = {};
-            if (params['districtPage'] !== undefined) {
-                queryParams.districtPage = params['districtPage'];
-            }
-            if (params['districtPageSize'] !== undefined) {
-                queryParams.districtPageSize = params['districtPageSize'];
-            }
-            this.router.navigate(['/districts'], { queryParams });
-        });
+        // If we came from a district, navigate back to districts with preserved state
+        if (this.districtId) {
+            this.route.queryParams.subscribe(params => {
+                const queryParams: any = {};
+                if (params['districtPage'] !== undefined) {
+                    queryParams.districtPage = params['districtPage'];
+                }
+                if (params['districtPageSize'] !== undefined) {
+                    queryParams.districtPageSize = params['districtPageSize'];
+                }
+                this.router.navigate(['/districts'], { queryParams });
+            });
+        } else {
+            // Otherwise, go to home page
+            this.router.navigate(['/']);
+        }
     }
 
     onSchoolEdit(school: School): void {

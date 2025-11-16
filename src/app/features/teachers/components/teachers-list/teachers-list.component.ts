@@ -18,7 +18,7 @@ import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editin
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
-import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
+import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -114,6 +114,7 @@ export class TeachersListComponent implements OnInit {
     ];
     
     actionButtons: ActionButton[] = [];
+    backButton?: BackButton;
     
     // Icons
     readonly Plus = Plus;
@@ -135,14 +136,14 @@ export class TeachersListComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.setupActionButtons();
-        
         // Check if we're viewing teachers for a specific school
         this.route.params.subscribe(params => {
             this.schoolId = params['id'];
             if (this.schoolId) {
                 this.selectedSchoolIds = [this.schoolId];
             }
+            // Setup buttons after we know if schoolId exists
+            this.setupActionButtons();
         });
         
         // Restore state from query parameters if coming back
@@ -175,15 +176,11 @@ export class TeachersListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
-        // Add back button if we're in filtered view (from school)
-        if (this.schoolId) {
-            this.actionButtons.push({
-                label: 'Məktəblərə qayıt',
-                icon: this.ArrowLeft,
-                action: () => this.goBack(),
-                variant: 'secondary'
-            });
-        }
+        // Setup back button - always show it
+        this.backButton = {
+            show: true,
+            action: () => this.goBack()
+        };
         
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
@@ -321,35 +318,34 @@ export class TeachersListComponent implements OnInit {
     }
 
     goBack(): void {
-        // Navigate back to schools with preserved state
-        this.route.queryParams.subscribe(params => {
-            const queryParams: any = {};
-            
-            // Preserve all previous states
-            if (params['districtPage'] !== undefined) {
-                queryParams.districtPage = params['districtPage'];
-            }
-            if (params['districtPageSize'] !== undefined) {
-                queryParams.districtPageSize = params['districtPageSize'];
-            }
-            if (params['schoolPage'] !== undefined) {
-                queryParams.schoolPage = params['schoolPage'];
-            }
-            if (params['schoolPageSize'] !== undefined) {
-                queryParams.schoolPageSize = params['schoolPageSize'];
-            }
-            if (params['selectedDistrictIds']) {
-                queryParams.selectedDistrictIds = params['selectedDistrictIds'];
-            }
-            
-            // Navigate back to schools filtered by district if we have the context
-            if (this.schoolId) {
-                // Navigate back to the specific school's context
+        // If we came from a school, navigate back to schools with preserved state
+        if (this.schoolId) {
+            this.route.queryParams.subscribe(params => {
+                const queryParams: any = {};
+                
+                // Preserve all previous states
+                if (params['districtPage'] !== undefined) {
+                    queryParams.districtPage = params['districtPage'];
+                }
+                if (params['districtPageSize'] !== undefined) {
+                    queryParams.districtPageSize = params['districtPageSize'];
+                }
+                if (params['schoolPage'] !== undefined) {
+                    queryParams.schoolPage = params['schoolPage'];
+                }
+                if (params['schoolPageSize'] !== undefined) {
+                    queryParams.schoolPageSize = params['schoolPageSize'];
+                }
+                if (params['selectedDistrictIds']) {
+                    queryParams.selectedDistrictIds = params['selectedDistrictIds'];
+                }
+                
                 this.router.navigate(['/schools'], { queryParams });
-            } else {
-                this.router.navigate(['/schools'], { queryParams });
-            }
-        });
+            });
+        } else {
+            // Otherwise, go to home page
+            this.router.navigate(['/']);
+        }
     }
 
     loadTeachers(): void {

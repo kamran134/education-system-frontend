@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, TemplateRef, ContentChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Home, Plus, RefreshCw } from 'lucide-angular';
+import { LucideAngularModule, Home, Plus, RefreshCw, ArrowLeft } from 'lucide-angular';
 import { ButtonComponent } from '../button/button.component';
 import { CardComponent } from '../card/card.component';
 
@@ -14,6 +14,11 @@ export interface ActionButton {
   loading?: boolean;
 }
 
+export interface BackButton {
+  show: boolean;
+  action: () => void;
+}
+
 @Component({
   selector: 'app-list-layout',
   standalone: true,
@@ -22,7 +27,7 @@ export interface ActionButton {
     <div class="min-h-screen bg-gray-50 py-6">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
-        <nav class="mb-6">
+        <nav class="mb-6 flex items-center gap-3">
           <button
             type="button"
             class="inline-flex items-center space-x-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
@@ -30,6 +35,17 @@ export interface ActionButton {
           >
             <lucide-icon [img]="Home" class="h-4 w-4"></lucide-icon>
             <span>Baş səhifə</span>
+          </button>
+          
+          <!-- Back Button -->
+          <button
+            *ngIf="backButton && backButton.show"
+            type="button"
+            class="inline-flex items-center space-x-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+            (click)="backButton.action()"
+          >
+            <lucide-icon [img]="ArrowLeft" class="h-4 w-4"></lucide-icon>
+            <span>Geri</span>
           </button>
         </nav>
 
@@ -107,6 +123,7 @@ export class ListLayoutComponent {
   @Input() errorMessage = '';
   @Input() loadingText = '';
   @Input() hasFilters = false;
+  @Input() backButton?: BackButton;
   @Input() set actionButtons(buttons: ActionButton[]) {
     console.log('ListLayoutComponent received actionButtons:', buttons);
     this._actionButtons = buttons;
@@ -119,4 +136,5 @@ export class ListLayoutComponent {
   readonly Home = Home;
   readonly Plus = Plus;
   readonly RefreshCw = RefreshCw;
+  readonly ArrowLeft = ArrowLeft;
 }
