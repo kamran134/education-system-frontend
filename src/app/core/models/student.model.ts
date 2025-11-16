@@ -50,6 +50,17 @@ export interface Student {
     place?: number;
 }
 
+export interface StudentForCreation {
+    lastName: string;
+    firstName: string;
+    middleName: string;
+    code: number;
+    grade: number;
+    teacher?: Teacher;
+    school?: School;
+    district?: District;
+}
+
 export interface StudentWithResult {
     _id: string;
     lastName: string;

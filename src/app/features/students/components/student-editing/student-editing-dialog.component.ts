@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
-import { Student } from '../../../../core/models/student.model';
+import { Student, StudentForCreation } from '../../../../core/models/student.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
@@ -43,7 +43,7 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
 
     constructor(
         public dialogRef: MatDialogRef<StudentEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { student: Student, isEditing: boolean, canDelete?: boolean },
+        @Inject(MAT_DIALOG_DATA) public data: { student: Student | StudentForCreation, isEditing: boolean, canDelete?: boolean },
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService
@@ -154,6 +154,15 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.loadDistricts();
+        if (!this.data.isEditing) {
+            this.data.student = {
+                code: 0,
+                lastName: '',
+                firstName: '',
+                middleName: '',
+                grade: 5
+            };
+        }
     }
 
     loadDistricts(): void {

@@ -192,6 +192,15 @@ export class StudentsListComponent implements OnInit {
             action: () => this.goBack()
         };
         
+        if (this.authService.canCreateStudents()) {
+            this.actionButtons.push({
+                label: 'Şagird əlavə et',
+                icon: this.Plus,
+                action: () => this.onStudentCreate(),
+                variant: 'primary'
+            });
+        }
+        
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
                 {
@@ -480,6 +489,36 @@ export class StudentsListComponent implements OnInit {
             },
             error: (err: any) => {
                 console.error('Error loading exams:', err);
+            }
+        });
+    }
+
+    onStudentCreate(): void {
+        const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
+            width: '1000px',
+            data: { 
+                student: null, 
+                isEditing: false,
+                canDelete: false
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result?.action === 'save') {
+                this.isLoading = true;
+                this.studentService.createStudent(result.data).subscribe({
+                    next: (response: any) => {
+                        const newStudent = ResponseHandlerUtil.extractData<Student>(response);
+                        // Добавляем нового ученика в начало массива
+                        this.students = [newStudent, ...this.students];
+                        this.isLoading = false;
+                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Şagird uğurla əlavə edildi', 'OK', this.matSnackConfig);
+                    },
+                    error: (err: any) => {
+                        this.isLoading = false;
+                        this.snackBar.open('Şagird əlavə edilməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    }
+                });
             }
         });
     }
