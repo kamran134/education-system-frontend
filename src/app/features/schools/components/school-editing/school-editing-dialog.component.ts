@@ -34,7 +34,7 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
 
     constructor(
         public dialogRef: MatDialogRef<SchoolEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { school: School | SchoolForCreation, isEditing: boolean },
+        @Inject(MAT_DIALOG_DATA) public data: { school: School | SchoolForCreation, isEditing: boolean, canDelete?: boolean },
         private districtService: DistrictService
     ) {}
 
@@ -79,7 +79,7 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
     }
 
     get modalButtons(): ModalButton[] {
-        return [
+        const buttons: ModalButton[] = [
             {
                 label: 'Ləğv et',
                 variant: 'outline',
@@ -92,6 +92,17 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
                 action: () => this.onSave()
             }
         ];
+
+        // Добавляем кнопку удаления только при редактировании и если есть права
+        if (this.data.isEditing && this.data.canDelete) {
+            buttons.splice(1, 0, {
+                label: 'Sil',
+                variant: 'danger',
+                action: () => this.onDelete()
+            });
+        }
+
+        return buttons;
     }
 
     ngOnInit(): void {
@@ -134,7 +145,11 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
     }
 
     onSave(): void {
-        this.dialogRef.close(this.data.school);
+        this.dialogRef.close({ action: 'save', data: this.data.school });
+    }
+
+    onDelete(): void {
+        this.dialogRef.close({ action: 'delete' });
     }
 
     onClose(): void {

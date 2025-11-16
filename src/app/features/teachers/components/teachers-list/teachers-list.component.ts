@@ -103,13 +103,6 @@ export class TeachersListComponent implements OnInit {
             icon: Edit,
             variant: 'primary',
             condition: () => this.authService.canEditTeachers()
-        },
-        {
-            key: 'delete',
-            label: 'Sil',
-            icon: Trash2,
-            variant: 'danger',
-            condition: () => this.authService.canDeleteTeachers()
         }
     ];
     
@@ -286,9 +279,6 @@ export class TeachersListComponent implements OnInit {
         switch (event.action) {
             case 'edit':
                 this.onTeacherUpdate(event.item);
-                break;
-            case 'delete':
-                this.onTeacherDelete(event.item._id);
                 break;
         }
     }
@@ -507,14 +497,15 @@ export class TeachersListComponent implements OnInit {
             width: '1000px',
             data: {
                 teacher: null,
-                isEditing: false
+                isEditing: false,
+                canDelete: false
             }
         });
         
-        dialogRef.afterClosed().subscribe((result: Teacher) => {
-            if (result) {
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result?.action === 'save') {
                 this.isLoading = true;
-                this.teacherService.createTeacher(result).subscribe({
+                this.teacherService.createTeacher(result.data).subscribe({
                     next: (response: ResponseFromBackend) => {
                         const newTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
                         // Добавляем нового учителя в начало списка
@@ -536,16 +527,24 @@ export class TeachersListComponent implements OnInit {
     onTeacherUpdate(teacher: Teacher): void {
         const dialogRef = this.dialog.open(TeacherEditingDialogComponent, {
             width: '1000px',
-            data: { teacher, isEditing: true }
+            data: { 
+                teacher, 
+                isEditing: true,
+                canDelete: this.authService.canDeleteTeachers()
+            }
         });
 
-        dialogRef.afterClosed().subscribe((result: Teacher) => {
-            if (result) {
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result?.action === 'delete') {
+                // Обработка удаления
+                this.handleTeacherDelete(teacher._id);
+            } else if (result?.action === 'save') {
+                // Обработка сохранения
                 this.isLoading = true;
-                this.teacherService.updateTeacher(result).subscribe({
+                this.teacherService.updateTeacher(result.data).subscribe({
                     next: (response) => {
                         const updatedTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
-                        const index = this.teachers.findIndex(s => s._id === result._id);
+                        const index = this.teachers.findIndex(s => s._id === result.data._id);
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.teachers = [
@@ -567,7 +566,7 @@ export class TeachersListComponent implements OnInit {
         });
     }
 
-    onTeacherDelete(studentId: string): void {
+    private handleTeacherDelete(studentId: string): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'Müəllimi silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nMüəllim silinərkən onun BÜTÜN şagirdləri də silinəcək!' }

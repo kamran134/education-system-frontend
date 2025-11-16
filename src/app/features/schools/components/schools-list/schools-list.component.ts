@@ -72,13 +72,6 @@ export class SchoolsListComponent implements OnInit {
             icon: Edit,
             variant: 'primary',
             condition: () => this.authService.canEditSchools()
-        },
-        {
-            key: 'delete',
-            label: 'Sil',
-            icon: Trash2,
-            variant: 'danger',
-            condition: () => this.authService.canDeleteSchools()
         }
     ];
     
@@ -254,13 +247,17 @@ export class SchoolsListComponent implements OnInit {
     openAddSchoolDialog(): void {
         const dialogRef = this.dialog.open(SchoolEditingDialogComponent, {
           width: '1000px',
-          data: { school: null, isEditing: false },
+          data: { 
+            school: null, 
+            isEditing: false,
+            canDelete: false
+          },
         });
     
         dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
+            if (result?.action === 'save') {
                 this.isLoading = true;
-                this.schoolService.createSchool(result).subscribe({
+                this.schoolService.createSchool(result.data).subscribe({
                     next: (response: ResponseFromBackend) => {
                         const newSchool = ResponseHandlerUtil.extractData<School>(response);
                         // Добавляем новую школу в начало списка
@@ -307,9 +304,6 @@ export class SchoolsListComponent implements OnInit {
         switch (event.action) {
             case 'edit':
                 this.onSchoolEdit(event.item);
-                break;
-            case 'delete':
-                this.onSchoolDelete(new Event('click'), event.item);
                 break;
         }
     }
@@ -359,16 +353,24 @@ export class SchoolsListComponent implements OnInit {
     onSchoolEdit(school: School): void {
         const dialogRef = this.dialog.open(SchoolEditingDialogComponent, {
             width: '1000px',
-            data: { school, isEditing: true }
+            data: { 
+                school, 
+                isEditing: true,
+                canDelete: this.authService.canDeleteSchools()
+            }
         });
 
-        dialogRef.afterClosed().subscribe((result: School) => {
-            if (result) {
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result?.action === 'delete') {
+                // Обработка удаления
+                this.handleSchoolDelete(school);
+            } else if (result?.action === 'save') {
+                // Обработка сохранения
                 this.isLoading = true;
-                this.schoolService.updateSchool(result).subscribe({
+                this.schoolService.updateSchool(result.data).subscribe({
                     next: (response) => {
                         const updatedSchool = ResponseHandlerUtil.extractData<School>(response);
-                        const index = this.schools.findIndex(s => s._id === result._id);
+                        const index = this.schools.findIndex(s => s._id === result.data._id);
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.schools = [
@@ -390,9 +392,7 @@ export class SchoolsListComponent implements OnInit {
         });
     }
 
-    onSchoolDelete(event: Event, school: School): void {
-        event.stopPropagation();
-        
+    private handleSchoolDelete(school: School): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '350px',
             data: { 

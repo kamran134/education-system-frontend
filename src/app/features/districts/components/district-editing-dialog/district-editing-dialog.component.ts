@@ -21,7 +21,7 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 export class DistrictEditingDialogComponent {
     constructor(
         public dialogRef: MatDialogRef<DistrictEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { district: District, isEditing: boolean }
+        @Inject(MAT_DIALOG_DATA) public data: { district: District, isEditing: boolean, canDelete?: boolean }
     ) {}
 
     get modalTitle(): string {
@@ -41,7 +41,7 @@ export class DistrictEditingDialogComponent {
     }
 
     get modalButtons(): ModalButton[] {
-        return [
+        const buttons: ModalButton[] = [
             {
                 label: 'Ləğv et',
                 variant: 'outline',
@@ -54,12 +54,27 @@ export class DistrictEditingDialogComponent {
                 action: () => this.onSave()
             }
         ];
+
+        // Добавляем кнопку удаления только при редактировании и если есть права
+        if (this.data.isEditing && this.data.canDelete) {
+            buttons.splice(1, 0, {
+                label: 'Sil',
+                variant: 'danger',
+                action: () => this.onDelete()
+            });
+        }
+
+        return buttons;
     }
 
     onSave(): void {
         if (this.isValid) {
-            this.dialogRef.close(this.data.district);
+            this.dialogRef.close({ action: 'save', data: this.data.district });
         }
+    }
+
+    onDelete(): void {
+        this.dialogRef.close({ action: 'delete' });
     }
 
     onClose(): void {

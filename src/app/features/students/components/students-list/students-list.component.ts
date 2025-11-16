@@ -109,13 +109,6 @@ export class StudentsListComponent implements OnInit {
             icon: Edit,
             variant: 'primary',
             condition: () => this.authService.canEditStudents()
-        },
-        {
-            key: 'delete',
-            label: 'Sil',
-            icon: Trash2,
-            variant: 'danger',
-            condition: () => this.authService.canDeleteStudents()
         }
     ];
     
@@ -288,9 +281,6 @@ export class StudentsListComponent implements OnInit {
         switch (event.action) {
             case 'edit':
                 this.onStudentUpdate(event.item);
-                break;
-            case 'delete':
-                this.onStudentDelete(event.item._id);
                 break;
         }
     }
@@ -497,16 +487,24 @@ export class StudentsListComponent implements OnInit {
     onStudentUpdate(student: Student): void {
         const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
             width: '1000px',
-            data: { student, isEditing: true }
+            data: { 
+                student, 
+                isEditing: true,
+                canDelete: this.authService.canDeleteStudents()
+            }
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result) {
+            if (result?.action === 'delete') {
+                // Обработка удаления
+                this.handleStudentDelete(student._id);
+            } else if (result?.action === 'save') {
+                // Обработка сохранения
                 this.isLoading = true;
-                this.studentService.updateStudent(result).subscribe({
+                this.studentService.updateStudent(result.data).subscribe({
                     next: (response: any) => {
                         const updatedStudent = ResponseHandlerUtil.extractData<Student>(response);
-                        const index = this.students.findIndex(s => s._id === result._id);
+                        const index = this.students.findIndex(s => s._id === result.data._id);
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.students = [
@@ -527,7 +525,7 @@ export class StudentsListComponent implements OnInit {
         });
     }
 
-    onStudentDelete(studentId: string): void {
+    private handleStudentDelete(studentId: string): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data: {

@@ -86,16 +86,9 @@ export class ExamsListComponent implements OnInit {
     tableActions: TableAction[] = [
         {
             key: 'view',
-            label: 'Nəticələrə bax',
+            label: 'Nəticələri yüklə',
             icon: Calendar,
             variant: 'primary'
-        },
-        {
-            key: 'delete',
-            label: 'Sil',
-            icon: Trash2,
-            variant: 'danger',
-            condition: () => this.authService.canDeleteExams()
         }
     ];
     
@@ -208,9 +201,6 @@ export class ExamsListComponent implements OnInit {
         switch (event.action) {
             case 'view':
                 this.openExamDetails(event.item);
-                break;
-            case 'delete':
-                this.onExamDelete(event.item);
                 break;
         }
     }

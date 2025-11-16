@@ -56,13 +56,6 @@ export class DistrictsListComponent implements OnInit {
             icon: Edit,
             variant: 'primary',
             condition: () => this.authService.canEditDistricts()
-        },
-        {
-            key: 'delete',
-            label: 'Sil',
-            icon: Trash2,
-            variant: 'danger',
-            condition: () => this.authService.canDeleteDistricts()
         }
     ];
     
@@ -156,14 +149,15 @@ export class DistrictsListComponent implements OnInit {
           width: '400px',
           data: { 
             district: { name: '', code: '', studentCount: 0 },
-            isEditing: false
+            isEditing: false,
+            canDelete: false
           },
         });
     
         dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
+            if (result?.action === 'save') {
                 this.isLoading = true;
-                this.districtService.addDistrict(result).subscribe({
+                this.districtService.addDistrict(result.data).subscribe({
                     next: (response: ResponseFromBackend) => {
                         const newDistrict = ResponseHandlerUtil.extractData<District>(response);
                         // Добавляем новый район в начало списка
@@ -216,9 +210,6 @@ export class DistrictsListComponent implements OnInit {
             case 'edit':
                 this.onDistrictEdit(event.item);
                 break;
-            case 'delete':
-                this.onDistrictDelete(new Event('click'), event.item);
-                break;
         }
     }
 
@@ -232,14 +223,19 @@ export class DistrictsListComponent implements OnInit {
                     code: district.code, 
                     studentCount: district.studentCount
                 },
-                isEditing: true
+                isEditing: true,
+                canDelete: this.authService.canDeleteDistricts()
             },
         });
     
         dialogRef.afterClosed().subscribe((result) => {
-            if (result) {
+            if (result?.action === 'delete') {
+                // Обработка удаления
+                this.handleDistrictDelete(district);
+            } else if (result?.action === 'save') {
+                // Обработка сохранения
                 this.isLoading = true;
-                this.districtService.updateDistrict(district._id, result).subscribe({
+                this.districtService.updateDistrict(district._id, result.data).subscribe({
                     next: (response: ResponseFromBackend) => {
                         const updatedDistrict = ResponseHandlerUtil.extractData<District>(response);
                         const index = this.districts.findIndex(d => d._id === district._id);
@@ -263,9 +259,7 @@ export class DistrictsListComponent implements OnInit {
         });
     }
 
-    onDistrictDelete(event: Event, district: District): void {
-        event.stopPropagation();
-        
+    private handleDistrictDelete(district: District): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'Rayonu / şəhəri silmək istədiyinizdən əminsiniz mi?' }
