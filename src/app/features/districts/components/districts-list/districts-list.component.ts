@@ -55,14 +55,14 @@ export class DistrictsListComponent implements OnInit {
             label: 'Düzəliş et',
             icon: Edit,
             variant: 'primary',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canEditDistricts()
         },
         {
             key: 'delete',
             label: 'Sil',
             icon: Trash2,
             variant: 'danger',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canDeleteDistricts()
         }
     ];
     
@@ -126,23 +126,24 @@ export class DistrictsListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
+        if (this.authService.canCreateDistricts()) {
+            this.actionButtons.push({
+                label: 'Yeni rayon / şəhər əlavə et',
+                icon: this.Plus,
+                action: () => this.openAddDistrictDialog(),
+                variant: 'primary'
+            });
+        }
+        
         if (this.isAdminOrSuperAdmin()) {
-            this.actionButtons.push(
-                {
-                    label: 'Yeni rayon / şəhər əlavə et',
-                    icon: this.Plus,
-                    action: () => this.openAddDistrictDialog(),
-                    variant: 'primary'
-                },
-                {
-                    label: 'Statistikanı yenilə',
-                    icon: this.RefreshCw,
-                    action: () => this.onUpdateDistrictsStats(),
-                    variant: 'secondary',
-                    loading: this.isUpdatingStats,
-                    disabled: this.isUpdatingStats
-                }
-            );
+            this.actionButtons.push({
+                label: 'Statistikanı yenilə',
+                icon: this.RefreshCw,
+                action: () => this.onUpdateDistrictsStats(),
+                variant: 'secondary',
+                loading: this.isUpdatingStats,
+                disabled: this.isUpdatingStats
+            });
         }
     }
 

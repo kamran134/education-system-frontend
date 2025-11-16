@@ -71,14 +71,14 @@ export class SchoolsListComponent implements OnInit {
             label: 'Düzəliş et',
             icon: Edit,
             variant: 'primary',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canEditSchools()
         },
         {
             key: 'delete',
             label: 'Sil',
             icon: Trash2,
             variant: 'danger',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canDeleteSchools()
         }
     ];
     
@@ -149,14 +149,17 @@ export class SchoolsListComponent implements OnInit {
             action: () => this.goBack()
         };
 
+        if (this.authService.canCreateSchools()) {
+            this.actionButtons.push({
+                label: 'Məktəb əlavə et',
+                icon: this.Plus,
+                action: () => this.openAddSchoolDialog(),
+                variant: 'primary'
+            });
+        }
+        
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
-                {
-                    label: 'Məktəb əlavə et',
-                    icon: this.Plus,
-                    action: () => this.openAddSchoolDialog(),
-                    variant: 'primary'
-                },
                 {
                     label: 'Fayldan əlavə et',
                     icon: this.Upload,
@@ -168,14 +171,17 @@ export class SchoolsListComponent implements OnInit {
                     icon: this.RefreshCw,
                     action: () => this.onUpdateSchoolsStats(),
                     variant: 'secondary'
-                },
-                {
-                    label: 'Ekranda olanları sil',
-                    icon: this.Trash,
-                    action: () => this.onAllSchoolsDelete(),
-                    variant: 'secondary'
                 }
             );
+        }
+        
+        if (this.authService.canDeleteSchools() && this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: 'Ekranda olanları sil',
+                icon: this.Trash,
+                action: () => this.onAllSchoolsDelete(),
+                variant: 'secondary'
+            });
         }
         console.log('Final actionButtons array:', this.actionButtons);
     }

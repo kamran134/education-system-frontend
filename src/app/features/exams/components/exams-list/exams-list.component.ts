@@ -95,7 +95,7 @@ export class ExamsListComponent implements OnInit {
             label: 'Sil',
             icon: Trash2,
             variant: 'danger',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canDeleteExams()
         }
     ];
     
@@ -132,21 +132,22 @@ export class ExamsListComponent implements OnInit {
     private setupActionButtons(): void {
         this.actionButtons = [];
         
-        if (this.isAdminOrSuperAdmin()) {
-            this.actionButtons.push(
-                {
-                    label: 'Yeni imtahan',
-                    icon: this.Plus,
-                    action: () => this.openAddExamDialog(),
-                    variant: 'primary'
-                },
-                {
-                    label: 'Bütün imtahanları sil',
-                    icon: this.Trash2,
-                    action: () => this.onAllExamsDelete(),
-                    variant: 'secondary'
-                }
-            );
+        if (this.authService.canCreateExams()) {
+            this.actionButtons.push({
+                label: 'Yeni imtahan',
+                icon: this.Plus,
+                action: () => this.openAddExamDialog(),
+                variant: 'primary'
+            });
+        }
+        
+        if (this.authService.canDeleteExams() && this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: 'Bütün imtahanları sil',
+                icon: this.Trash2,
+                action: () => this.onAllExamsDelete(),
+                variant: 'secondary'
+            });
         }
     }
 

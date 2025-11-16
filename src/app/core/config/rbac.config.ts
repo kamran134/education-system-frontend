@@ -7,7 +7,8 @@
 
 export type UserRole = 
     | 'superadmin' 
-    | 'admin' 
+    | 'admin'
+    | 'moderator'
     | 'districtRepresenter' 
     | 'schoolDirector' 
     | 'teacher' 
@@ -210,6 +211,73 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExportButtons: true,
             showBulkActions: true,
             // Админ видит все
+            showDistrictsSection: true,
+            showSchoolsSection: true,
+            showTeachersSection: true,
+            showStudentsSection: true,
+            showExamsSection: true,
+            showStatsSection: true,
+            showDistrictsTab: true,
+            showSchoolsTab: true,
+            showTeachersTab: true,
+            showStudentsTab: true,
+        },
+    },
+
+    /**
+     * MODERATOR - может создавать и редактировать, но НЕ может удалять
+     */
+    moderator: {
+        routes: {
+            canAccessAdminPanel: true,
+            canAccessUserManagement: false,
+            canAccessRatingColumns: false,
+            canAccessProfile: true,
+            canAccessStats: true,
+            canAccessDistricts: true,
+            canAccessSchools: true,
+            canAccessTeachers: true,
+            canAccessStudents: true,
+            canAccessExams: true,
+        },
+        crud: {
+            canCreateUsers: false,
+            canEditUsers: false,
+            canDeleteUsers: false,
+            canCreateDistricts: true,
+            canEditDistricts: true,
+            canDeleteDistricts: false,  // НЕ МОЖЕТ УДАЛЯТЬ
+            canCreateSchools: true,
+            canEditSchools: true,
+            canDeleteSchools: false,    // НЕ МОЖЕТ УДАЛЯТЬ
+            canCreateTeachers: true,
+            canEditTeachers: true,
+            canDeleteTeachers: false,   // НЕ МОЖЕТ УДАЛЯТЬ
+            canCreateStudents: true,
+            canEditStudents: true,
+            canDeleteStudents: false,   // НЕ МОЖЕТ УДАЛЯТЬ
+            canCreateExams: true,
+            canEditExams: true,
+            canDeleteExams: false,      // НЕ МОЖЕТ УДАЛЯТЬ
+        },
+        dataAccess: {
+            seeAllDistricts: true,
+            seeOwnDistrictOnly: false,
+            seeAllSchools: true,
+            seeOwnSchoolOnly: false,
+            seeAllTeachers: true,
+            seeOwnTeachersOnly: false,
+            seeAllStudents: true,
+            seeOwnStudentsOnly: false,
+        },
+        ui: {
+            showAdminMenu: false,
+            showUserManagementLink: false,
+            showRatingColumnsLink: false,
+            showStatsUpdateButton: false,
+            showExportButtons: true,
+            showBulkActions: false,  // НЕТ массовых действий (часто это удаление)
+            // Модератор видит все секции кроме админ-панели
             showDistrictsSection: true,
             showSchoolsSection: true,
             showTeachersSection: true,

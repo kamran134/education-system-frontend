@@ -108,14 +108,14 @@ export class StudentsListComponent implements OnInit {
             label: 'Düzəliş et',
             icon: Edit,
             variant: 'primary',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canEditStudents()
         },
         {
             key: 'delete',
             label: 'Sil',
             icon: Trash2,
             variant: 'danger',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canDeleteStudents()
         }
     ];
     
@@ -212,14 +212,17 @@ export class StudentsListComponent implements OnInit {
                     icon: this.Settings,
                     action: () => this.onStudentsRepair(),
                     variant: 'secondary'
-                },
-                {
-                    label: 'Ekranda olanları sil',
-                    icon: this.Trash,
-                    action: () => this.onAllStudentsDelete(),
-                    variant: 'secondary'
                 }
             );
+        }
+        
+        if (this.authService.canDeleteStudents() && this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: 'Ekranda olanları sil',
+                icon: this.Trash,
+                action: () => this.onAllStudentsDelete(),
+                variant: 'secondary'
+            });
         }
     }
 

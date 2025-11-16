@@ -102,14 +102,14 @@ export class TeachersListComponent implements OnInit {
             label: 'Düzəliş et',
             icon: Edit,
             variant: 'primary',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canEditTeachers()
         },
         {
             key: 'delete',
             label: 'Sil',
             icon: Trash2,
             variant: 'danger',
-            condition: () => this.isAdminOrSuperAdmin()
+            condition: () => this.authService.canDeleteTeachers()
         }
     ];
     
@@ -182,14 +182,17 @@ export class TeachersListComponent implements OnInit {
             action: () => this.goBack()
         };
         
+        if (this.authService.canCreateTeachers()) {
+            this.actionButtons.push({
+                label: 'Müəllim əlavə et',
+                icon: this.Plus,
+                action: () => this.onTeacherCreate(),
+                variant: 'primary'
+            });
+        }
+        
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
-                {
-                    label: 'Müəllim əlavə et',
-                    icon: this.Plus,
-                    action: () => this.onTeacherCreate(),
-                    variant: 'primary'
-                },
                 {
                     label: 'Fayldan əlavə et',
                     icon: this.Upload,
@@ -207,14 +210,17 @@ export class TeachersListComponent implements OnInit {
                     icon: this.RefreshCw,
                     action: () => this.onUpdateTeachersStats(),
                     variant: 'secondary'
-                },
-                {
-                    label: 'Ekranda olanları sil',
-                    icon: this.Trash,
-                    action: () => this.onAllTeachersDelete(),
-                    variant: 'secondary'
                 }
             );
+        }
+        
+        if (this.authService.canDeleteTeachers() && this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: 'Ekranda olanları sil',
+                icon: this.Trash,
+                action: () => this.onAllTeachersDelete(),
+                variant: 'secondary'
+            });
         }
     }
 
