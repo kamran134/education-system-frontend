@@ -84,7 +84,7 @@
                                 <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
                                 <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
                                     Fənnlər üzrə ballar
-                                    <span class="text-xs text-gray-500">(Sual sayı)</span>
+                                    <span *ngIf="student.grade >= 5" class="text-xs text-gray-500">(Sual sayı)</span>
                                 </th>
                                 <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan üzrə uğuru</th>
                                 <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Əməliyyatlar</th>
@@ -113,23 +113,23 @@
                                     <div class="space-y-1">
                                         <div *ngIf="result.disciplines && result.disciplines.az !== undefined">
                                             Azərbaycan dili: <span class="font-medium">{{ result.disciplines.az }}</span>
-                                            <span *ngIf="result.questionCounts.az" class="text-xs text-gray-500"> ({{ result.questionCounts.az }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts.az" class="text-xs text-gray-500"> ({{ result.questionCounts.az }})</span>
                                         </div>
                                         <div *ngIf="result.disciplines && result.disciplines.math !== undefined">
                                             Riyaziyyat: <span class="font-medium">{{ result.disciplines.math }}</span>
-                                            <span *ngIf="result.questionCounts.math" class="text-xs text-gray-500"> ({{ result.questionCounts.math }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts.math" class="text-xs text-gray-500"> ({{ result.questionCounts.math }})</span>
                                         </div>
                                         <div *ngIf="result.disciplines && result.disciplines.lifeKnowledge !== undefined">
                                             Həyat bilgisi: <span class="font-medium">{{ result.disciplines.lifeKnowledge }}</span>
-                                            <span *ngIf="result.questionCounts.lifeKnowledge" class="text-xs text-gray-500"> ({{ result.questionCounts.lifeKnowledge }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts.lifeKnowledge" class="text-xs text-gray-500"> ({{ result.questionCounts.lifeKnowledge }})</span>
                                         </div>
                                         <div *ngIf="result.disciplines && result.disciplines.logic !== undefined">
                                             Məntiq: <span class="font-medium">{{ result.disciplines.logic }}</span>
-                                            <span *ngIf="result.questionCounts.logic" class="text-xs text-gray-500"> ({{ result.questionCounts.logic }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts.logic" class="text-xs text-gray-500"> ({{ result.questionCounts.logic }})</span>
                                         </div>
                                         <div *ngIf="result.disciplines && result.disciplines.english !== undefined">
                                             İngilis dili: <span class="font-medium">{{ result.disciplines.english }}</span>
-                                            <span *ngIf="result.questionCounts.english" class="text-xs text-gray-500"> ({{ result.questionCounts.english }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts.english" class="text-xs text-gray-500"> ({{ result.questionCounts.english }})</span>
                                         </div>
 
                                     </div>
