@@ -7,10 +7,13 @@ import { ExamResult } from '../../../core/models/examResult.model';
 import { District } from '../../../core/models/district.model';
 import { School } from '../../../core/models/school.model';
 import { Teacher } from '../../../core/models/teacher.model';
+import { Exam } from '../../../core/models/exam.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { DistrictService } from '../../districts/services/district.service';
 import { SchoolService } from '../../schools/services/school.service';
 import { TeacherService } from '../../teachers/services/teacher.service';
+import { ExamService } from '../../exams/services/exam.service';
+import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 
 // UI Components
 import { LucideAngularModule, Search, Download, Filter, X } from 'lucide-angular';
@@ -48,6 +51,7 @@ export class ExamResultsComponent implements OnInit {
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
+    exams: Exam[] = [];
     
     // Pagination
     totalCount = 0;
@@ -59,6 +63,7 @@ export class ExamResultsComponent implements OnInit {
     isLoadingDistricts = false;
     isLoadingSchools = false;
     isLoadingTeachers = false;
+    isLoadingExams = false;
     
     // Filters
     searchText = '';
@@ -66,8 +71,7 @@ export class ExamResultsComponent implements OnInit {
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
-    selectedDateFrom = '';
-    selectedDateTo = '';
+    selectedExamIds: string[] = [];
     
     // Filter visibility
     showFilters = false;
@@ -94,11 +98,13 @@ export class ExamResultsComponent implements OnInit {
         private examResultsService: ExamResultsService,
         private districtService: DistrictService,
         private schoolService: SchoolService,
-        private teacherService: TeacherService
+        private teacherService: TeacherService,
+        private examService: ExamService
     ) {}
 
     ngOnInit(): void {
         this.loadDistricts();
+        this.loadExams();
         this.loadExamResults();
     }
 
@@ -123,7 +129,15 @@ export class ExamResultsComponent implements OnInit {
         }));
     }
 
+    get examOptions(): SelectOption[] {
+        return this.exams.map(exam => ({
+            value: exam._id,
+            label: `${exam.name} (${new Date(exam.date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
+        }));
+    }
+
     loadExamResults(): void {
+        console.log('🔄 Loading started, isLoading =', true);
         this.isLoading = true;
         
         const filters: FilterParams = {
@@ -134,20 +148,25 @@ export class ExamResultsComponent implements OnInit {
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
-            dateFrom: this.selectedDateFrom || undefined,
-            dateTo: this.selectedDateTo || undefined,
+            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(",") : undefined,
             sortColumn: this.sortColumn || undefined,
             sortDirection: this.sortDirection || undefined
         };
 
+        console.log('📊 Exam Results Filters:', filters);
+        console.log('🎯 Selected Exam IDs:', this.selectedExamIds);
+
         this.examResultsService.getExamResults(filters).subscribe({
             next: (response) => {
+                console.log('✅ Exam Results Response:', response);
                 this.examResults = response.data;
                 this.totalCount = response.totalCount;
+                console.log('🏁 Loading finished, isLoading =', false);
                 this.isLoading = false;
             },
             error: (error) => {
                 console.error('Nəticələrin yüklənməsində xəta:', error);
+                console.log('❌ Loading error, isLoading =', false);
                 this.isLoading = false;
             }
         });
@@ -210,6 +229,27 @@ export class ExamResultsComponent implements OnInit {
         });
     }
 
+    loadExams(): void {
+        this.isLoadingExams = true;
+        const params: FilterParams = {
+            page: 1,
+            size: 1000,
+            sortColumn: 'date',
+            sortDirection: 'desc'
+        };
+
+        this.examService.getExams(params).subscribe({
+            next: (response: any) => {
+                this.exams = ResponseHandlerUtil.extractData<Exam[]>(response) || [];
+                this.isLoadingExams = false;
+            },
+            error: (err: any) => {
+                console.error('İmtahanların yüklənməsində xəta:', err);
+                this.isLoadingExams = false;
+            }
+        });
+    }
+
     onDistrictChange(districtIds: string[]): void {
         this.selectedDistrictIds = districtIds;
         this.selectedSchoolIds = [];
@@ -239,17 +279,18 @@ export class ExamResultsComponent implements OnInit {
         this.loadExamResults();
     }
 
+    onExamChange(examIds: string[]): void {
+        this.selectedExamIds = examIds;
+        this.pageIndex = 0;
+        this.loadExamResults();
+    }
+
     onSearch(): void {
         this.pageIndex = 0;
         this.loadExamResults();
     }
 
     onStudentCodeChange(): void {
-        this.pageIndex = 0;
-        this.loadExamResults();
-    }
-
-    onDateRangeChange(): void {
         this.pageIndex = 0;
         this.loadExamResults();
     }
@@ -281,8 +322,7 @@ export class ExamResultsComponent implements OnInit {
         this.selectedDistrictIds = [];
         this.selectedSchoolIds = [];
         this.selectedTeacherIds = [];
-        this.selectedDateFrom = '';
-        this.selectedDateTo = '';
+        this.selectedExamIds = [];
         this.schools = [];
         this.teachers = [];
         this.pageIndex = 0;

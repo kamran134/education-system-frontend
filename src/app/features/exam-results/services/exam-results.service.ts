@@ -26,6 +26,8 @@ export class ExamResultsService {
         let url = `${this.configService.getApiUrl()}/exam-results`;
         const queryParams: string[] = [];
         
+        console.log('🔍 ExamResultsService params:', params);
+        
         if (params.page && params.size) {
             queryParams.push(`page=${params.page}`);
             queryParams.push(`size=${params.size}`);
@@ -60,6 +62,11 @@ export class ExamResultsService {
             }
         }
         
+        if (params.examIds) {
+            // examIds уже приходит как строка с join(",") из компонента
+            queryParams.push(`examIds=${params.examIds}`);
+        }
+        
         if (params.dateFrom) {
             queryParams.push(`dateFrom=${params.dateFrom}`);
         }
@@ -76,6 +83,8 @@ export class ExamResultsService {
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
+        
+        console.log('🌐 Final URL:', url);
         
         return this.http.get<ApiResponse<ExamResultsResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response) as ExamResultsResponse));
