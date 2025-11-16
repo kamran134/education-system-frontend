@@ -165,7 +165,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     darkMode: boolean = false;
     searchString: string = '';
     sortDirection: 'asc' | 'desc' | '' = 'desc';
-    sortActive: string = 'averageScore';
+    sortActive: string = 'score';
 
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
     authorizedUserRole: string | null = null;
@@ -830,32 +830,32 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.loadStudentsOfMonthByRepublicStats();
         } else if (event.index === 3) {
             this.selectedTab = 'allStudents';
-            // Сбрасываем сортировку для рейтинга по умолчанию
-            this.sortActive = '';
-            this.sortDirection = 'asc';
+            // Сбрасываем сортировку для рейтинга по умолчанию (по баллу от большего к меньшему)
+            this.sortActive = 'score';
+            this.sortDirection = 'desc';
             // Для годовой статистики студентов тоже нужны фильтры
             this.loadSchools();
             this.loadTeachers();
             this.loadAllStudentsStats();
         } else if (event.index === 4) {
             this.selectedTab = 'allTeachers';
-            // Сбрасываем сортировку для рейтинга по умолчанию
-            this.sortActive = '';
-            this.sortDirection = 'asc';
+            // Сбрасываем сортировку для рейтинга по умолчанию (по баллу от большего к меньшему)
+            this.sortActive = 'score';
+            this.sortDirection = 'desc';
             // Для учителей нужны школы для фильтров
             this.loadSchools();
             this.loadTeachersStats();
         } else if (event.index === 5) {
             this.selectedTab = 'allSchools'
-            // Сбрасываем сортировку для рейтинга по умолчанию
-            this.sortActive = '';
-            this.sortDirection = 'asc';
+            // Сбрасываем сортировку для рейтинга по умолчанию (по баллу от большего к меньшему)
+            this.sortActive = 'score';
+            this.sortDirection = 'desc';
             this.loadSchoolsStats();
         } else if (event.index === 6) {
             this.selectedTab = 'allDistricts'
-            // Сбрасываем сортировку для рейтинга по умолчанию
-            this.sortActive = '';
-            this.sortDirection = 'asc';
+            // Сбрасываем сортировку для рейтинга по умолчанию (по баллу от большего к меньшему)
+            this.sortActive = 'score';
+            this.sortDirection = 'desc';
             this.loadDistrictsStats();
         }
     }
