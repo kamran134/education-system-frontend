@@ -52,7 +52,7 @@ export class ExamResultsComponent implements OnInit {
     // Pagination
     totalCount = 0;
     pageIndex = 0;
-    pageSize = 25;
+    pageSize = 1000;
     
     // Loading states
     isLoading = false;
@@ -263,6 +263,11 @@ export class ExamResultsComponent implements OnInit {
     onPageChange(event: { pageIndex: number; pageSize: number }): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
+        this.loadExamResults();
+    }
+
+    onPageSizeChange(): void {
+        this.pageIndex = 0; // Reset to first page when changing page size
         this.loadExamResults();
     }
 

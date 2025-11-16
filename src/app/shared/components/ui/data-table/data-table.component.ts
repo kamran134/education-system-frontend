@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-angular';
 import { ButtonComponent } from '../button/button.component';
 import { CardComponent } from '../card/card.component';
@@ -35,7 +36,7 @@ export interface PageSizeOption {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ButtonComponent, CardComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, CardComponent],
   template: `
     <app-card class="overflow-hidden">
       <!-- Table -->
@@ -157,8 +158,8 @@ export interface PageSizeOption {
             <div class="flex items-center space-x-2">
               <label class="text-sm text-gray-700">Səhifə ölçüsü:</label>
               <select 
-                [value]="pageSize"
-                (change)="onPageSizeChange($event)"
+                [(ngModel)]="pageSize"
+                (ngModelChange)="onPageSizeChange($event)"
                 class="block rounded-md border-gray-300 py-1 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
               >
                 <option *ngFor="let option of pageSizeOptions" [value]="option.value">
@@ -295,9 +296,7 @@ export class DataTableComponent {
     }
   }
 
-  onPageSizeChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const newPageSize = parseInt(target.value, 10);
+  onPageSizeChange(newPageSize: number): void {
     this.pageChanged.emit({
       pageIndex: 0, // Reset to first page when changing page size
       pageSize: newPageSize,
