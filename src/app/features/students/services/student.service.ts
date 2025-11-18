@@ -124,4 +124,10 @@ export class StudentService {
         return this.http.put<ApiResponse<ExamResult>>(url, result, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    deleteStudentResult(resultId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/student-results/${resultId}`;
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }

@@ -131,13 +131,19 @@ export class StudentDetailsComponent implements OnInit {
      */
     onEditResult(result: ExamResult): void {
         const dialogRef = this.dialog.open(ResultEditingDialogComponent, {
-            width: '800px',
-            data: { result }
+            width: '900px',
+            disableClose: false,
+            data: { 
+                result,
+                canDelete: true
+            }
         });
 
-        dialogRef.afterClosed().subscribe((editedResult: Partial<ExamResult> | undefined) => {
-            if (editedResult) {
-                this.updateResult(result._id, editedResult);
+        dialogRef.afterClosed().subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
+            if (response?.action === 'save' && response.data) {
+                this.updateResult(result._id, response.data);
+            } else if (response?.action === 'delete') {
+                this.deleteResult(result._id);
             }
         });
     }
@@ -153,6 +159,21 @@ export class StudentDetailsComponent implements OnInit {
             },
             error: (error: Error) => {
                 console.error('Nəticənin yenilənməsində xəta!', error);
+            }
+        });
+    }
+
+    /**
+     * Deletes a student result via API
+     */
+    private deleteResult(resultId: string): void {
+        this.studentService.deleteStudentResult(resultId).subscribe({
+            next: () => {
+                console.log('Nəticə uğurla silindi');
+                this.loadStudent(); // Reload to show updated data
+            },
+            error: (error: Error) => {
+                console.error('Nəticənin silinməsində xəta!', error);
             }
         });
     }

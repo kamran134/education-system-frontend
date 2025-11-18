@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ExamResultsService } from '../services/exam-results.service';
 import { ExamResult } from '../../../core/models/examResult.model';
 import { District } from '../../../core/models/district.model';
@@ -13,10 +14,12 @@ import { DistrictService } from '../../districts/services/district.service';
 import { SchoolService } from '../../schools/services/school.service';
 import { TeacherService } from '../../teachers/services/teacher.service';
 import { ExamService } from '../../exams/services/exam.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { ResultEditingDialogComponent } from '../../students/components/result-editing/result-editing-dialog.component';
 
 // UI Components
-import { LucideAngularModule, Search, Download, Filter, X } from 'lucide-angular';
+import { LucideAngularModule, Search, Download, Filter, X, Edit2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../shared/components/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../shared/components/ui/form-controls/select/select.component';
@@ -42,6 +45,7 @@ export class ExamResultsComponent implements OnInit {
     readonly Download = Download;
     readonly Filter = Filter;
     readonly X = X;
+    readonly Edit2 = Edit2;
     
     // Math for template
     readonly Math = Math;
@@ -87,7 +91,8 @@ export class ExamResultsComponent implements OnInit {
         { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
         { key: 'studentData.district.name', label: 'Rayon', sortable: true },
         { key: 'totalScore', label: 'Ümumi bal', sortable: true },
-        { key: 'level', label: 'Pillə', sortable: true }
+        { key: 'level', label: 'Pillə', sortable: true },
+        { key: 'actions', label: 'Əməliyyatlar', sortable: false }
     ];
 
     // Sort
@@ -99,7 +104,9 @@ export class ExamResultsComponent implements OnInit {
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService,
-        private examService: ExamService
+        private examService: ExamService,
+        private dialog: MatDialog,
+        private authService: AuthService
     ) {}
 
     ngOnInit(): void {
@@ -353,5 +360,42 @@ export class ExamResultsComponent implements OnInit {
     exportToExcel(): void {
         // TODO: Implement Excel export
         console.log('Excel export functionality will be implemented');
+    }
+
+    get canEditExamResults(): boolean {
+        return this.authService.canEditExamResults();
+    }
+
+    get canDeleteExamResults(): boolean {
+        return this.authService.canDeleteExamResults();
+    }
+
+    onEditResult(result: ExamResult): void {
+        const dialogRef = this.dialog.open(ResultEditingDialogComponent, {
+            width: '900px',
+            disableClose: false,
+            data: { result, canDelete: this.canDeleteExamResults }
+        });
+        dialogRef.afterClosed().subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
+            if (response?.action === 'save' && response.data) {
+                this.updateResult(result._id, response.data);
+            } else if (response?.action === 'delete') {
+                this.deleteResult(result._id);
+            }
+        });
+    }
+
+    private updateResult(resultId: string, editedResult: Partial<ExamResult>): void {
+        this.examResultsService.updateStudentResult(resultId, editedResult).subscribe({
+            next: () => { this.loadExamResults(); },
+            error: (error: any) => { console.error('Xəta!', error); }
+        });
+    }
+
+    private deleteResult(resultId: string): void {
+        this.examResultsService.deleteStudentResult(resultId).subscribe({
+            next: () => { this.loadExamResults(); },
+            error: (error: any) => { console.error('Xəta!', error); }
+        });
     }
 }

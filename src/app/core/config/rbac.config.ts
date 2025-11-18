@@ -49,6 +49,8 @@ export interface RolePermissions {
         canCreateExams: boolean;
         canEditExams: boolean;
         canDeleteExams: boolean;
+        canEditExamResults: boolean;
+        canDeleteExamResults: boolean;
     };
     
     // Фильтрация данных (для RBAC на бэкенде)
@@ -125,6 +127,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: true,
             canEditExams: true,
             canDeleteExams: true,
+            canEditExamResults: true,
+            canDeleteExamResults: true,
         },
         dataAccess: {
             seeAllDistricts: true,
@@ -192,6 +196,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: true,
             canEditExams: true,
             canDeleteExams: true,
+            canEditExamResults: true,
+            canDeleteExamResults: true,
         },
         dataAccess: {
             seeAllDistricts: true,
@@ -259,6 +265,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: true,
             canEditExams: true,
             canDeleteExams: false,      // НЕ МОЖЕТ УДАЛЯТЬ
+            canEditExamResults: true,   // МОЖЕТ РЕДАКТИРОВАТЬ РЕЗУЛЬТАТЫ
+            canDeleteExamResults: false,// НЕ МОЖЕТ УДАЛЯТЬ РЕЗУЛЬТАТЫ
         },
         dataAccess: {
             seeAllDistricts: true,
@@ -326,6 +334,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: false,
             canEditExams: false,
             canDeleteExams: false,
+            canEditExamResults: false,
+            canDeleteExamResults: false,
         },
         dataAccess: {
             seeAllDistricts: false,
@@ -394,6 +404,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: false,
             canEditExams: false,
             canDeleteExams: false,
+            canEditExamResults: false,
+            canDeleteExamResults: false,
         },
         dataAccess: {
             seeAllDistricts: false,
@@ -462,6 +474,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: false,
             canEditExams: false,
             canDeleteExams: false,
+            canEditExamResults: false,
+            canDeleteExamResults: false,
         },
         dataAccess: {
             seeAllDistricts: false,
@@ -530,6 +544,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: false,
             canEditExams: false,
             canDeleteExams: false,
+            canEditExamResults: false,
+            canDeleteExamResults: false,
         },
         dataAccess: {
             seeAllDistricts: false,

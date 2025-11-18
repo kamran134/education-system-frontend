@@ -90,13 +90,15 @@ export class ExamResultsService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response) as ExamResultsResponse));
     }
 
-    updateStudentResult(resultId: string, result: any): Observable<any> {
-        return this.http.put<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/${resultId}`, result)
+    updateStudentResult(resultId: string, result: Partial<ExamResult>): Observable<ExamResult> {
+        const url = `${this.configService.getApiUrl()}/student-results/${resultId}`;
+        return this.http.put<ApiResponse<ExamResult>>(url, result, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     deleteStudentResult(resultId: string): Observable<any> {
-        return this.http.delete<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/${resultId}`)
+        const url = `${this.configService.getApiUrl()}/student-results/${resultId}`;
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

@@ -164,6 +164,19 @@
                                 {{ result.level || 'Müəyyən edilməyib' }}
                             </span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <app-button
+                                *ngIf="canEditExamResults"
+                                variant="primary"
+                                size="sm"
+                                (clicked)="onEditResult(result)">
+                                <div class="flex items-center space-x-1.5">
+                                    <lucide-icon [img]="Edit2" class="w-4 h-4"></lucide-icon>
+                                    <span>Düzəliş et</span>
+                                </div>
+                            </app-button>
+                            <span *ngIf="!canEditExamResults" class="text-gray-400 text-sm">—</span>
+                        </td>
                     </tr>
                     
                     <!-- Empty state -->

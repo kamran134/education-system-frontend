@@ -87,7 +87,6 @@
                                     <span *ngIf="student.grade >= 5" class="text-xs text-gray-500">(Sual sayı)</span>
                                 </th>
                                 <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan üzrə uğuru</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Əməliyyatlar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,14 +135,6 @@
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                                     {{ formatStudentAchievements(result) || '' }}
-                                </td>
-                                <td class="px-4 py-3 text-sm border-b border-gray-100">
-                                    <button
-                                        (click)="onEditResult(result)"
-                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Redaktə et">
-                                        <lucide-icon [img]="Edit2" class="w-4 h-4"></lucide-icon>
-                                    </button>
                                 </td>
                             </tr>
                         </tbody>

@@ -158,6 +158,16 @@ export class AuthService {
         return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteStudents : false;
     }
 
+    canEditExamResults(): boolean {
+        const role = this.userRole.value as UserRole;
+        return role ? ROLE_PERMISSIONS[role]?.crud.canEditExamResults : false;
+    }
+
+    canDeleteExamResults(): boolean {
+        const role = this.userRole.value as UserRole;
+        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteExamResults : false;
+    }
+
     canCreateExams(): boolean {
         const role = this.userRole.value as UserRole;
         return role ? ROLE_PERMISSIONS[role]?.crud.canCreateExams : false;
