@@ -780,7 +780,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isUpdatingAll = false;
                 this.snackBar.open('Bütün tədris ili üçün statistika uğurla yeniləndi!', 'OK', this.matSnackConfig);
-                // Перезагружаем данные в зависимости от активного таба
                 this.loadMonthStudentsStats();
             },
             error: (error: Error) => {
