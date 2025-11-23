@@ -76,6 +76,7 @@ export class ExamResultsComponent implements OnInit {
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
     selectedExamIds: string[] = [];
+    selectedGrades: number[] = [];
     
     // Filter visibility
     showFilters = false;
@@ -143,6 +144,13 @@ export class ExamResultsComponent implements OnInit {
         }));
     }
 
+    get gradeOptions(): SelectOption[] {
+        return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(grade => ({
+            value: grade,
+            label: grade.toString()
+        }));
+    }
+
     loadExamResults(): void {
         console.log('🔄 Loading started, isLoading =', true);
         this.isLoading = true;
@@ -156,12 +164,15 @@ export class ExamResultsComponent implements OnInit {
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
             examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(",") : undefined,
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(",") : undefined,
             sortColumn: this.sortColumn || undefined,
             sortDirection: this.sortDirection || undefined
         };
 
         console.log('📊 Exam Results Filters:', filters);
         console.log('🎯 Selected Exam IDs:', this.selectedExamIds);
+        console.log('🎓 Selected Grades:', this.selectedGrades);
+        console.log('🎓 Grades string:', filters.grades);
 
         this.examResultsService.getExamResults(filters).subscribe({
             next: (response) => {
@@ -292,6 +303,12 @@ export class ExamResultsComponent implements OnInit {
         this.loadExamResults();
     }
 
+    onGradeChange(grades: number[]): void {
+        this.selectedGrades = grades;
+        this.pageIndex = 0;
+        this.loadExamResults();
+    }
+
     onSearch(): void {
         this.pageIndex = 0;
         this.loadExamResults();
@@ -330,6 +347,7 @@ export class ExamResultsComponent implements OnInit {
         this.selectedSchoolIds = [];
         this.selectedTeacherIds = [];
         this.selectedExamIds = [];
+        this.selectedGrades = [];
         this.schools = [];
         this.teachers = [];
         this.pageIndex = 0;

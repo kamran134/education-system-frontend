@@ -64,6 +64,16 @@
                 placeholder="İmtahanları seçin">
             </app-select>
 
+            <!-- Grade filter -->
+            <app-select
+                label="Siniflər"
+                [options]="gradeOptions"
+                [multiple]="true"
+                [(ngModel)]="selectedGrades"
+                (ngModelChange)="onGradeChange($event)"
+                placeholder="Sinifləri seçin">
+            </app-select>
+
             <!-- District filter -->
             <app-select
                 label="Rayonlar"
