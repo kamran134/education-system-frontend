@@ -83,6 +83,12 @@ export class ExamService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    updateExam(examId: string, exam: Partial<Exam>): Observable<Exam> {
+        const url: string = `${this.configService.getApiUrl()}/exams/${examId}`;
+        return this.http.put<ApiResponse<Exam>>(url, exam, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
     deleteAllExams(): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/exams`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })

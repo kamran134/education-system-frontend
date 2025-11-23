@@ -20,6 +20,7 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 
 // Dialogs
 import { ExamAddDialogComponent } from '../exam-add-dialog/exam-add-dialog.component';
+import { ExamEditingDialogComponent } from '../exam-editing-dialog/exam-editing-dialog.component';
 import { ExamResultDialogComponent } from '../exam-result-dialog/exam-result-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 
@@ -84,6 +85,13 @@ export class ExamsListComponent implements OnInit {
     ];
     
     tableActions: TableAction[] = [
+        {
+            key: 'edit',
+            label: 'Redaktə et',
+            icon: Edit,
+            variant: 'outline',
+            condition: () => this.authService.canEditExams()
+        },
         {
             key: 'view',
             label: 'Nəticələri yüklə',
@@ -156,6 +164,14 @@ export class ExamsListComponent implements OnInit {
         return this.authService.isAdminOrSuperAdmin();
     }
 
+    get canEditExams(): boolean {
+        return this.authService.canEditExams();
+    }
+
+    get canDeleteExams(): boolean {
+        return this.authService.canDeleteExams();
+    }
+
     toggleFilters(): void {
         this.filtersExpanded = !this.filtersExpanded;
     }
@@ -199,6 +215,9 @@ export class ExamsListComponent implements OnInit {
 
     onTableAction(event: { action: string; item: any }): void {
         switch (event.action) {
+            case 'edit':
+                this.onEditExam(event.item);
+                break;
             case 'view':
                 this.openExamDetails(event.item);
                 break;
@@ -276,6 +295,34 @@ export class ExamsListComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe(result => {
             // Handle any results from the dialog if needed
+        });
+    }
+
+    onEditExam(exam: Exam): void {
+        const dialogRef = this.dialog.open(ExamEditingDialogComponent, {
+            width: '600px',
+            disableClose: false,
+            data: {
+                exam: { ...exam },
+                isEditing: true,
+                canDelete: this.canDeleteExams
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result?.action === 'save') {
+                this.examService.updateExam(exam._id, result.data).subscribe({
+                    next: () => {
+                        this.snackBar.open('İmtahan uğurla redaktə edildi', 'OK', this.matSnackConfig);
+                        this.loadExams();
+                    },
+                    error: (err: any) => {
+                        this.snackBar.open('İmtahan redaktə edilməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    }
+                });
+            } else if (result?.action === 'delete') {
+                this.onExamDelete(exam);
+            }
         });
     }
 
