@@ -11,14 +11,12 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
-import { Exam } from '../../../../core/models/exam.model';
 
 // Services
 import { StudentService } from '../../services/student.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
-import { ExamService } from '../../../exams/services/exam.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
@@ -53,7 +51,6 @@ export class StudentsListComponent implements OnInit {
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
-    exams: Exam[] = [];
     
     // State
     isLoading = false;
@@ -74,7 +71,6 @@ export class StudentsListComponent implements OnInit {
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
     selectedGrades: number[] = [];
-    selectedExamIds: string[] = [];
     searchString: string = '';
     checkedDefective: boolean = false;
     teacherId: string | null = null;
@@ -85,7 +81,6 @@ export class StudentsListComponent implements OnInit {
     schoolOptions: SelectOption[] = [];
     teacherOptions: SelectOption[] = [];
     gradeOptions: SelectOption[] = [];
-    examOptions: SelectOption[] = [];
     
     // UI State
     filtersExpanded = false;
@@ -139,7 +134,6 @@ export class StudentsListComponent implements OnInit {
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService,
-        private examService: ExamService,
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
         private router: Router,
@@ -179,7 +173,6 @@ export class StudentsListComponent implements OnInit {
         });
         
         this.loadDistricts();
-        this.loadExams();
         this.loadStudents();
     }
 
@@ -267,10 +260,6 @@ export class StudentsListComponent implements OnInit {
         // Handle other filters
         if (filterData.grades !== undefined) {
             this.selectedGrades = filterData.grades || [];
-        }
-
-        if (filterData.exams !== undefined) {
-            this.selectedExamIds = filterData.exams || [];
         }
 
         if (filterData.search !== undefined) {
@@ -374,15 +363,16 @@ export class StudentsListComponent implements OnInit {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
-            districtIds: this.selectedDistrictIds.join(","),
-            schoolIds: this.selectedSchoolIds.join(","),
-            teacherIds: this.selectedTeacherIds.join(","),
-            grades: this.selectedGrades.join(","),
-            examIds: this.selectedExamIds.join(","),
+            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(",") : undefined,
+            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
+            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(",") : undefined,
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(",") : undefined,
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection,
             search: this.searchString || undefined
         };
+
+        console.log('📚 Students Filter Params:', params);
 
         this.isLoading = true;
         this.studentService.getStudents(params).subscribe({
@@ -471,27 +461,7 @@ export class StudentsListComponent implements OnInit {
         });
     }
 
-    loadExams(): void {
-        const params: FilterParams = {
-            page: 1,
-            size: 1000,
-            sortColumn: 'date',
-            sortDirection: 'desc'
-        };
 
-        this.examService.getExams(params).subscribe({
-            next: (response: any) => {
-                this.exams = ResponseHandlerUtil.extractData<Exam[]>(response) || [];
-                this.examOptions = this.exams.map(exam => ({
-                    value: exam._id,
-                    label: `${exam.name} (${new Date(exam.date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
-                }));
-            },
-            error: (err: any) => {
-                console.error('Error loading exams:', err);
-            }
-        });
-    }
 
     onStudentCreate(): void {
         const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
@@ -628,7 +598,6 @@ export class StudentsListComponent implements OnInit {
             schools: this.selectedSchoolIds,
             teachers: this.selectedTeacherIds,
             grades: this.selectedGrades,
-            exams: this.selectedExamIds,
             search: this.searchString,
             defective: this.checkedDefective
         };

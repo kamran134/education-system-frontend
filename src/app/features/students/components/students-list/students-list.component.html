@@ -76,20 +76,6 @@
               (ngModelChange)="onFilterChange({grades: $event})">
             </app-select>
           </div>
-        </div>
-
-        <!-- Third Row: Exams & Search -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Exams Filter -->
-          <div>
-            <app-select
-              label="İmtahanlar"
-              [multiple]="true"
-              [(ngModel)]="selectedExamIds"
-              [options]="examOptions"
-              (ngModelChange)="onFilterChange({exams: $event})">
-            </app-select>
-          </div>
 
           <!-- Search & Defective -->
           <div class="space-y-3">
@@ -126,10 +112,9 @@
         <span *ngIf="selectedSchoolIds.length > 0">{{ selectedSchoolIds.length }} məktəb, </span>
         <span *ngIf="selectedTeacherIds.length > 0">{{ selectedTeacherIds.length }} müəllim, </span>
         <span *ngIf="selectedGrades.length > 0">{{ selectedGrades.length }} sinif, </span>
-        <span *ngIf="selectedExamIds.length > 0">{{ selectedExamIds.length }} imtahan, </span>
         <span *ngIf="searchString">axtarış: "{{ searchString }}", </span>
         <span *ngIf="checkedDefective">qüsurlu şagirdlər, </span>
-        <span *ngIf="selectedDistrictIds.length === 0 && selectedSchoolIds.length === 0 && selectedTeacherIds.length === 0 && selectedGrades.length === 0 && selectedExamIds.length === 0 && !searchString && !checkedDefective">
+        <span *ngIf="selectedDistrictIds.length === 0 && selectedSchoolIds.length === 0 && selectedTeacherIds.length === 0 && selectedGrades.length === 0 && !searchString && !checkedDefective">
           Filtrlər tətbiq edilməyib
         </span>
       </div>
