@@ -167,6 +167,14 @@ export class StatsComponent implements OnInit, OnDestroy {
     sortDirection: 'asc' | 'desc' | '' = 'desc';
     sortActive: string = 'score';
 
+    // Navigation history for back button functionality
+    private navigationHistory: Array<{
+        tabIndex: number;
+        districtIds: string[];
+        schoolIds: string[];
+        teacherIds: string[];
+    }> = [];
+
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
     authorizedUserRole: string | null = null;
     
@@ -229,25 +237,35 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
 
                     // Map tab to correct tab index and load data
-                    if (this.selectedTab === 'developingStudents' || this.selectedTab === 'studentsOfMonth' || this.selectedTab === 'studentsOfMonthByRepublic') {
+                    if (this.selectedTab === 'developingStudents') {
                         this.selectedTabIndex = 0;
                         this.loadSchools();
                         this.loadTeachers();
-                        this.loadMonthStudentsStats();
-                    } else if (this.selectedTab === 'allStudents') {
+                        this.loadDevelopingStudentsStats();
+                    } else if (this.selectedTab === 'studentsOfMonth') {
                         this.selectedTabIndex = 1;
+                        this.loadSchools();
+                        this.loadTeachers();
+                        this.loadStudentsOfMonthStats();
+                    } else if (this.selectedTab === 'studentsOfMonthByRepublic') {
+                        this.selectedTabIndex = 2;
+                        this.loadSchools();
+                        this.loadTeachers();
+                        this.loadStudentsOfMonthByRepublicStats();
+                    } else if (this.selectedTab === 'allStudents') {
+                        this.selectedTabIndex = 3;
                         this.loadSchools();
                         this.loadTeachers();
                         this.loadAllStudentsStats();
                     } else if (this.selectedTab === 'allTeachers') {
-                        this.selectedTabIndex = 2;
+                        this.selectedTabIndex = 4;
                         this.loadSchools();
                         this.loadTeachersStats();
                     } else if (this.selectedTab === 'allSchools') {
-                        this.selectedTabIndex = 3;
+                        this.selectedTabIndex = 5;
                         this.loadSchoolsStats();
                     } else if (this.selectedTab === 'allDistricts') {
-                        this.selectedTabIndex = 4;
+                        this.selectedTabIndex = 6;
                         this.loadDistrictsStats();
                     }
 
@@ -1109,6 +1127,14 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     // Navigation between stats tabs with filtering
     onDistrictRowClick(districtId: string): void {
+        // Save current state to history before navigating
+        this.navigationHistory.push({
+            tabIndex: this.selectedTabIndex,
+            districtIds: [...this.selectedDistrictIds],
+            schoolIds: [...this.selectedSchoolIds],
+            teacherIds: [...this.selectedTeacherIds]
+        });
+
         // Navigate to Schools Year tab (index 5) with district filter
         this.selectedDistrictIds = [districtId];
         this.selectedSchoolIds = [];
@@ -1117,6 +1143,14 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     onSchoolRowClick(schoolId: string): void {
+        // Save current state to history before navigating
+        this.navigationHistory.push({
+            tabIndex: this.selectedTabIndex,
+            districtIds: [...this.selectedDistrictIds],
+            schoolIds: [...this.selectedSchoolIds],
+            teacherIds: [...this.selectedTeacherIds]
+        });
+
         // Navigate to Teachers Year tab (index 4) with school filter
         this.selectedSchoolIds = [schoolId];
         this.selectedTeacherIds = [];
@@ -1124,9 +1158,39 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     onTeacherRowClick(teacherId: string): void {
+        // Save current state to history before navigating
+        this.navigationHistory.push({
+            tabIndex: this.selectedTabIndex,
+            districtIds: [...this.selectedDistrictIds],
+            schoolIds: [...this.selectedSchoolIds],
+            teacherIds: [...this.selectedTeacherIds]
+        });
+
         // Navigate to Students Year tab (index 3) with teacher filter
         this.selectedTeacherIds = [teacherId];
         this.selectTab(3); // Students Year tab
+    }
+
+    // Check if we can navigate back
+    canGoBack(): boolean {
+        return this.navigationHistory.length > 0;
+    }
+
+    // Navigate back to previous tab with restored filters
+    goBack(): void {
+        if (this.navigationHistory.length === 0) {
+            return;
+        }
+
+        const previousState = this.navigationHistory.pop()!;
+        
+        // Restore filter state
+        this.selectedDistrictIds = previousState.districtIds;
+        this.selectedSchoolIds = previousState.schoolIds;
+        this.selectedTeacherIds = previousState.teacherIds;
+        
+        // Navigate to previous tab
+        this.selectTab(previousState.tabIndex);
     }
 
     ngOnDestroy(): void {

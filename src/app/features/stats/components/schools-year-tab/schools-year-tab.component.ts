@@ -35,11 +35,13 @@ export class SchoolsYearTabComponent {
     @Input() pageSize: number = 1000;
     @Input() pageIndex: number = 0;
     @Input() isLoading: boolean = false;
+    @Input() canGoBack: boolean = false;
 
     @Output() sortChanged = new EventEmitter<Sort>();
     @Output() pageChanged = new EventEmitter<PageEvent>();
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
+    @Output() backClicked = new EventEmitter<void>();
 
     private schoolService = inject(SchoolService);
     isUpdating = false;

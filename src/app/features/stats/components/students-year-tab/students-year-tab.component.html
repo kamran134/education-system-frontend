@@ -1,15 +1,25 @@
 <div>
-    <!-- Update button for students -->
-    <div class="mb-4 flex justify-end">
-        <app-button 
-            variant="secondary" 
-            (clicked)="updateStudentsStats()"
-            [disabled]="isUpdating">
-            <div class="flex items-center space-x-2">
-                <lucide-icon [img]="RefreshCw" [class]="isUpdating ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
-                <span>{{isUpdating ? 'Yenilənir...' : 'Şagirdlərin reytinqini yenilə'}}</span>
-            </div>
-        </app-button>
+    <!-- Back button and Update button -->
+    <div class="mb-4 flex justify-between items-center">
+        <button 
+            *ngIf="canGoBack"
+            mat-raised-button 
+            color="primary"
+            (click)="backClicked.emit()">
+            <mat-icon>arrow_back</mat-icon>
+            Geri
+        </button>
+        <div [class]="canGoBack ? '' : 'w-full flex justify-end'">
+            <app-button 
+                variant="secondary" 
+                (clicked)="updateStudentsStats()"
+                [disabled]="isUpdating">
+                <div class="flex items-center space-x-2">
+                    <lucide-icon [img]="RefreshCw" [class]="isUpdating ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
+                    <span>{{isUpdating ? 'Yenilənir...' : 'Şagirdlərin reytinqini yenilə'}}</span>
+                </div>
+            </app-button>
+        </div>
     </div>
 
     <table mat-table [dataSource]="dataSource" matSort (matSortChange)="sortChanged.emit($event)" class="mat-elevation-z8">

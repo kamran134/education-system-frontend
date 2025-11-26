@@ -105,10 +105,12 @@
                     [pageIndex]="pageIndex"
                     [pageSize]="studentsPageSize"
                     [isLoading]="isloading"
+                    [canGoBack]="canGoBack()"
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allStudents')"
                     (rowClicked)="openStudentDetails($event)"
+                    (backClicked)="goBack()"
                 ></app-students-year-tab>
             </div>
 
@@ -121,10 +123,12 @@
                     [pageIndex]="pageIndex"
                     [pageSize]="pageSize"
                     [isLoading]="isloading"
+                    [canGoBack]="canGoBack()"
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allTeachers')"
                     (rowClicked)="onTeacherRowClick($event)"
+                    (backClicked)="goBack()"
                 ></app-teachers-year-tab>
             </div>
 
@@ -137,10 +141,12 @@
                     [pageIndex]="pageIndex"
                     [pageSize]="pageSize"
                     [isLoading]="isloading"
+                    [canGoBack]="canGoBack()"
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allSchools')"
                     (rowClicked)="onSchoolRowClick($event)"
+                    (backClicked)="goBack()"
                 ></app-schools-year-tab>
             </div>
 
@@ -153,10 +159,12 @@
                     [pageIndex]="pageIndex"
                     [pageSize]="pageSize"
                     [isLoading]="isloading"
+                    [canGoBack]="canGoBack()"
                     (sortChanged)="onSortChange($event)"
                     (pageChanged)="onPageChange($event)"
                     (exportClicked)="exportToExcel('allDistricts')"
                     (rowClicked)="onDistrictRowClick($event)"
+                    (backClicked)="goBack()"
                 ></app-districts-year-tab>
             </div>
         </div>
