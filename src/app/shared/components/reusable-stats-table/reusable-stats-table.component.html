@@ -1,0 +1,30 @@
+<div>
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort (matSortChange)="sortChanged.emit($event)">
+        <ng-container *ngFor="let column of tableColumns" [matColumnDef]="column.key">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ column.title }} </th>
+            <td mat-cell *matCellDef="let row">
+                {{ column.valueFormatter ? column.valueFormatter(row) : row[column.key] }}
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="rowClicked.emit(row._id)" [class.clickable-row]="rowClicked.observed"></tr>
+    </table>
+
+    <div *ngIf="!isLoading && data.length > 0 && showPaginator">
+        <mat-paginator
+            [length]="totalCount"
+            [pageIndex]="pageIndex"
+            [showFirstLastButtons]="true"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[100, 1000]"
+            (page)="pageChanged.emit($event)">
+        </mat-paginator>
+    </div>
+
+    <div *ngIf="!isLoading && data.length > 0">
+        <button mat-raised-button (click)="exportClicked.emit()">
+            <mat-icon>file_download</mat-icon> Excel-ə eksport et
+        </button>
+    </div>
+</div>
