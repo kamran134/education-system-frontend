@@ -209,48 +209,45 @@ export class StatsComponent implements OnInit, OnDestroy {
                 // Не загружаем школы и учителей сразу, только по необходимости
 
                 this.route.queryParams.subscribe((params: Params) => {
-                    this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',') : [];
-                    this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',') : [];
-                    this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',') : [];
-                    this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number) : [];
-                    this.selectedExamIds = params['examIds'] ? params['examIds'].split(',') : [];
+                    // Restore filters
+                    this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+                    this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+                    this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+                    this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
+                    this.selectedExamIds = params['examIds'] ? params['examIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+                    this.searchString = params['search'] || '';
+                    
+                    // Restore month and tab
                     this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
                     this.selectedTab = params['tab'] || 'developingStudents';
+                    
+                    // Restore sort and pagination
                     this.sortActive = params['sortActive'] || 'averageScore';
                     this.sortDirection = params['sortDirection'] || 'desc';
                     this.pageSize = params['pageSize'] ? +params['pageSize'] : 1000;
                     this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : 1000;
                     this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
 
-                    if (this.selectedTab === 'developingStudents') {
+                    // Map tab to correct tab index and load data
+                    if (this.selectedTab === 'developingStudents' || this.selectedTab === 'studentsOfMonth' || this.selectedTab === 'studentsOfMonthByRepublic') {
                         this.selectedTabIndex = 0;
                         this.loadSchools();
                         this.loadTeachers();
                         this.loadMonthStudentsStats();
-                    } else if (this.selectedTab === 'studentsOfMonth') {
-                        this.selectedTabIndex = 1;
-                        this.loadSchools();
-                        this.loadTeachers();
-                        this.loadMonthStudentsStats();
-                    } else if (this.selectedTab === 'studentsOfMonthByRepublic') {
-                        this.selectedTabIndex = 2;
-                        this.loadSchools();
-                        this.loadTeachers();
-                        this.loadMonthStudentsStats();
                     } else if (this.selectedTab === 'allStudents') {
-                        this.selectedTabIndex = 3;
+                        this.selectedTabIndex = 1;
                         this.loadSchools();
                         this.loadTeachers();
                         this.loadAllStudentsStats();
                     } else if (this.selectedTab === 'allTeachers') {
-                        this.selectedTabIndex = 4;
+                        this.selectedTabIndex = 2;
                         this.loadSchools();
                         this.loadTeachersStats();
                     } else if (this.selectedTab === 'allSchools') {
-                        this.selectedTabIndex = 5;
+                        this.selectedTabIndex = 3;
                         this.loadSchoolsStats();
                     } else if (this.selectedTab === 'allDistricts') {
-                        this.selectedTabIndex = 6;
+                        this.selectedTabIndex = 4;
                         this.loadDistrictsStats();
                     }
 
@@ -941,11 +938,12 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     openStudentDetails(studentId: string): void {
         const queryParams = {
-            districtIds: this.selectedDistrictIds.join(","),
-            schoolIds: this.selectedSchoolIds.join(","),
-            teacherIds: this.selectedTeacherIds.join(","),
-            grades: this.selectedGrades.join(","),
-            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : '',
+            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(",") : undefined,
+            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
+            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(",") : undefined,
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(",") : undefined,
+            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
+            search: this.searchString || undefined,
             month: this.selectedMonth,
             source: 'stats',
             tab: this.selectedTab,
@@ -956,12 +954,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             pageIndex: this.pageIndex
         };
 
-        const navigationExtras: NavigationExtras = {
-            queryParams: queryParams,
-            replaceUrl: true
-        };
-
-        this.router.navigate(['/students', studentId], navigationExtras);
+        this.router.navigate(['/students', studentId], { queryParams });
     }
 
     onPageChange(event: PageEvent): void {

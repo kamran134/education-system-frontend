@@ -25,7 +25,7 @@ export interface BackButton {
   imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent, CardComponent],
   template: `
     <div class="min-h-screen bg-gray-50 py-6">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
         <nav class="mb-6 flex items-center gap-3">
           <button

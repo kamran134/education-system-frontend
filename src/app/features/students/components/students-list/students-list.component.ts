@@ -155,20 +155,34 @@ export class StudentsListComponent implements OnInit {
         
         // Restore state from query parameters if coming back
         this.route.queryParams.subscribe(queryParams => {
-            if (queryParams['studentPage'] !== undefined) {
-                this.pageIndex = parseInt(queryParams['studentPage']) || 0;
+            // Restore pagination
+            if (queryParams['pageIndex'] !== undefined) {
+                this.pageIndex = parseInt(queryParams['pageIndex']) || 0;
             }
-            if (queryParams['studentPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['studentPageSize']) || 1000;
+            if (queryParams['pageSize'] !== undefined) {
+                this.pageSize = parseInt(queryParams['pageSize']) || 1000;
             }
-            if (queryParams['selectedDistrictIds'] && !this.teacherId) {
-                this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
-            if (queryParams['selectedSchoolIds'] && !this.teacherId) {
-                this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
-            if (queryParams['selectedTeacherIds'] && !this.teacherId) {
-                this.selectedTeacherIds = queryParams['selectedTeacherIds'].split(',').filter((id: string) => id.trim() !== '');
+            
+            // Restore filters (only if not viewing teacher's students)
+            if (!this.teacherId) {
+                if (queryParams['districtIds']) {
+                    this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
+                }
+                if (queryParams['schoolIds']) {
+                    this.selectedSchoolIds = queryParams['schoolIds'].split(',').filter((id: string) => id.trim() !== '');
+                }
+                if (queryParams['teacherIds']) {
+                    this.selectedTeacherIds = queryParams['teacherIds'].split(',').filter((id: string) => id.trim() !== '');
+                }
+                if (queryParams['grades']) {
+                    this.selectedGrades = queryParams['grades'].split(',').map((g: string) => parseInt(g)).filter((g: number) => !isNaN(g));
+                }
+                if (queryParams['search']) {
+                    this.searchString = queryParams['search'];
+                }
+                if (queryParams['defective'] !== undefined) {
+                    this.checkedDefective = queryParams['defective'] === 'true';
+                }
             }
         });
         
@@ -594,12 +608,13 @@ export class StudentsListComponent implements OnInit {
         const queryParams = {
             pageIndex: this.pageIndex,
             pageSize: this.pageSize,
-            districts: this.selectedDistrictIds,
-            schools: this.selectedSchoolIds,
-            teachers: this.selectedTeacherIds,
-            grades: this.selectedGrades,
-            search: this.searchString,
-            defective: this.checkedDefective
+            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(',') : undefined,
+            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(',') : undefined,
+            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(',') : undefined,
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
+            search: this.searchString || undefined,
+            defective: this.checkedDefective ? 'true' : undefined,
+            source: 'students'
         };
 
         this.router.navigate(['/students', student._id], { queryParams });
