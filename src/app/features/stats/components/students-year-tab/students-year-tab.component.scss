@@ -1,0 +1,41 @@
+/* empty */
+
+.table-wrapper {
+	width: 100%;
+	display: block;
+}
+
+.table-container {
+	/* Make the table area adapt to viewport while keeping an internal scrollbar visible */
+	max-height: calc(100vh - 320px);
+	min-height: 220px;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	position: relative;
+	border-radius: 4px;
+}
+
+/* Ensure table can overflow horizontally when there are many columns */
+.table-container table {
+	width: 100%;
+	overflow: visible;
+}
+
+/* Slightly larger scrollbar for visibility on desktop */
+.table-container::-webkit-scrollbar {
+	height: 12px;
+	width: 12px;
+}
+.table-container::-webkit-scrollbar-thumb {
+	background: rgba(0,0,0,0.2);
+	border-radius: 6px;
+}
+.table-container::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+@media (max-height: 700px) {
+	.table-container {
+		max-height: calc(100vh - 240px);
+	}
+}
