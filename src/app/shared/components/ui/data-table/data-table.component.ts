@@ -39,9 +39,10 @@ export interface PageSizeOption {
   imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, CardComponent],
   template: `
     <app-card class="overflow-hidden">
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+      <!-- Table: make the table area vertically scrollable so horizontal scrollbar stays visible -->
+      <div class="overflow-auto" style="max-height: calc(100vh - 260px);">
+        <div style="min-width: 100%;">
+          <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th
@@ -139,8 +140,9 @@ export interface PageSizeOption {
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
-      
+
       <!-- Pagination -->
       <div *ngIf="totalCount > 0" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
