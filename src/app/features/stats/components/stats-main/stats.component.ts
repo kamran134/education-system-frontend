@@ -514,7 +514,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'averageScore',
+            sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             examIds: this.selectedExamIds.join(',') || '',
@@ -555,8 +555,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'place',
-            sortDirection: this.sortDirection || 'asc',
+            sortColumn: this.sortActive || 'score',
+            sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             examIds: this.selectedExamIds.join(',') || '',
         };
@@ -610,8 +610,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'place',
-            sortDirection: this.sortDirection || 'asc',
+            sortColumn: this.sortActive || 'score',
+            sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
         }
 
@@ -640,8 +640,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            sortColumn: this.sortActive || 'place',
-            sortDirection: this.sortDirection || 'asc',
+            sortColumn: this.sortActive || 'score',
+            sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
         }
 
@@ -664,8 +664,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
-            sortColumn: this.sortActive || 'place',
-            sortDirection: this.sortDirection || 'asc',
+            sortColumn: this.sortActive || 'score',
+            sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
         }
 
