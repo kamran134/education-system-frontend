@@ -403,16 +403,9 @@ export class StudentsListComponent implements OnInit {
     }
 
     loadDistricts(): void {
-        const params: FilterParams = {
-            page: 1,
-            size: 1000,
-            sortColumn: 'name',
-            sortDirection: 'asc'
-        };
-
-        this.districtService.getDistricts(params).subscribe({
-            next: (response: DistrictResponse) => {
-                this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
+        this.districtService.getDistrictsForFilter().subscribe({
+            next: (districts: any) => {
+                this.districts = districts || [];
                 this.districtOptions = this.districts.map(district => ({
                     value: district._id,
                     label: district.name
@@ -427,6 +420,7 @@ export class StudentsListComponent implements OnInit {
     loadSchools(): void {
         if (this.selectedDistrictIds.length === 0) {
             this.schools = [];
+            this.schoolOptions = [];
             return;
         }
 
@@ -435,8 +429,8 @@ export class StudentsListComponent implements OnInit {
         };
 
         this.schoolService.getSchoolsForFilter(params).subscribe({
-            next: (data: SchoolResponse) => {
-                this.schools = data.data || [];
+            next: (schools: any) => {
+                this.schools = schools || [];
                 this.schoolOptions = this.schools.map(school => ({
                     value: school._id,
                     label: school.name
@@ -451,6 +445,7 @@ export class StudentsListComponent implements OnInit {
     loadTeachers(): void {
         if (this.selectedSchoolIds.length === 0) {
             this.teachers = [];
+            this.teacherOptions = [];
             return;
         }
 
@@ -459,9 +454,8 @@ export class StudentsListComponent implements OnInit {
         };
 
         this.teacherService.getTeachersForFilter(params).subscribe({
-            next: (response: any) => {
-                const paginatedData = ResponseHandlerUtil.extractPaginatedData<Teacher>(response);
-                this.teachers = paginatedData.data || [];
+            next: (teachers: any) => {
+                this.teachers = teachers || [];
                 this.teacherOptions = this.teachers.map(teacher => ({
                     value: teacher._id,
                     label: teacher.fullname

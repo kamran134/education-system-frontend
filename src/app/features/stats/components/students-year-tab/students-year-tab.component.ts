@@ -23,7 +23,6 @@ import { StatsService } from '../../services/stats.service';
         MatButtonModule,
         MatIconModule,
         LucideAngularModule,
-        ButtonComponent,
         RoundNumberPipe
     ],
     templateUrl: './students-year-tab.component.html',

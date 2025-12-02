@@ -377,18 +377,13 @@ export class TeachersListComponent implements OnInit {
         }
 
         const params: FilterParams = {
-            districtIds: this.selectedDistrictIds.join(","),
-            page: 1,
-            size: 1000,
-            sortColumn: 'name',
-            sortDirection: 'asc'
-        }
+            districtIds: this.selectedDistrictIds.join(",")
+        };
 
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
-                next: (data: SchoolResponse) => {
-                    // Попробуем разные варианты структуры ответа
-                    this.schools = data.data || data || [];
+                next: (schools: any) => {
+                    this.schools = schools || [];
                     this.schoolOptions = this.schools.map(school => {
                         return {
                             value: school._id,

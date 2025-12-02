@@ -60,12 +60,19 @@ export class TeacherService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    getTeachersForFilter(params: FilterParams): Observable<TeacherResponse> {
+    getTeachersForFilter(params: FilterParams): Observable<Teacher[]> {
         let url: string = `${this.configService.getApiUrl()}/teachers/filter`;
+        const queryParams: string[] = [];
+        
         if (params.schoolIds && params.schoolIds.length > 0) {
-            url = `${url}?schoolIds=${params.schoolIds}`;
+            queryParams.push(`schoolIds=${params.schoolIds}`);
         }
-        return this.http.get<ApiResponse<TeacherResponse>>(url)
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
+        return this.http.get<ApiResponse<Teacher[]>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 

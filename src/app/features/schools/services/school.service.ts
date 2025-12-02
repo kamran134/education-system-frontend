@@ -55,12 +55,19 @@ export class SchoolService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    getSchoolsForFilter(params: FilterParams): Observable<SchoolResponse> {
+    getSchoolsForFilter(params: FilterParams): Observable<School[]> {
         let url: string = `${this.configService.getApiUrl()}/schools/filter`;
+        const queryParams: string[] = [];
+        
         if (params.districtIds) {
-            url = `${url}?districtIds=${params.districtIds}`;
+            queryParams.push(`districtIds=${params.districtIds}`);
         }
-        return this.http.get<ApiResponse<SchoolResponse>>(url)
+        
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+        
+        return this.http.get<ApiResponse<School[]>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 

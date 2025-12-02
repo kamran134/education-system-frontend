@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DistrictResponse } from '../../../core/models/district.model';
+import { District, DistrictResponse } from '../../../core/models/district.model';
 import { ConfigService } from '../../../core/services/config.service';
 import { ApiResponse } from '../../../core/models/response.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
@@ -37,6 +37,12 @@ export class DistrictService {
         }
         
         return this.http.get<ApiResponse<DistrictResponse>>(url)
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    getDistrictsForFilter(): Observable<District[]> {
+        const url: string = `${this.configService.getApiUrl()}/districts/filter`;
+        return this.http.get<ApiResponse<District[]>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
