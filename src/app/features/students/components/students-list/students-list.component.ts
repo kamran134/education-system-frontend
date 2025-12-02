@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Core models and services
 import { Student } from '../../../../core/models/student.model';
@@ -45,7 +47,7 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
     templateUrl: './students-list.component.html',
     styleUrls: ['./students-list.component.scss']
 })
-export class StudentsListComponent implements OnInit {
+export class StudentsListComponent implements OnInit, OnDestroy {
     // Data
     students: Student[] = [];
     districts: District[] = [];
@@ -74,6 +76,10 @@ export class StudentsListComponent implements OnInit {
     searchString: string = '';
     checkedDefective: boolean = false;
     teacherId: string | null = null;
+    
+    // Search debounce
+    private searchSubject = new Subject<string>();
+    private destroy$ = new Subject<void>();
     
     // Filter options
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -142,6 +148,7 @@ export class StudentsListComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupGradeOptions();
+        this.setupSearchDebounce();
         
         // Check if we're viewing students for a specific teacher
         this.route.params.subscribe(params => {
@@ -242,6 +249,22 @@ export class StudentsListComponent implements OnInit {
         }));
     }
 
+    private setupSearchDebounce(): void {
+        this.searchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(searchTerm => {
+            this.searchString = searchTerm;
+            this.pageIndex = 0;
+            this.loadStudents();
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     isAdminOrSuperAdmin(): boolean {
         return this.authService.isAdminOrSuperAdmin();
     }
@@ -277,7 +300,9 @@ export class StudentsListComponent implements OnInit {
         }
 
         if (filterData.search !== undefined) {
-            this.searchString = filterData.search || '';
+            // Emit to subject instead of directly loading
+            this.searchSubject.next(filterData.search || '');
+            return; // Don't call loadStudents, let the debounce handle it
         }
 
         if (filterData.defective !== undefined) {

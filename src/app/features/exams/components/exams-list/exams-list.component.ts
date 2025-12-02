@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Core models and services
 import { Exam, ExamResponse } from '../../../../core/models/exam.model';
@@ -38,7 +40,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
     templateUrl: './exams-list.component.html',
     styleUrls: ['./exams-list.component.scss']
 })
-export class ExamsListComponent implements OnInit {
+export class ExamsListComponent implements OnInit, OnDestroy {
     // Data
     exams: Exam[] = [];
     
@@ -56,6 +58,10 @@ export class ExamsListComponent implements OnInit {
     searchString: string = '';
     selectedYear: number | null = null;
     selectedMonth: number | null = null;
+    
+    // Search debounce
+    private searchSubject = new Subject<string>();
+    private destroy$ = new Subject<void>();
     
     // Filter options
     availableYears: number[] = [];
@@ -127,7 +133,24 @@ export class ExamsListComponent implements OnInit {
     ngOnInit(): void {
         this.setupActionButtons();
         this.generateYearOptions();
+        this.setupSearchDebounce();
         this.loadExams();
+    }
+
+    private setupSearchDebounce(): void {
+        this.searchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged()
+        ).subscribe(searchTerm => {
+            this.searchString = searchTerm;
+            this.pageIndex = 0;
+            this.loadExams();
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     private setupActionButtons(): void {
@@ -185,7 +208,9 @@ export class ExamsListComponent implements OnInit {
     onFilterChange(filterData: any): void {        
         // Handle search filter
         if (filterData.search !== undefined) {
-            this.searchString = filterData.search || '';
+            // Emit to subject instead of directly loading
+            this.searchSubject.next(filterData.search || '');
+            return; // Don't call loadExams, let the debounce handle it
         }
 
         // Handle year filter

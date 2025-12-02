@@ -698,8 +698,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
         this.teacherService.getTeachersForFilter(params)
             .subscribe({
-                next: (response: TeacherResponse) => {
-                    const data = ResponseHandlerUtil.extractData<Teacher[]>(response);
+                next: (data: Teacher[]) => {
                     this.teachers = Array.isArray(data) ? data : [];
                 },
                 error: (error: Error) => {
@@ -721,8 +720,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
-                next: (response: SchoolResponse) => {
-                    const data = ResponseHandlerUtil.extractData<School[]>(response);
+                next: (data: School[]) => {
                     this.schools = Array.isArray(data) ? data : [];
                 },
                 error: (error: Error) => {
