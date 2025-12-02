@@ -1,7 +1,9 @@
-import { Component, Input, Output, EventEmitter, forwardRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { ConnectedPosition } from '@angular/cdk/overlay';
 
 export interface SelectOption {
   value: any;
@@ -12,7 +14,7 @@ export interface SelectOption {
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, OverlayModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -21,7 +23,7 @@ export interface SelectOption {
     }
   ],
   template: `
-    <div class="relative">
+    <div class="relative" #selectContainer>
       <!-- Label -->
       <label *ngIf="label" [for]="id" class="block text-sm font-medium text-gray-700 mb-1">
         {{ label }}
@@ -32,6 +34,8 @@ export interface SelectOption {
       <div class="relative">
         <!-- Single Select -->
         <div *ngIf="!multiple" 
+             #selectTrigger="cdkOverlayOrigin"
+             cdkOverlayOrigin
              class="relative cursor-pointer" 
              (click)="toggleDropdown()"
              [class.ring-2]="isOpen"
@@ -55,6 +59,8 @@ export interface SelectOption {
 
         <!-- Multi Select -->
         <div *ngIf="multiple" 
+             #selectTrigger="cdkOverlayOrigin"
+             cdkOverlayOrigin
              class="relative cursor-pointer min-h-[40px]"
              (click)="toggleDropdown()"
              [class.ring-2]="isOpen"
@@ -90,40 +96,6 @@ export interface SelectOption {
             ></lucide-icon>
           </div>
         </div>
-
-        <!-- Dropdown -->
-        <div *ngIf="isOpen" 
-             class="absolute z-[100] mt-1 w-full rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-auto">
-          <div *ngIf="searchable" class="px-3 py-2 border-b border-gray-100">
-            <input
-              type="text"
-              [(ngModel)]="searchTerm"
-              placeholder="Axtarış..."
-              class="w-full text-sm border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
-              (click)="$event.stopPropagation()"
-            />
-          </div>
-          
-          <div *ngIf="filteredOptions.length === 0" class="px-3 py-2 text-sm text-gray-500">
-            Nəticə tapılmadı
-          </div>
-          
-          <div *ngFor="let option of filteredOptions; trackBy: trackByValue"
-               class="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 transition-colors"
-               [class.bg-primary-50]="isSelected(option.value)"
-               [class.text-primary-700]="isSelected(option.value)"
-               [class.text-gray-400]="option.disabled"
-               [class.cursor-not-allowed]="option.disabled"
-               (click)="selectOption(option)"
-          >
-            <div class="flex items-center justify-between">
-              <span>{{ option.label }}</span>
-              <div *ngIf="multiple && isSelected(option.value)" class="text-primary-600">
-                ✓
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Error Message -->
@@ -137,15 +109,57 @@ export interface SelectOption {
       </p>
     </div>
 
-    <!-- Overlay to close dropdown -->
-    <div *ngIf="isOpen" 
-         class="fixed inset-0 z-[90]" 
-         (click)="closeDropdown()">
-    </div>
+    <!-- CDK Overlay Dropdown -->
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="selectTrigger"
+      [cdkConnectedOverlayOpen]="isOpen"
+      [cdkConnectedOverlayHasBackdrop]="true"
+      [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+      (backdropClick)="closeDropdown()"
+      [cdkConnectedOverlayPositions]="overlayPositions"
+      [cdkConnectedOverlayMinWidth]="triggerWidth"
+    >
+      <div class="rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-auto mt-1">
+        <div *ngIf="searchable" class="px-3 py-2 border-b border-gray-100">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Axtarış..."
+            class="w-full text-sm border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
+            (click)="$event.stopPropagation()"
+          />
+        </div>
+        
+        <div *ngIf="filteredOptions.length === 0" class="px-3 py-2 text-sm text-gray-500">
+          Nəticə tapılmadı
+        </div>
+        
+        <div *ngFor="let option of filteredOptions; trackBy: trackByValue"
+             class="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 transition-colors"
+             [class.bg-primary-50]="isSelected(option.value)"
+             [class.text-primary-700]="isSelected(option.value)"
+             [class.text-gray-400]="option.disabled"
+             [class.cursor-not-allowed]="option.disabled"
+             (click)="selectOption(option)"
+        >
+          <div class="flex items-center justify-between">
+            <span>{{ option.label }}</span>
+            <div *ngIf="multiple && isSelected(option.value)" class="text-primary-600">
+              ✓
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
   `,
   styles: [`
     :host {
       display: block;
+    }
+    
+    ::ng-deep .cdk-overlay-transparent-backdrop {
+      background: transparent;
     }
   `]
 })
@@ -165,6 +179,9 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
 
   @Output() selectionChange = new EventEmitter<any>();
 
+  @ViewChild('selectTrigger') selectTrigger!: ElementRef;
+  @ViewChild('selectContainer') selectContainer!: ElementRef;
+
   // Icons
   readonly ChevronDown = ChevronDown;
   readonly X = X;
@@ -173,6 +190,26 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
   isOpen = false;
   searchTerm = '';
   private value: any = null;
+  
+  // Dropdown positioning for CDK Overlay
+  overlayPositions: ConnectedPosition[] = [
+    {
+      originX: 'start',
+      originY: 'bottom',
+      overlayX: 'start',
+      overlayY: 'top',
+      offsetY: 4
+    },
+    {
+      originX: 'start',
+      originY: 'top',
+      overlayX: 'start',
+      overlayY: 'bottom',
+      offsetY: -4
+    }
+  ];
+  
+  triggerWidth = 0;
   
   // ControlValueAccessor
   private onChange = (value: any) => {};
@@ -212,6 +249,10 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
       this.onTouched();
+      // Set trigger width for overlay
+      if (this.selectTrigger && this.selectTrigger.nativeElement) {
+        this.triggerWidth = this.selectTrigger.nativeElement.offsetWidth;
+      }
     }
   }
 
