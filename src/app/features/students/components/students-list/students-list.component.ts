@@ -171,37 +171,47 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 this.pageSize = parseInt(queryParams['pageSize']) || 1000;
             }
             
-            // Restore filters (only if not viewing teacher's students)
-            if (!this.teacherId) {
-                if (queryParams['districtIds']) {
-                    this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
-                }
-                if (queryParams['schoolIds']) {
-                    this.selectedSchoolIds = queryParams['schoolIds'].split(',').filter((id: string) => id.trim() !== '');
-                }
-                if (queryParams['teacherIds']) {
-                    this.selectedTeacherIds = queryParams['teacherIds'].split(',').filter((id: string) => id.trim() !== '');
-                }
-                if (queryParams['grades']) {
-                    this.selectedGrades = queryParams['grades'].split(',').map((g: string) => parseInt(g)).filter((g: number) => !isNaN(g));
-                }
-                if (queryParams['search']) {
-                    this.searchString = queryParams['search'];
-                }
-                if (queryParams['defective'] !== undefined) {
-                    this.checkedDefective = queryParams['defective'] === 'true';
+            // Restore filters from query params (for display purposes)
+            if (queryParams['districtIds']) {
+                this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['schoolIds']) {
+                this.selectedSchoolIds = queryParams['schoolIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['teacherIds'] && !this.teacherId) {
+                // Only restore teacherIds filter if not viewing specific teacher's students
+                this.selectedTeacherIds = queryParams['teacherIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['grades']) {
+                this.selectedGrades = queryParams['grades'].split(',').map((g: string) => parseInt(g)).filter((g: number) => !isNaN(g));
+            }
+            if (queryParams['search']) {
+                this.searchString = queryParams['search'];
+            }
+            if (queryParams['defective'] !== undefined) {
+                this.checkedDefective = queryParams['defective'] === 'true';
+            }
+            
+            // Load districts first, then cascade load schools and teachers if needed
+            this.loadDistricts();
+            
+            // After districts loaded, cascade load schools and teachers based on restored filters
+            if (this.selectedDistrictIds.length > 0) {
+                this.loadSchools();
+                
+                // If schools are selected, load teachers too
+                if (this.selectedSchoolIds.length > 0) {
+                    this.loadTeachers();
                 }
             }
+            
+            // Trigger initial data load through search subject if search exists, otherwise direct load
+            if (this.searchString) {
+                this.searchSubject.next(this.searchString);
+            } else {
+                this.loadStudents();
+            }
         });
-        
-        this.loadDistricts();
-        
-        // Trigger initial load through search subject if search exists, otherwise direct load
-        if (this.searchString) {
-            this.searchSubject.next(this.searchString);
-        } else {
-            this.loadStudents();
-        }
     }
 
     private setupActionButtons(): void {
@@ -343,43 +353,50 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     }
 
     goBack(): void {
-        // If we came from a teacher, navigate back to teachers with preserved state
-        if (this.teacherId) {
-            this.route.queryParams.subscribe(params => {
-                const queryParams: any = {};
-                
-                // Preserve all previous states
-                if (params['districtPage'] !== undefined) {
-                    queryParams.districtPage = params['districtPage'];
-                }
-                if (params['districtPageSize'] !== undefined) {
-                    queryParams.districtPageSize = params['districtPageSize'];
-                }
-                if (params['schoolPage'] !== undefined) {
-                    queryParams.schoolPage = params['schoolPage'];
-                }
-                if (params['schoolPageSize'] !== undefined) {
-                    queryParams.schoolPageSize = params['schoolPageSize'];
-                }
-                if (params['teacherPage'] !== undefined) {
-                    queryParams.teacherPage = params['teacherPage'];
-                }
-                if (params['teacherPageSize'] !== undefined) {
-                    queryParams.teacherPageSize = params['teacherPageSize'];
-                }
-                if (params['selectedDistrictIds']) {
-                    queryParams.selectedDistrictIds = params['selectedDistrictIds'];
-                }
-                if (params['selectedSchoolIds']) {
-                    queryParams.selectedSchoolIds = params['selectedSchoolIds'];
-                }
-                
+        this.route.queryParams.subscribe(params => {
+            const queryParams: any = {};
+            
+            // Preserve all previous states
+            if (params['districtPage'] !== undefined) {
+                queryParams.districtPage = params['districtPage'];
+            }
+            if (params['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = params['districtPageSize'];
+            }
+            if (params['schoolPage'] !== undefined) {
+                queryParams.schoolPage = params['schoolPage'];
+            }
+            if (params['schoolPageSize'] !== undefined) {
+                queryParams.schoolPageSize = params['schoolPageSize'];
+            }
+            if (params['teacherPage'] !== undefined) {
+                queryParams.teacherPage = params['teacherPage'];
+            }
+            if (params['teacherPageSize'] !== undefined) {
+                queryParams.teacherPageSize = params['teacherPageSize'];
+            }
+            if (params['selectedDistrictIds']) {
+                queryParams.selectedDistrictIds = params['selectedDistrictIds'];
+            }
+            if (params['selectedSchoolIds']) {
+                queryParams.selectedSchoolIds = params['selectedSchoolIds'];
+            }
+            if (params['fromSchoolId']) {
+                queryParams.fromSchoolId = params['fromSchoolId'];
+            }
+            if (params['fromDistrictId']) {
+                queryParams.fromDistrictId = params['fromDistrictId'];
+            }
+            
+            // Check if we came from a specific teacher (via route param)
+            if (this.teacherId) {
+                // Go back to teachers list
                 this.router.navigate(['/teachers'], { queryParams });
-            });
-        } else {
-            // Otherwise, go to home page
-            this.router.navigate(['/']);
-        }
+            } else {
+                // Otherwise, go to home page
+                this.router.navigate(['/']);
+            }
+        });
     }
 
     onFileUpload(): void {
@@ -629,19 +646,54 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
     onStudentView(student: Student): void {
         // Сохраняем текущие параметры фильтров и пагинации для возврата
-        const queryParams = {
-            pageIndex: this.pageIndex,
-            pageSize: this.pageSize,
-            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(',') : undefined,
-            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(',') : undefined,
-            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(',') : undefined,
-            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
-            search: this.searchString || undefined,
-            defective: this.checkedDefective ? 'true' : undefined,
-            source: 'students'
-        };
+        this.route.queryParams.subscribe(currentParams => {
+            const queryParams: any = {
+                pageIndex: this.pageIndex,
+                pageSize: this.pageSize,
+                districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(',') : undefined,
+                schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(',') : undefined,
+                teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(',') : undefined,
+                grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
+                search: this.searchString || undefined,
+                defective: this.checkedDefective ? 'true' : undefined,
+                source: 'students'
+            };
+            
+            // Preserve all previous pagination states
+            if (currentParams['districtPage'] !== undefined) {
+                queryParams.districtPage = currentParams['districtPage'];
+            }
+            if (currentParams['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = currentParams['districtPageSize'];
+            }
+            if (currentParams['schoolPage'] !== undefined) {
+                queryParams.schoolPage = currentParams['schoolPage'];
+            }
+            if (currentParams['schoolPageSize'] !== undefined) {
+                queryParams.schoolPageSize = currentParams['schoolPageSize'];
+            }
+            if (currentParams['teacherPage'] !== undefined) {
+                queryParams.teacherPage = currentParams['teacherPage'];
+            }
+            if (currentParams['teacherPageSize'] !== undefined) {
+                queryParams.teacherPageSize = currentParams['teacherPageSize'];
+            }
+            if (currentParams['selectedDistrictIds']) {
+                queryParams.selectedDistrictIds = currentParams['selectedDistrictIds'];
+            }
+            if (currentParams['selectedSchoolIds']) {
+                queryParams.selectedSchoolIds = currentParams['selectedSchoolIds'];
+            }
+            // Preserve the chain
+            if (currentParams['fromSchoolId']) {
+                queryParams.fromSchoolId = currentParams['fromSchoolId'];
+            }
+            if (currentParams['fromDistrictId']) {
+                queryParams.fromDistrictId = currentParams['fromDistrictId'];
+            }
 
-        this.router.navigate(['/students', student._id], { queryParams });
+            this.router.navigate(['/students', student._id], { queryParams });
+        });
     }
 
     onStudentsRepair(): void {

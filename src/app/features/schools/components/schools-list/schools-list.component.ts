@@ -122,8 +122,9 @@ export class SchoolsListComponent implements OnInit {
             if (queryParams['schoolPageSize'] !== undefined) {
                 this.pageSize = parseInt(queryParams['schoolPageSize']) || 100;
             }
-            if (queryParams['selectedDistrictIds'] && !this.districtId) {
-                // Only restore district selection if not in filtered view
+            
+            // Restore district selection (for display purposes)
+            if (queryParams['selectedDistrictIds']) {
                 this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
             }
         });
@@ -312,7 +313,8 @@ export class SchoolsListComponent implements OnInit {
         const queryParams: any = {
             schoolPage: this.pageIndex,
             schoolPageSize: this.pageSize,
-            selectedDistrictIds: this.selectedDistrictIds.join(',')
+            selectedDistrictIds: this.selectedDistrictIds.join(','),
+            fromSchoolId: school._id  // Remember which school we're viewing
         };
         
         // If we came from districts, preserve district state
@@ -323,6 +325,9 @@ export class SchoolsListComponent implements OnInit {
             if (currentParams['districtPageSize'] !== undefined) {
                 queryParams.districtPageSize = currentParams['districtPageSize'];
             }
+            if (this.districtId) {
+                queryParams.fromDistrictId = this.districtId;  // Remember which district
+            }
         });
         
         this.router.navigate(['/schools', school._id, 'teachers'], { 
@@ -331,22 +336,28 @@ export class SchoolsListComponent implements OnInit {
     }
 
     goBack(): void {
-        // If we came from a district, navigate back to districts with preserved state
-        if (this.districtId) {
-            this.route.queryParams.subscribe(params => {
-                const queryParams: any = {};
-                if (params['districtPage'] !== undefined) {
-                    queryParams.districtPage = params['districtPage'];
-                }
-                if (params['districtPageSize'] !== undefined) {
-                    queryParams.districtPageSize = params['districtPageSize'];
-                }
+        this.route.queryParams.subscribe(params => {
+            const queryParams: any = {};
+            
+            // Preserve pagination
+            if (params['districtPage'] !== undefined) {
+                queryParams.districtPage = params['districtPage'];
+            }
+            if (params['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = params['districtPageSize'];
+            }
+            
+            // Check if we came from districts (either via route param or query param)
+            const fromDistrictId = this.districtId || params['fromDistrictId'];
+            
+            if (fromDistrictId) {
+                // Go back to districts LIST, not to specific district's schools
                 this.router.navigate(['/districts'], { queryParams });
-            });
-        } else {
-            // Otherwise, go to home page
-            this.router.navigate(['/']);
-        }
+            } else {
+                // Otherwise, go to home page
+                this.router.navigate(['/']);
+            }
+        });
     }
 
     onSchoolEdit(school: School): void {

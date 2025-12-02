@@ -147,19 +147,29 @@ export class TeachersListComponent implements OnInit {
             if (queryParams['teacherPageSize'] !== undefined) {
                 this.pageSize = parseInt(queryParams['teacherPageSize']) || 1000;
             }
-            if (queryParams['selectedDistrictIds'] && !this.schoolId) {
-                // Only restore district selection if not in filtered view
+            
+            // Restore district selection (for display purposes)
+            if (queryParams['selectedDistrictIds']) {
                 this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
             }
+            
+            // Restore school selection only if not in filtered view
             if (queryParams['selectedSchoolIds'] && !this.schoolId) {
-                // Only restore school selection if not in filtered view
                 this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
             }
+            
+            // Load districts first, then cascade load schools if needed
+            this.loadDistricts();
+            
+            // After districts loaded, cascade load schools based on restored filters
+            if (this.selectedDistrictIds.length > 0) {
+                this.loadSchools();
+            }
+            
+            this.loadTeachers();
         });
         
         this.setupFilters();
-        this.loadDistricts();
-        this.loadTeachers();
     }
 
     isAdminOrSuperAdmin(): boolean {
@@ -304,6 +314,13 @@ export class TeachersListComponent implements OnInit {
             if (currentParams['schoolPageSize'] !== undefined) {
                 queryParams.schoolPageSize = currentParams['schoolPageSize'];
             }
+            // Preserve the chain of IDs
+            if (this.schoolId) {
+                queryParams.fromSchoolId = this.schoolId;
+            }
+            if (currentParams['fromDistrictId']) {
+                queryParams.fromDistrictId = currentParams['fromDistrictId'];
+            }
         });
         
         this.router.navigate(['/teachers', teacher._id, 'students'], { 
@@ -312,34 +329,40 @@ export class TeachersListComponent implements OnInit {
     }
 
     goBack(): void {
-        // If we came from a school, navigate back to schools with preserved state
-        if (this.schoolId) {
-            this.route.queryParams.subscribe(params => {
-                const queryParams: any = {};
-                
-                // Preserve all previous states
-                if (params['districtPage'] !== undefined) {
-                    queryParams.districtPage = params['districtPage'];
-                }
-                if (params['districtPageSize'] !== undefined) {
-                    queryParams.districtPageSize = params['districtPageSize'];
-                }
-                if (params['schoolPage'] !== undefined) {
-                    queryParams.schoolPage = params['schoolPage'];
-                }
-                if (params['schoolPageSize'] !== undefined) {
-                    queryParams.schoolPageSize = params['schoolPageSize'];
-                }
-                if (params['selectedDistrictIds']) {
-                    queryParams.selectedDistrictIds = params['selectedDistrictIds'];
-                }
-                
+        this.route.queryParams.subscribe(params => {
+            const queryParams: any = {};
+            
+            // Preserve all pagination states
+            if (params['districtPage'] !== undefined) {
+                queryParams.districtPage = params['districtPage'];
+            }
+            if (params['districtPageSize'] !== undefined) {
+                queryParams.districtPageSize = params['districtPageSize'];
+            }
+            if (params['schoolPage'] !== undefined) {
+                queryParams.schoolPage = params['schoolPage'];
+            }
+            if (params['schoolPageSize'] !== undefined) {
+                queryParams.schoolPageSize = params['schoolPageSize'];
+            }
+            if (params['selectedDistrictIds']) {
+                queryParams.selectedDistrictIds = params['selectedDistrictIds'];
+            }
+            if (params['fromDistrictId']) {
+                queryParams.fromDistrictId = params['fromDistrictId'];
+            }
+            
+            // Check if we came from schools (either via route param or query param)
+            const fromSchoolId = this.schoolId || params['fromSchoolId'];
+            
+            if (fromSchoolId) {
+                // Go back to schools LIST, not to specific school's teachers
                 this.router.navigate(['/schools'], { queryParams });
-            });
-        } else {
-            // Otherwise, go to home page
-            this.router.navigate(['/']);
-        }
+            } else {
+                // Otherwise, go to home page
+                this.router.navigate(['/']);
+            }
+        });
     }
 
     loadTeachers(): void {
