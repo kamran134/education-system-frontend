@@ -84,8 +84,8 @@
               <label class="block text-sm font-medium text-gray-700 mb-1">Axtarış</label>
               <input 
                 type="text" 
-                [(ngModel)]="searchString" 
-                (input)="onFilterChange({search: searchString})"
+                [value]="searchString" 
+                (input)="onFilterChange({search: $any($event.target).value})"
                 placeholder="Şagird adı, soyadı və ya kodu ilə axtarış..."
                 class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
             </div>

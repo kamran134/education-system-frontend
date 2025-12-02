@@ -80,6 +80,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     // Search debounce
     private searchSubject = new Subject<string>();
     private destroy$ = new Subject<void>();
+    private isSearching = false;
     
     // Filter options
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -194,7 +195,13 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         });
         
         this.loadDistricts();
-        this.loadStudents();
+        
+        // Trigger initial load through search subject if search exists, otherwise direct load
+        if (this.searchString) {
+            this.searchSubject.next(this.searchString);
+        } else {
+            this.loadStudents();
+        }
     }
 
     private setupActionButtons(): void {

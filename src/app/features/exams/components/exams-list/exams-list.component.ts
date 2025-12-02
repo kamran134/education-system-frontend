@@ -134,7 +134,13 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         this.setupActionButtons();
         this.generateYearOptions();
         this.setupSearchDebounce();
-        this.loadExams();
+        
+        // Trigger initial load through search subject if search exists, otherwise direct load
+        if (this.searchString) {
+            this.searchSubject.next(this.searchString);
+        } else {
+            this.loadExams();
+        }
     }
 
     private setupSearchDebounce(): void {
