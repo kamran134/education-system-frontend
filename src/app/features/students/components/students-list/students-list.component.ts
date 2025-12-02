@@ -594,7 +594,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             width: '400px',
             data: {
                 title: 'Şagirdi sil',
-                text: 'Bu şagirdi silmək istədiyinizə əminsinizmi?'
+                text: 'Bu şagirdi silmək istədiyinizə əminsinizmi?\n\nDİQQƏT!\nŞagird silinərkən onun bütün nəticələri də silinəcək!'
             }
         });
 
@@ -620,10 +620,10 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
     onAllStudentsDelete(): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
-            width: '350px',
+            width: '400px',
             data: { 
                 title: 'Silinməyə razılıq', 
-                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?' 
+                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?\n\nDİQQƏT!\nŞagirdlər silinərkən onların bütün nəticələri də silinəcək!' 
             }
         });
 
