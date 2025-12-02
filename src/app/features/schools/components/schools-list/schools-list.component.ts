@@ -17,7 +17,7 @@ import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
+import { FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
@@ -159,12 +159,12 @@ export class SchoolsListComponent implements OnInit {
                     action: () => this.onFileUpload(),
                     variant: 'secondary'
                 },
-                {
-                    label: 'Statistikanı yenilə',
-                    icon: this.RefreshCw,
-                    action: () => this.onUpdateSchoolsStats(),
-                    variant: 'secondary'
-                }
+                // {
+                //     label: 'Reytinqləri yenilə',
+                //     icon: this.RefreshCw,
+                //     action: () => this.onUpdateSchoolsStats(),
+                //     variant: 'secondary'
+                // }
             );
         }
         
@@ -173,10 +173,9 @@ export class SchoolsListComponent implements OnInit {
                 label: 'Ekranda olanları sil',
                 icon: this.Trash,
                 action: () => this.onAllSchoolsDelete(),
-                variant: 'secondary'
+                variant: 'secondary',
             });
         }
-        console.log('Final actionButtons array:', this.actionButtons);
     }
 
     isAdminOrSuperAdmin(): boolean {

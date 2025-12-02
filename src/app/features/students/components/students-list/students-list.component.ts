@@ -6,7 +6,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 
 // Core models and services
-import { Student, StudentResponse } from '../../../../core/models/student.model';
+import { Student } from '../../../../core/models/student.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
@@ -385,8 +385,6 @@ export class StudentsListComponent implements OnInit {
             sortDirection: this.sortDirection,
             search: this.searchString || undefined
         };
-
-        console.log('📚 Students Filter Params:', params);
 
         this.isLoading = true;
         this.studentService.getStudents(params).subscribe({

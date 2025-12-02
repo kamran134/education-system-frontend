@@ -20,7 +20,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { AdvancedFiltersComponent, FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
+import { FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
@@ -198,12 +198,12 @@ export class TeachersListComponent implements OnInit {
                     action: () => this.onTeachersRepair(),
                     variant: 'secondary'
                 },
-                {
-                    label: 'Statistikanı yenilə',
-                    icon: this.RefreshCw,
-                    action: () => this.onUpdateTeachersStats(),
-                    variant: 'secondary'
-                }
+                // {
+                //     label: 'Reytinqləri yenilə',
+                //     icon: this.RefreshCw,
+                //     action: () => this.onUpdateTeachersStats(),
+                //     variant: 'secondary'
+                // }
             );
         }
         
@@ -244,10 +244,8 @@ export class TeachersListComponent implements OnInit {
     }
 
     onDistrictChange(selectedDistricts: string[]): void {
-        console.log('🎯 onDistrictChange called with:', selectedDistricts);
         this.selectedDistrictIds = selectedDistricts || [];
         this.selectedSchoolIds = []; // Clear school selection when districts change
-        console.log('🔄 About to call loadSchools...');
         this.loadSchools(); // Reload schools for selected districts
         
         // Reset pagination and reload data
@@ -372,11 +370,9 @@ export class TeachersListComponent implements OnInit {
     }
 
     loadSchools(): void {
-        console.log('📚 loadSchools called with selectedDistrictIds:', this.selectedDistrictIds);
         if (this.selectedDistrictIds.length === 0) {
             this.schools = [];
             this.schoolOptions = [];
-            console.log('❌ No districts selected, clearing schools');
             return;
         }
 
@@ -388,26 +384,17 @@ export class TeachersListComponent implements OnInit {
             sortDirection: 'asc'
         }
 
-        console.log('📞 Calling schoolService.getSchoolsForFilter with params:', params);
         this.schoolService.getSchoolsForFilter(params)
             .subscribe({
                 next: (data: SchoolResponse) => {
-                    console.log('✅ Schools response received:', data);
-                    console.log('📊 data.data:', data.data);
-                    console.log('🔍 Direct data:', data);
-                    
                     // Попробуем разные варианты структуры ответа
                     this.schools = data.data || data || [];
-                    console.log('🏗️ this.schools after assignment:', this.schools);
-                    
                     this.schoolOptions = this.schools.map(school => {
-                        console.log('🏫 Processing school:', school);
                         return {
                             value: school._id,
                             label: school.name
                         };
                     });
-                    console.log('🏫 Updated schoolOptions:', this.schoolOptions);
                 },
                 error: (err: any) => {
                     this.isLoading = false;

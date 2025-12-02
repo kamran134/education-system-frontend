@@ -3,9 +3,6 @@ import { Component, OnInit } from '@angular/core';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../services/district.service';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { DistrictEditingDialogComponent } from '../district-editing-dialog/district-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
@@ -128,16 +125,16 @@ export class DistrictsListComponent implements OnInit {
             });
         }
         
-        if (this.isAdminOrSuperAdmin()) {
-            this.actionButtons.push({
-                label: 'Statistikanı yenilə',
-                icon: this.RefreshCw,
-                action: () => this.onUpdateDistrictsStats(),
-                variant: 'secondary',
-                loading: this.isUpdatingStats,
-                disabled: this.isUpdatingStats
-            });
-        }
+        // if (this.isAdminOrSuperAdmin()) {
+        //     this.actionButtons.push({
+        //         label: 'Reytinqləri yenilə',
+        //         icon: this.RefreshCw,
+        //         action: () => this.onUpdateDistrictsStats(),
+        //         variant: 'secondary',
+        //         loading: this.isUpdatingStats,
+        //         disabled: this.isUpdatingStats
+        //     });
+        // }
     }
 
     isAdminOrSuperAdmin(): boolean {
