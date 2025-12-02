@@ -142,14 +142,14 @@ export class ExamsListComponent implements OnInit {
             });
         }
         
-        if (this.authService.canDeleteExams() && this.isAdminOrSuperAdmin()) {
-            this.actionButtons.push({
-                label: 'Bütün imtahanları sil',
-                icon: this.Trash2,
-                action: () => this.onAllExamsDelete(),
-                variant: 'secondary'
-            });
-        }
+        // if (this.authService.canDeleteExams() && this.isAdminOrSuperAdmin()) {
+        //     this.actionButtons.push({
+        //         label: 'Bütün imtahanları sil',
+        //         icon: this.Trash2,
+        //         action: () => this.onAllExamsDelete(),
+        //         variant: 'secondary'
+        //     });
+        // }
     }
 
     private generateYearOptions(): void {
@@ -182,34 +182,24 @@ export class ExamsListComponent implements OnInit {
         return month ? month.label : '';
     }
 
-    onFilterChange(filterData: any): void {
-        console.log('Filter change triggered:', filterData);
-        
+    onFilterChange(filterData: any): void {        
         // Handle search filter
         if (filterData.search !== undefined) {
             this.searchString = filterData.search || '';
-            console.log('Search updated:', this.searchString);
         }
 
         // Handle year filter
         if (filterData.year !== undefined) {
             this.selectedYear = filterData.year || null;
-            console.log('Year updated:', this.selectedYear);
         }
 
         // Handle month filter
         if (filterData.month !== undefined) {
             this.selectedMonth = filterData.month || null;
-            console.log('Month updated:', this.selectedMonth);
         }
 
         // Reset pagination and reload data
         this.pageIndex = 0;
-        console.log('Loading exams with filters:', {
-            search: this.searchString,
-            year: this.selectedYear,
-            month: this.selectedMonth
-        });
         this.loadExams();
     }
 

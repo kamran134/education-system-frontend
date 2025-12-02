@@ -179,7 +179,7 @@
     <!-- Admin Actions -->
     <div *ngIf="isAdminOrSuperAdmin$ | async" class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center gap-4">
-            <app-button 
+            <!-- <app-button 
                 variant="primary" 
                 (clicked)="updateStats()"
                 [disabled]="isUpdating || isUpdatingAll">
@@ -187,7 +187,7 @@
                     <lucide-icon [img]="RefreshCw" [class]="isUpdating ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
                     <span>{{isUpdating ? 'Yenilənir...' : 'Statistikanı yenilə'}}</span>
                 </div>
-            </app-button>
+            </app-button> -->
             
             <app-button 
                 variant="primary" 
@@ -195,7 +195,7 @@
                 [disabled]="isUpdating || isUpdatingAll">
                 <div class="flex items-center space-x-2">
                     <lucide-icon [img]="RefreshCw" [class]="isUpdatingAll ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
-                    <span>{{isUpdatingAll ? 'Yenilənir...' : 'Bütün statistikanı yenilə'}}</span>
+                    <span>{{isUpdatingAll ? 'Yenilənir...' : 'Reytinqləri yenilə'}}</span>
                 </div>
             </app-button>
         </div>
