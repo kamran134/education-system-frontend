@@ -12,7 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield } from 'lucide-angular';
+import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 
 @Component({
@@ -54,6 +54,7 @@ export class AppComponent implements OnInit {
     readonly User = User;
     readonly Settings = Settings;
     readonly BarChart3 = BarChart3;
+    readonly TrendingUp = TrendingUp;
     readonly Building2 = Building2;
     readonly GraduationCap = GraduationCap;
     readonly Users = Users;
@@ -195,6 +196,18 @@ export class AppComponent implements OnInit {
             return;
         }
         this.router.navigate(['/stats']);
+    }
+
+    goToStatistics(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessStats')) {
+            this.router.navigate(['/']);
+            return;
+        }
+        this.router.navigate(['/statistics']);
     }
 
     goToDistricts(): void {

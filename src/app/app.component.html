@@ -44,6 +44,11 @@
             
             <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStats')" (clicked)="goToStats()">
               <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
+              Reytinqlər
+            </app-dropdown-item>
+            
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStats')" (clicked)="goToStatistics()">
+              <lucide-icon [img]="TrendingUp" class="mr-3 h-4 w-4"></lucide-icon>
               Statistika
             </app-dropdown-item>
             

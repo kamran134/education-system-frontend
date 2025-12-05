@@ -1,0 +1,25 @@
+.statistics-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stat-card {
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.level-card {
+    transition: all 0.2s;
+}
+
+.level-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+select[multiple] {
+    min-height: 120px;
+}
