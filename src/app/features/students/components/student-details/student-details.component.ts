@@ -15,6 +15,8 @@ import { ExamResult } from '../../../../core/models/examResult.model';
 import { ImageCropModalComponent } from '../../../../shared/components/modals/image-crop-modal/image-crop-modal.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
+import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-student-details',
@@ -60,7 +62,8 @@ export class StudentDetailsComponent implements OnInit {
         private router: Router,
         private excelService: ExcelService,
         private dialog: MatDialog,
-        private authService: AuthService
+        private authService: AuthService,
+        private snackBarService: SnackBarService
     ) { }
 
     ngOnInit(): void {
@@ -219,13 +222,13 @@ export class StudentDetailsComponent implements OnInit {
             
             // Check file size (5MB)
             if (file.size > 5 * 1024 * 1024) {
-                alert('Fayl ölçüsü 5MB-dan böyük ola bilməz');
+                this.snackBarService.show('Fayl ölçüsü 5MB-dan böyük ola bilməz', 'error');
                 return;
             }
 
             // Check file type
             if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-                alert('Yalnız JPEG, JPG və PNG formatları qəbul edilir');
+                this.snackBarService.show('Yalnız JPEG, JPG və PNG formatları qəbul edilir', 'error');
                 return;
             }
 
@@ -255,13 +258,13 @@ export class StudentDetailsComponent implements OnInit {
                 if (this.student) {
                     this.student.avatarUrl = response.avatarUrl;
                 }
-                alert('Avatar uğurla yükləndi');
+                this.snackBarService.show('Avatar uğurla yükləndi', 'success');
                 this.closeCropModal();
                 this.isUploadingAvatar = false;
             },
             error: (error) => {
                 console.error('Avatar yüklənərkən xəta:', error);
-                alert('Avatar yüklənərkən xəta baş verdi');
+                this.snackBarService.show('Avatar yüklənərkən xəta baş verdi', 'error');
                 this.isUploadingAvatar = false;
             }
         });
@@ -270,18 +273,28 @@ export class StudentDetailsComponent implements OnInit {
     deleteAvatar(): void {
         if (!this.student || !this.canEditAvatar) return;
 
-        if (!confirm('Avatarı silmək istədiyinizə əminsiniz?')) return;
+        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '400px',
+            data: { 
+                title: 'Silinməyə razılıq', 
+                text: 'Avatarı silmək istədiyinizə əminsiniz?' 
+            }
+        });
 
-        this.studentService.deleteAvatar(this.student._id).subscribe({
-            next: () => {
-                if (this.student) {
-                    this.student.avatarUrl = undefined;
-                }
-                alert('Avatar uğurla silindi');
-            },
-            error: (error) => {
-                console.error('Avatar silinərkən xəta:', error);
-                alert('Avatar silinərkən xəta baş verdi');
+        confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (confirmed) {
+                this.studentService.deleteAvatar(this.student!._id).subscribe({
+                    next: () => {
+                        if (this.student) {
+                            this.student.avatarUrl = undefined;
+                        }
+                        this.snackBarService.show('Avatar uğurla silindi', 'success');
+                    },
+                    error: (error) => {
+                        console.error('Avatar silinərkən xəta:', error);
+                        this.snackBarService.show('Avatar silinərkən xəta baş verdi', 'error');
+                    }
+                });
             }
         });
     }
