@@ -48,6 +48,7 @@ export interface Student {
     score?: number;
     averageScore?: number;
     place?: number;
+    avatarUrl?: string;
 }
 
 export interface StudentForCreation {
@@ -72,6 +73,7 @@ export interface StudentWithResult {
     school: School;
     district: District;
     status: string;
+    avatarUrl?: string;
     results: ExamResult[];
 }
 

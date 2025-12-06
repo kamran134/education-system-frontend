@@ -10,12 +10,51 @@
         <!-- Student Header Card -->
         <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
             <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">
-                        {{ student.lastName }} {{ student.firstName }} {{ student.middleName }}
-                    </h1>
-                    <p class="text-gray-600 mt-1">Kod: {{ student.code }}</p>
+                <!-- Avatar and Name Section -->
+                <div class="flex items-center space-x-4">
+                    <!-- Avatar -->
+                    <div class="relative avatar-container"
+                         (mouseenter)="onAvatarHover(true)"
+                         (mouseleave)="onAvatarHover(false)">
+                        <!-- Avatar Image or Placeholder -->
+                        <div class="w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-100">
+                            <img *ngIf="avatarUrl" 
+                                 [src]="avatarUrl" 
+                                 alt="Şagird avatarı"
+                                 class="w-full h-full object-cover">
+                            <div *ngIf="!avatarUrl" 
+                                 class="w-full h-full flex items-center justify-center">
+                                <lucide-icon [img]="User" class="w-12 h-12 text-gray-400"></lucide-icon>
+                            </div>
+                        </div>
+
+                        <!-- Edit/Delete Overlay (only for admins) -->
+                        <div *ngIf="isAvatarHovered && canEditAvatar"
+                             class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center space-x-2">
+                            <button (click)="openAvatarUpload()"
+                                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                                    title="Avatar yüklə">
+                                <lucide-icon [img]="Edit2" class="w-5 h-5 text-gray-700"></lucide-icon>
+                            </button>
+                            <button *ngIf="avatarUrl" 
+                                    (click)="deleteAvatar()"
+                                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                                    title="Avatarı sil">
+                                <lucide-icon [img]="Trash2" class="w-5 h-5 text-red-600"></lucide-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Student Info -->
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            {{ student.lastName }} {{ student.firstName }} {{ student.middleName }}
+                        </h1>
+                        <p class="text-gray-600 mt-1">Kod: {{ student.code }}</p>
+                    </div>
                 </div>
+
+                <!-- Back Button -->
                 <app-button
                     variant="outline"
                     (clicked)="goBack()">
@@ -143,4 +182,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Hidden File Input -->
+    <input #fileInput 
+           type="file" 
+           accept="image/jpeg,image/jpg,image/png" 
+           (change)="onFileSelected($event)" 
+           style="display: none" />
+
+    <!-- Image Crop Modal -->
+    <app-image-crop-modal
+        [isOpen]="isCropModalOpen"
+        [imageChangedEvent]="imageChangedEvent"
+        (close)="closeCropModal()"
+        (save)="onAvatarSave($event)">
+    </app-image-crop-modal>
 </div>

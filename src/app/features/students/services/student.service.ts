@@ -130,4 +130,16 @@ export class StudentService {
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    uploadAvatar(studentId: string, formData: FormData): Observable<{ avatarUrl: string }> {
+        const url: string = `${this.configService.getApiUrl()}/students/${studentId}/avatar`;
+        return this.http.post<ApiResponse<{ avatarUrl: string }>>(url, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    deleteAvatar(studentId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/students/${studentId}/avatar`;
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }
