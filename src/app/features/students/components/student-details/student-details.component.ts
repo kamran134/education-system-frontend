@@ -204,7 +204,11 @@ export class StudentDetailsComponent implements OnInit {
 
     get avatarUrl(): string | null {
         if (!this.student?.avatarUrl) return null;
-        return `${environment.apiUrl}${this.student.avatarUrl}`;
+        // Для production nginx проксирует, для dev нужен полный URL
+        if (environment.production) {
+            return this.student.avatarUrl;
+        }
+        return `http://localhost:5000${this.student.avatarUrl}`;
     }
 
     onAvatarHover(state: boolean): void {
