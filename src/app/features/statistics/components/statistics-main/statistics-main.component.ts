@@ -39,7 +39,7 @@ export class StatisticsMainComponent implements OnInit {
     // Данные для фильтров
     districts: District[] = [];
     schools: School[] = [];
-    allGrades = [5, 6, 7, 8, 9, 10, 11];
+    allGrades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
     // Options для select компонентов
     get districtOptions() {

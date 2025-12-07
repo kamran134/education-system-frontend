@@ -172,6 +172,12 @@
                             <th class="px-4 py-3 text-right text-gray-700">Ayın şagirdləri</th>
                             <th class="px-4 py-3 text-right text-gray-700">RAŞ</th>
                             <th class="px-4 py-3 text-right text-gray-700">İEŞ</th>
+                            <th class="px-4 py-3 text-right text-gray-700">E</th>
+                            <th class="px-4 py-3 text-right text-gray-700">D</th>
+                            <th class="px-4 py-3 text-right text-gray-700">C</th>
+                            <th class="px-4 py-3 text-right text-gray-700">B</th>
+                            <th class="px-4 py-3 text-right text-gray-700">A</th>
+                            <th class="px-4 py-3 text-right text-gray-700">Lisey</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -189,6 +195,30 @@
                             <td class="px-4 py-3 text-right text-gray-900">
                                 {{ month.developingStudents.count }}
                                 <span class="text-sm text-gray-600">({{ month.developingStudents.percentage }}%)</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-900">
+                                {{ month.levelStatistics.E.count }}
+                                <span class="text-sm text-gray-600">({{ month.levelStatistics.E.percentage }}%)</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-900">
+                                {{ month.levelStatistics.D.count }}
+                                <span class="text-sm text-gray-600">({{ month.levelStatistics.D.percentage }}%)</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-900">
+                                {{ month.levelStatistics.C.count }}
+                                <span class="text-sm text-gray-600">({{ month.levelStatistics.C.percentage }}%)</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-900">
+                                {{ month.levelStatistics.B.count }}
+                                <span class="text-sm text-gray-600">({{ month.levelStatistics.B.percentage }}%)</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-900">
+                                {{ month.levelStatistics.A.count }}
+                                <span class="text-sm text-gray-600">({{ month.levelStatistics.A.percentage }}%)</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-gray-900">
+                                {{ month.levelStatistics.Lisey.count }}
+                                <span class="text-sm text-gray-600">({{ month.levelStatistics.Lisey.percentage }}%)</span>
                             </td>
                         </tr>
                     </tbody>
