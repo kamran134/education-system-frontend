@@ -31,6 +31,7 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 import { StudentEditingDialogComponent } from '../student-editing/student-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { BulkAvatarUploadModalComponent } from '../../../../shared/components/modals/bulk-avatar-upload-modal/bulk-avatar-upload-modal.component';
 
 @Component({
     selector: 'app-students-list',
@@ -42,7 +43,8 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
         LucideAngularModule,
         ListLayoutComponent,
         DataTableComponent,
-        SelectComponent
+        SelectComponent,
+        BulkAvatarUploadModalComponent
     ],
     templateUrl: './students-list.component.html',
     styleUrls: ['./students-list.component.scss']
@@ -91,6 +93,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     
     // UI State
     filtersExpanded = false;
+    isBulkUploadModalOpen = false;
     
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -238,6 +241,12 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                     label: 'Fayldan əlavə et',
                     icon: this.Upload,
                     action: () => this.onFileUpload(),
+                    variant: 'secondary'
+                },
+                {
+                    label: 'Şagirdlərin şəkillərini yüklə',
+                    icon: this.Upload,
+                    action: () => this.openBulkUploadModal(),
                     variant: 'secondary'
                 },
                 {
@@ -616,6 +625,19 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 });
             }
         });
+    }
+
+    openBulkUploadModal(): void {
+        this.isBulkUploadModalOpen = true;
+    }
+
+    closeBulkUploadModal(): void {
+        this.isBulkUploadModalOpen = false;
+    }
+
+    onBulkUploadComplete(): void {
+        // Reload students to show updated avatars
+        this.loadStudents();
     }
 
     onAllStudentsDelete(): void {

@@ -17,7 +17,7 @@ import { ModalComponent } from '../../ui/modal/modal.component';
         <image-cropper
           [imageChangedEvent]="imageChangedEvent"
           [maintainAspectRatio]="true"
-          [aspectRatio]="1"
+          [aspectRatio]="3 / 4"
           [resizeToWidth]="600"
           [cropperMinWidth]="100"
           format="jpeg"

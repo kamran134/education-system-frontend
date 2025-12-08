@@ -142,4 +142,10 @@ export class StudentService {
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    bulkUploadAvatars(formData: FormData): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/students/bulk-upload/avatars`;
+        return this.http.post<ApiResponse<any>>(url, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }

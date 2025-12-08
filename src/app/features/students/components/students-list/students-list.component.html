@@ -140,3 +140,10 @@
     </app-data-table>
   </div>
 </app-list-layout>
+
+<!-- Bulk Avatar Upload Modal -->
+<app-bulk-avatar-upload-modal
+  [isOpen]="isBulkUploadModalOpen"
+  (closed)="closeBulkUploadModal()"
+  (uploaded)="onBulkUploadComplete()">
+</app-bulk-avatar-upload-modal>
