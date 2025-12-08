@@ -3,6 +3,7 @@ export interface StatisticsFilter {
     schoolIds?: string[];
     grades?: number[];
     year?: number;
+    month?: number;
 }
 
 export interface StatusStatistics {

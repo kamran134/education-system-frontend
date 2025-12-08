@@ -35,11 +35,30 @@ export class StatisticsMainComponent implements OnInit {
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
     selectedGrades: number[] = [];
+    selectedMonth: number | null = null;
+    selectedYear: number = new Date().getFullYear();
 
     // Данные для фильтров
     districts: District[] = [];
     schools: School[] = [];
     allGrades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    
+    months = [
+        { value: 1, label: 'Yanvar' },
+        { value: 2, label: 'Fevral' },
+        { value: 3, label: 'Mart' },
+        { value: 4, label: 'Aprel' },
+        { value: 5, label: 'May' },
+        { value: 6, label: 'İyun' },
+        { value: 7, label: 'İyul' },
+        { value: 8, label: 'Avqust' },
+        { value: 9, label: 'Sentyabr' },
+        { value: 10, label: 'Oktyabr' },
+        { value: 11, label: 'Noyabr' },
+        { value: 12, label: 'Dekabr' }
+    ];
+    
+    years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
     // Options для select компонентов
     get districtOptions() {
@@ -52,6 +71,51 @@ export class StatisticsMainComponent implements OnInit {
 
     get gradeOptions() {
         return this.allGrades.map(g => ({ label: g.toString(), value: g }));
+    }
+
+    get monthOptions() {
+        return this.months.map(m => ({ label: m.label, value: m.value }));
+    }
+
+    get yearOptions() {
+        return this.years.map(y => ({ label: y.toString(), value: y }));
+    }
+
+    get statisticsTitle(): string {
+        if (this.selectedMonth !== null) {
+            const monthName = this.months.find(m => m.value === this.selectedMonth)?.label;
+            return `${monthName} ayı üçün statistika`;
+        }
+        return 'İllik statistika';
+    }
+
+    // Получаем статистику для отображения (годовая или за выбранный месяц)
+    get displayedStats() {
+        if (!this.statistics) return null;
+        
+        if (this.selectedMonth !== null) {
+            // Если выбран месяц, находим его в помесячной статистике
+            return this.statistics.monthly.find(m => {
+                const [year, month] = m.month.split('-');
+                return parseInt(month) === this.selectedMonth;
+            }) || null;
+        }
+        
+        // Иначе возвращаем годовую статистику
+        return this.statistics.yearly;
+    }
+
+    get totalCount(): number {
+        if (!this.displayedStats) return 0;
+        if (this.selectedMonth !== null) {
+            return (this.displayedStats as any).totalResults || 0;
+        }
+        return (this.displayedStats as any).totalStudents || 0;
+    }
+
+    get averageScore(): number {
+        if (!this.displayedStats || this.selectedMonth !== null) return 0;
+        return (this.displayedStats as any).averageScore || 0;
     }
 
     ngOnInit(): void {
@@ -90,7 +154,9 @@ export class StatisticsMainComponent implements OnInit {
         const filters: StatisticsFilter = {
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
-            grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined,
+            month: this.selectedMonth !== null ? this.selectedMonth : undefined,
+            year: this.selectedYear
         };
 
         this.statisticsService.getStatistics(filters).subscribe({
@@ -119,10 +185,20 @@ export class StatisticsMainComponent implements OnInit {
         this.loadStatistics();
     }
 
+    onMonthChange(): void {
+        this.loadStatistics();
+    }
+
+    onYearChange(): void {
+        this.loadStatistics();
+    }
+
     onFilterReset(): void {
         this.selectedDistrictIds = [];
         this.selectedSchoolIds = [];
         this.selectedGrades = [];
+        this.selectedMonth = null;
+        this.selectedYear = new Date().getFullYear();
         this.schools = [];
         this.loadStatistics();
     }

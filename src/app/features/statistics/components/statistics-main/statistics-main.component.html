@@ -26,7 +26,23 @@
 
         <!-- Filters Grid -->
         <div [class]="filtersExpanded ? 'block' : 'hidden'">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
+                <!-- Фильтр по году -->
+                <app-select
+                    label="İl"
+                    [(ngModel)]="selectedYear"
+                    [options]="yearOptions"
+                    (ngModelChange)="onYearChange()">
+                </app-select>
+
+                <!-- Фильтр по месяцам -->
+                <app-select
+                    label="Ay (bütün il üçün boş buraxın)"
+                    [(ngModel)]="selectedMonth"
+                    [options]="monthOptions"
+                    (ngModelChange)="onMonthChange()">
+                </app-select>
+
                 <!-- Фильтр по районам -->
                 <app-select
                     label="Rayonlar / şəhərlər"
@@ -73,25 +89,27 @@
     </div>
 
     <!-- Статистика -->
-    <div *ngIf="!isLoading && statistics" class="statistics-content">
-        <!-- Годовая статистика -->
+    <div *ngIf="!isLoading && statistics && displayedStats" class="statistics-content">
+        <!-- Годовая/Месячная статистика -->
         <div class="yearly-stats mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">İllik statistika</h2>
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ statisticsTitle }}</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                <!-- Общее количество студентов -->
+                <!-- Общее количество студентов / результатов -->
                 <div class="stat-card bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h3 class="text-sm font-medium text-gray-600">Ümumi şagird sayı</h3>
+                    <h3 class="text-sm font-medium text-gray-600">
+                        {{ selectedMonth !== null ? 'Nəticələrin sayı' : 'Ümumi şagird sayı' }}
+                    </h3>
                     <p class="text-3xl font-bold text-blue-600">
-                        {{ statistics.yearly.totalStudents }}
+                        {{ totalCount }}
                     </p>
                 </div>
 
                 <!-- Средний балл -->
-                <div class="stat-card bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="stat-card bg-green-50 p-4 rounded-lg border border-green-200" *ngIf="selectedMonth === null">
                     <h3 class="text-sm font-medium text-gray-600">Orta bal</h3>
                     <p class="text-3xl font-bold text-green-600">
-                        {{ statistics.yearly.averageScore | number:'1.2-2' }}
+                        {{ averageScore | number:'1.2-2' }}
                     </p>
                 </div>
 
@@ -99,8 +117,8 @@
                 <div class="stat-card bg-purple-50 p-4 rounded-lg border border-purple-200">
                     <h3 class="text-sm font-medium text-gray-600">Ayın şagirdləri</h3>
                     <p class="text-3xl font-bold text-purple-600">
-                        {{ statistics.yearly.studentsOfMonth.count }}
-                        <span class="text-lg">({{ statistics.yearly.studentsOfMonth.percentage }}%)</span>
+                        {{ displayedStats.studentsOfMonth.count }}
+                        <span class="text-lg">({{ displayedStats.studentsOfMonth.percentage }}%)</span>
                     </p>
                 </div>
 
@@ -108,8 +126,8 @@
                 <div class="stat-card bg-orange-50 p-4 rounded-lg border border-orange-200">
                     <h3 class="text-sm font-medium text-gray-600">Respublika üzrə ayın şagirdləri</h3>
                     <p class="text-3xl font-bold text-orange-600">
-                        {{ statistics.yearly.republicStudentsOfMonth.count }}
-                        <span class="text-lg">({{ statistics.yearly.republicStudentsOfMonth.percentage }}%)</span>
+                        {{ displayedStats.republicStudentsOfMonth.count }}
+                        <span class="text-lg">({{ displayedStats.republicStudentsOfMonth.percentage }}%)</span>
                     </p>
                 </div>
 
@@ -117,8 +135,8 @@
                 <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200">
                     <h3 class="text-sm font-medium text-gray-600">İnkişaf edən şagirdlər</h3>
                     <p class="text-3xl font-bold text-teal-600">
-                        {{ statistics.yearly.developingStudents.count }}
-                        <span class="text-lg">({{ statistics.yearly.developingStudents.percentage }}%)</span>
+                        {{ displayedStats.developingStudents.count }}
+                        <span class="text-lg">({{ displayedStats.developingStudents.percentage }}%)</span>
                     </p>
                 </div>
             </div>
@@ -128,33 +146,33 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
                     <h4 class="font-semibold text-gray-700">E pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ statistics.yearly.levelStatistics.E.count }}</p>
-                    <p class="text-sm text-gray-600">{{ statistics.yearly.levelStatistics.E.percentage }}%</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.E.count }}</p>
+                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.E.percentage }}%</p>
                 </div>
                 <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
                     <h4 class="font-semibold text-gray-700">D pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ statistics.yearly.levelStatistics.D.count }}</p>
-                    <p class="text-sm text-gray-600">{{ statistics.yearly.levelStatistics.D.percentage }}%</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.D.count }}</p>
+                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.D.percentage }}%</p>
                 </div>
                 <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
                     <h4 class="font-semibold text-gray-700">C pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ statistics.yearly.levelStatistics.C.count }}</p>
-                    <p class="text-sm text-gray-600">{{ statistics.yearly.levelStatistics.C.percentage }}%</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.C.count }}</p>
+                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.C.percentage }}%</p>
                 </div>
                 <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
                     <h4 class="font-semibold text-gray-700">B pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ statistics.yearly.levelStatistics.B.count }}</p>
-                    <p class="text-sm text-gray-600">{{ statistics.yearly.levelStatistics.B.percentage }}%</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.B.count }}</p>
+                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.B.percentage }}%</p>
                 </div>
                 <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
                     <h4 class="font-semibold text-gray-700">A pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ statistics.yearly.levelStatistics.A.count }}</p>
-                    <p class="text-sm text-gray-600">{{ statistics.yearly.levelStatistics.A.percentage }}%</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.A.count }}</p>
+                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.A.percentage }}%</p>
                 </div>
                 <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
                     <h4 class="font-semibold text-gray-700">Lisey</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ statistics.yearly.levelStatistics.Lisey.count }}</p>
-                    <p class="text-sm text-gray-600">{{ statistics.yearly.levelStatistics.Lisey.percentage }}%</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.Lisey.count }}</p>
+                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.Lisey.percentage }}%</p>
                 </div>
             </div>
         </div>
