@@ -31,6 +31,11 @@ export class StudentRatingTableComponent {
     @Output() rowClicked: EventEmitter<string> = new EventEmitter<string>();
     @Output() excelExport: EventEmitter<string> = new EventEmitter<string>();
 
+    // Computed columns with avatar at the beginning
+    get displayedColumns(): string[] {
+        return ['avatar', ...this.columns];
+    }
+
     onRowClick(studentId: string): void {
         this.rowClicked.emit(studentId);
     }

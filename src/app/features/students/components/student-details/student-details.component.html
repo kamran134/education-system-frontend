@@ -16,15 +16,15 @@
                     <div class="relative avatar-container"
                          (mouseenter)="onAvatarHover(true)"
                          (mouseleave)="onAvatarHover(false)">
-                        <!-- Avatar Image or Placeholder -->
-                        <div class="w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-100">
+                        <!-- Avatar Image or Placeholder (3:4 aspect ratio) -->
+                        <div class="w-36 h-48 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-100">
                             <img *ngIf="avatarUrl" 
                                  [src]="avatarUrl" 
                                  alt="Şagird avatarı"
                                  class="w-full h-full object-cover">
                             <div *ngIf="!avatarUrl" 
                                  class="w-full h-full flex items-center justify-center">
-                                <lucide-icon [img]="User" class="w-12 h-12 text-gray-400"></lucide-icon>
+                                <lucide-icon [img]="User" class="w-16 h-16 text-gray-400"></lucide-icon>
                             </div>
                         </div>
 
