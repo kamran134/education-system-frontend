@@ -19,6 +19,7 @@ import { ListLayoutComponent, ActionButton, BackButton } from '../../../../share
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 
 @Component({
     selector: 'app-schools-list',
@@ -466,8 +467,38 @@ export class SchoolsListComponent implements OnInit {
                 const file = target.files[0];
                 this.schoolService.uploadFile(file).subscribe({
                     next: (response) => {
-                        this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla', this.matSnackConfig);
-                        this.loadSchools();
+                        const validationErrors = response.validationErrors || {};
+                        
+                        // Check if there are any validation errors
+                        const hasErrors = 
+                            (validationErrors.incorrectSchoolCodes && validationErrors.incorrectSchoolCodes.length > 0) ||
+                            (validationErrors.missingDistrictCodes && validationErrors.missingDistrictCodes.length > 0) ||
+                            (validationErrors.schoolCodesWithoutDistrictCodes && validationErrors.schoolCodesWithoutDistrictCodes.length > 0) ||
+                            (validationErrors.existingSchoolCodes && validationErrors.existingSchoolCodes.length > 0);
+                        
+                        if (hasErrors) {
+                            // Show error dialog
+                            const dialogData: FileUploadErrorsData = {
+                                type: 'schools',
+                                errors: validationErrors
+                            };
+                            
+                            const dialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
+                                width: '700px',
+                                maxWidth: '90vw',
+                                data: dialogData,
+                                disableClose: true
+                            });
+                            
+                            // Refresh table only after dialog is closed
+                            dialogRef.afterClosed().subscribe(() => {
+                                this.loadSchools();
+                            });
+                        } else {
+                            // No errors, show success message and refresh immediately
+                            this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla', this.matSnackConfig);
+                            this.loadSchools();
+                        }
                     },
                     error: (error) => {
                         console.error(error);

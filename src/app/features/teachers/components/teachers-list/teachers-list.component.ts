@@ -22,6 +22,7 @@ import { ListLayoutComponent, ActionButton, BackButton } from '../../../../share
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 
 @Component({
     selector: 'app-teachers-list',
@@ -606,11 +607,38 @@ export class TeachersListComponent implements OnInit {
                 const file = target.files[0];
                 this.teacherService.uploadFile(file).subscribe({
                     next: (response) => {
-                        this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla', this.matSnackConfig);
-                        this.missingSchoolCodes = response.missingSchoolCodes || [];
-                        this.teacherCodesWithoutSchoolCodes = response.teacherCodesWithoutSchoolCodes || [];
-                        this.incorrectTeacherCodes = response.incorrectTeacherCodes || [];
-                        this.loadTeachers();
+                        const validationErrors = response.validationErrors || {};
+                        
+                        // Check if there are any validation errors
+                        const hasErrors = 
+                            (validationErrors.incorrectTeacherCodes && validationErrors.incorrectTeacherCodes.length > 0) ||
+                            (validationErrors.missingSchoolCodes && validationErrors.missingSchoolCodes.length > 0) ||
+                            (validationErrors.teacherCodesWithoutSchoolCodes && validationErrors.teacherCodesWithoutSchoolCodes.length > 0) ||
+                            (validationErrors.existingTeacherCodes && validationErrors.existingTeacherCodes.length > 0);
+                        
+                        if (hasErrors) {
+                            // Show error dialog
+                            const dialogData: FileUploadErrorsData = {
+                                type: 'teachers',
+                                errors: validationErrors
+                            };
+                            
+                            const dialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
+                                width: '700px',
+                                maxWidth: '90vw',
+                                data: dialogData,
+                                disableClose: true
+                            });
+                            
+                            // Refresh table only after dialog is closed
+                            dialogRef.afterClosed().subscribe(() => {
+                                this.loadTeachers();
+                            });
+                        } else {
+                            // No errors, show success message and refresh immediately
+                            this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla', this.matSnackConfig);
+                            this.loadTeachers();
+                        }
                     },
                     error: (error) => {
                         console.error(error);
