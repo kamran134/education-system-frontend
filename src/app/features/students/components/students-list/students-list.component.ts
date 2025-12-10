@@ -263,7 +263,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 label: 'Ekranda olanları sil',
                 icon: this.Trash,
                 action: () => this.onAllStudentsDelete(),
-                variant: 'secondary'
+                variant: 'secondary',
+                showOnHover: true
             });
         }
     }

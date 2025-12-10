@@ -175,6 +175,7 @@ export class SchoolsListComponent implements OnInit {
                 icon: this.Trash,
                 action: () => this.onAllSchoolsDelete(),
                 variant: 'secondary',
+                showOnHover: true
             });
         }
     }

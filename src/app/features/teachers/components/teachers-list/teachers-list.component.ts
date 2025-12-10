@@ -222,7 +222,8 @@ export class TeachersListComponent implements OnInit {
                 label: 'Ekranda olanları sil',
                 icon: this.Trash,
                 action: () => this.onAllTeachersDelete(),
-                variant: 'secondary'
+                variant: 'secondary',
+                showOnHover: true
             });
         }
     }

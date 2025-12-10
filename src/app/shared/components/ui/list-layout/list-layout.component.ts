@@ -12,6 +12,7 @@ export interface ActionButton {
   disabled?: boolean;
   variant?: 'primary' | 'secondary' | 'outline';
   loading?: boolean;
+  showOnHover?: boolean;
 }
 
 export interface BackButton {
@@ -42,6 +43,8 @@ export class ListLayoutComponent {
     return this._actionButtons;
   }
   private _actionButtons: ActionButton[] = [];
+
+  isActionPanelHovered = false;
 
   readonly Home = Home;
   readonly Plus = Plus;
