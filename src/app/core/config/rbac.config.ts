@@ -194,7 +194,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canEditStudents: true,
             canDeleteStudents: true,
             canCreateExams: true,
-            canEditExams: true,
+            canEditExams: false,
             canDeleteExams: true,
             canEditExamResults: true,
             canDeleteExamResults: true,
@@ -263,7 +263,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canEditStudents: true,
             canDeleteStudents: false,   // НЕ МОЖЕТ УДАЛЯТЬ
             canCreateExams: true,
-            canEditExams: true,
+            canEditExams: false,        // НЕ МОЖЕТ РЕДАКТИРОВАТЬ
             canDeleteExams: false,      // НЕ МОЖЕТ УДАЛЯТЬ
             canEditExamResults: true,   // МОЖЕТ РЕДАКТИРОВАТЬ РЕЗУЛЬТАТЫ
             canDeleteExamResults: false,// НЕ МОЖЕТ УДАЛЯТЬ РЕЗУЛЬТАТЫ
