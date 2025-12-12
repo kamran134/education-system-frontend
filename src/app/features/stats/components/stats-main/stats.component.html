@@ -61,7 +61,7 @@
             <div *ngIf="selectedTabIndex === 0">
                 <app-developing-students-tab
                     [stats]="stats"
-                    [monthStudentColumns]="monthStudentColumns"
+                    [monthStudentColumns]="developingStudentColumns"
                     [isLoading]="isloading"
                     [developingLabel$]="developingStudentsLabel$"
                     (sortChanged)="onSortChange($event)"

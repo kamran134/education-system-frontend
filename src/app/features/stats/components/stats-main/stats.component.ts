@@ -105,6 +105,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         allDistrictsTotalCount: 0
     };
     selectedTab: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' = 'developingStudents';
+    developingStudentColumns: string[] = [];
     monthStudentColumns: string[] = [];
     studentColumns: string[] = [];
     teacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
@@ -114,6 +115,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     studentsOfMonthLabel$ = new BehaviorSubject<string>('Cari ayın şagirdləri');
     studentsOfMonthByRepublicLabel$ = new BehaviorSubject<string>('Respublika üzrə cari ayın şagirdləri');
 
+    private readonly availableDevelopingStudentColumns: string[] = [
+        'level', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
+    ];
     private readonly availableStudentColumns: string[] = [
         'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
     ];
@@ -288,6 +292,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.dashboardService.getRatingColumns(this.authService.getUserId() || '')
             .subscribe({
                 next: (settings: UserSettings) => {
+                    this.developingStudentColumns = settings.developingStudentCollumns || this.availableDevelopingStudentColumns;
                     this.monthStudentColumns = settings.studentCollumns || this.availableStudentColumns;
                     this.studentColumns = settings.allStudentCollumns || this.availableStudentColumns;
                     this.teacherColumns = settings.allTeacherCollumns || this.availableTeacherColumns;

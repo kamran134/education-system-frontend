@@ -21,6 +21,13 @@
                 </td>
             </ng-container>
 
+            <ng-container matColumnDef="level" *ngIf="columns.includes('level')">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Pillə </th>
+                <td mat-cell *matCellDef="let result">
+                    {{ result.level || '-' }}
+                </td>
+            </ng-container>
+
             <ng-container matColumnDef="code" *ngIf="columns.includes('code')">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Şagirdin kodu </th>
                 <td mat-cell *matCellDef="let result">

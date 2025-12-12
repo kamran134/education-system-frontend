@@ -39,6 +39,7 @@ export class StatsColumnsComponent implements OnInit{
     displayedColumns: string[] = ['id', 'name', 'actions'];
     dataSource: UserSettings = {
         userId: '', // Assuming userId is a string, you can set it to the current user's ID if needed
+        developingStudentCollumns: [],
         studentCollumns: [],
         allStudentCollumns: [],
         allTeacherCollumns: [],
@@ -51,6 +52,20 @@ export class StatsColumnsComponent implements OnInit{
         horizontalPosition: 'center',
         verticalPosition: 'top'
     }
+
+    developingStudentColumnOptions: Column[] = [
+        { key: 'level', label: 'Pillə', selected: false },
+        { key: 'code', label: 'Kodu', selected: false },
+        { key: 'lastName', label: 'Soyadı', selected: false },
+        { key: 'firstName', label: 'Adı', selected: false },
+        { key: 'middleName', label: 'Ata adı', selected: false },
+        { key: 'grade', label: 'Sinifi', selected: false },
+        { key: 'teacher', label: 'Müəllimi', selected: false },
+        { key: 'school', label: 'Məktəbi', selected: false },
+        { key: 'district', label: 'Rayonu', selected: false },
+        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'totalScore', label: 'İmtahan balı', selected: false },
+    ];
 
     monthStudentColumnOptions: Column[] = [
         { key: 'code', label: 'Kodu', selected: false },
@@ -136,6 +151,9 @@ export class StatsColumnsComponent implements OnInit{
             next: (settings: UserSettings) => {
                 this.dataSource = settings;
                 // Set selected state based on the loaded settings
+                this.developingStudentColumnOptions.forEach(column => {
+                    column.selected = settings.developingStudentCollumns?.includes(column.key) || false;
+                });
                 this.monthStudentColumnOptions.forEach(column => {
                     column.selected = settings.studentCollumns?.includes(column.key) || false;
                 });
@@ -159,6 +177,9 @@ export class StatsColumnsComponent implements OnInit{
     }
 
     saveColumnSettings(): void {
+        const selectedDevelopingStudentColumns = this.developingStudentColumnOptions
+            .filter(column => column.selected)
+            .map(column => column.key);
         const selectedStudentColumns = this.monthStudentColumnOptions
             .filter(column => column.selected)
             .map(column => column.key);
@@ -177,6 +198,7 @@ export class StatsColumnsComponent implements OnInit{
 
         const userSettings: UserSettings = {
             userId: this.userId || '', // Ensure userId is set
+            developingStudentCollumns: selectedDevelopingStudentColumns,
             studentCollumns: selectedStudentColumns,
             allStudentCollumns: selectedAllStudentColumns,
             allTeacherCollumns: selectedTeacherColumns,
@@ -195,6 +217,7 @@ export class StatsColumnsComponent implements OnInit{
     }
 
     resetColumns(): void {
+        this.developingStudentColumnOptions.forEach(column => column.selected = false);
         this.monthStudentColumnOptions.forEach(column => column.selected = false);
         this.studentColumnOptions.forEach(column => column.selected = false);
         this.teacherColumnOptions.forEach(column => column.selected = false);
@@ -202,6 +225,7 @@ export class StatsColumnsComponent implements OnInit{
         this.districtColumnOptions.forEach(column => column.selected = false);
 
         // Reset the dataSource to its initial state
+        this.dataSource.developingStudentCollumns = [];
         this.dataSource.studentCollumns = [];
         this.dataSource.allStudentCollumns = [];
         this.dataSource.allTeacherCollumns = [];
