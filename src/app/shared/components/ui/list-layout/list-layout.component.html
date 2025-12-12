@@ -72,23 +72,42 @@
     <!-- Actions Panel -->
     <div 
         *ngIf="actionButtons && actionButtons.length > 0" 
-        class="mt-8 flex flex-wrap gap-3"
-        (mouseenter)="isActionPanelHovered = true"
-        (mouseleave)="isActionPanelHovered = false"
+        class="mt-8 flex flex-wrap gap-3 justify-between items-center"
     >
-        <app-button
-        *ngFor="let action of actionButtons"
-        [ngClass]="{'opacity-0 pointer-events-none': action.showOnHover && !isActionPanelHovered, 'opacity-100 transition-opacity duration-200': action.showOnHover && isActionPanelHovered}"
-        [variant]="action.variant || 'primary'"
-        [disabled]="action.disabled || false"
-        (clicked)="action.action()"
-        >
-        <div class="flex items-center space-x-2">
-            <div *ngIf="action.loading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-            <lucide-icon *ngIf="action.icon && !action.loading" [img]="action.icon" class="h-4 w-4"></lucide-icon>
-            <span>{{ action.label }}</span>
+        <!-- Обычные кнопки слева -->
+        <div class="flex flex-wrap gap-3">
+            <app-button
+            *ngFor="let action of actionButtons"
+            [hidden]="action.showOnHover"
+            [variant]="action.variant || 'primary'"
+            [disabled]="action.disabled || false"
+            (clicked)="action.action()"
+            >
+            <div class="flex items-center space-x-2">
+                <div *ngIf="action.loading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                <lucide-icon *ngIf="action.icon && !action.loading" [img]="action.icon" class="h-4 w-4"></lucide-icon>
+                <span>{{ action.label }}</span>
+            </div>
+            </app-button>
         </div>
-        </app-button>
+        
+        <!-- Кнопка с hover справа -->
+        <div class="flex flex-wrap gap-3">
+            <app-button
+            *ngFor="let action of actionButtons"
+            [hidden]="!action.showOnHover"
+            [ngClass]="{'hover-show-button': action.showOnHover}"
+            [variant]="action.variant || 'primary'"
+            [disabled]="action.disabled || false"
+            (clicked)="action.action()"
+            >
+            <div class="flex items-center space-x-2">
+                <div *ngIf="action.loading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                <lucide-icon *ngIf="action.icon && !action.loading" [img]="action.icon" class="h-4 w-4"></lucide-icon>
+                <span>{{ action.label }}</span>
+            </div>
+            </app-button>
+        </div>
     </div>
     </div>
 </div>

@@ -25,6 +25,7 @@ export interface BackButton {
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent, CardComponent],
   templateUrl: './list-layout.component.html',
+  styleUrls: ['./list-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListLayoutComponent {
@@ -43,8 +44,6 @@ export class ListLayoutComponent {
     return this._actionButtons;
   }
   private _actionButtons: ActionButton[] = [];
-
-  isActionPanelHovered = false;
 
   readonly Home = Home;
   readonly Plus = Plus;

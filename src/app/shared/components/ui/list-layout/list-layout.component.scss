@@ -1,0 +1,10 @@
+// Кнопка, которая показывается только при наведении на неё саму
+:host ::ng-deep .hover-show-button {
+  opacity: 0;
+  pointer-events: auto;
+  transition: opacity 0.2s ease-in-out;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
