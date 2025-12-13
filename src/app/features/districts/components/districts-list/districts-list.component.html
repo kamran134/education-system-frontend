@@ -15,8 +15,11 @@
       [totalCount]="totalCount"
       [pageSize]="pageSize"
       [pageIndex]="pageIndex"
+      [sortBy]="sortColumn"
+      [sortDirection]="sortDirection"
       (actionClicked)="onTableAction($event)"
       (pageChanged)="onPageChange($event)"
+      (sortChanged)="onSortChange($event)"
       (rowClicked)="onDistrictView($event)"
     ></app-data-table>
   </div>

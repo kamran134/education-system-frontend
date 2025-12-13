@@ -39,6 +39,10 @@ export class DistrictsListComponent implements OnInit {
     pageSize = 100;
     pageIndex = 0;
     
+    // Sorting properties
+    sortColumn = 'name';
+    sortDirection: 'asc' | 'desc' = 'asc';
+    
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
@@ -177,8 +181,8 @@ export class DistrictsListComponent implements OnInit {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
-            sortColumn: 'name',
-            sortDirection: 'asc'
+            sortColumn: this.sortColumn,
+            sortDirection: this.sortDirection
         }
         this.districtService.getDistricts(params)
             .subscribe({
@@ -199,6 +203,13 @@ export class DistrictsListComponent implements OnInit {
     onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
+        this.loadDistricts();
+    }
+
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortColumn = event.column;
+        this.sortDirection = event.direction;
+        this.pageIndex = 0; // Reset to first page when sorting
         this.loadDistricts();
     }
 

@@ -54,6 +54,10 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     pageSize = 25;
     pageIndex = 0;
     
+    // Sorting
+    sortColumn = 'date';
+    sortDirection: 'asc' | 'desc' = 'desc';
+    
     // Filters
     searchString: string = '';
     selectedYear: number | null = null;
@@ -251,10 +255,19 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         this.loadExams();
     }
 
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortColumn = event.column;
+        this.sortDirection = event.direction;
+        this.pageIndex = 0; // Reset to first page when sorting
+        this.loadExams();
+    }
+
     loadExams(): void {
         const params: FilterParams = {
             page: this.pageIndex + 1,
-            size: this.pageSize
+            size: this.pageSize,
+            sortColumn: this.sortColumn,
+            sortDirection: this.sortDirection
         };
 
         // Добавляем параметры только если они не пустые
