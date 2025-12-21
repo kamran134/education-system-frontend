@@ -18,11 +18,11 @@
                          (mouseleave)="onAvatarHover(false)">
                         <!-- Avatar Image or Placeholder (3:4 aspect ratio) -->
                         <div class="w-36 h-48 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-100">
-                            <img *ngIf="avatarUrl" 
-                                 [src]="avatarUrl" 
-                                 alt="Şagird avatarı"
+                            <img *ngIf="avatarUrl"
+                                 [src]="avatarUrl"
+                                 alt="Şagirdin şəkli"
                                  class="w-full h-full object-cover">
-                            <div *ngIf="!avatarUrl" 
+                            <div *ngIf="!avatarUrl"
                                  class="w-full h-full flex items-center justify-center">
                                 <lucide-icon [img]="User" class="w-16 h-16 text-gray-400"></lucide-icon>
                             </div>
@@ -36,10 +36,10 @@
                                     title="Avatar yüklə">
                                 <lucide-icon [img]="Edit2" class="w-5 h-5 text-gray-700"></lucide-icon>
                             </button>
-                            <button *ngIf="avatarUrl" 
+                            <button *ngIf="avatarUrl"
                                     (click)="deleteAvatar()"
                                     class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                    title="Avatarı sil">
+                                    title="Şəkli sil">
                                 <lucide-icon [img]="Trash2" class="w-5 h-5 text-red-600"></lucide-icon>
                             </button>
                         </div>
@@ -108,7 +108,7 @@
                     </app-button>
                 </div>
             </div>
-            
+
             <div class="p-6">
                 <div *ngIf="!student.results || student.results.length === 0" class="text-center py-8">
                     <p class="text-gray-500">İmtahan nəticələri tapılmadı</p>
@@ -137,7 +137,7 @@
                                     <span class="px-2 py-1 text-xs font-medium rounded-full"
                                           [ngClass]="{
                                             'bg-green-100 text-green-800': result.level === 'Yüksək',
-                                            'bg-yellow-100 text-yellow-800': result.level === 'Orta', 
+                                            'bg-yellow-100 text-yellow-800': result.level === 'Orta',
                                             'bg-red-100 text-red-800': result.level === 'Aşağı',
                                             'bg-gray-100 text-gray-800': !result.level || (result.level !== 'Yüksək' && result.level !== 'Orta' && result.level !== 'Aşağı')
                                           }">
@@ -184,10 +184,10 @@
     </div>
 
     <!-- Hidden File Input -->
-    <input #fileInput 
-           type="file" 
-           accept="image/jpeg,image/jpg,image/png" 
-           (change)="onFileSelected($event)" 
+    <input #fileInput
+           type="file"
+           accept="image/jpeg,image/jpg,image/png"
+           (change)="onFileSelected($event)"
            style="display: none" />
 
     <!-- Image Crop Modal -->

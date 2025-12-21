@@ -33,7 +33,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 })
 export class StudentDetailsComponent implements OnInit {
     @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-    
+
     studentId!: string;
     student!: StudentWithResult | null;
     prevPageSize: number = 10;
@@ -125,22 +125,22 @@ export class StudentDetailsComponent implements OnInit {
      */
     formatStudentAchievements(result: any): string {
         const achievements: string[] = [];
-        
+
         // Проверяем развивающийся студент
         if (result.developmentScore && result.developmentScore > 0) {
             achievements.push('İnkişaf edən şagird');
         }
-        
+
         // Проверяем студент месяца по району
         if (result.studentOfTheMonthScore && result.studentOfTheMonthScore > 0) {
             achievements.push('Ayın şagirdi');
         }
-        
+
         // Проверяем студент месяца по республике
         if (result.republicWideStudentOfTheMonthScore && result.republicWideStudentOfTheMonthScore > 0) {
             achievements.push('Respublika üzrə ayın şagirdi');
         }
-        
+
         return achievements.join(', ');
     }
 
@@ -151,7 +151,7 @@ export class StudentDetailsComponent implements OnInit {
         const dialogRef = this.dialog.open(ResultEditingDialogComponent, {
             width: '900px',
             disableClose: false,
-            data: { 
+            data: {
                 result,
                 canDelete: true
             }
@@ -223,10 +223,10 @@ export class StudentDetailsComponent implements OnInit {
     onFileSelected(event: any): void {
         if (event.target.files && event.target.files.length > 0) {
             const file = event.target.files[0];
-            
-            // Check file size (5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                this.snackBarService.show('Fayl ölçüsü 5MB-dan böyük ola bilməz', 'error');
+
+            // Check file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                this.snackBarService.show('Fayl ölçüsü 10MB-dan böyük ola bilməz', 'error');
                 return;
             }
 
@@ -262,13 +262,13 @@ export class StudentDetailsComponent implements OnInit {
                 if (this.student) {
                     this.student.avatarUrl = response.avatarUrl;
                 }
-                this.snackBarService.show('Avatar uğurla yükləndi', 'success');
+                this.snackBarService.show('Şəkil uğurla yükləndi', 'success');
                 this.closeCropModal();
                 this.isUploadingAvatar = false;
             },
             error: (error) => {
-                console.error('Avatar yüklənərkən xəta:', error);
-                this.snackBarService.show('Avatar yüklənərkən xəta baş verdi', 'error');
+                console.error('Şəkil yüklənərkən xəta:', error);
+                this.snackBarService.show('Şəkil yüklənərkən xəta baş verdi', 'error');
                 this.isUploadingAvatar = false;
             }
         });
@@ -279,9 +279,9 @@ export class StudentDetailsComponent implements OnInit {
 
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
-            data: { 
-                title: 'Silinməyə razılıq', 
-                text: 'Avatarı silmək istədiyinizə əminsiniz?' 
+            data: {
+                title: 'Silinməyə razılıq',
+                text: 'Şəkli silmək istədiyinizə əminsiniz?'
             }
         });
 
@@ -292,11 +292,11 @@ export class StudentDetailsComponent implements OnInit {
                         if (this.student) {
                             this.student.avatarUrl = undefined;
                         }
-                        this.snackBarService.show('Avatar uğurla silindi', 'success');
+                        this.snackBarService.show('Şəkil uğurla silindi', 'success');
                     },
                     error: (error) => {
-                        console.error('Avatar silinərkən xəta:', error);
-                        this.snackBarService.show('Avatar silinərkən xəta baş verdi', 'error');
+                        console.error('Şəkil silinərkən xəta:', error);
+                        this.snackBarService.show('Şəkil silinərkən xəta baş verdi', 'error');
                     }
                 });
             }
