@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -66,22 +67,23 @@ export class AppComponent implements OnInit {
     readonly Shield = Shield;
 
     constructor(
-        private matIconRegistry: MatIconRegistry, 
-        private domSanitizer: DomSanitizer, 
+        private matIconRegistry: MatIconRegistry,
+        private domSanitizer: DomSanitizer,
         private authService: AuthService,
         private router: Router,
-        public permissions: PermissionsService
+        public permissions: PermissionsService,
+        @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this.matIconRegistry.addSvgIcon('dark_mode', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/dark_mode.svg'));
         this.matIconRegistry.addSvgIcon('light_mode', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/light_mode.svg'));
     }
 
     ngOnInit(): void {
-        if (typeof localStorage !== 'undefined') {
+        if (isPlatformBrowser(this.platformId)) {
             this.userId = this.authService.getUserId();
             this.darkMode = localStorage.getItem('theme') === 'true';
             this.setMode();
-            
+
             // Проверяем и валидируем токен при старте приложения
             // Только если есть токен в localStorage
             const token = this.authService.getToken();
@@ -111,15 +113,17 @@ export class AppComponent implements OnInit {
     darkModeToogleChanged(): void {
         this.animationState = this.animationState === 'default' ? 'rotated' : 'default';
         this.darkMode = !this.darkMode;
-        localStorage.setItem('theme', this.darkMode.toString());
+        if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('theme', this.darkMode.toString());
+        }
         this.setMode();
 
     }
 
-    setMode(): void {    
+    setMode(): void {
         if (this.darkMode) {
             document.body.classList.add('dark-mode');
-            
+
         } else {
             document.body.classList.remove('dark-mode');
         }
@@ -265,7 +269,7 @@ export class AppComponent implements OnInit {
     logInOut(): void {
         if (this.isAuthorized())
             this.authService.logout();
-        else 
+        else
             this.router.navigate(['/login']);
     }
 }
