@@ -5,8 +5,10 @@
 
 /* You can add global styles to this file, and also import other style files */
 @import './variables.scss';
+@import './dark-mode-mixins.scss';
 @import './light-mode.scss';
 @import './dark-mode.scss';
+@import './dark-mode-utilities.scss';
 /* Importing Bootstrap SCSS file. */
 //@import 'bootstrap/scss/bootstrap';
 
@@ -144,7 +146,7 @@ mat-form-field {
 .clickable-row {
     cursor: pointer;
   }
-  
+
 .clickable-row:hover {
     background-color: rgba(0, 0, 0, 0.04);
 }

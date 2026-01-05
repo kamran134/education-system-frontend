@@ -1,21 +1,21 @@
-<div class="min-h-screen bg-gray-50 py-6">
+<div class="min-h-screen bg-gray-50 dark-mode:bg-gray-900 py-6">
     <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
     <!-- Breadcrumbs -->
     <nav class="mb-6 flex items-center gap-3">
         <button
         type="button"
-        class="inline-flex items-center space-x-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+        class="inline-flex items-center space-x-2 rounded-lg bg-white dark-mode:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark-mode:text-gray-200 shadow-sm border border-gray-300 dark-mode:border-gray-600 hover:bg-gray-50 dark-mode:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
         routerLink="/"
         >
         <lucide-icon [img]="Home" class="h-4 w-4"></lucide-icon>
         <span>Baş səhifə</span>
         </button>
-        
+
         <!-- Back Button -->
         <button
         *ngIf="backButton && backButton.show"
         type="button"
-        class="inline-flex items-center space-x-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+        class="inline-flex items-center space-x-2 rounded-lg bg-white dark-mode:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark-mode:text-gray-200 shadow-sm border border-gray-300 dark-mode:border-gray-600 hover:bg-gray-50 dark-mode:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
         (click)="backButton.action()"
         >
         <lucide-icon [img]="ArrowLeft" class="h-4 w-4"></lucide-icon>
@@ -25,8 +25,8 @@
 
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
-        <p *ngIf="description" class="mt-2 text-lg text-gray-600">{{ description }}</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark-mode:text-gray-100">{{ title }}</h1>
+        <p *ngIf="description" class="mt-2 text-lg text-gray-600 dark-mode:text-gray-300">{{ description }}</p>
     </div>
 
     <!-- Filters Section -->
@@ -38,7 +38,7 @@
     <div *ngIf="isLoading" class="flex items-center justify-center py-24">
         <div class="relative">
         <!-- Outer Ring -->
-        <div class="w-16 h-16 rounded-full border-4 border-gray-200"></div>
+        <div class="w-16 h-16 rounded-full border-4 border-gray-200 dark-mode:border-gray-700"></div>
         <!-- Spinning Ring -->
         <div class="absolute top-0 left-0 w-16 h-16 rounded-full border-4 border-transparent border-t-primary-600 border-r-primary-600 animate-spin"></div>
         <!-- Center Dot -->
@@ -47,17 +47,17 @@
         </div>
         </div>
         <div class="ml-4">
-        <p class="text-lg font-medium text-gray-900">{{ loadingText || 'Yüklənir...' }}</p>
-        <p class="text-sm text-gray-500 mt-1">Zəhmət olmasa gözləyin</p>
+        <p class="text-lg font-medium text-gray-900 dark-mode:text-gray-100">{{ loadingText || 'Yüklənir...' }}</p>
+        <p class="text-sm text-gray-500 dark-mode:text-gray-400 mt-1">Zəhmət olmasa gözləyin</p>
         </div>
     </div>
 
     <!-- Error State -->
-    <div *ngIf="hasError && !isLoading" class="rounded-lg bg-red-50 p-4 mb-6">
+    <div *ngIf="hasError && !isLoading" class="rounded-lg bg-red-50 dark-mode:bg-red-900/20 p-4 mb-6">
         <div class="flex">
         <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Xəta</h3>
-            <div class="mt-2 text-sm text-red-700">
+            <h3 class="text-sm font-medium text-red-800 dark-mode:text-red-300">Xəta</h3>
+            <div class="mt-2 text-sm text-red-700 dark-mode:text-red-400">
             {{ errorMessage }}
             </div>
         </div>
@@ -70,8 +70,8 @@
     </div>
 
     <!-- Actions Panel -->
-    <div 
-        *ngIf="actionButtons && actionButtons.length > 0" 
+    <div
+        *ngIf="actionButtons && actionButtons.length > 0"
         class="mt-8 flex flex-wrap gap-3 justify-between items-center"
     >
         <!-- Обычные кнопки слева -->
@@ -90,7 +90,7 @@
             </div>
             </app-button>
         </div>
-        
+
         <!-- Кнопка с hover справа -->
         <div class="flex flex-wrap gap-3">
             <app-button

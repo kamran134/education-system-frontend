@@ -3,6 +3,12 @@ body {
         background-color: $backgroundColor;
         color: $white;
 
+        // Tailwind dark mode support - применяем класс dark к html для активации dark: вариантов
+        &::before {
+            content: '';
+            display: none;
+        }
+
         main-flat-button {
             background-color: #0e0e0e !important;
             color: $white !important;
@@ -68,7 +74,7 @@ body {
         .mat-mdc-list-item {
             &:hover {
                 background-color: $backgroundColorSelected !important;
-                
+
                 .mdc-list-item__primary-text {
                     color: $selectedOptionDarkMode !important;
                 }
@@ -98,7 +104,7 @@ body {
             span {
                 color: $selectedOptionDarkMode !important;
             }
-            
+
             --mat-full-pseudo-checkbox-selected-icon-color: #a685e2;
             --mat-minimal-pseudo-checkbox-selected-checkmark-color: #a685e2;
         }

@@ -1,0 +1,105 @@
+// Dark Mode Mixins for SCSS components
+// Используйте эти миксины для добавления dark mode в кастомные компоненты
+
+// Основные цвета для dark mode
+$dark-bg-primary: #1f1f1f;
+$dark-bg-secondary: #101414;
+$dark-bg-hover: #2a2a2a;
+$dark-bg-selected: #383737;
+
+$dark-text-primary: #dae5e4;
+$dark-text-secondary: #a3acac;
+$dark-text-muted: #6b7280;
+
+$dark-border-primary: #383737;
+$dark-border-secondary: #4a4a4a;
+
+// Alert colors for dark mode
+$dark-red-bg: rgba(220, 38, 38, 0.15);
+$dark-red-border: rgba(220, 38, 38, 0.3);
+$dark-red-text: #f87171;
+$dark-red-text-light: #fca5a5;
+
+$dark-green-bg: rgba(34, 197, 94, 0.15);
+$dark-green-border: rgba(34, 197, 94, 0.3);
+$dark-green-text: #4ade80;
+$dark-green-text-light: #86efac;
+
+$dark-blue-bg: rgba(59, 130, 246, 0.15);
+$dark-blue-border: rgba(59, 130, 246, 0.3);
+$dark-blue-text: #60a5fa;
+$dark-blue-text-light: #93c5fd;
+
+$dark-yellow-bg: rgba(234, 179, 8, 0.15);
+$dark-yellow-border: rgba(234, 179, 8, 0.3);
+$dark-yellow-text: #facc15;
+$dark-yellow-text-light: #fde047;
+
+// Mixin для применения dark mode стилей
+@mixin dark-mode {
+  body.dark-mode & {
+    @content;
+  }
+}
+
+// Mixin для фонов
+@mixin dark-bg($level: 'primary') {
+  @include dark-mode {
+    @if $level == 'primary' {
+      background-color: $dark-bg-primary;
+    } @else if $level == 'secondary' {
+      background-color: $dark-bg-secondary;
+    } @else if $level == 'hover' {
+      background-color: $dark-bg-hover;
+    } @else if $level == 'selected' {
+      background-color: $dark-bg-selected;
+    }
+  }
+}
+
+// Mixin для текста
+@mixin dark-text($level: 'primary') {
+  @include dark-mode {
+    @if $level == 'primary' {
+      color: $dark-text-primary;
+    } @else if $level == 'secondary' {
+      color: $dark-text-secondary;
+    } @else if $level == 'muted' {
+      color: $dark-text-muted;
+    }
+  }
+}
+
+// Mixin для border
+@mixin dark-border($level: 'primary') {
+  @include dark-mode {
+    @if $level == 'primary' {
+      border-color: $dark-border-primary;
+    } @else if $level == 'secondary' {
+      border-color: $dark-border-secondary;
+    }
+  }
+}
+
+// Mixin для alert boxes
+@mixin dark-alert($type: 'info') {
+  @include dark-mode {
+    @if $type == 'error' or $type == 'danger' {
+      background-color: $dark-red-bg;
+      border-color: $dark-red-border;
+      color: $dark-red-text;
+    } @else if $type == 'success' {
+      background-color: $dark-green-bg;
+      border-color: $dark-green-border;
+      color: $dark-green-text;
+    } @else if $type == 'warning' {
+      background-color: $dark-yellow-bg;
+      border-color: $dark-yellow-border;
+      color: $dark-yellow-text;
+    } @else if $type == 'info' {
+      background-color: $dark-blue-bg;
+      border-color: $dark-blue-border;
+      color: $dark-blue-text;
+    }
+  }
+}
