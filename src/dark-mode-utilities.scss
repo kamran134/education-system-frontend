@@ -21,9 +21,44 @@ body.dark-mode {
     .text-gray-600 { color: #b8c1c1 !important; }
     .text-gray-700 { color: #dae5e4 !important; }
     .text-gray-900 { color: #dae5e4 !important; }
+    .text-gray-800 { color: #e5e7eb !important; }
+
+    // Hover text colors
+    .hover\:text-gray-900:hover { color: #dae5e4 !important; }
 
     // Border colors
     .border-gray-200 { border-color: #383737 !important; }
+    .border-gray-300 { border-color: #4a4a4a !important; }
+    .border-gray-100 { border-color: #2a2a2a !important; }
+
+    // Input fields - критически важно для читаемости!
+    input, textarea, select {
+        background-color: #2a2a2a !important;
+        color: #dae5e4 !important;
+        border-color: #4a4a4a !important;
+
+        &::placeholder {
+            color: #6b7280 !important;
+        }
+
+        &:focus {
+            background-color: #2a2a2a !important;
+            border-color: #3b82f6 !important;
+        }
+
+        &:disabled {
+            background-color: #1a1a1a !important;
+            color: #6b7280 !important;
+        }
+    }
+
+    // Options внутри select
+    option {
+        background-color: #2a2a2a !important;
+        color: #dae5e4 !important;
+    }
+
+    // Исправление для всех классов с border-gray-*
     .border-gray-300 { border-color: #4a4a4a !important; }
 
     // Alert backgrounds

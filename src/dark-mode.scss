@@ -27,7 +27,32 @@ body {
 
         .mdc-text-field {
             background-color: #1f1f1f;
-            color: $white
+            color: $white;
+
+            .mdc-text-field__input {
+                color: $white !important;
+
+                &::placeholder {
+                    color: #6b7280 !important;
+                }
+            }
+        }
+
+        // Material input fields
+        input[matInput] {
+            color: $white !important;
+
+            &::placeholder {
+                color: #6b7280 !important;
+            }
+        }
+
+        textarea[matInput] {
+            color: $white !important;
+
+            &::placeholder {
+                color: #6b7280 !important;
+            }
         }
 
         .mat-mdc-select {
@@ -54,10 +79,24 @@ body {
             .mat-mdc-row {
                 background-color: $backgroundColor !important;
                 color: $white !important;
+
+                &:hover {
+                    background-color: #2a2a2a !important;
+                }
             }
 
             .mat-mdc-table-cell {
                 color: $white !important;
+            }
+        }
+
+        // Hover states для обычных таблиц (не Material)
+        table {
+            tr {
+                &.hover\:bg-gray-50:hover,
+                &.hover\:bg-gray-100:hover {
+                    background-color: #2a2a2a !important;
+                }
             }
         }
 
@@ -149,8 +188,22 @@ body {
         }
 
         .mat-mdc-dialog-surface {
-            //background-color: $backgroundColor;
+            background-color: #1f1f1f !important;
             color: $white !important;
+        }
+
+        .mat-mdc-dialog-title,
+        h2[mat-dialog-title] {
+            color: $white !important;
+        }
+
+        .mat-mdc-dialog-content,
+        mat-dialog-content {
+            color: $white !important;
+        }
+
+        .mat-mdc-dialog-actions {
+            border-top-color: #383737 !important;
         }
     }
 }
