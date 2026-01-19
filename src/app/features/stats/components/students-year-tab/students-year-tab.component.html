@@ -1,17 +1,17 @@
 <div>
     <!-- Back button and Update button -->
     <div class="mb-4 flex justify-between items-center">
-        <button 
+        <button
             *ngIf="canGoBack"
-            mat-raised-button 
+            mat-raised-button
             color="primary"
             (click)="backClicked.emit()">
             <mat-icon>arrow_back</mat-icon>
             Geri
         </button>
         <div [class]="canGoBack ? '' : 'w-full flex justify-end'">
-            <!-- <app-button 
-                variant="secondary" 
+            <!-- <app-button
+                variant="secondary"
                 (clicked)="updateStudentsStats()"
                 [disabled]="isUpdating">
                 <div class="flex items-center space-x-2">
@@ -30,7 +30,7 @@
                 {{ student.place > 0 ? student.place : '—' }}
             </td>
         </ng-container>
-        
+
         <ng-container matColumnDef="code" *ngIf="displayedColumns.includes('code')">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Şagirdin kodu </th>
             <td mat-cell *matCellDef="let student"> {{ student.code }} </td>
@@ -78,7 +78,7 @@
         </ng-container>
 
         <ng-container matColumnDef="score" *ngIf="displayedColumns.includes('score')">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Ümumi balı </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Reytinq balı </th>
             <td mat-cell *matCellDef="let student"> {{ student.score || 0 }} </td>
         </ng-container>
 
