@@ -5,14 +5,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../core/services/auth.service';
-import { LucideAngularModule, Home, Save, RotateCcw, CheckSquare, Square } from 'lucide-angular';
+import { LucideAngularModule, Home, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { Router } from '@angular/router';
+import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
 
 interface Column {
     key: string;
     label: string;
     selected: boolean;
+    order: number;
 }
 
 @Component({
@@ -21,7 +23,10 @@ interface Column {
     imports: [
         FormsModule,
         CommonModule,
-        LucideAngularModule
+        LucideAngularModule,
+        CdkDropList,
+        CdkDrag,
+        CdkDragHandle
     ],
     templateUrl: './stats-columns.component.html',
     styleUrl: './stats-columns.component.scss'
@@ -33,9 +38,10 @@ export class StatsColumnsComponent implements OnInit{
     readonly RotateCcw = RotateCcw;
     readonly CheckSquare = CheckSquare;
     readonly Square = Square;
-    
+    readonly GripVertical = GripVertical;
+
     activeTab: number = 0;
-    
+
     displayedColumns: string[] = ['id', 'name', 'actions'];
     dataSource: UserSettings = {
         userId: '', // Assuming userId is a string, you can set it to the current user's ID if needed
@@ -54,82 +60,82 @@ export class StatsColumnsComponent implements OnInit{
     }
 
     developingStudentColumnOptions: Column[] = [
-        { key: 'level', label: 'Pillə', selected: false },
-        { key: 'code', label: 'Kodu', selected: false },
-        { key: 'lastName', label: 'Soyadı', selected: false },
-        { key: 'firstName', label: 'Adı', selected: false },
-        { key: 'middleName', label: 'Ata adı', selected: false },
-        { key: 'grade', label: 'Sinifi', selected: false },
-        { key: 'teacher', label: 'Müəllimi', selected: false },
-        { key: 'school', label: 'Məktəbi', selected: false },
-        { key: 'district', label: 'Rayonu', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false },
+        { key: 'level', label: 'Pillə', selected: false, order: 0 },
+        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 8 },
+        { key: 'averageScore', label: 'Orta balı', selected: false, order: 9 },
+        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 10 },
     ];
 
     monthStudentColumnOptions: Column[] = [
-        { key: 'code', label: 'Kodu', selected: false },
-        { key: 'lastName', label: 'Soyadı', selected: false },
-        { key: 'firstName', label: 'Adı', selected: false },
-        { key: 'middleName', label: 'Ata adı', selected: false },
-        { key: 'grade', label: 'Sinifi', selected: false },
-        { key: 'teacher', label: 'Müəllimi', selected: false },
-        { key: 'school', label: 'Məktəbi', selected: false },
-        { key: 'district', label: 'Rayonu', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false },
-        // { key: 'place', label: 'Yer', selected: false }
+        { key: 'code', label: 'Kodu', selected: false, order: 0 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 1 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 2 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 3 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 4 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 5 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 6 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 7 },
+        { key: 'averageScore', label: 'Orta balı', selected: false, order: 8 },
+        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 9 },
+        // { key: 'place', label: 'Yer', selected: false, order: 10 }
     ];
 
     studentColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: false },
-        { key: 'code', label: 'Kodu', selected: false },
-        { key: 'lastName', label: 'Soyadı', selected: false },
-        { key: 'firstName', label: 'Adı', selected: false },
-        { key: 'middleName', label: 'Ata adı', selected: false },
-        { key: 'grade', label: 'Sinifi', selected: false },
-        { key: 'teacher', label: 'Müəllimi', selected: false },
-        { key: 'school', label: 'Məktəbi', selected: false },
-        { key: 'district', label: 'Rayonu', selected: false },
-        { key: 'score', label: 'Balı', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 8 },
+        { key: 'score', label: 'Balı', selected: false, order: 9 },
+        { key: 'averageScore', label: 'Orta balı', selected: false, order: 10 },
     ];
 
     teacherColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: false },
-        { key: 'code', label: 'Kodu', selected: false },
-        { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: false },
-        { key: 'school', label: 'Məktəbi', selected: false },
-        { key: 'district', label: 'Rayonu', selected: false },
-        { key: 'studentCount', label: 'Şagird sayı', selected: false },
-        { key: 'score', label: 'Balı', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: false, order: 2 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 3 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 4 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 5 },
+        { key: 'score', label: 'Balı', selected: false, order: 6 },
+        { key: 'averageScore', label: 'Orta balı', selected: false, order: 7 },
     ];
 
     schoolColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: false },
-        { key: 'code', label: 'Kodu', selected: false },
-        { key: 'name', label: 'Adı', selected: false },
-        { key: 'district', label: 'Rayonu', selected: false },
-        { key: 'studentCount', label: 'Şagird sayı', selected: false },
-        { key: 'score', label: 'Balı', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false },
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'name', label: 'Adı', selected: false, order: 2 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 3 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 4 },
+        { key: 'score', label: 'Balı', selected: false, order: 5 },
+        { key: 'averageScore', label: 'Orta balı', selected: false, order: 6 },
     ];
 
     districtColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: false },
-        { key: 'code', label: 'Kodu', selected: false },
-        { key: 'name', label: 'Adı', selected: false },
-        { key: 'studentCount', label: 'Şagird sayı', selected: false },
-        { key: 'score', label: 'Balı', selected: false },
-        { key: 'averageScore', label: 'Orta balı', selected: false }
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'name', label: 'Adı', selected: false, order: 2 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 3 },
+        { key: 'score', label: 'Balı', selected: false, order: 4 },
+        { key: 'averageScore', label: 'Orta balı', selected: false, order: 5 }
     ];
 
     userId: string = '';
 
     constructor(
-        private authService: AuthService, 
-        private dashboardService: DashboardService, 
+        private authService: AuthService,
+        private dashboardService: DashboardService,
         private snackBar: MatSnackBar,
         public router: Router
     ) {}
@@ -143,37 +149,56 @@ export class StatsColumnsComponent implements OnInit{
         }
         // Initialization logic can go here
         this.loadColumns();
-        
+
     }
 
     loadColumns(): void {
         this.dashboardService.getRatingColumns(this.userId).subscribe({
             next: (settings: UserSettings) => {
                 this.dataSource = settings;
-                // Set selected state based on the loaded settings
-                this.developingStudentColumnOptions.forEach(column => {
-                    column.selected = settings.developingStudentCollumns?.includes(column.key) || false;
-                });
-                this.monthStudentColumnOptions.forEach(column => {
-                    column.selected = settings.studentCollumns?.includes(column.key) || false;
-                });
-                this.studentColumnOptions.forEach(column => {
-                    column.selected = settings.allStudentCollumns?.includes(column.key) || false;
-                });
-                this.teacherColumnOptions.forEach(column => {
-                    column.selected = settings.allTeacherCollumns?.includes(column.key) || false;
-                });
-                this.schoolColumnOptions.forEach(column => {
-                    column.selected = settings.allSchoolCollumns?.includes(column.key) || false;
-                });
-                this.districtColumnOptions.forEach(column => {
-                    column.selected = settings.allDistrictCollumns?.includes(column.key) || false;
-                });
+                // Restore columns order and selected state
+                this.restoreColumnOrder(this.developingStudentColumnOptions, settings.developingStudentCollumns || []);
+                this.restoreColumnOrder(this.monthStudentColumnOptions, settings.studentCollumns || []);
+                this.restoreColumnOrder(this.studentColumnOptions, settings.allStudentCollumns || []);
+                this.restoreColumnOrder(this.teacherColumnOptions, settings.allTeacherCollumns || []);
+                this.restoreColumnOrder(this.schoolColumnOptions, settings.allSchoolCollumns || []);
+                this.restoreColumnOrder(this.districtColumnOptions, settings.allDistrictCollumns || []);
             },
             error: (error) => {
                 console.error('Error loading columns:', error);
             }
         });
+    }
+
+    private restoreColumnOrder(columns: Column[], savedOrder: string[]): void {
+        // Mark columns as selected based on saved settings
+        columns.forEach(column => {
+            column.selected = savedOrder.includes(column.key);
+        });
+
+        // Restore order based on saved array
+        if (savedOrder.length > 0) {
+            columns.sort((a, b) => {
+                const indexA = savedOrder.indexOf(a.key);
+                const indexB = savedOrder.indexOf(b.key);
+
+                // If both are in saved order, sort by their position
+                if (indexA !== -1 && indexB !== -1) {
+                    return indexA - indexB;
+                }
+                // If only A is saved, it comes first
+                if (indexA !== -1) return -1;
+                // If only B is saved, it comes first
+                if (indexB !== -1) return 1;
+                // If neither is saved, keep original order
+                return a.order - b.order;
+            });
+
+            // Update order property to reflect current positions
+            columns.forEach((column, index) => {
+                column.order = index;
+            });
+        }
     }
 
     saveColumnSettings(): void {
@@ -234,5 +259,42 @@ export class StatsColumnsComponent implements OnInit{
 
         // Save the reset settings
         this.saveColumnSettings();
+    }
+
+    // Drag & Drop handlers for each tab
+    dropDevelopingStudent(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.developingStudentColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.developingStudentColumnOptions);
+    }
+
+    dropMonthStudent(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.monthStudentColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.monthStudentColumnOptions);
+    }
+
+    dropStudent(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.studentColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.studentColumnOptions);
+    }
+
+    dropTeacher(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.teacherColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.teacherColumnOptions);
+    }
+
+    dropSchool(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.schoolColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.schoolColumnOptions);
+    }
+
+    dropDistrict(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.districtColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.districtColumnOptions);
+    }
+
+    private updateColumnOrder(columns: Column[]): void {
+        columns.forEach((column, index) => {
+            column.order = index;
+        });
     }
 }

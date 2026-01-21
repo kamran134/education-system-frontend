@@ -1,1 +1,36 @@
 // Все стили перенесены в Tailwind CSS
+
+// Drag & Drop animations
+.cdk-drag-preview {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    background-color: white;
+    opacity: 0.9;
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.4;
+    background-color: #f3f4f6;
+    border: 2px dashed #d1d5db;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Dark mode styles
+body.dark-mode {
+    .cdk-drag-preview {
+        background-color: #1f1f1f;
+        border-color: #4a4a4a;
+    }
+
+    .cdk-drag-placeholder {
+        background-color: #2a2a2a;
+        border-color: #4a4a4a;
+    }
+}

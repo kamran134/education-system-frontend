@@ -36,6 +36,33 @@ export class StudentRatingTableComponent {
         return ['avatar', ...this.columns];
     }
 
+    // Column definitions with labels and sort keys
+    columnDefinitions = new Map<string, {label: string, sortKey: string}>([
+        ['level', {label: 'Pillə', sortKey: 'level'}],
+        ['code', {label: 'Şagirdin kodu', sortKey: 'code'}],
+        ['lastName', {label: 'Soyadı', sortKey: 'lastName'}],
+        ['firstName', {label: 'Adı', sortKey: 'firstName'}],
+        ['middleName', {label: 'Ata adı', sortKey: 'middleName'}],
+        ['totalScore', {label: 'İmtahan balı', sortKey: 'totalScore'}],
+        ['grade', {label: 'Sinifi', sortKey: 'grade'}],
+        ['teacher', {label: 'Müəllimi', sortKey: 'teacher'}],
+        ['school', {label: 'Məktəbi', sortKey: 'school'}],
+        ['district', {label: 'Rayonu / şəhəri', sortKey: 'district'}],
+        ['averageScore', {label: 'Orta balı', sortKey: 'averageScore'}],
+        ['place', {label: 'Yer', sortKey: 'place'}],
+        ['score', {label: 'Balı', sortKey: 'score'}]
+    ]);
+
+    // Get ordered column definitions based on columns array
+    get orderedColumnDefinitions(): Array<{key: string, label: string, sortKey: string}> {
+        return this.columns
+            .filter(col => this.columnDefinitions.has(col))
+            .map(col => ({
+                key: col,
+                ...this.columnDefinitions.get(col)!
+            }));
+    }
+
     onRowClick(studentId: string): void {
         this.rowClicked.emit(studentId);
     }
