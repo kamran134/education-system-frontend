@@ -22,7 +22,6 @@ import { TeacherService } from '../../../teachers/services/teacher.service';
         MatButtonModule,
         MatIconModule,
         LucideAngularModule,
-        ButtonComponent,
         RoundNumberPipe
     ],
     templateUrl: './teachers-year-tab.component.html',
