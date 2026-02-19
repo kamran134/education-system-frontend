@@ -72,13 +72,13 @@ export class StatsComponent implements OnInit, OnDestroy {
     @ViewChild('schoolSort') schoolSort!: MatSort;
     @ViewChild('studentSort') studentSort!: MatSort;
     @ViewChild('districtSort') districtSort!: MatSort;
-    
+
     // Icons
     readonly Home = Home;
     readonly RefreshCw = RefreshCw;
     readonly Loader = Loader;
     readonly AlertCircle = AlertCircle;
-    
+
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
@@ -119,7 +119,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         'level', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
     ];
     private readonly availableStudentColumns: string[] = [
-        'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
+        'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
     ];
     private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
     private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'studentCount', 'score', 'averageScore', 'place'];
@@ -133,7 +133,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedExams: Exam[] | undefined = undefined;
     selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
-    
+
     // Все возможные табы
     private allTabs = [
         { label: 'İnkişaf edən şagirdlər', key: 'developingStudents', permission: 'showStudentsTab' },
@@ -144,10 +144,10 @@ export class StatsComponent implements OnInit, OnDestroy {
         { label: 'İlin məktəbləri', key: 'allSchools', permission: 'showSchoolsTab' },
         { label: 'İlin rayonları / şəhərləri', key: 'allDistricts', permission: 'showDistrictsTab' }
     ];
-    
+
     // Геттер для фильтрации табов по правам доступа
     get tabs() {
-        return this.allTabs.filter(tab => 
+        return this.allTabs.filter(tab =>
             this.permissions.canShowUI(tab.permission as any)
         );
     }
@@ -181,7 +181,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
     authorizedUserRole: string | null = null;
-    
+
     // Данные текущего пользователя
     currentUser: any = null;
     currentUserName: string = '';
@@ -228,11 +228,11 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
                     this.selectedExamIds = params['examIds'] ? params['examIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.searchString = params['search'] || '';
-                    
+
                     // Restore month and tab
                     this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
                     this.selectedTab = params['tab'] || 'developingStudents';
-                    
+
                     // Restore sort and pagination
                     this.sortActive = params['sortActive'] || 'averageScore';
                     this.sortDirection = params['sortDirection'] || 'desc';
@@ -309,7 +309,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     private loadCurrentUserData(): void {
         // Сначала проверяем, есть ли уже данные в AuthService
         const cachedUser = this.authService.getCurrentUserValue();
-        
+
         if (cachedUser) {
             // Используем кешированные данные, не делаем запрос
             this.currentUser = cachedUser;
@@ -335,7 +335,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         if (!this.currentUser) return;
 
         const role = this.currentUser.role;
-        
+
         if (role === 'schoolDirector' && this.currentUser.schoolId) {
             // Для директора школы - загружаем данные школы
             this.schoolService.getSchoolById(this.currentUser.schoolId).subscribe({
@@ -386,21 +386,21 @@ export class StatsComponent implements OnInit, OnDestroy {
     // Геттеры для отображения заголовков страницы
     get pageTitle(): string {
         const role = this.authorizedUserRole;
-        
+
         if (role === 'schoolDirector') {
-            return this.currentDistrictName && this.currentSchoolName 
-                ? `${this.currentDistrictName} rayon ${this.currentSchoolName}` 
+            return this.currentDistrictName && this.currentSchoolName
+                ? `${this.currentDistrictName} rayon ${this.currentSchoolName}`
                 : 'Məktəb direktoru';
         } else if (role === 'teacher') {
-            return this.currentUserName 
-                ? `Layihə müəllimi: ${this.currentUserName}` 
+            return this.currentUserName
+                ? `Layihə müəllimi: ${this.currentUserName}`
                 : 'Müəllim';
         } else if (role === 'districtRepresenter') {
-            return this.currentDistrictName 
-                ? `${this.currentDistrictName} rayon` 
+            return this.currentDistrictName
+                ? `${this.currentDistrictName} rayon`
                 : 'Rayon nümayəndəsi';
         }
-        
+
         return '';
     }
 
@@ -565,7 +565,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             examIds: this.selectedExamIds.join(',') || '',
         };
-        
+
         this.isloading = true;
         this.stats.students = [];
 
@@ -793,7 +793,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             horizontalPosition: 'center',
             verticalPosition: 'top'
         });
-        
+
         this.statsService.updateAllStats().subscribe({
             next: (response) => {
                 this.isUpdatingAll = false;
@@ -945,7 +945,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.selectedMonth = `${new Date().getFullYear()}-0`; // Сбрасываем месяц при смене экзамена
         if (this.isStudentMonthTab()) {
             this.loadMonthStudentsStats();
-            
+
             if (this.selectedExams && this.selectedExams.length > 0) {
                 this.developingStudentsLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə inkişaf edən şagirdlər`);
                 this.studentsOfMonthLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə ayın şagirdləri`);
@@ -1120,7 +1120,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     getTabClasses(index: number): string {
         const baseClasses = 'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm focus:outline-none cursor-pointer transition-colors';
-        
+
         if (index === this.selectedTabIndex) {
             return `${baseClasses} border-blue-500 text-blue-600`;
         } else {
@@ -1186,12 +1186,12 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
 
         const previousState = this.navigationHistory.pop()!;
-        
+
         // Restore filter state
         this.selectedDistrictIds = previousState.districtIds;
         this.selectedSchoolIds = previousState.schoolIds;
         this.selectedTeacherIds = previousState.teacherIds;
-        
+
         // Navigate to previous tab
         this.selectTab(previousState.tabIndex);
     }

@@ -49,6 +49,7 @@ export interface Student {
     averageScore?: number;
     place?: number;
     avatarUrl?: string;
+    participationCount?: number; // number of exams participated
 }
 
 export interface StudentForCreation {

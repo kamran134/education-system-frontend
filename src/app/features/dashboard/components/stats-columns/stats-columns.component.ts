@@ -99,6 +99,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'district', label: 'Rayonu', selected: false, order: 8 },
         { key: 'score', label: 'Balı', selected: false, order: 9 },
         { key: 'averageScore', label: 'Orta balı', selected: false, order: 10 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 11 },
     ];
 
     teacherColumnOptions: Column[] = [
