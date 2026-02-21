@@ -6,6 +6,12 @@
         accept=".json"
         class="hidden"
         (change)="onSchoolFileSelected($event)" />
+    <input
+        #teacherFileInput
+        type="file"
+        accept=".json"
+        class="hidden"
+        (change)="onTeacherFileSelected($event)" />
 
     <!-- Header -->
     <div class="mb-8">

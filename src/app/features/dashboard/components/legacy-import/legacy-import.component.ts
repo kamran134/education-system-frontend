@@ -2,6 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Database, Upload, School, Users, GraduationCap, FileText, CheckCircle, XCircle, Loader } from 'lucide-angular';
 import { SchoolService } from '../../../schools/services/school.service';
+import { TeacherService } from '../../../teachers/services/teacher.service';
 
 interface ImportResult {
     inserted: number;
@@ -28,6 +29,7 @@ interface SectionState {
 })
 export class LegacyImportComponent {
     @ViewChild('schoolFileInput') schoolFileInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('teacherFileInput') teacherFileInput!: ElementRef<HTMLInputElement>;
 
     // Icons
     readonly Database = Database;
@@ -60,7 +62,7 @@ export class LegacyImportComponent {
             title: 'Müəllimlər',
             description: 'Köhnə bazadan müəllim məlumatlarını idxal edin',
             icon: Users,
-            disabled: true
+            disabled: false
         },
         {
             id: 'students',
@@ -78,12 +80,15 @@ export class LegacyImportComponent {
         }
     ];
 
-    constructor(private schoolService: SchoolService) {}
+    constructor(private schoolService: SchoolService, private teacherService: TeacherService) {}
 
     onImport(sectionId: string): void {
         if (sectionId === 'schools') {
             this.schoolFileInput.nativeElement.value = '';
             this.schoolFileInput.nativeElement.click();
+        } else if (sectionId === 'teachers') {
+            this.teacherFileInput.nativeElement.value = '';
+            this.teacherFileInput.nativeElement.click();
         }
     }
 
@@ -98,6 +103,28 @@ export class LegacyImportComponent {
         state.error = null;
 
         this.schoolService.importLegacySchools(file).subscribe({
+            next: (result: ImportResult) => {
+                state.loading = false;
+                state.result = result;
+            },
+            error: (err: any) => {
+                state.loading = false;
+                state.error = err?.error?.message || err?.message || 'İdxal zamanı xəta baş verdi';
+            }
+        });
+    }
+
+    onTeacherFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const state = this.sectionStates['teachers'];
+        state.loading = true;
+        state.result = null;
+        state.error = null;
+
+        this.teacherService.importLegacyTeachers(file).subscribe({
             next: (result: ImportResult) => {
                 state.loading = false;
                 state.result = result;

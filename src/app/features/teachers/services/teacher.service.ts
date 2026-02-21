@@ -19,37 +19,37 @@ export class TeacherService {
     getTeachers(params: FilterParams): Observable<TeacherResponse> {
         let url: string = `${this.configService.getApiUrl()}/teachers`;
         const queryParams: string[] = [];
-        
+
         if (params.page && params.size) {
             queryParams.push(`page=${params.page}`);
             queryParams.push(`size=${params.size}`);
         }
-        
+
         if (params.districtIds && params.districtIds.length > 0) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
-        
+
         if (params.schoolIds && params.schoolIds.length > 0) {
             queryParams.push(`schoolIds=${params.schoolIds}`);
         }
-        
+
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}`);
             queryParams.push(`sortDirection=${params.sortDirection}`);
         }
-        
+
         if (params.search) {
             queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
-        
+
         if (params.code) {
             queryParams.push(`code=${params.code}`);
         }
-        
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<TeacherResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -63,15 +63,15 @@ export class TeacherService {
     getTeachersForFilter(params: FilterParams): Observable<Teacher[]> {
         let url: string = `${this.configService.getApiUrl()}/teachers/filter`;
         const queryParams: string[] = [];
-        
+
         if (params.schoolIds && params.schoolIds.length > 0) {
             queryParams.push(`schoolIds=${params.schoolIds}`);
         }
-        
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<Teacher[]>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -120,5 +120,16 @@ export class TeacherService {
         console.log('updateTeachersStats called');
         return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    importLegacyTeachers(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return this.http.post<ApiResponse<any>>(
+            `${this.configService.getApiUrl()}/teachers/legacy-import`,
+            formData,
+            { withCredentials: true }
+        ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }
