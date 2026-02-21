@@ -18,33 +18,33 @@ export class SchoolService {
     getSchools(params: FilterParams): Observable<SchoolResponse> {
         let url: string = `${this.configService.getApiUrl()}/schools`;
         const queryParams: string[] = [];
-        
+
         if (params.page && params.size) {
             queryParams.push(`page=${params.page}`);
             queryParams.push(`size=${params.size}`);
         }
-        
+
         if (params.districtIds) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
-        
+
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}`);
             queryParams.push(`sortDirection=${params.sortDirection}`);
         }
-        
+
         if (params.search) {
             queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
-        
+
         if (params.code) {
             queryParams.push(`code=${params.code}`);
         }
-        
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<SchoolResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -58,15 +58,15 @@ export class SchoolService {
     getSchoolsForFilter(params: FilterParams): Observable<School[]> {
         let url: string = `${this.configService.getApiUrl()}/schools/filter`;
         const queryParams: string[] = [];
-        
+
         if (params.districtIds) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
-        
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<School[]>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -114,5 +114,16 @@ export class SchoolService {
         const url: string = `${this.configService.getApiUrl()}/schools/update-stats`;
         return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    importLegacySchools(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return this.http.post<ApiResponse<any>>(
+            `${this.configService.getApiUrl()}/schools/legacy-import`,
+            formData,
+            { withCredentials: true }
+        ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }
