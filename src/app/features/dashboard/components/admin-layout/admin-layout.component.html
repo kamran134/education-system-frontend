@@ -1,18 +1,18 @@
 <div class="flex h-screen bg-gray-50">
     <!-- Sidebar -->
-    <aside 
+    <aside
         [class.w-64]="sidebarOpen()"
         [class.w-20]="!sidebarOpen()"
         class="bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col">
-        
+
         <!-- Sidebar Header -->
         <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200">
-            <h2 
+            <h2
                 *ngIf="sidebarOpen()"
                 class="text-lg font-semibold text-gray-900 transition-opacity duration-300">
                 İdarəetmə
             </h2>
-            <button 
+            <button
                 (click)="toggleSidebar()"
                 class="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
                 <lucide-icon [img]="sidebarOpen() ? X : Menu" class="w-5 h-5"></lucide-icon>
@@ -22,13 +22,13 @@
         <!-- Navigation -->
         <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             <!-- Dashboard -->
-            <a 
+            <a
                 routerLink="/admin"
                 routerLinkActive="bg-primary-50 text-primary-700"
                 [routerLinkActiveOptions]="{exact: true}"
                 class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="BarChart3" class="w-5 h-5 flex-shrink-0"></lucide-icon>
-                <span 
+                <span
                     *ngIf="sidebarOpen()"
                     class="ml-3 transition-opacity duration-300">
                     Dashboard
@@ -36,13 +36,13 @@
             </a>
 
             <!-- Users -->
-            <a 
+            <a
                 *ngIf="permissions.canAccessRoute('canAccessUserManagement')"
                 routerLink="/admin/users"
                 routerLinkActive="bg-primary-50 text-primary-700"
                 class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="Users" class="w-5 h-5 flex-shrink-0"></lucide-icon>
-                <span 
+                <span
                     *ngIf="sidebarOpen()"
                     class="ml-3 transition-opacity duration-300">
                     İstifadəçilər
@@ -50,27 +50,41 @@
             </a>
 
             <!-- Rating Columns -->
-            <a 
+            <a
                 *ngIf="permissions.canAccessRoute('canAccessRatingColumns')"
                 routerLink="/admin/rating-columns"
                 routerLinkActive="bg-primary-50 text-primary-700"
                 class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="Settings" class="w-5 h-5 flex-shrink-0"></lucide-icon>
-                <span 
+                <span
                     *ngIf="sidebarOpen()"
                     class="ml-3 transition-opacity duration-300">
                     Reytinq sütunları
+                </span>
+            </a>
+
+            <!-- Legacy Import -->
+            <a
+                *ngIf="permissions.canAccessRoute('canAccessUserManagement')"
+                routerLink="/admin/legacy-import"
+                routerLinkActive="bg-primary-50 text-primary-700"
+                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+                <lucide-icon [img]="Database" class="w-5 h-5 flex-shrink-0"></lucide-icon>
+                <span
+                    *ngIf="sidebarOpen()"
+                    class="ml-3 transition-opacity duration-300">
+                    Köhnə bazadan inteqrasiya
                 </span>
             </a>
         </nav>
 
         <!-- Sidebar Footer -->
         <div class="p-3 border-t border-gray-200">
-            <button 
+            <button
                 (click)="logout()"
                 class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg text-red-600 hover:bg-red-50 transition-colors">
                 <lucide-icon [img]="LogOut" class="w-5 h-5 flex-shrink-0"></lucide-icon>
-                <span 
+                <span
                     *ngIf="sidebarOpen()"
                     class="ml-3 transition-opacity duration-300">
                     Çıxış
@@ -84,16 +98,16 @@
         <!-- Top Bar -->
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
             <div class="flex items-center space-x-4">
-                <button 
+                <button
                     (click)="toggleSidebar()"
                     class="lg:hidden p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
                     <lucide-icon [img]="Menu" class="w-5 h-5"></lucide-icon>
                 </button>
                 <h1 class="text-xl font-semibold text-gray-900">İdarəetmə Paneli</h1>
             </div>
-            
+
             <div class="flex items-center space-x-4">
-                <button 
+                <button
                     routerLink="/"
                     class="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
                     Əsas səhifəyə qayıt
