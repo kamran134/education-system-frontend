@@ -1,5 +1,6 @@
 import { District } from "./district.model";
 import { ApiResponse } from "./response.model";
+import { YearRating } from "./year-rating.model";
 
 export interface SchoolResponse {
     data: School[];
@@ -21,6 +22,7 @@ export interface School {
     schoolOfTheYearScore?: number;
     place?: number;
     active: boolean;
+    ratings?: YearRating[];
 }
 
 export interface SchoolForCreation {
