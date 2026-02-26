@@ -18,53 +18,53 @@ export class StudentService {
     getStudents(params: FilterParams): Observable<StudentApiResponse> {
         let url: string = `${this.configService.getApiUrl()}/students`;
         const queryParams: string[] = [];
-        
+
         if (params.page && params.size) {
             queryParams.push(`page=${params.page}`);
             queryParams.push(`size=${params.size}`);
         }
-        
+
         if (params.defective) {
             queryParams.push('defective=true');
         }
-        
+
         if (params.districtIds && params.districtIds.length > 0) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
-        
+
         if (params.schoolIds && params.schoolIds.length > 0) {
             queryParams.push(`schoolIds=${params.schoolIds}`);
         }
-        
+
         if (params.teacherIds && params.teacherIds.length > 0) {
             queryParams.push(`teacherIds=${params.teacherIds}`);
         }
-        
+
         if (params.grades && params.grades.length > 0) {
             queryParams.push(`grades=${params.grades}`);
         }
-        
+
         if (params.examIds && params.examIds.length > 0) {
             queryParams.push(`examIds=${params.examIds}`);
         }
-        
+
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}`);
             queryParams.push(`sortDirection=${params.sortDirection}`);
         }
-        
+
         if (params.search) {
             queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
-        
+
         if (params.code) {
             queryParams.push(`code=${params.code}`);
         }
-        
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<StudentApiResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -147,5 +147,16 @@ export class StudentService {
         const url: string = `${this.configService.getApiUrl()}/students/bulk-upload/avatars`;
         return this.http.post<ApiResponse<any>>(url, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    importLegacyStudents(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        return this.http.post<ApiResponse<any>>(
+            `${this.configService.getApiUrl()}/students/legacy-import`,
+            formData,
+            { withCredentials: true }
+        ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

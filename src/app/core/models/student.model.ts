@@ -34,6 +34,8 @@ export interface StudentWithResultData {
     data: StudentWithResult;
 }
 
+import { YearRating } from './year-rating.model';
+
 export interface Student {
     _id: string;
     lastName: string;
@@ -50,6 +52,7 @@ export interface Student {
     place?: number;
     avatarUrl?: string;
     participationCount?: number; // number of exams participated
+    ratings?: YearRating[];
 }
 
 export interface StudentForCreation {
