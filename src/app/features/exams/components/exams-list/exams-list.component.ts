@@ -74,7 +74,7 @@ export class ExamsListComponent implements OnInit {
             size: this.pageSize,
             districtIds: this.selectedDistrictIds.join(",")
         };
-        
+
         this.isLoading = true;
         this.examService.getExams(params)
             .subscribe({
@@ -102,7 +102,7 @@ export class ExamsListComponent implements OnInit {
             width: '400px',
             data: { name: '', code: '', date: '' },
         });
-    
+
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
                 this.examService.addExam(result).subscribe(() => {
@@ -162,6 +162,22 @@ export class ExamsListComponent implements OnInit {
                         console.error(error);
                     }
                 });
+            }
+        });
+    }
+
+    onExportAllResultsJson(): void {
+        this.examService.exportResultsAsJson().subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = 'results_all.json';
+                anchor.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: (error: any) => {
+                console.error('Export xətası:', error);
             }
         });
     }

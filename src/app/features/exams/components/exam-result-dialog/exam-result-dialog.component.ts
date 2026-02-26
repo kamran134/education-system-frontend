@@ -24,7 +24,7 @@ export class ExamResultDialogComponent implements OnInit {
         horizontalPosition: this.horizontalPosition,
         verticalPosition: this.verticalPosition
     }
-    
+
     constructor(
         public dialogRef: MatDialogRef<ExamResultDialogComponent>,
         private examService: ExamService,
@@ -67,6 +67,22 @@ export class ExamResultDialogComponent implements OnInit {
             },
             error: (error: Error) => {
                 this.snackBar.open(`Nəticələr silinərkən xəta baş verdi!\n${error.error.message}`, 'Bağla', this.matSnackConfig);
+            }
+        });
+    }
+
+    onExportJson(): void {
+        this.examService.exportResultsAsJson(this.data.exam._id).subscribe({
+            next: (blob: Blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = `results_exam_${this.data.exam.code}.json`;
+                anchor.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: (error: Error) => {
+                this.snackBar.open('JSON export zamanı xəta baş verdi!', 'Bağla', this.matSnackConfig);
             }
         });
     }

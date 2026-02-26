@@ -53,4 +53,10 @@ export class ExamService {
         const url: string = `${this.configService.getApiUrl()}/exams`;
         return this.http.delete<ResponseFromBackend>(url, { withCredentials: true });
     }
+
+    exportResultsAsJson(examId?: string): Observable<Blob> {
+        const base: string = `${this.configService.getApiUrl()}/student-results/export`;
+        const url: string = examId ? `${base}?examId=${examId}` : base;
+        return this.http.get(url, { responseType: 'blob', withCredentials: true });
+    }
 }

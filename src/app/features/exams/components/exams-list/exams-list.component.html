@@ -9,7 +9,7 @@
     <div *ngIf="isLoading">
         İmtahanlar yüklənir...
     </div>
-      
+
     <div *ngIf="hasError">
         {{ errorMessage }}
     </div>
@@ -97,6 +97,10 @@
         <button mat-flat-button extended (click)="openAddExamDialog()">
             <mat-icon>add</mat-icon>
             İmtahan əlavə et
+        </button>
+        <button mat-flat-button extended (click)="onExportAllResultsJson()">
+            <mat-icon>download</mat-icon>
+            Bütün nəticələri JSON export et
         </button>
         <button mat-flat-button color="warn" (click)="onAllExamsDelete()">Bütün imtahanları sil</button>
     </div>
