@@ -11,22 +11,23 @@ import { StudentDetailsComponent } from './features/students/components/student-
 import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/register/register/register.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent, canActivate: [authGuard] },
-    { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard] },
-    { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard] },
-    { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard] },
-    { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard] },
-    { path: 'teachers', component: TeachersListComponent, canActivate: [authGuard] },
-    { path: 'teachers/:id/students', component: StudentsListComponent, canActivate: [authGuard] },
-    { path: 'students', component: StudentsListComponent, canActivate: [authGuard] },
-    { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard] },
-    { path: 'exams', component: ExamsListComponent, canActivate: [authGuard] },
+    { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
+    { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
+    { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
+    { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
+    { path: 'teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers')] },
+    { path: 'teachers/:id/students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers')] },
+    { path: 'students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
+    { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
+    { path: 'exams', component: ExamsListComponent, canActivate: [authGuard, roleGuard('canAccessExams')] },
     { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard] },
-    { path: 'stats', component: StatsComponent, canActivate: [authGuard] },
+    { path: 'stats', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')] },
     { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard] },
     { path: 'profile', loadChildren: () => import('./features/profile/profile.routes').then(m => m.PROFILE_ROUTES), canActivate: [authGuard] },
     { path: 'admin', loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.routes), canActivate: [authGuard] },
