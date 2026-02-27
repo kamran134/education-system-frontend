@@ -29,11 +29,11 @@ export class ExamService {
         if (params.search && params.search.trim() !== '') {
             queryParams.push(`search=${encodeURIComponent(params.search.trim())}`);
         }
-        
+
         if (params.year && params.year !== 'null' && params.year !== '') {
             queryParams.push(`year=${params.year}`);
         }
-        
+
         if (params.month && params.month !== 'null' && params.month !== '') {
             queryParams.push(`month=${params.month}`);
         }
@@ -45,7 +45,7 @@ export class ExamService {
 
         console.log('Exam API request URL:', url); // Для отладки
         console.log('Request params:', params); // Для отладки
-        
+
         return this.http.get<ApiResponse<ExamResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -93,5 +93,21 @@ export class ExamService {
         const url: string = `${this.configService.getApiUrl()}/exams`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    importLegacyResults(file: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<ApiResponse<any>>(
+            `${this.configService.getApiUrl()}/student-results/import-json`,
+            formData,
+            { withCredentials: true }
+        ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    exportResultsAsJson(examId?: string): Observable<Blob> {
+        const base: string = `${this.configService.getApiUrl()}/student-results/export`;
+        const url: string = examId ? `${base}?examId=${examId}` : base;
+        return this.http.get(url, { responseType: 'blob', withCredentials: true });
     }
 }

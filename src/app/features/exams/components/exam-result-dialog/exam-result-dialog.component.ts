@@ -15,7 +15,7 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
     standalone: true,
     imports: [CommonModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
     templateUrl: './exam-result-dialog.component.html',
-    styleUrl: './exam-result-dialog.component.scss',
+    styleUrls: ['./exam-result-dialog.component.scss'],
 })
 export class ExamResultDialogComponent implements OnInit {
     file: File | null = null;
@@ -30,7 +30,7 @@ export class ExamResultDialogComponent implements OnInit {
     readonly Upload = Upload;
     readonly Save = Save;
     readonly Trash2 = Trash2;
-    
+
     constructor(
         public dialogRef: MatDialogRef<ExamResultDialogComponent>,
         private examService: ExamService,
@@ -70,27 +70,27 @@ export class ExamResultDialogComponent implements OnInit {
             this.examService.uploadResults(this.file, this.data.exam._id).subscribe({
                 next: (response) => {
                     const validationErrors = response.validationErrors || {};
-                    
+
                     // Check if there are any validation errors
-                    const hasErrors = 
+                    const hasErrors =
                         (validationErrors.incorrectStudentCodes && validationErrors.incorrectStudentCodes.length > 0) ||
                         (validationErrors.studentsWithoutTeacher && validationErrors.studentsWithoutTeacher.length > 0) ||
                         (validationErrors.studentsWithIncorrectResults && validationErrors.studentsWithIncorrectResults.length > 0);
-                    
+
                     if (hasErrors) {
                         // Show error dialog
                         const dialogData: FileUploadErrorsData = {
                             type: 'studentResults',
                             errors: validationErrors
                         };
-                        
+
                         const errorsDialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
                             width: '700px',
                             maxWidth: '90vw',
                             data: dialogData,
                             disableClose: true
                         });
-                        
+
                         // Close main dialog only after errors dialog is closed
                         errorsDialogRef.afterClosed().subscribe(() => {
                             this.dialogRef.close({ hasErrors: true });

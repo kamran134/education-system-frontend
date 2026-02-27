@@ -43,30 +43,30 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 export class ExamsListComponent implements OnInit, OnDestroy {
     // Data
     exams: Exam[] = [];
-    
+
     // State
     isLoading = false;
     hasError = false;
     errorMessage = '';
-    
+
     // Pagination
     totalCount = 0;
     pageSize = 25;
     pageIndex = 0;
-    
+
     // Sorting
     sortColumn = 'date';
     sortDirection: 'asc' | 'desc' = 'desc';
-    
+
     // Filters
     searchString: string = '';
     selectedYear: number | null = null;
     selectedMonth: number | null = null;
-    
+
     // Search debounce
     private searchSubject = new Subject<string>();
     private destroy$ = new Subject<void>();
-    
+
     // Filter options
     availableYears: number[] = [];
     availableMonths = [
@@ -83,17 +83,17 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         { value: 11, label: 'Noyabr' },
         { value: 12, label: 'Dekabr' }
     ];
-    
+
     // UI State
     filtersExpanded = false;
-    
+
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'İmtahan kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'İmtahan adı', sortable: true, type: 'text' },
         { key: 'date', label: 'İmtahan tarixi', sortable: true, type: 'date' }
     ];
-    
+
     tableActions: TableAction[] = [
         {
             key: 'edit',
@@ -109,9 +109,9 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             variant: 'primary'
         }
     ];
-    
+
     actionButtons: ActionButton[] = [];
-    
+
     // Icons
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
@@ -120,7 +120,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     readonly Trash2 = Trash2;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
-    
+
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
@@ -138,7 +138,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         this.setupActionButtons();
         this.generateYearOptions();
         this.setupSearchDebounce();
-        
+
         // Trigger initial load through search subject if search exists, otherwise direct load
         if (this.searchString) {
             this.searchSubject.next(this.searchString);
@@ -165,7 +165,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
     private setupActionButtons(): void {
         this.actionButtons = [];
-        
+
         if (this.authService.canCreateExams()) {
             this.actionButtons.push({
                 label: 'Yeni imtahan',
@@ -174,7 +174,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
                 variant: 'primary'
             });
         }
-        
+
         // if (this.authService.canDeleteExams() && this.isAdminOrSuperAdmin()) {
         //     this.actionButtons.push({
         //         label: 'Bütün imtahanları sil',
@@ -215,7 +215,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         return month ? month.label : '';
     }
 
-    onFilterChange(filterData: any): void {        
+    onFilterChange(filterData: any): void {
         // Handle search filter
         if (filterData.search !== undefined) {
             // Emit to subject instead of directly loading

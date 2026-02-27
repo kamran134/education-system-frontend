@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2, User, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2, User, Trash2, ChevronDown, ChevronUp } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ResultEditingDialogComponent } from '../result-editing/result-editing-dialog.component';
@@ -48,6 +48,31 @@ export class StudentDetailsComponent implements OnInit {
     imageChangedEvent: any;
     isUploadingAvatar = false;
 
+    // Previous results toggle
+    showPreviousResults = false;
+
+    private get currentAcademicYearStart(): Date {
+        const now = new Date();
+        // Academic year starts September 1
+        // If current month is before September (0-7), we're still in the year that started last Sept
+        const startYear = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+        return new Date(startYear, 8, 1); // Sept 1
+    }
+
+    get currentResults(): ExamResult[] {
+        const cutoff = this.currentAcademicYearStart;
+        return (this.student?.results ?? []).filter(r =>
+            r.exam && new Date(r.exam.date) >= cutoff
+        );
+    }
+
+    get previousResults(): ExamResult[] {
+        const cutoff = this.currentAcademicYearStart;
+        return (this.student?.results ?? []).filter(r =>
+            !r.exam || new Date(r.exam.date) < cutoff
+        );
+    }
+
     // Icons
     readonly ArrowLeft = ArrowLeft;
     readonly Download = Download;
@@ -55,6 +80,8 @@ export class StudentDetailsComponent implements OnInit {
     readonly Edit2 = Edit2;
     readonly User = User;
     readonly Trash2 = Trash2;
+    readonly ChevronDown = ChevronDown;
+    readonly ChevronUp = ChevronUp;
 
     constructor(
         private studentService: StudentService,

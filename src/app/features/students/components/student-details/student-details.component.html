@@ -110,11 +110,12 @@
             </div>
 
             <div class="p-6">
-                <div *ngIf="!student.results || student.results.length === 0" class="text-center py-8">
+                <div *ngIf="currentResults.length === 0 && previousResults.length === 0" class="text-center py-8">
                     <p class="text-gray-500">İmtahan nəticələri tapılmadı</p>
                 </div>
 
-                <div *ngIf="student.results && student.results.length > 0" class="overflow-x-auto">
+                <!-- Current year results -->
+                <div *ngIf="currentResults.length > 0" class="overflow-x-auto">
                     <table class="w-full border-collapse">
                         <thead>
                             <tr class="bg-gray-50">
@@ -129,7 +130,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let result of student.results" class="hover:bg-gray-50 transition-colors">
+                            <tr *ngFor="let result of currentResults" class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                                     {{ result.exam.date | date: 'dd.MM.YYYY' }}
                                 </td>
@@ -149,27 +150,26 @@
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                                     <div class="space-y-1">
-                                        <div *ngIf="result.disciplines && result.disciplines.az !== undefined">
+                                        <div *ngIf="result.disciplines?.az !== undefined">
                                             Azərbaycan dili: <span class="font-medium">{{ result.disciplines.az }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts.az" class="text-xs text-gray-500"> ({{ result.questionCounts.az }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.az" class="text-xs text-gray-500"> ({{ result.questionCounts.az }})</span>
                                         </div>
-                                        <div *ngIf="result.disciplines && result.disciplines.math !== undefined">
+                                        <div *ngIf="result.disciplines?.math !== undefined">
                                             Riyaziyyat: <span class="font-medium">{{ result.disciplines.math }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts.math" class="text-xs text-gray-500"> ({{ result.questionCounts.math }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.math" class="text-xs text-gray-500"> ({{ result.questionCounts.math }})</span>
                                         </div>
-                                        <div *ngIf="result.disciplines && result.disciplines.lifeKnowledge !== undefined">
+                                        <div *ngIf="result.disciplines?.lifeKnowledge !== undefined">
                                             Həyat bilgisi: <span class="font-medium">{{ result.disciplines.lifeKnowledge }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts.lifeKnowledge" class="text-xs text-gray-500"> ({{ result.questionCounts.lifeKnowledge }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.lifeKnowledge" class="text-xs text-gray-500"> ({{ result.questionCounts.lifeKnowledge }})</span>
                                         </div>
-                                        <div *ngIf="result.disciplines && result.disciplines.logic !== undefined">
+                                        <div *ngIf="result.disciplines?.logic !== undefined">
                                             Məntiq: <span class="font-medium">{{ result.disciplines.logic }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts.logic" class="text-xs text-gray-500"> ({{ result.questionCounts.logic }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.logic" class="text-xs text-gray-500"> ({{ result.questionCounts.logic }})</span>
                                         </div>
-                                        <div *ngIf="result.disciplines && result.disciplines.english !== undefined">
+                                        <div *ngIf="result.disciplines?.english !== undefined">
                                             İngilis dili: <span class="font-medium">{{ result.disciplines.english }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts.english" class="text-xs text-gray-500"> ({{ result.questionCounts.english }})</span>
+                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.english" class="text-xs text-gray-500"> ({{ result.questionCounts.english }})</span>
                                         </div>
-
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
@@ -178,6 +178,79 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Previous year results toggle -->
+                <div *ngIf="previousResults.length > 0" class="mt-6">
+                    <button
+                        (click)="showPreviousResults = !showPreviousResults"
+                        class="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                        <lucide-icon
+                            [img]="showPreviousResults ? ChevronUp : ChevronDown"
+                            class="w-4 h-4">
+                        </lucide-icon>
+                        {{ showPreviousResults ? 'Əvvəlki illərin nəticələrini gizlət' : 'Əvvəlki illərin nəticələrini göstər' }}
+                        <span class="text-gray-400 font-normal">({{ previousResults.length }})</span>
+                    </button>
+
+                    <div *ngIf="showPreviousResults" class="mt-3 overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-blue-50">
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənnlər üzrə ballar</th>
+                                    <th *ngIf="previousResults[0]?.status" class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let result of previousResults" class="hover:bg-blue-50 transition-colors">
+                                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                        {{ result.exam?.date ? (result.exam.date | date: 'dd.MM.YYYY') : '—' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm border-b border-gray-100">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full"
+                                              [ngClass]="{
+                                                'bg-green-100 text-green-800': result.level === 'A',
+                                                'bg-blue-100 text-blue-800': result.level === 'B',
+                                                'bg-yellow-100 text-yellow-800': result.level === 'C',
+                                                'bg-orange-100 text-orange-800': result.level === 'D',
+                                                'bg-red-100 text-red-800': result.level === 'E',
+                                                'bg-gray-100 text-gray-800': !result.level
+                                              }">
+                                            {{ result.level || 'Müəyyən edilməyib' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                                        {{ result.totalScore }}
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                        <div class="space-y-1">
+                                            <div *ngIf="result.disciplines?.az !== undefined">
+                                                Azərbaycan dili: <span class="font-medium">{{ result.disciplines.az }}</span>
+                                            </div>
+                                            <div *ngIf="result.disciplines?.math !== undefined">
+                                                Riyaziyyat: <span class="font-medium">{{ result.disciplines.math }}</span>
+                                            </div>
+                                            <div *ngIf="result.disciplines?.lifeKnowledge !== undefined">
+                                                Həyat bilgisi: <span class="font-medium">{{ result.disciplines.lifeKnowledge }}</span>
+                                            </div>
+                                            <div *ngIf="result.disciplines?.logic !== undefined">
+                                                Məntiq: <span class="font-medium">{{ result.disciplines.logic }}</span>
+                                            </div>
+                                            <div *ngIf="result.disciplines?.english !== undefined">
+                                                İngilis dili: <span class="font-medium">{{ result.disciplines.english }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td *ngIf="previousResults[0]?.status" class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                        {{ result.status || '—' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
