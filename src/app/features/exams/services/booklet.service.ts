@@ -75,4 +75,23 @@ export class BookletService {
             .get<ApiResponse<Booklet>>(`${this.configService.getApiUrl()}/booklets/public/${id}`)
             .pipe(map(response => ResponseHandlerUtil.extractData<Booklet>(response)));
     }
+
+    updateBooklet(id: string, data: { name?: string; districtId?: string }): Observable<Booklet> {
+        return this.http
+            .put<ApiResponse<Booklet>>(
+                `${this.configService.getApiUrl()}/booklets/${id}`,
+                data,
+                { withCredentials: true }
+            )
+            .pipe(map(response => ResponseHandlerUtil.extractData<Booklet>(response)));
+    }
+
+    deleteBooklet(id: string): Observable<any> {
+        return this.http
+            .delete<ApiResponse<any>>(
+                `${this.configService.getApiUrl()}/booklets/${id}`,
+                { withCredentials: true }
+            )
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }

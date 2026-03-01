@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 import { Booklet, BookletDistrict, BookletExam } from '../../../../core/models/booklet.model';
 import { District } from '../../../../core/models/district.model';
@@ -11,6 +13,7 @@ import { Exam } from '../../../../core/models/exam.model';
 import { BookletService } from '../../../exams/services/booklet.service';
 import { ExamService } from '../../../exams/services/exam.service';
 import { DistrictService } from '../../../districts/services/district.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 import {
     LucideAngularModule,
@@ -18,7 +21,9 @@ import {
     ChevronDown,
     ChevronUp,
     ExternalLink,
-    BookOpen
+    BookOpen,
+    Edit,
+    Trash2
 } from 'lucide-angular';
 import {
     ListLayoutComponent,
@@ -30,6 +35,8 @@ import {
     TableAction,
     PaginationEvent
 } from '../../../../shared/components/ui/data-table/data-table.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
+import { BookletEditDialogComponent, BookletEditDialogResult } from '../booklet-edit-dialog/booklet-edit-dialog.component';
 
 @Component({
     selector: 'app-booklets-list',
@@ -77,8 +84,16 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     readonly ChevronUp = ChevronUp;
     readonly ExternalLink = ExternalLink;
     readonly BookOpen = BookOpen;
+    readonly Edit = Edit;
+    readonly Trash2 = Trash2;
 
     private destroy$ = new Subject<void>();
+
+    readonly snackConfig: MatSnackBarConfig = {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top'
+    };
 
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -95,6 +110,20 @@ export class BookletsListComponent implements OnInit, OnDestroy {
             label: 'İctimai keçid',
             icon: ExternalLink,
             variant: 'outline'
+        },
+        // {
+        //     key: 'edit',
+        //     label: 'Redaktə et',
+        //     icon: Edit,
+        //     variant: 'outline',
+        //     condition: () => this.authService.canEditBooklets()
+        // },
+        {
+            key: 'delete',
+            label: 'Sil',
+            icon: Trash2,
+            variant: 'danger',
+            condition: () => this.authService.canDeleteBooklets()
         }
     ];
 
@@ -103,7 +132,10 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     constructor(
         private bookletService: BookletService,
         private examService: ExamService,
-        private districtService: DistrictService
+        private districtService: DistrictService,
+        private authService: AuthService,
+        private dialog: MatDialog,
+        private snackBar: MatSnackBar
     ) {}
 
     ngOnInit(): void {
@@ -214,10 +246,69 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     }
 
     onTableAction(event: { action: string; item: any }): void {
-        if (event.action === 'open-public') {
-            const booklet = event.item as Booklet;
-            window.open(`/public/booklets/${booklet._id}`, '_blank');
+        const booklet = event.item as Booklet;
+        switch (event.action) {
+            case 'open-public':
+                window.open(`/public/booklets/${booklet._id}`, '_blank');
+                break;
+            case 'edit':
+                this.openEditDialog(booklet);
+                break;
+            case 'delete':
+                this.openDeleteConfirm(booklet);
+                break;
         }
+    }
+
+    private openEditDialog(booklet: Booklet): void {
+        const dialogRef = this.dialog.open(BookletEditDialogComponent, {
+            width: '550px',
+            data: { booklet, canDelete: this.authService.canDeleteBooklets() }
+        });
+
+        dialogRef.afterClosed().subscribe((result: BookletEditDialogResult | null) => {
+            if (!result) return;
+            if (result.action === 'save' && result.data) {
+                this.bookletService.updateBooklet(booklet._id, result.data)
+                    .pipe(takeUntil(this.destroy$))
+                    .subscribe({
+                        next: () => {
+                            this.snackBar.open('Kitabça uğurla redaktə edildi', 'OK', this.snackConfig);
+                            this.loadBooklets();
+                        },
+                        error: () => {
+                            this.snackBar.open('Redaktə zamanı xəta baş verdi', 'Bağla', this.snackConfig);
+                        }
+                    });
+            } else if (result.action === 'delete') {
+                this.openDeleteConfirm(booklet);
+            }
+        });
+    }
+
+    private openDeleteConfirm(booklet: Booklet): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '420px',
+            data: {
+                title: 'Kitabçanı sil',
+                text: `"${booklet.name || ('Variant ' + booklet.variant)}" kitabçasını silmək istədiyinizə əminsinizmi?`
+            }
+        });
+
+        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+            if (!confirmed) return;
+            this.bookletService.deleteBooklet(booklet._id)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: () => {
+                        this.snackBar.open('Kitabça uğurla silindi', 'OK', this.snackConfig);
+                        this.loadBooklets();
+                    },
+                    error: () => {
+                        this.snackBar.open('Silmə zamanı xəta baş verdi', 'Bağla', this.snackConfig);
+                    }
+                });
+        });
     }
 
     onPageChange(event: PaginationEvent): void {

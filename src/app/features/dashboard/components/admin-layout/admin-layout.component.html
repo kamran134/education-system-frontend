@@ -24,9 +24,9 @@
             <!-- Dashboard -->
             <a
                 routerLink="/admin"
-                routerLinkActive="bg-primary-50 text-primary-700"
+                routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
                 [routerLinkActiveOptions]="{exact: true}"
-                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="BarChart3" class="w-5 h-5 flex-shrink-0"></lucide-icon>
                 <span
                     *ngIf="sidebarOpen()"
@@ -39,8 +39,8 @@
             <a
                 *ngIf="permissions.canAccessRoute('canAccessUserManagement')"
                 routerLink="/admin/users"
-                routerLinkActive="bg-primary-50 text-primary-700"
-                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+                routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="Users" class="w-5 h-5 flex-shrink-0"></lucide-icon>
                 <span
                     *ngIf="sidebarOpen()"
@@ -53,8 +53,8 @@
             <a
                 *ngIf="permissions.canAccessRoute('canAccessRatingColumns')"
                 routerLink="/admin/rating-columns"
-                routerLinkActive="bg-primary-50 text-primary-700"
-                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+                routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="Settings" class="w-5 h-5 flex-shrink-0"></lucide-icon>
                 <span
                     *ngIf="sidebarOpen()"
@@ -67,8 +67,8 @@
             <a
                 *ngIf="permissions.canAccessRoute('canAccessUserManagement')"
                 routerLink="/admin/legacy-import"
-                routerLinkActive="bg-primary-50 text-primary-700"
-                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+                routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+                class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
                 <lucide-icon [img]="Database" class="w-5 h-5 flex-shrink-0"></lucide-icon>
                 <span
                     *ngIf="sidebarOpen()"

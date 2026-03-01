@@ -183,6 +183,16 @@ export class AuthService {
         return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteExams : false;
     }
 
+    canEditBooklets(): boolean {
+        const role = this.userRole.value as UserRole;
+        return role ? ROLE_PERMISSIONS[role]?.crud.canEditBooklets : false;
+    }
+
+    canDeleteBooklets(): boolean {
+        const role = this.userRole.value as UserRole;
+        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteBooklets : false;
+    }
+
     get isAuthorized(): boolean {
         return this.authStatus.getValue();
     }
@@ -233,12 +243,12 @@ export class AuthService {
                         localStorage.setItem('token', response.data.token);
                         localStorage.setItem('id', response.data.user.id);
                         localStorage.setItem('role', response.data.user.role);
-                        
+
                         // Обновляем состояние
                         this.authStatus.next(true);
                         this.userId.next(response.data.user.id);
                         this.userRole.next(response.data.user.role);
-                        
+
                         this.router.navigate(['/admin']);
                     }
                 })
@@ -256,7 +266,7 @@ export class AuthService {
                     if (response.success && response.data && response.data.token) {
                         // Сохраняем новый токен
                         localStorage.setItem('token', response.data.token);
-                        
+
                         // Декодируем токен чтобы обновить данные пользователя
                         try {
                             const payload = JSON.parse(atob(response.data.token.split('.')[1]));
@@ -320,9 +330,9 @@ export class AuthService {
      */
     validateToken(): Observable<boolean> {
         const token = this.getToken();
-        
+
         console.log('[AUTH SERVICE - validateToken] Token exists:', !!token);
-        
+
         // Если токена нет, пробуем refresh
         if (!token) {
             console.log('[AUTH SERVICE - validateToken] No token, attempting refresh...');
@@ -381,10 +391,10 @@ export class AuthService {
 
     logout(): void {
         console.log('[AUTH SERVICE] Logging out...');
-        
+
         // Сначала очищаем локальные данные
         this.clearLocalData();
-        
+
         // Затем уведомляем сервер (но не зависим от результата)
         this.http.post(`${this.configService.getAuthUrl()}/logout`, {}, { withCredentials: true })
             .pipe(
@@ -456,7 +466,7 @@ export class AuthService {
             const token = this.getToken();
             const storedUserId = localStorage.getItem('id');
             const storedRole = localStorage.getItem('role');
-            
+
             if (token && storedUserId && storedRole) {
                 this.userId.next(storedUserId);
                 this.userRole.next(storedRole);
@@ -466,7 +476,7 @@ export class AuthService {
                     const payload = JSON.parse(atob(token.split('.')[1]));
                     this.userRole.next(payload.role || null);
                     this.userId.next(payload.userId || null);
-                    
+
                     // Сохраняем в localStorage если их там нет
                     if (payload.userId && !storedUserId) {
                         localStorage.setItem('id', payload.userId);

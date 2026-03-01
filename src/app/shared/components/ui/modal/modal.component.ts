@@ -18,7 +18,7 @@ export interface ModalButton {
   imports: [CommonModule, LucideAngularModule, ButtonComponent],
   template: `
     <!-- Backdrop -->
-    <div 
+    <div
       class="fixed inset-0 z-50 bg-black bg-opacity-50 transition-opacity"
       [@fadeInOut]
       (click)="onBackdropClick()"
@@ -26,7 +26,7 @@ export interface ModalButton {
       <!-- Modal Container -->
       <div class="flex min-h-full items-center justify-center p-4">
         <!-- Modal Content -->
-        <div 
+        <div
           [class]="modalClasses"
           [@slideInOut]
           (click)="$event.stopPropagation()"
@@ -40,7 +40,7 @@ export interface ModalButton {
               <h3 [id]="titleId" class="text-lg font-semibold text-gray-900">
                 {{ title }}
               </h3>
-              <p *ngIf="subtitle" class="mt-1 text-sm text-gray-500">
+              <p *ngIf="subtitle" class="mt-1 text-sm text-gray-600">
                 {{ subtitle }}
               </p>
             </div>
@@ -126,10 +126,10 @@ export class ModalComponent implements OnInit {
 
   get modalClasses(): string {
     const baseClasses = 'relative w-full bg-white rounded-lg shadow-xl transform transition-all';
-    
+
     const sizeClasses = {
       sm: 'max-w-md',
-      md: 'max-w-lg', 
+      md: 'max-w-lg',
       lg: 'max-w-2xl',
       xl: 'max-w-4xl',
       full: 'max-w-full mx-4'

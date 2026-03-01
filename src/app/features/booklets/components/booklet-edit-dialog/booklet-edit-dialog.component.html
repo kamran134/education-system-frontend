@@ -1,0 +1,29 @@
+<app-modal
+  title="Kitabçanı redaktə et"
+  subtitle="Adı və rayonu dəyişə bilərsiniz"
+  size="md"
+  [buttons]="modalButtons"
+  (closed)="dialogRef.close(null)"
+>
+  <form class="space-y-5">
+    <!-- Name -->
+    <app-input
+      label="Kitabçanın adı"
+      placeholder="Ad daxil edin (istəyə bağlı)"
+      [(ngModel)]="name"
+      name="name"
+    ></app-input>
+
+    <!-- District -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Rayon</label>
+      <select
+        [(ngModel)]="selectedDistrictId"
+        name="district"
+        class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+        <option value="">— Rayon seçilməyib —</option>
+        <option *ngFor="let d of districts" [value]="d._id">{{ d.name }}</option>
+      </select>
+    </div>
+  </form>
+</app-modal>
