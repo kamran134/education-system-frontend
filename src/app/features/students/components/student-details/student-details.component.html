@@ -207,7 +207,7 @@
                             <tbody>
                                 <tr *ngFor="let result of previousResults" class="hover:bg-blue-50 transition-colors">
                                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                        {{ result.exam?.date ? (result.exam.date | date: 'dd.MM.YYYY') : '—' }}
+                                        {{ result.exam.date ? (result.exam.date | date: 'dd.MM.YYYY') : '—' }}
                                     </td>
                                     <td class="px-4 py-3 text-sm border-b border-gray-100">
                                         <span class="px-2 py-1 text-xs font-medium rounded-full"

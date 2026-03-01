@@ -16,7 +16,7 @@ import { ExamService } from '../../services/exam.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // UI Components
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Calendar, ChevronDown, ChevronUp } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Calendar, ChevronDown, ChevronUp, BookOpen } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -24,6 +24,7 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 import { ExamAddDialogComponent } from '../exam-add-dialog/exam-add-dialog.component';
 import { ExamEditingDialogComponent } from '../exam-editing-dialog/exam-editing-dialog.component';
 import { ExamResultDialogComponent } from '../exam-result-dialog/exam-result-dialog.component';
+import { BookletUploadDialogComponent } from '../booklet-upload-dialog/booklet-upload-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -107,6 +108,12 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             label: 'Nəticələri yüklə',
             icon: Calendar,
             variant: 'primary'
+        },
+        {
+            key: 'booklet-upload',
+            label: 'Cavabları yüklə',
+            icon: BookOpen,
+            variant: 'secondary'
         }
     ];
 
@@ -120,6 +127,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     readonly Trash2 = Trash2;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
+    readonly BookOpen = BookOpen;
 
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
@@ -246,6 +254,9 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             case 'view':
                 this.openExamDetails(event.item);
                 break;
+            case 'booklet-upload':
+                this.openBookletUploadDialog(event.item);
+                break;
         }
     }
 
@@ -329,6 +340,13 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(result => {
             // Handle any results from the dialog if needed
+        });
+    }
+
+    openBookletUploadDialog(exam: Exam): void {
+        this.dialog.open(BookletUploadDialogComponent, {
+            width: '700px',
+            data: { exam },
         });
     }
 

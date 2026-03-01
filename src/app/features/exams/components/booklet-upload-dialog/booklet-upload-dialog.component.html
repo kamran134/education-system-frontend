@@ -1,0 +1,76 @@
+<app-modal
+  title="Kitabça cavablarını yüklə"
+  subtitle="Excel faylından variant, sinif və düzgün cavabları yüklə"
+  size="lg"
+  [buttons]="modalButtons"
+  (closed)="onModalClose()"
+>
+  <div class="space-y-6">
+    <!-- Exam Info -->
+    <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+      <p><strong>Kod:</strong> {{ data.exam.code }}</p>
+      <p><strong>Ad:</strong> {{ data.exam.name }}</p>
+      <p><strong>Tarix:</strong> {{ data.exam.date | momentDateFormat: 'DD.MM.YYYY' }}</p>
+    </div>
+
+    <!-- Format hint -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800 space-y-1">
+      <p class="font-medium">Excel fayl formatı:</p>
+      <ul class="list-disc list-inside space-y-0.5 text-blue-700">
+        <li>3-cü sətir: Sütun başlıqları (Azərbaycan dili, Riyaziyyat, Həyat bilgisi, Məntiq, İngilis dili)</li>
+        <li>4-cü sətir+: Məlumat (1-ci sütun — variant, 2-ci sütun — sinif, 3-cü sütun — sual №, 4–7-ci sütunlar — cavablar)</li>
+      </ul>
+    </div>
+
+    <!-- File Upload Section -->
+    <form (submit)="onSubmit($event)" enctype="multipart/form-data" class="space-y-4">
+      <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+        <input
+          type="file"
+          class="hidden"
+          #fileInput
+          (change)="onFileChange($event)"
+          accept=".xlsx, .xls"
+          required
+        />
+
+        <div class="text-center space-y-4">
+          <div class="mx-auto w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+            <lucide-icon [img]="Upload" class="w-6 h-6 text-gray-500"></lucide-icon>
+          </div>
+
+          <div>
+            <app-button
+              variant="outline"
+              (clicked)="fileInput.click()"
+            >
+              <div class="flex items-center space-x-2">
+                <lucide-icon [img]="Upload" class="w-4 h-4"></lucide-icon>
+                <span>Fayl əlavə et</span>
+              </div>
+            </app-button>
+            <p class="text-xs text-gray-500 mt-2">Excel faylları (.xlsx, .xls)</p>
+          </div>
+
+          <div *ngIf="fileName" class="bg-blue-50 border border-blue-200 rounded p-2">
+            <p class="text-sm text-blue-800">Seçilmiş fayl: {{ fileName }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex flex-wrap gap-3">
+        <app-button
+          variant="primary"
+          type="submit"
+          [disabled]="!file || isUploading"
+        >
+          <div class="flex items-center space-x-2">
+            <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+            <span>{{ isUploading ? 'Yüklənir...' : 'Yüklə' }}</span>
+          </div>
+        </app-button>
+      </div>
+    </form>
+  </div>
+</app-modal>
