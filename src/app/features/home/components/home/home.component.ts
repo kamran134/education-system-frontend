@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Building2, GraduationCap, Users, UserCheck, FileText, TrendingUp, ClipboardList, BarChart3 } from 'lucide-angular';
+import { LucideAngularModule, Building2, GraduationCap, Users, UserCheck, FileText, TrendingUp, ClipboardList, BarChart3, BookOpen } from 'lucide-angular';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 
 @Component({
@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
     readonly ClipboardList = ClipboardList;
     readonly TrendingUp = TrendingUp;
     readonly BarChart3 = BarChart3;
+    readonly BookOpen = BookOpen;
 
     constructor(public permissions: PermissionsService) {}
 

@@ -102,6 +102,21 @@
           </div>
         </div>
 
+        <!-- Booklets Card -->
+        <div *ngIf="permissions.canShowUI('showBookletsSection')"
+             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+             routerLink="/booklets">
+          <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-amber-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+          <div class="p-8 text-center relative">
+            <div class="w-16 h-16 mx-auto mb-4 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors duration-300">
+              <lucide-icon [img]="BookOpen" class="w-8 h-8 text-amber-600"></lucide-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-amber-600 transition-colors duration-300">
+              Kitabçalar
+            </h3>
+          </div>
+        </div>
+
         <!-- Stats Card -->
         <div *ngIf="permissions.canShowUI('showStatsSection')"
              class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"

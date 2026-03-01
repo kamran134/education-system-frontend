@@ -1,17 +1,17 @@
 /**
  * RBAC (Role-Based Access Control) Configuration
- * 
+ *
  * Централизованная конфигурация прав доступа для всех ролей в системе.
  * Определяет какие маршруты, действия и UI элементы доступны каждой роли.
  */
 
-export type UserRole = 
-    | 'superadmin' 
+export type UserRole =
+    | 'superadmin'
     | 'admin'
     | 'moderator'
-    | 'districtRepresenter' 
-    | 'schoolDirector' 
-    | 'teacher' 
+    | 'districtRepresenter'
+    | 'schoolDirector'
+    | 'teacher'
     | 'student';
 
 export interface RolePermissions {
@@ -27,8 +27,9 @@ export interface RolePermissions {
         canAccessTeachers: boolean;            // /teachers
         canAccessStudents: boolean;            // /students
         canAccessExams: boolean;               // /exams
+        canAccessBooklets: boolean;            // /booklets
     };
-    
+
     // CRUD операции
     crud: {
         canCreateUsers: boolean;
@@ -52,7 +53,7 @@ export interface RolePermissions {
         canEditExamResults: boolean;
         canDeleteExamResults: boolean;
     };
-    
+
     // Фильтрация данных (для RBAC на бэкенде)
     dataAccess: {
         seeAllDistricts: boolean;
@@ -64,7 +65,7 @@ export interface RolePermissions {
         seeAllStudents: boolean;
         seeOwnStudentsOnly: boolean;
     };
-    
+
     // UI элементы
     ui: {
         showAdminMenu: boolean;
@@ -79,6 +80,7 @@ export interface RolePermissions {
         showTeachersSection: boolean;
         showStudentsSection: boolean;
         showExamsSection: boolean;
+        showBookletsSection: boolean;
         showStatsSection: boolean;
         // Рейтинги - табы
         showDistrictsTab: boolean;
@@ -107,6 +109,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: true,
         },
         crud: {
             canCreateUsers: true,
@@ -153,6 +156,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: true,
+            showBookletsSection: true,
             showStatsSection: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
@@ -176,6 +180,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: true,
         },
         crud: {
             canCreateUsers: true,
@@ -222,6 +227,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: true,
+            showBookletsSection: true,
             showStatsSection: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
@@ -245,6 +251,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: true,
         },
         crud: {
             canCreateUsers: false,
@@ -291,6 +298,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: true,
+            showBookletsSection: true,
             showStatsSection: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
@@ -314,6 +322,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: true,
         },
         crud: {
             canCreateUsers: false,
@@ -360,6 +369,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: false,
+            showBookletsSection: true,
             showStatsSection: true,
             // В рейтингах вкладка районов показывает только его район
             showDistrictsTab: true,
@@ -384,6 +394,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: true,
         },
         crud: {
             canCreateUsers: false,
@@ -430,6 +441,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: false,
+            showBookletsSection: true,
             showStatsSection: true,
             // В рейтингах нет вкладки районов, вкладка школ показывает только его школу
             showDistrictsTab: false,
@@ -454,6 +466,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: true,
         },
         crud: {
             canCreateUsers: false,
@@ -500,6 +513,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: false,
             showStudentsSection: true,
             showExamsSection: false,
+            showBookletsSection: true,
             showStatsSection: true,
             // В рейтингах нет вкладок районов и школ, вкладка учителей показывает только его
             showDistrictsTab: false,
@@ -524,6 +538,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: false,
             canAccessStudents: true,
             canAccessExams: true,
+            canAccessBooklets: false,
         },
         crud: {
             canCreateUsers: false,
@@ -570,6 +585,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: false,
             showStudentsSection: true,
             showExamsSection: false,
+            showBookletsSection: false,
             showStatsSection: true,
             // В рейтингах видит только вкладку студентов (себя)
             showDistrictsTab: false,
@@ -649,6 +665,7 @@ export class RbacService {
         if (permissions.routes.canAccessTeachers) routes.push('/teachers');
         if (permissions.routes.canAccessStudents) routes.push('/students');
         if (permissions.routes.canAccessExams) routes.push('/exams');
+        if (permissions.routes.canAccessBooklets) routes.push('/booklets');
         if (permissions.routes.canAccessAdminPanel) routes.push('/admin');
         if (permissions.routes.canAccessUserManagement) routes.push('/admin/users');
         if (permissions.routes.canAccessRatingColumns) routes.push('/admin/rating-columns');

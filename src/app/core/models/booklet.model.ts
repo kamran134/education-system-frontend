@@ -8,12 +8,27 @@ export interface BookletDisciplines {
     english?: string[];
 }
 
+export interface BookletDistrict {
+    _id: string;
+    name: string;
+    code: number;
+}
+
+export interface BookletExam {
+    _id: string;
+    name: string;
+    code: number;
+    date: string;
+}
+
 export interface Booklet {
     _id: string;
-    exam: string;
+    exam: BookletExam | string;
     variant: string;
     grade: number;
     disciplines: BookletDisciplines;
+    district?: BookletDistrict | string;
+    name?: string;
 }
 
 export interface BookletResponse {
@@ -28,4 +43,6 @@ export interface BookletInput {
     variant: string;
     grade: number;
     disciplines: BookletDisciplines;
+    district?: string;
+    name?: string;
 }

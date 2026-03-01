@@ -9,6 +9,8 @@ import { StatisticsMainComponent } from './features/statistics/components/statis
 import { StudentsListComponent } from './features/students/components/students-list/students-list.component';
 import { StudentDetailsComponent } from './features/students/components/student-details/student-details.component';
 import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
+import { BookletsListComponent } from './features/booklets/components/booklets-list/booklets-list.component';
+import { BookletDetailComponent } from './features/booklets/components/booklet-detail/booklet-detail.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { roleGuard } from './core/guards/role.guard';
@@ -26,6 +28,8 @@ export const routes: Routes = [
     { path: 'students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
     { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
     { path: 'exams', component: ExamsListComponent, canActivate: [authGuard, roleGuard('canAccessExams')] },
+    { path: 'booklets', component: BookletsListComponent, canActivate: [authGuard, roleGuard('canAccessBooklets')] },
+    { path: 'public/booklets/:id', component: BookletDetailComponent },
     { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard] },
     { path: 'stats', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')] },
     { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard] },

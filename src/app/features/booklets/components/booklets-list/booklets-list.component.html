@@ -1,0 +1,89 @@
+<app-list-layout
+  title="Kitabçalar"
+  [description]="totalCount + ' kitabça'"
+  [hasFilters]="true"
+  [actionButtons]="actionButtons"
+  [isLoading]="isLoading"
+  [hasError]="hasError"
+  [errorMessage]="errorMessage">
+
+  <!-- Filters Section -->
+  <div slot="filters">
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+      <!-- Filter Header -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-medium text-gray-900">Filtrlər</h3>
+        <button
+          type="button"
+          (click)="toggleFilters()"
+          class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
+          <span>{{ filtersExpanded ? 'Gizlət' : 'Göstər' }}</span>
+          <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Collapsible Filters -->
+      <div *ngIf="filtersExpanded" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Exam Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">İmtahan</label>
+            <select
+              [(ngModel)]="selectedExamId"
+              (change)="onExamChange()"
+              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+              <option [value]="null">Bütün imtahanlar</option>
+              <option *ngFor="let exam of exams" [value]="exam._id">
+                {{ exam.name }} ({{ exam.code }})
+              </option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Defolt olaraq sonuncu imtahan seçilir.</p>
+          </div>
+
+          <!-- District Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rayon</label>
+            <select
+              [(ngModel)]="selectedDistrictId"
+              (change)="onDistrictChange()"
+              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+              <option [value]="null">Bütün rayonlar</option>
+              <option *ngFor="let district of districts" [value]="district._id">
+                {{ district.name }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">Rayona görə filtrləyin.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Summary when collapsed -->
+      <div *ngIf="!filtersExpanded" class="text-sm text-gray-600">
+        <span *ngIf="selectedExamId">imtahan seçildi, </span>
+        <span *ngIf="selectedDistrictId">rayon seçildi</span>
+        <span *ngIf="!selectedExamId && !selectedDistrictId">Filtrlər tətbiq edilməyib</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div slot="content" class="flex flex-col h-full">
+    <app-data-table
+      [data]="booklets"
+      [columns]="tableColumns"
+      [actions]="tableActions"
+      [totalCount]="totalCount"
+      [pageSize]="pageSize"
+      [pageIndex]="pageIndex"
+      [sortBy]="sortColumn"
+      [sortDirection]="sortDirection"
+      (actionClicked)="onTableAction($event)"
+      (pageChanged)="onPageChange($event)"
+      (sortChanged)="onSortChange($event)"
+      class="flex-1">
+    </app-data-table>
+  </div>
+
+</app-list-layout>

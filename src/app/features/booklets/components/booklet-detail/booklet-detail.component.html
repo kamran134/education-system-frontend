@@ -1,0 +1,91 @@
+<div class="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 py-10 px-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24 text-gray-500">
+      <lucide-icon [img]="Loader" class="w-10 h-10 animate-spin mb-4 text-amber-500"></lucide-icon>
+      <span class="text-sm">Yüklənir...</span>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && hasError"
+         class="bg-white rounded-2xl shadow-md p-10 text-center border border-red-100">
+      <lucide-icon [img]="BookOpen" class="w-14 h-14 mx-auto mb-4 text-red-300"></lucide-icon>
+      <h2 class="text-xl font-semibold text-gray-700 mb-2">Kitabça tapılmadı</h2>
+      <p class="text-sm text-gray-500">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Booklet Card -->
+    <div *ngIf="!isLoading && !hasError && booklet">
+
+      <!-- Header -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-6">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <lucide-icon [img]="BookOpen" class="w-7 h-7 text-amber-600"></lucide-icon>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold text-gray-900 mb-1">
+              {{ booklet.name || ('Variant ' + booklet.variant) }}
+            </h1>
+            <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 mt-2">
+              <span class="flex items-center gap-1">
+                <lucide-icon [img]="Hash" class="w-4 h-4 text-amber-500"></lucide-icon>
+                Variant: <strong>{{ booklet.variant }}</strong>
+              </span>
+              <span class="flex items-center gap-1">
+                <lucide-icon [img]="Hash" class="w-4 h-4 text-amber-500"></lucide-icon>
+                Sinif: <strong>{{ booklet.grade }}</strong>
+              </span>
+              <span class="flex items-center gap-1">
+                <lucide-icon [img]="MapPin" class="w-4 h-4 text-amber-500"></lucide-icon>
+                {{ districtName }}
+              </span>
+              <span class="flex items-center gap-1">
+                <lucide-icon [img]="Calendar" class="w-4 h-4 text-amber-500"></lucide-icon>
+                {{ examInfo }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discipline Tabs + Answers -->
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 overflow-x-auto">
+          <button
+            *ngFor="let tab of availableTabs"
+            type="button"
+            (click)="selectTab(tab.key)"
+            [class.border-amber-500]="activeTab === tab.key"
+            [class.text-amber-600]="activeTab === tab.key"
+            [class.border-transparent]="activeTab !== tab.key"
+            [class.text-gray-500]="activeTab !== tab.key"
+            class="px-5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors hover:text-amber-600 focus:outline-none">
+            {{ tab.label }}
+          </button>
+        </div>
+
+        <!-- Answers List -->
+        <div *ngIf="activeAnswers.length > 0" class="p-6">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <div
+              *ngFor="let answer of activeAnswers; let i = index"
+              class="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100">
+              <span class="text-xs font-medium text-gray-400 w-6 text-right flex-shrink-0">{{ i + 1 }}.</span>
+              <span class="text-sm font-semibold text-gray-800">{{ answer }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="availableTabs.length === 0" class="p-10 text-center text-gray-400 text-sm">
+          Bu kitabça üçün cavab məlumatı yoxdur.
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
