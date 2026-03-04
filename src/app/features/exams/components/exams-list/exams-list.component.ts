@@ -105,6 +105,13 @@ export class ExamsListComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
+                // Форматируем дату как строку YYYY-MM-DD чтобы избежать смещения timezone
+                if (result.date instanceof Date) {
+                    const y = result.date.getFullYear();
+                    const m = String(result.date.getMonth() + 1).padStart(2, '0');
+                    const d = String(result.date.getDate()).padStart(2, '0');
+                    result.date = `${y}-${m}-${d}`;
+                }
                 this.examService.addExam(result).subscribe(() => {
                     this.ngOnInit();
                 });
