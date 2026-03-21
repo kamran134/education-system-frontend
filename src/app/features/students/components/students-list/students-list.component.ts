@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -132,11 +133,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
 
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     constructor(
         private authService: AuthService,

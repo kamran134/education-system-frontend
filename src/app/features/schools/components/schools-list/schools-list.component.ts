@@ -4,7 +4,8 @@ import { SchoolService } from '../../services/school.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
@@ -42,22 +43,22 @@ export class SchoolsListComponent implements OnInit {
     isLoading = false;
     hasError = false;
     errorMessage = '';
-    
+
     // Pagination
     totalCount = 0;
     pageSize = 1000;
     pageIndex = 0;
-    
+
     // Sorting
     sortColumn = 'name';
     sortDirection: 'asc' | 'desc' = 'asc';
-    
+
     // Navigation & Filters
     districtId?: string; // ID района из маршрута для фильтрации
     selectedDistrictIds: string[] = [];
     filterConfig: FilterField[] = [];
     districtOptions: SelectOption[] = [];
-    
+
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Məktəb kodu', sortable: true, type: 'text' },
@@ -65,7 +66,7 @@ export class SchoolsListComponent implements OnInit {
         { key: 'district.name', label: 'Rayon / şəhər', sortable: true, type: 'text' },
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
-    
+
     tableActions: TableAction[] = [
         {
             key: 'edit',
@@ -75,24 +76,20 @@ export class SchoolsListComponent implements OnInit {
             condition: () => this.authService.canEditSchools()
         }
     ];
-    
+
     actionButtons: ActionButton[] = [];
     backButton?: BackButton;
-    
+
     // Icons
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
     readonly Upload = Upload;
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
-    
+
     isUpdatingStats = false;
-    
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     constructor(
         private schoolService: SchoolService,
@@ -114,7 +111,7 @@ export class SchoolsListComponent implements OnInit {
             // Setup buttons after we know if districtId exists
             this.setupActionButtons();
         });
-        
+
         // Restore state from query parameters if coming back
         this.route.queryParams.subscribe(queryParams => {
             if (queryParams['schoolPage'] !== undefined) {
@@ -123,21 +120,21 @@ export class SchoolsListComponent implements OnInit {
             if (queryParams['schoolPageSize'] !== undefined) {
                 this.pageSize = parseInt(queryParams['schoolPageSize']) || 100;
             }
-            
+
             // Restore district selection (for display purposes)
             if (queryParams['selectedDistrictIds']) {
                 this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
             }
         });
-        
+
         this.setupFilters();
         this.loadDistricts();
         this.loadSchools();
     }
-    
+
     private setupActionButtons(): void {
         this.actionButtons = [];
-        
+
         // Setup back button - always show it
         this.backButton = {
             show: true,
@@ -152,7 +149,7 @@ export class SchoolsListComponent implements OnInit {
                 variant: 'primary'
             });
         }
-        
+
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
                 {
@@ -169,7 +166,7 @@ export class SchoolsListComponent implements OnInit {
                 // }
             );
         }
-        
+
         if (this.authService.canDeleteSchools() && this.isAdminOrSuperAdmin()) {
             this.actionButtons.push({
                 label: 'Ekranda olanları sil',
@@ -184,7 +181,7 @@ export class SchoolsListComponent implements OnInit {
     isAdminOrSuperAdmin(): boolean {
         return this.authService.isAdminOrSuperAdmin();
     }
-    
+
     loadDistricts(): void {
         const params: FilterParams = {
             page: 1,
@@ -206,7 +203,7 @@ export class SchoolsListComponent implements OnInit {
             }
         });
     }
-    
+
     setupFilters(): void {
         this.filterConfig = [
             {
@@ -220,17 +217,17 @@ export class SchoolsListComponent implements OnInit {
             }
         ];
     }
-    
+
     onFilterChange(filters: Record<string, any>): void {
         this.selectedDistrictIds = filters['districtIds'] || [];
         this.pageIndex = 0;
         this.loadSchools();
     }
-    
+
     onUpdateSchoolsStats(): void {
         this.isUpdatingStats = true;
         this.setupActionButtons();
-        
+
         this.schoolService.updateSchoolsStats().subscribe({
             next: (response: any) => {
                 this.isUpdatingStats = false;
@@ -245,17 +242,17 @@ export class SchoolsListComponent implements OnInit {
             }
         });
     }
-    
+
     openAddSchoolDialog(): void {
         const dialogRef = this.dialog.open(SchoolEditingDialogComponent, {
           width: '1000px',
-          data: { 
-            school: null, 
+          data: {
+            school: null,
             isEditing: false,
             canDelete: false
           },
         });
-    
+
         dialogRef.afterClosed().subscribe((result) => {
             if (result?.action === 'save') {
                 this.isLoading = true;
@@ -285,7 +282,7 @@ export class SchoolsListComponent implements OnInit {
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection
         };
-        
+
         this.isLoading = true;
         this.schoolService.getSchools(params)
         .subscribe({
@@ -318,7 +315,7 @@ export class SchoolsListComponent implements OnInit {
             selectedDistrictIds: this.selectedDistrictIds.join(','),
             fromSchoolId: school._id  // Remember which school we're viewing
         };
-        
+
         // If we came from districts, preserve district state
         this.route.queryParams.subscribe(currentParams => {
             if (currentParams['districtPage'] !== undefined) {
@@ -331,16 +328,16 @@ export class SchoolsListComponent implements OnInit {
                 queryParams.fromDistrictId = this.districtId;  // Remember which district
             }
         });
-        
-        this.router.navigate(['/schools', school._id, 'teachers'], { 
-            queryParams 
+
+        this.router.navigate(['/schools', school._id, 'teachers'], {
+            queryParams
         });
     }
 
     goBack(): void {
         this.route.queryParams.subscribe(params => {
             const queryParams: any = {};
-            
+
             // Preserve pagination
             if (params['districtPage'] !== undefined) {
                 queryParams.districtPage = params['districtPage'];
@@ -348,10 +345,10 @@ export class SchoolsListComponent implements OnInit {
             if (params['districtPageSize'] !== undefined) {
                 queryParams.districtPageSize = params['districtPageSize'];
             }
-            
+
             // Check if we came from districts (either via route param or query param)
             const fromDistrictId = this.districtId || params['fromDistrictId'];
-            
+
             if (fromDistrictId) {
                 // Go back to districts LIST, not to specific district's schools
                 this.router.navigate(['/districts'], { queryParams });
@@ -365,8 +362,8 @@ export class SchoolsListComponent implements OnInit {
     onSchoolEdit(school: School): void {
         const dialogRef = this.dialog.open(SchoolEditingDialogComponent, {
             width: '1000px',
-            data: { 
-                school, 
+            data: {
+                school,
                 isEditing: true,
                 canDelete: this.authService.canDeleteSchools()
             }
@@ -407,9 +404,9 @@ export class SchoolsListComponent implements OnInit {
     private handleSchoolDelete(school: School): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '350px',
-            data: { 
-                title: 'Silinməyə razılıq', 
-                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!' 
+            data: {
+                title: 'Silinməyə razılıq',
+                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!'
             }
         });
 
@@ -432,9 +429,9 @@ export class SchoolsListComponent implements OnInit {
     onAllSchoolsDelete(): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '350px',
-            data: { 
-                title: 'Silinməyə razılıq', 
-                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəblər silinərkən onlara bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!' 
+            data: {
+                title: 'Silinməyə razılıq',
+                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəblər silinərkən onlara bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!'
             }
         });
 
@@ -460,7 +457,7 @@ export class SchoolsListComponent implements OnInit {
         input.type = 'file';
         input.accept = '.xlsx,.xls';
         input.style.display = 'none';
-        
+
         input.onchange = (event: Event) => {
             const target = event.target as HTMLInputElement;
             if (target?.files?.length) {
@@ -468,28 +465,28 @@ export class SchoolsListComponent implements OnInit {
                 this.schoolService.uploadFile(file).subscribe({
                     next: (response) => {
                         const validationErrors = response.validationErrors || {};
-                        
+
                         // Check if there are any validation errors
-                        const hasErrors = 
+                        const hasErrors =
                             (validationErrors.incorrectSchoolCodes && validationErrors.incorrectSchoolCodes.length > 0) ||
                             (validationErrors.missingDistrictCodes && validationErrors.missingDistrictCodes.length > 0) ||
                             (validationErrors.schoolCodesWithoutDistrictCodes && validationErrors.schoolCodesWithoutDistrictCodes.length > 0) ||
                             (validationErrors.existingSchoolCodes && validationErrors.existingSchoolCodes.length > 0);
-                        
+
                         if (hasErrors) {
                             // Show error dialog
                             const dialogData: FileUploadErrorsData = {
                                 type: 'schools',
                                 errors: validationErrors
                             };
-                            
+
                             const dialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
                                 width: '700px',
                                 maxWidth: '90vw',
                                 data: dialogData,
                                 disableClose: true
                             });
-                            
+
                             // Refresh table only after dialog is closed
                             dialogRef.afterClosed().subscribe(() => {
                                 this.loadSchools();
@@ -507,7 +504,7 @@ export class SchoolsListComponent implements OnInit {
                 });
             }
         };
-        
+
         document.body.appendChild(input);
         input.click();
         document.body.removeChild(input);

@@ -7,7 +7,8 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DistrictEditingDialogComponent } from '../district-editing-dialog/district-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { MatSnackBar, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
@@ -67,11 +68,7 @@ export class DistrictsListComponent implements OnInit {
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
 
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     isUpdatingStats = false;
     onUpdateDistrictsStats(): void {

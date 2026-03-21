@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatsService } from '../../services/stats.service';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { Error } from '../../../../core/models/error.model';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
@@ -80,11 +81,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     readonly Loader = Loader;
     readonly AlertCircle = AlertCircle;
 
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     isloading: boolean = false;
     isUpdating: boolean = false;
     isUpdatingAll: boolean = false;

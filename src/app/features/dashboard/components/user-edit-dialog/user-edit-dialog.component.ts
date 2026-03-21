@@ -4,7 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UserEdit } from '../../../../core/models/user.model';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -34,11 +35,7 @@ import { debounceTime, Subject, takeUntil } from 'rxjs';
 export class UserEditDialogComponent implements OnInit, OnDestroy {
     repeatedPassword: string = '';
     emailPattern: string = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    };
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     // Search fields
     districtSearchTerm: string = '';
@@ -78,17 +75,17 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             debounceTime(300),
             takeUntil(this.destroy$)
         ).subscribe(term => this.searchDistricts(term));
-        
+
         this.schoolSearch$.pipe(
             debounceTime(300),
             takeUntil(this.destroy$)
         ).subscribe(term => this.searchSchools(term));
-        
+
         this.teacherSearch$.pipe(
             debounceTime(300),
             takeUntil(this.destroy$)
         ).subscribe(term => this.searchTeachers(term));
-        
+
         this.studentSearch$.pipe(
             debounceTime(300),
             takeUntil(this.destroy$)
@@ -102,7 +99,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         // Complete all subscriptions
         this.destroy$.next();
         this.destroy$.complete();
-        
+
         // Complete search subjects
         this.districtSearch$.complete();
         this.schoolSearch$.complete();
@@ -277,7 +274,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         if (this.isNewUser()) {
             const passwordValid = !!(this.dataSource.password?.trim()) &&
                                   this.dataSource.password === this.repeatedPassword;
-            
+
             if (!basicValidation || !passwordValid) {
                 return false;
             }

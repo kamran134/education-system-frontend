@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MAT_SNACK_BAR_DATA, MatSnackBarConfig, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MAT_SNACK_BAR_DATA, MatSnackBarModule } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../constants/snack-bar.config';
 
 @Component({
     selector: 'app-snack-bar',
@@ -10,11 +11,7 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarConfig, MatSnackBarModule } from '@angul
     styleUrl: './snack-bar.component.scss'
 })
 export class SnackBarComponent {
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) {}
 }

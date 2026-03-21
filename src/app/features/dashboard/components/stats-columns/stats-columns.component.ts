@@ -3,7 +3,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LucideAngularModule, Home, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -53,11 +54,7 @@ export class StatsColumnsComponent implements OnInit{
         allDistrictCollumns: []
     }; // Assuming Settings is the type for the columns
 
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     developingStudentColumnOptions: Column[] = [
         { key: 'level', label: 'Pillə', selected: false, order: 0 },

@@ -3,7 +3,8 @@ import { User, UserResponse, UserEdit } from '../../../../core/models/user.model
 import { DashboardService } from '../../services/dashboard.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -22,11 +23,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class UsersComponent implements OnInit, OnDestroy {
     dataSource: User[] = [];
     totalCount: number = 0;
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     authorizedUserRole: string | null = null;
 
     private destroy$ = new Subject<void>();

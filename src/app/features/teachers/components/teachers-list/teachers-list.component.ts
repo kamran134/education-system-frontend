@@ -5,7 +5,8 @@ import { TeacherService } from '../../services/teacher.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
@@ -48,11 +49,7 @@ export class TeachersListComponent implements OnInit {
     hasError = false;
     errorMessage = '';
     schoolId: string | null = null;
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    }
+    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     isUpdatingStats = false;
     onUpdateTeachersStats(): void {
         this.isUpdatingStats = true;
