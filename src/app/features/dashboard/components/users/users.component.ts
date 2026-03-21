@@ -28,15 +28,15 @@ export class UsersComponent implements OnInit, OnDestroy {
         verticalPosition: 'top'
     }
     authorizedUserRole: string | null = null;
-    
+
     private destroy$ = new Subject<void>();
-    
+
     // Icons
     readonly UserPlus = UserPlus;
     readonly Edit = Edit;
     readonly Trash2 = Trash2;
     readonly Users = Users;
-    
+
     isSuperAdmin$ = this.authService.isSuperAdmin$;
     isLevelUpUser$ = this.authService.isLevelUpUser$;
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
@@ -142,7 +142,7 @@ export class UsersComponent implements OnInit, OnDestroy {
             data: { title: 'Silinməyə razılıq', text: 'İstifadəçini silmək istədiyinizdən əminsiniz mi?' }
         });
 
-        confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+        confirmRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((confirmed: boolean) => {
             if (confirmed && this.authService.isAdminOrSuperAdmin()) {
                 this.dashboardService.deleteUser(user._id)
                     .pipe(takeUntil(this.destroy$))

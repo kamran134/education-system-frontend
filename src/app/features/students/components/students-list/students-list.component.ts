@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Core models and services
@@ -55,21 +55,21 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
-    
+
     // State
     isLoading = false;
     hasError = false;
     errorMessage = '';
-    
+
     // Pagination
     totalCount = 0;
     pageSize = 1000;
     pageIndex = 0;
-    
+
     // Sorting
     sortColumn = 'lastName';
     sortDirection: 'asc' | 'desc' = 'asc';
-    
+
     // Filters
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
@@ -78,23 +78,23 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     searchString: string = '';
     checkedDefective: boolean = false;
     teacherId: string | null = null;
-    
+
     // Search debounce
     private searchSubject = new Subject<string>();
     private destroy$ = new Subject<void>();
     private isSearching = false;
-    
+
     // Filter options
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     districtOptions: SelectOption[] = [];
     schoolOptions: SelectOption[] = [];
     teacherOptions: SelectOption[] = [];
     gradeOptions: SelectOption[] = [];
-    
+
     // UI State
     filtersExpanded = false;
     isBulkUploadModalOpen = false;
-    
+
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Şagirdin kodu', sortable: true, type: 'text' },
@@ -106,7 +106,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         { key: 'school.name', label: 'Məktəbi', sortable: false, type: 'text' },
         { key: 'district.name', label: 'Rayonu / şəhəri', sortable: false, type: 'text' }
     ];
-    
+
     tableActions: TableAction[] = [
         {
             key: 'edit',
@@ -116,10 +116,10 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             condition: () => this.authService.canEditStudents()
         }
     ];
-    
+
     actionButtons: ActionButton[] = [];
     backButton?: BackButton;
-    
+
     // Icons
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
@@ -131,7 +131,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     readonly ChevronUp = ChevronUp;
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
-    
+
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
@@ -153,9 +153,9 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.setupGradeOptions();
         this.setupSearchDebounce();
-        
+
         // Check if we're viewing students for a specific teacher
-        this.route.params.subscribe(params => {
+        this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
             this.teacherId = params['id'];
             if (this.teacherId) {
                 this.selectedTeacherIds = [this.teacherId];
@@ -163,9 +163,9 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             // Setup buttons after we know if teacherId exists
             this.setupActionButtons();
         });
-        
+
         // Restore state from query parameters if coming back
-        this.route.queryParams.subscribe(queryParams => {
+        this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(queryParams => {
             // Restore pagination
             if (queryParams['pageIndex'] !== undefined) {
                 this.pageIndex = parseInt(queryParams['pageIndex']) || 0;
@@ -173,7 +173,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             if (queryParams['pageSize'] !== undefined) {
                 this.pageSize = parseInt(queryParams['pageSize']) || 1000;
             }
-            
+
             // Restore filters from query params (for display purposes)
             if (queryParams['districtIds']) {
                 this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
@@ -194,20 +194,20 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             if (queryParams['defective'] !== undefined) {
                 this.checkedDefective = queryParams['defective'] === 'true';
             }
-            
+
             // Load districts first, then cascade load schools and teachers if needed
             this.loadDistricts();
-            
+
             // After districts loaded, cascade load schools and teachers based on restored filters
             if (this.selectedDistrictIds.length > 0) {
                 this.loadSchools();
-                
+
                 // If schools are selected, load teachers too
                 if (this.selectedSchoolIds.length > 0) {
                     this.loadTeachers();
                 }
             }
-            
+
             // Trigger initial data load through search subject if search exists, otherwise direct load
             if (this.searchString) {
                 this.searchSubject.next(this.searchString);
@@ -219,13 +219,13 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
     private setupActionButtons(): void {
         this.actionButtons = [];
-        
+
         // Setup back button - always show it
         this.backButton = {
             show: true,
             action: () => this.goBack()
         };
-        
+
         if (this.authService.canCreateStudents()) {
             this.actionButtons.push({
                 label: 'Şagird əlavə et',
@@ -234,7 +234,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 variant: 'primary'
             });
         }
-        
+
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
                 {
@@ -257,7 +257,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 }
             );
         }
-        
+
         if (this.authService.canDeleteStudents() && this.isAdminOrSuperAdmin()) {
             this.actionButtons.push({
                 label: 'Ekranda olanları sil',
@@ -279,7 +279,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     private setupSearchDebounce(): void {
         this.searchSubject.pipe(
             debounceTime(300),
-            distinctUntilChanged()
+            distinctUntilChanged(),
+            takeUntil(this.destroy$)
         ).subscribe(searchTerm => {
             this.searchString = searchTerm;
             this.pageIndex = 0;
@@ -308,7 +309,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             this.selectedTeacherIds = []; // Clear teacher selection when districts change
             this.loadSchools(); // Reload schools for selected districts
         }
-        
+
         // Handle school filter change
         if (filterData.schools !== undefined) {
             this.selectedSchoolIds = filterData.schools || [];
@@ -365,7 +366,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     goBack(): void {
         this.route.queryParams.subscribe(params => {
             const queryParams: any = {};
-            
+
             // Preserve all previous states
             if (params['districtPage'] !== undefined) {
                 queryParams.districtPage = params['districtPage'];
@@ -397,7 +398,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             if (params['fromDistrictId']) {
                 queryParams.fromDistrictId = params['fromDistrictId'];
             }
-            
+
             // Check if we came from a specific teacher (via route param)
             if (this.teacherId) {
                 // Go back to teachers list
@@ -413,7 +414,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.xlsx,.xls';
-        
+
         input.onchange = (e: any) => {
             const file = e.target.files[0];
             if (file) {
@@ -428,7 +429,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 });
             }
         };
-        
+
         input.click();
     }
 
@@ -531,8 +532,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     onStudentCreate(): void {
         const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
             width: '1000px',
-            data: { 
-                student: null, 
+            data: {
+                student: null,
                 isEditing: false,
                 canDelete: false
             }
@@ -561,8 +562,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     onStudentUpdate(student: Student): void {
         const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
             width: '1000px',
-            data: { 
-                student, 
+            data: {
+                student,
                 isEditing: true,
                 canDelete: this.authService.canDeleteStudents()
             }
@@ -644,9 +645,9 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     onAllStudentsDelete(): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
-            data: { 
-                title: 'Silinməyə razılıq', 
-                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?\n\nDİQQƏT!\nŞagirdlər silinərkən onların bütün nəticələri də silinəcək!' 
+            data: {
+                title: 'Silinməyə razılıq',
+                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?\n\nDİQQƏT!\nŞagirdlər silinərkən onların bütün nəticələri də silinəcək!'
             }
         });
 
@@ -681,7 +682,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 defective: this.checkedDefective ? 'true' : undefined,
                 source: 'students'
             };
-            
+
             // Preserve all previous pagination states
             if (currentParams['districtPage'] !== undefined) {
                 queryParams.districtPage = currentParams['districtPage'];

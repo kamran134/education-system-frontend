@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -24,55 +25,55 @@ import { ButtonComponent } from './ui/button/button.component';
                 </div>
                 <p class="text-sm text-gray-500">Cihaz və sessiya idarəetməsi</p>
             </div>
-            
+
             <!-- Sessions Info -->
             <div class="space-y-3 mb-6" *ngIf="sessionInfo">
                 <div class="info-item">
                     <lucide-icon [img]="Monitor" class="w-5 h-5 text-gray-600"></lucide-icon>
                     <span class="text-gray-700">Aktiv cihazlar: <strong class="text-gray-900">{{sessionInfo.activeSessionsCount}}</strong></span>
                 </div>
-                
+
                 <div class="info-item" *ngIf="sessionInfo.lastLoginAt">
                     <lucide-icon [img]="Clock" class="w-5 h-5 text-gray-600"></lucide-icon>
                     <span class="text-gray-700">Son giriş: <strong class="text-gray-900">{{formatDate(sessionInfo.lastLoginAt)}}</strong></span>
                 </div>
-                
+
                 <div class="info-item">
-                    <lucide-icon 
-                        [img]="sessionInfo.currentSession ? CheckCircle : XCircle" 
+                    <lucide-icon
+                        [img]="sessionInfo.currentSession ? CheckCircle : XCircle"
                         [class]="sessionInfo.currentSession ? 'w-5 h-5 text-green-600' : 'w-5 h-5 text-gray-400'">
                     </lucide-icon>
                     <span class="text-gray-700">Bu cihaz: <strong [class]="sessionInfo.currentSession ? 'text-green-600' : 'text-gray-500'">{{sessionInfo.currentSession ? 'Aktiv' : 'Deaktiv'}}</strong></span>
                 </div>
             </div>
-            
+
             <!-- Loading State -->
             <div class="flex items-center justify-center space-x-2 py-8" *ngIf="loading">
                 <lucide-icon [img]="RefreshCw" class="w-5 h-5 animate-spin text-blue-500"></lucide-icon>
                 <span class="text-gray-600">Yüklənir...</span>
             </div>
-            
+
             <!-- Error State -->
             <div class="flex items-center space-x-2 text-red-600 py-4" *ngIf="error">
                 <lucide-icon [img]="AlertCircle" class="w-5 h-5"></lucide-icon>
                 <span>{{error}}</span>
             </div>
-            
+
             <!-- Actions -->
             <div class="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-200">
-                <app-button 
-                    variant="secondary" 
-                    (clicked)="refreshSessions()" 
+                <app-button
+                    variant="secondary"
+                    (clicked)="refreshSessions()"
                     [disabled]="loading">
                     <div class="flex items-center space-x-2">
                         <lucide-icon [img]="RefreshCw" class="w-4 h-4"></lucide-icon>
                         <span>Yenilə</span>
                     </div>
                 </app-button>
-                
-                <app-button 
-                    variant="danger" 
-                    (clicked)="logoutFromAllDevices()" 
+
+                <app-button
+                    variant="danger"
+                    (clicked)="logoutFromAllDevices()"
                     [disabled]="loading">
                     <div class="flex items-center space-x-2">
                         <lucide-icon [img]="LogOut" class="w-4 h-4"></lucide-icon>
@@ -102,6 +103,8 @@ export class UserSessionsComponent implements OnInit {
     readonly CheckCircle = CheckCircle;
     readonly XCircle = XCircle;
 
+    private destroyRef = inject(DestroyRef);
+
     constructor(
         private authService: AuthService,
         private snackBar: MatSnackBar
@@ -114,8 +117,8 @@ export class UserSessionsComponent implements OnInit {
     loadSessions(): void {
         this.loading = true;
         this.error = null;
-        
-        this.authService.getActiveSessions().subscribe({
+
+        this.authService.getActiveSessions().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (response) => {
                 if (response.success && response.data) {
                     this.sessionInfo = response.data;
@@ -142,8 +145,8 @@ export class UserSessionsComponent implements OnInit {
         }
 
         this.loading = true;
-        
-        this.authService.logoutFromAllDevices().subscribe({
+
+        this.authService.logoutFromAllDevices().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (response) => {
                 this.loading = false;
                 if (response.success) {
@@ -163,7 +166,7 @@ export class UserSessionsComponent implements OnInit {
 
     formatDate(date: Date | string): string {
         if (!date) return '';
-        
+
         const d = new Date(date);
         return d.toLocaleDateString('az-AZ', {
             year: 'numeric',

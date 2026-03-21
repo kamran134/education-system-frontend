@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StudentService } from '../../services/student.service';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { StudentWithResult } from '../../../../core/models/student.model';
@@ -83,6 +84,8 @@ export class StudentDetailsComponent implements OnInit {
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
 
+    private destroyRef = inject(DestroyRef);
+
     constructor(
         private studentService: StudentService,
         private route: ActivatedRoute,
@@ -94,12 +97,12 @@ export class StudentDetailsComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.route.params.subscribe(params => {
+        this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             this.studentId = params['id']!;
             this.loadStudent();
         });
 
-        this.route.queryParams.subscribe((params: Params) => {
+        this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
             this.prevPageSize = params['pageSize'] ? +params['pageSize'] : this.prevPageSize;
             this.prevPageIndex = params['pageIndex'] ? +params['pageIndex'] : this.prevPageIndex;
             this.filterParams = params;

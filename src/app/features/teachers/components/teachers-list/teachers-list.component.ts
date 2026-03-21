@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
 import { CommonModule } from '@angular/common';
@@ -75,19 +76,19 @@ export class TeachersListComponent implements OnInit {
     teacherCodesWithoutSchoolCodes: number[] = [];
     incorrectTeacherCodes: number[] = [];
     repairingResults: RepairingResults = {};
-    
+
     // Pagination
     totalCount = 0;
     pageSize = 1000;
     pageIndex = 0;
-    
+
     // Sorting
     sortColumn = 'fullname';
     sortDirection: 'asc' | 'desc' = 'asc';
-    
+
     // Filters
     filterConfig: FilterField[] = [];
-    
+
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Müəllimənin kodu', sortable: true, type: 'text' },
@@ -96,7 +97,7 @@ export class TeachersListComponent implements OnInit {
         { key: 'district.name', label: 'Rayonu / şəhəri', sortable: true, type: 'text' },
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
-    
+
     tableActions: TableAction[] = [
         {
             key: 'edit',
@@ -106,10 +107,10 @@ export class TeachersListComponent implements OnInit {
             condition: () => this.authService.canEditTeachers()
         }
     ];
-    
+
     actionButtons: ActionButton[] = [];
     backButton?: BackButton;
-    
+
     // Icons
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
@@ -117,6 +118,8 @@ export class TeachersListComponent implements OnInit {
     readonly Settings = Settings;
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
+
+    private destroyRef = inject(DestroyRef);
 
     constructor(
         private teacherService: TeacherService,
@@ -131,7 +134,7 @@ export class TeachersListComponent implements OnInit {
 
     ngOnInit(): void {
         // Check if we're viewing teachers for a specific school
-        this.route.params.subscribe(params => {
+        this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             this.schoolId = params['id'];
             if (this.schoolId) {
                 this.selectedSchoolIds = [this.schoolId];
@@ -139,37 +142,37 @@ export class TeachersListComponent implements OnInit {
             // Setup buttons after we know if schoolId exists
             this.setupActionButtons();
         });
-        
+
         // Restore state from query parameters if coming back
-        this.route.queryParams.subscribe(queryParams => {
+        this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(queryParams => {
             if (queryParams['teacherPage'] !== undefined) {
                 this.pageIndex = parseInt(queryParams['teacherPage']) || 0;
             }
             if (queryParams['teacherPageSize'] !== undefined) {
                 this.pageSize = parseInt(queryParams['teacherPageSize']) || 1000;
             }
-            
+
             // Restore district selection (for display purposes)
             if (queryParams['selectedDistrictIds']) {
                 this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
             }
-            
+
             // Restore school selection only if not in filtered view
             if (queryParams['selectedSchoolIds'] && !this.schoolId) {
                 this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
             }
-            
+
             // Load districts first, then cascade load schools if needed
             this.loadDistricts();
-            
+
             // After districts loaded, cascade load schools based on restored filters
             if (this.selectedDistrictIds.length > 0) {
                 this.loadSchools();
             }
-            
+
             this.loadTeachers();
         });
-        
+
         this.setupFilters();
     }
 
@@ -179,13 +182,13 @@ export class TeachersListComponent implements OnInit {
 
     private setupActionButtons(): void {
         this.actionButtons = [];
-        
+
         // Setup back button - always show it
         this.backButton = {
             show: true,
             action: () => this.goBack()
         };
-        
+
         if (this.authService.canCreateTeachers()) {
             this.actionButtons.push({
                 label: 'Müəllim əlavə et',
@@ -194,7 +197,7 @@ export class TeachersListComponent implements OnInit {
                 variant: 'primary'
             });
         }
-        
+
         if (this.isAdminOrSuperAdmin()) {
             this.actionButtons.push(
                 {
@@ -217,7 +220,7 @@ export class TeachersListComponent implements OnInit {
                 // }
             );
         }
-        
+
         if (this.authService.canDeleteTeachers() && this.isAdminOrSuperAdmin()) {
             this.actionButtons.push({
                 label: 'Ekranda olanları sil',
@@ -259,7 +262,7 @@ export class TeachersListComponent implements OnInit {
         this.selectedDistrictIds = selectedDistricts || [];
         this.selectedSchoolIds = []; // Clear school selection when districts change
         this.loadSchools(); // Reload schools for selected districts
-        
+
         // Reset pagination and reload data
         this.pageIndex = 0;
         this.loadTeachers();
@@ -267,7 +270,7 @@ export class TeachersListComponent implements OnInit {
 
     onSchoolChange(selectedSchools: string[]): void {
         this.selectedSchoolIds = selectedSchools || [];
-        
+
         // Reset pagination and reload data
         this.pageIndex = 0;
         this.loadTeachers();
@@ -278,7 +281,7 @@ export class TeachersListComponent implements OnInit {
         if (filterData.districts !== undefined) {
             this.onDistrictChange(filterData.districts);
         }
-        
+
         // Handle school filter change
         if (filterData.schools !== undefined) {
             this.onSchoolChange(filterData.schools);
@@ -301,7 +304,7 @@ export class TeachersListComponent implements OnInit {
             selectedDistrictIds: this.selectedDistrictIds.join(','),
             selectedSchoolIds: this.selectedSchoolIds.join(',')
         };
-        
+
         // Preserve previous states if they exist
         this.route.queryParams.subscribe(currentParams => {
             if (currentParams['districtPage'] !== undefined) {
@@ -324,16 +327,16 @@ export class TeachersListComponent implements OnInit {
                 queryParams.fromDistrictId = currentParams['fromDistrictId'];
             }
         });
-        
-        this.router.navigate(['/teachers', teacher._id, 'students'], { 
-            queryParams 
+
+        this.router.navigate(['/teachers', teacher._id, 'students'], {
+            queryParams
         });
     }
 
     goBack(): void {
         this.route.queryParams.subscribe(params => {
             const queryParams: any = {};
-            
+
             // Preserve all pagination states
             if (params['districtPage'] !== undefined) {
                 queryParams.districtPage = params['districtPage'];
@@ -353,10 +356,10 @@ export class TeachersListComponent implements OnInit {
             if (params['fromDistrictId']) {
                 queryParams.fromDistrictId = params['fromDistrictId'];
             }
-            
+
             // Check if we came from schools (either via route param or query param)
             const fromSchoolId = this.schoolId || params['fromSchoolId'];
-            
+
             if (fromSchoolId) {
                 // Go back to schools LIST, not to specific school's teachers
                 this.router.navigate(['/schools'], { queryParams });
@@ -508,7 +511,7 @@ export class TeachersListComponent implements OnInit {
                 canDelete: false
             }
         });
-        
+
         dialogRef.afterClosed().subscribe((result) => {
             if (result?.action === 'save') {
                 this.isLoading = true;
@@ -534,8 +537,8 @@ export class TeachersListComponent implements OnInit {
     onTeacherUpdate(teacher: Teacher): void {
         const dialogRef = this.dialog.open(TeacherEditingDialogComponent, {
             width: '1000px',
-            data: { 
-                teacher, 
+            data: {
+                teacher,
                 isEditing: true,
                 canDelete: this.authService.canDeleteTeachers()
             }
@@ -600,7 +603,7 @@ export class TeachersListComponent implements OnInit {
         input.type = 'file';
         input.accept = '.xlsx,.xls';
         input.style.display = 'none';
-        
+
         input.onchange = (event: Event) => {
             const target = event.target as HTMLInputElement;
             if (target?.files?.length) {
@@ -608,28 +611,28 @@ export class TeachersListComponent implements OnInit {
                 this.teacherService.uploadFile(file).subscribe({
                     next: (response) => {
                         const validationErrors = response.validationErrors || {};
-                        
+
                         // Check if there are any validation errors
-                        const hasErrors = 
+                        const hasErrors =
                             (validationErrors.incorrectTeacherCodes && validationErrors.incorrectTeacherCodes.length > 0) ||
                             (validationErrors.missingSchoolCodes && validationErrors.missingSchoolCodes.length > 0) ||
                             (validationErrors.teacherCodesWithoutSchoolCodes && validationErrors.teacherCodesWithoutSchoolCodes.length > 0) ||
                             (validationErrors.existingTeacherCodes && validationErrors.existingTeacherCodes.length > 0);
-                        
+
                         if (hasErrors) {
                             // Show error dialog
                             const dialogData: FileUploadErrorsData = {
                                 type: 'teachers',
                                 errors: validationErrors
                             };
-                            
+
                             const dialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
                                 width: '700px',
                                 maxWidth: '90vw',
                                 data: dialogData,
                                 disableClose: true
                             });
-                            
+
                             // Refresh table only after dialog is closed
                             dialogRef.afterClosed().subscribe(() => {
                                 this.loadTeachers();
@@ -647,7 +650,7 @@ export class TeachersListComponent implements OnInit {
                 });
             }
         };
-        
+
         document.body.appendChild(input);
         input.click();
         document.body.removeChild(input);

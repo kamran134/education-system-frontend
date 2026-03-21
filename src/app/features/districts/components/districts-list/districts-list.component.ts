@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../services/district.service';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -19,10 +20,10 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
     selector: 'app-districts-list',
     standalone: true,
     imports: [
-        CommonModule, 
-        RouterModule, 
+        CommonModule,
+        RouterModule,
         LucideAngularModule,
-        ListLayoutComponent, 
+        ListLayoutComponent,
         DataTableComponent
     ],
     templateUrl: './districts-list.component.html',
@@ -33,23 +34,23 @@ export class DistrictsListComponent implements OnInit {
     isLoading = false;
     hasError = false;
     errorMessage = '';
-    
+
     // Pagination properties
     totalCount = 0;
     pageSize = 100;
     pageIndex = 0;
-    
+
     // Sorting properties
     sortColumn = 'name';
     sortDirection: 'asc' | 'desc' = 'asc';
-    
+
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'Adı', sortable: true, type: 'text' },
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
-    
+
     tableActions: TableAction[] = [
         {
             key: 'edit',
@@ -59,13 +60,13 @@ export class DistrictsListComponent implements OnInit {
             condition: () => this.authService.canEditDistricts()
         }
     ];
-    
+
     actionButtons: ActionButton[] = [];
-    
+
     // Icons
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
-    
+
     matSnackConfig: MatSnackBarConfig = {
         duration: 5000,
         horizontalPosition: 'center',
@@ -76,7 +77,7 @@ export class DistrictsListComponent implements OnInit {
     onUpdateDistrictsStats(): void {
         this.isUpdatingStats = true;
         this.setupActionButtons(); // Обновляем кнопки с loading состоянием
-        
+
         this.districtService.updateDistrictsStats().subscribe({
             next: (response: any) => {
                 this.isUpdatingStats = false;
@@ -92,6 +93,8 @@ export class DistrictsListComponent implements OnInit {
         });
     }
 
+    private destroyRef = inject(DestroyRef);
+
     constructor(
         private dialog: MatDialog,
         private authService: AuthService,
@@ -103,9 +106,9 @@ export class DistrictsListComponent implements OnInit {
 
     ngOnInit(): void {
         this.setupActionButtons();
-        
+
         // Restore state from query parameters if coming back
-        this.route.queryParams.subscribe(params => {
+        this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             if (params['districtPage'] !== undefined) {
                 this.pageIndex = parseInt(params['districtPage']) || 0;
             }
@@ -113,13 +116,13 @@ export class DistrictsListComponent implements OnInit {
                 this.pageSize = parseInt(params['districtPageSize']) || 100;
             }
         });
-        
+
         this.loadDistricts();
     }
 
     private setupActionButtons(): void {
         this.actionButtons = [];
-        
+
         if (this.authService.canCreateDistricts()) {
             this.actionButtons.push({
                 label: 'Yeni rayon / şəhər əlavə et',
@@ -128,7 +131,7 @@ export class DistrictsListComponent implements OnInit {
                 variant: 'primary'
             });
         }
-        
+
         // if (this.isAdminOrSuperAdmin()) {
         //     this.actionButtons.push({
         //         label: 'Reytinqləri yenilə',
@@ -148,13 +151,13 @@ export class DistrictsListComponent implements OnInit {
     openAddDistrictDialog(): void {
         const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
           width: '400px',
-          data: { 
+          data: {
             district: { name: '', code: '', studentCount: 0 },
             isEditing: false,
             canDelete: false
           },
         });
-    
+
         dialogRef.afterClosed().subscribe((result) => {
             if (result?.action === 'save') {
                 this.isLoading = true;
@@ -224,18 +227,18 @@ export class DistrictsListComponent implements OnInit {
     onDistrictEdit(district: District): void {
         const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
             width: '400px',
-            data: { 
+            data: {
                 district: {
                     _id: district._id,
-                    name: district.name, 
-                    code: district.code, 
+                    name: district.name,
+                    code: district.code,
                     studentCount: district.studentCount
                 },
                 isEditing: true,
                 canDelete: this.authService.canDeleteDistricts()
             },
         });
-    
+
         dialogRef.afterClosed().subscribe((result) => {
             if (result?.action === 'delete') {
                 // Обработка удаления
@@ -300,8 +303,8 @@ export class DistrictsListComponent implements OnInit {
             districtPage: this.pageIndex,
             districtPageSize: this.pageSize
         };
-        this.router.navigate(['/districts', district._id, 'schools'], { 
-            queryParams 
+        this.router.navigate(['/districts', district._id, 'schools'], {
+            queryParams
         });
     }
 }

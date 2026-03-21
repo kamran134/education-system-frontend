@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
@@ -41,6 +42,8 @@ export class BookletDetailComponent implements OnInit {
     readonly Hash = Hash;
     readonly Loader = Loader;
 
+    private destroyRef = inject(DestroyRef);
+
     constructor(
         private route: ActivatedRoute,
         private bookletService: BookletService
@@ -54,7 +57,7 @@ export class BookletDetailComponent implements OnInit {
             this.isLoading = false;
             return;
         }
-        this.bookletService.getBookletPublic(id).subscribe({
+        this.bookletService.getBookletPublic(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (b) => {
                 this.booklet = b;
                 this.isLoading = false;

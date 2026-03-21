@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -46,7 +47,7 @@ export class ExamResultsComponent implements OnInit {
     readonly Filter = Filter;
     readonly X = X;
     readonly Edit2 = Edit2;
-    
+
     // Math for template
     readonly Math = Math;
 
@@ -56,19 +57,19 @@ export class ExamResultsComponent implements OnInit {
     schools: School[] = [];
     teachers: Teacher[] = [];
     exams: Exam[] = [];
-    
+
     // Pagination
     totalCount = 0;
     pageIndex = 0;
     pageSize = 1000;
-    
+
     // Loading states
     isLoading = false;
     isLoadingDistricts = false;
     isLoadingSchools = false;
     isLoadingTeachers = false;
     isLoadingExams = false;
-    
+
     // Filters
     searchText = '';
     studentCode = '';
@@ -77,7 +78,7 @@ export class ExamResultsComponent implements OnInit {
     selectedTeacherIds: string[] = [];
     selectedExamIds: string[] = [];
     selectedGrades: number[] = [];
-    
+
     // Filter visibility
     showFilters = false;
 
@@ -99,6 +100,8 @@ export class ExamResultsComponent implements OnInit {
     // Sort
     sortColumn = '';
     sortDirection: 'asc' | 'desc' = 'desc';
+
+    private destroyRef = inject(DestroyRef);
 
     constructor(
         private examResultsService: ExamResultsService,
@@ -154,7 +157,7 @@ export class ExamResultsComponent implements OnInit {
     loadExamResults(): void {
         console.log('🔄 Loading started, isLoading =', true);
         this.isLoading = true;
-        
+
         const filters: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
@@ -193,7 +196,7 @@ export class ExamResultsComponent implements OnInit {
     loadDistricts(): void {
         this.isLoadingDistricts = true;
         const params: FilterParams = { page: 1, size: 1000 };
-        
+
         this.districtService.getDistricts(params).subscribe({
             next: (response) => {
                 this.districts = response.data || [];
@@ -213,7 +216,7 @@ export class ExamResultsComponent implements OnInit {
             size: 1000,
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined
         };
-        
+
         this.schoolService.getSchools(params).subscribe({
             next: (response) => {
                 this.schools = response.data || [];
@@ -234,7 +237,7 @@ export class ExamResultsComponent implements OnInit {
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined
         };
-        
+
         this.teacherService.getTeachers(params).subscribe({
             next: (response) => {
                 this.teachers = response.data || [];
@@ -274,7 +277,7 @@ export class ExamResultsComponent implements OnInit {
         this.selectedTeacherIds = [];
         this.schools = [];
         this.teachers = [];
-        
+
         if (districtIds.length > 0) {
             this.loadSchools();
         }
@@ -285,7 +288,7 @@ export class ExamResultsComponent implements OnInit {
         this.selectedSchoolIds = schoolIds;
         this.selectedTeacherIds = [];
         this.teachers = [];
-        
+
         if (schoolIds.length > 0) {
             this.loadTeachers();
         }
@@ -394,7 +397,7 @@ export class ExamResultsComponent implements OnInit {
             disableClose: false,
             data: { result, canDelete: this.canDeleteExamResults }
         });
-        dialogRef.afterClosed().subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
+        dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
             if (response?.action === 'save' && response.data) {
                 this.updateResult(result._id, response.data);
             } else if (response?.action === 'delete') {

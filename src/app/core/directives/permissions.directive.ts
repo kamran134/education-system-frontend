@@ -1,21 +1,20 @@
-import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, OnDestroy } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Directive, Input, TemplateRef, ViewContainerRef, OnInit } from '@angular/core';
 import { PermissionsService } from '../services/permissions.service';
 import { RolePermissions } from '../config/rbac.config';
 
 /**
  * Директива для условного отображения элементов на основе прав доступа
- * 
+ *
  * Примеры использования:
- * 
+ *
  * <button *hasPermission="'canAccessUserManagement'; category: 'routes'">
  *   Управление пользователями
  * </button>
- * 
+ *
  * <div *hasPermission="'canCreateUsers'; category: 'crud'">
  *   Форма создания пользователя
  * </div>
- * 
+ *
  * <button *hasPermission="'showExportButtons'; category: 'ui'">
  *   Экспорт
  * </button>
@@ -24,12 +23,11 @@ import { RolePermissions } from '../config/rbac.config';
     selector: '[hasPermission]',
     standalone: true
 })
-export class HasPermissionDirective implements OnInit, OnDestroy {
-    private destroy$ = new Subject<void>();
+export class HasPermissionDirective implements OnInit {
     private permissionAction: string = '';
     private permissionCategory: keyof RolePermissions = 'routes';
 
-    @Input() 
+    @Input()
     set hasPermission(action: string) {
         this.permissionAction = action;
         this.updateView();
@@ -71,18 +69,13 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
             this.viewContainer.clear();
         }
     }
-
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
 }
 
 /**
  * Директива для условного отображения на основе роли пользователя
- * 
+ *
  * Пример использования:
- * 
+ *
  * <div *hasRole="['admin', 'superadmin']">
  *   Видно только админам
  * </div>
@@ -94,7 +87,7 @@ export class HasPermissionDirective implements OnInit, OnDestroy {
 export class HasRoleDirective implements OnInit {
     private allowedRoles: string[] = [];
 
-    @Input() 
+    @Input()
     set hasRole(roles: string | string[]) {
         this.allowedRoles = Array.isArray(roles) ? roles : [roles];
         this.updateView();

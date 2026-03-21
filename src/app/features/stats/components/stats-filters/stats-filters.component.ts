@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
@@ -35,7 +36,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     readonly Filter = Filter;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
-    
+
     @Input() selectedTab: string = 'developingStudents';
     @Input() districts: District[] = [];
     @Input() schools: School[] = [];
@@ -48,7 +49,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedGrades: number[] = [];
     @Input() selectedExamIds: string[] | [] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
-    
+
     // Role-based filter disabling
     @Input() disableDistrictFilter: boolean = false;
     @Input() disableSchoolFilter: boolean = false;
@@ -117,12 +118,14 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         return (this.exams || []).map(exam => ({ label: exam.name, value: exam._id }));
     }
 
+    private destroyRef = inject(DestroyRef);
+
     constructor() {
         this.setupSearch();
         this.setupMonthYearChange();
         this.setupYears();
         // this.setupExamChange();
-        
+
     }
 
     ngOnInit() {
@@ -145,8 +148,8 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
 
     setupMonthYearChange() {
         // Эмитим YYYY-MM при изменении месяца или года
-        this.monthControl.valueChanges.subscribe(() => this.emitMonthYear());
-        this.yearControl.valueChanges.subscribe(() => this.emitMonthYear());
+        this.monthControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.emitMonthYear());
+        this.yearControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.emitMonthYear());
         // Эмитим начальное значение
         this.emitMonthYear();
     }
@@ -211,6 +214,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         this.searchTerms.pipe(
             debounceTime(300), // Задержка 300 мс
             distinctUntilChanged(), // Игнорировать повторяющиеся значения
+            takeUntilDestroyed(this.destroyRef),
             switchMap((term: string) => {
                 if (term.trim().length >= 3) {
                     this.searchStringChanged.emit(term);

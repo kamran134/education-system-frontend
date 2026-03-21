@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatsService } from '../../services/stats.service';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Error } from '../../../../core/models/error.model';
@@ -205,13 +206,15 @@ export class StatsComponent implements OnInit, OnDestroy {
         public permissions: PermissionsService
     ) { }
 
+    private destroyRef = inject(DestroyRef);
+
     // Helper function to check if current tab is a student month tab
     isStudentMonthTab(): boolean {
         return ['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(this.selectedTab);
     }
 
     ngOnInit(): void {
-        this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+        this.authService.isLoggedIn$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isLoggedIn => {
             if (isLoggedIn) {
                 this.authorizedUserRole = this.authService.getRole();
                 this.loadCurrentUserData();
@@ -220,7 +223,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                 this.loadDistricts();
                 // Не загружаем школы и учителей сразу, только по необходимости
 
-                this.route.queryParams.subscribe((params: Params) => {
+                this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
                     // Restore filters
                     this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
