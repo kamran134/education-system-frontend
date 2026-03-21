@@ -12,7 +12,7 @@ import { map } from "rxjs/operators";
     providedIn: 'root'
 })
 export class DashboardService {
-    
+
     constructor(private http: HttpClient, private configService: ConfigService) { }
 
     /**
