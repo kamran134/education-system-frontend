@@ -39,7 +39,7 @@ export class LoginComponent {
                 }
             },
             error: (error) => {
-                this.errorMessage.set(error.error.message || 'Girişdə xəta');
+                this.errorMessage.set(error?.error?.message || 'Girişdə xəta');
             }
         });
     }

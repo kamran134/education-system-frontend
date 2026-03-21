@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, ErrorHandler } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -16,10 +16,11 @@ import { DateAdapter, MAT_DATE_FORMATS, MatNativeDateModule } from '@angular/mat
 import { CustomDateAdapter } from './core/adapters/custom-date-adapter';
 import { CUSTOM_DATE_FORMATS } from './core/services/custom-date-formats';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { GlobalErrorHandler } from './core/services/global-error-handler.service';
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideRouter(routes), 
+        provideRouter(routes),
         provideClientHydration(),
         provideHttpClient(withInterceptors([authInterceptor])),
         provideAnimationsAsync(),
@@ -34,6 +35,7 @@ export const appConfig: ApplicationConfig = {
         ),
         { provide: DateAdapter, useClass: CustomDateAdapter },
         { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
-        { provide: 'NG_HYDRATION', useValue: false }
+        { provide: 'NG_HYDRATION', useValue: false },
+        { provide: ErrorHandler, useClass: GlobalErrorHandler }
     ]
 };
