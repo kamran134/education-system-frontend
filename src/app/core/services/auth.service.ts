@@ -5,7 +5,7 @@ import { BehaviorSubject, map, Observable, tap, catchError, switchMap, throwErro
 import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
 import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, UserInfo } from '../models/auth.models';
-import { ROLE_PERMISSIONS, UserRole } from '../config/rbac.config';
+import { ROLE_PERMISSIONS, RolePermissions, UserRole } from '../config/rbac.config';
 
 @Injectable({
     providedIn: 'root'
@@ -97,101 +97,31 @@ export class AuthService {
         return this.isAdmin() || this.isSuperAdmin();
     }
 
-    // RBAC Permission checks
-    canCreateDistricts(): boolean {
+    // RBAC Permission checks — generic method
+    canPerformCrud(permission: keyof RolePermissions['crud']): boolean {
         const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canCreateDistricts : false;
+        return role ? (ROLE_PERMISSIONS[role]?.crud[permission] ?? false) : false;
     }
 
-    canEditDistricts(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditDistricts : false;
-    }
-
-    canDeleteDistricts(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteDistricts : false;
-    }
-
-    canCreateSchools(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canCreateSchools : false;
-    }
-
-    canEditSchools(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditSchools : false;
-    }
-
-    canDeleteSchools(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteSchools : false;
-    }
-
-    canCreateTeachers(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canCreateTeachers : false;
-    }
-
-    canEditTeachers(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditTeachers : false;
-    }
-
-    canDeleteTeachers(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteTeachers : false;
-    }
-
-    canCreateStudents(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canCreateStudents : false;
-    }
-
-    canEditStudents(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditStudents : false;
-    }
-
-    canDeleteStudents(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteStudents : false;
-    }
-
-    canEditExamResults(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditExamResults : false;
-    }
-
-    canDeleteExamResults(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteExamResults : false;
-    }
-
-    canCreateExams(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canCreateExams : false;
-    }
-
-    canEditExams(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditExams : false;
-    }
-
-    canDeleteExams(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteExams : false;
-    }
-
-    canEditBooklets(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canEditBooklets : false;
-    }
-
-    canDeleteBooklets(): boolean {
-        const role = this.userRole.value as UserRole;
-        return role ? ROLE_PERMISSIONS[role]?.crud.canDeleteBooklets : false;
-    }
+    canCreateDistricts(): boolean { return this.canPerformCrud('canCreateDistricts'); }
+    canEditDistricts(): boolean { return this.canPerformCrud('canEditDistricts'); }
+    canDeleteDistricts(): boolean { return this.canPerformCrud('canDeleteDistricts'); }
+    canCreateSchools(): boolean { return this.canPerformCrud('canCreateSchools'); }
+    canEditSchools(): boolean { return this.canPerformCrud('canEditSchools'); }
+    canDeleteSchools(): boolean { return this.canPerformCrud('canDeleteSchools'); }
+    canCreateTeachers(): boolean { return this.canPerformCrud('canCreateTeachers'); }
+    canEditTeachers(): boolean { return this.canPerformCrud('canEditTeachers'); }
+    canDeleteTeachers(): boolean { return this.canPerformCrud('canDeleteTeachers'); }
+    canCreateStudents(): boolean { return this.canPerformCrud('canCreateStudents'); }
+    canEditStudents(): boolean { return this.canPerformCrud('canEditStudents'); }
+    canDeleteStudents(): boolean { return this.canPerformCrud('canDeleteStudents'); }
+    canEditExamResults(): boolean { return this.canPerformCrud('canEditExamResults'); }
+    canDeleteExamResults(): boolean { return this.canPerformCrud('canDeleteExamResults'); }
+    canCreateExams(): boolean { return this.canPerformCrud('canCreateExams'); }
+    canEditExams(): boolean { return this.canPerformCrud('canEditExams'); }
+    canDeleteExams(): boolean { return this.canPerformCrud('canDeleteExams'); }
+    canEditBooklets(): boolean { return this.canPerformCrud('canEditBooklets'); }
+    canDeleteBooklets(): boolean { return this.canPerformCrud('canDeleteBooklets'); }
 
     get isAuthorized(): boolean {
         return this.authStatus.getValue();
