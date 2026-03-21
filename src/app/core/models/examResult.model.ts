@@ -11,9 +11,9 @@ interface IDisciplines {
 
 export interface ExamResult {
     _id: string;
-    disciplines: IDisciplines;
-    questionCounts: IDisciplines;
-    exam: Exam;
+    disciplines?: IDisciplines;
+    questionCounts?: IDisciplines;
+    exam: Exam | null;
     grade: number;
     level: string;
     score: number;

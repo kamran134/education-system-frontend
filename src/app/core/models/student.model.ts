@@ -43,9 +43,9 @@ export interface Student {
     middleName: string;
     code: number;
     grade: number;
-    teacher: Teacher;
-    school: School;
-    district: District;
+    teacher: Teacher | null;
+    school: School | null;
+    district: District | null;
     status?: string;
     score?: number;
     averageScore?: number;
@@ -73,9 +73,9 @@ export interface StudentWithResult {
     middleName: string;
     code: number;
     grade: number;
-    teacher: Teacher;
-    school: School;
-    district: District;
+    teacher: Teacher | null;
+    school: School | null;
+    district: District | null;
     status: string;
     avatarUrl?: string;
     results: ExamResult[];
