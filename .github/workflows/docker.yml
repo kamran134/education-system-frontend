@@ -3,7 +3,7 @@ name: Deploy Frontend to GHCR
 on:
   push:
     branches:
-      - new_version  # Меняй, если хочешь триггерить из другой ветки
+      - new_version
 
 jobs:
   build-and-push:
@@ -23,3 +23,13 @@ jobs:
       - name: Push Docker image to GHCR
         run: |
           docker push ghcr.io/kamran134/education-system-frontend:latest
+
+      - name: Install SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
+          chmod 600 deploy_key
+
+      - name: Deploy frontend on server
+        run: |
+          ssh -i deploy_key -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "cd ~/isim && docker compose pull frontend && docker compose up -d frontend"
