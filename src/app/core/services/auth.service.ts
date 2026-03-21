@@ -56,7 +56,7 @@ export class AuthService {
 
     get isLevelUpUser$(): Observable<boolean> {
         return this.userRole$.pipe(
-            map(role => role === 'superadmin' && !this.isSuperAdmin$)
+            map(role => role !== null && role !== 'superadmin')
         );
     }
 

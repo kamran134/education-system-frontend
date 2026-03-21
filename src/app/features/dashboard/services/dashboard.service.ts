@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ConfigService } from "../../../core/services/config.service";
 import { UserParams } from "../../../core/models/filterParams.model";
@@ -22,26 +22,16 @@ export class DashboardService {
      */
 
     getUsers(userParams: UserParams): Observable<UserResponse> {
-        let url: string = `${this.configService.getApiUrl()}/users`;
-        if (userParams.page && userParams.size) {
-            url = `${url}?page=${userParams.page}&size=${userParams.size}`;
-        }
-        if (userParams.email) {
-            url = `${url}&email=${userParams.email}`;
-        }
-        if (userParams.role) {
-            url = `${url}&role=${userParams.role}`;
-        }
-        if (userParams.isApproved !== undefined) {
-            url = `${url}&isApproved=${userParams.isApproved}`;
-        }
-        if (userParams.createdAt) {
-            url = `${url}&createdAt=${userParams.createdAt.toISOString()}`;
-        }
-        if (userParams.updatedAt) {
-            url = `${url}&updatedAt=${userParams.updatedAt.toISOString()}`;
-        }
-        return this.http.get<UserResponse>(url, { withCredentials: true });
+        const url = `${this.configService.getApiUrl()}/users`;
+        let params = new HttpParams();
+        if (userParams.page != null)      params = params.set('page', userParams.page);
+        if (userParams.size != null)      params = params.set('size', userParams.size);
+        if (userParams.email)             params = params.set('email', userParams.email);
+        if (userParams.role)              params = params.set('role', userParams.role);
+        if (userParams.isApproved != null) params = params.set('isApproved', userParams.isApproved);
+        if (userParams.createdAt)         params = params.set('createdAt', userParams.createdAt.toISOString());
+        if (userParams.updatedAt)         params = params.set('updatedAt', userParams.updatedAt.toISOString());
+        return this.http.get<UserResponse>(url, { params, withCredentials: true });
     }
 
     createUser(user: UserEdit): Observable<UserResponse> {
