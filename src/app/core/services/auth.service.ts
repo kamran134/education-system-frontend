@@ -24,17 +24,17 @@ export class AuthService {
     private userRole = new BehaviorSubject<string | null>(
         isPlatformBrowser(this.platformId) ? localStorage.getItem('role') : null
     );
-    private currentUserData = new BehaviorSubject<any>(null);
+    private currentUserData = new BehaviorSubject<UserInfo | null>(null);
 
     get isLoggedIn$(): Observable<boolean> {
         return this.authStatus.asObservable();
     }
 
-    get currentUser$(): Observable<any> {
+    get currentUser$(): Observable<UserInfo | null> {
         return this.currentUserData.asObservable();
     }
 
-    getCurrentUserValue(): any {
+    getCurrentUserValue(): UserInfo | null {
         return this.currentUserData.value;
     }
 
@@ -293,8 +293,8 @@ export class AuthService {
             );
     }
 
-    getCurrentUser(): Observable<any> {
-        return this.http.get<any>(`${this.configService.getAuthUrl()}/me`)
+    getCurrentUser(): Observable<AuthResponse<UserInfo>> {
+        return this.http.get<AuthResponse<UserInfo>>(`${this.configService.getAuthUrl()}/me`)
             .pipe(
                 tap(response => {
                     if (response.success && response.data) {
