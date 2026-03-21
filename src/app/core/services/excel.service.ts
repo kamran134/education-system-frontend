@@ -18,22 +18,22 @@ export class ExcelService {
      */
     private formatStudentAchievements(result: any): string {
         const achievements: string[] = [];
-        
+
         // Проверяем развивающийся студент
         if (result.developmentScore && result.developmentScore > 0) {
             achievements.push('İnkişaf edən şagird');
         }
-        
+
         // Проверяем студент месяца по району
         if (result.studentOfTheMonthScore && result.studentOfTheMonthScore > 0) {
             achievements.push('Ayın şagirdi');
         }
-        
+
         // Проверяем студент месяца по республике
         if (result.republicWideStudentOfTheMonthScore && result.republicWideStudentOfTheMonthScore > 0) {
             achievements.push('Respublika üzrə ayın şagirdi');
         }
-        
+
         return achievements.join(', ') || ' ';
     }
 
@@ -110,18 +110,18 @@ export class ExcelService {
                 'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
                 'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
                 'Rayonu / şəhəri': student.district?.name || 'Rayon / şəhər tapılmadı',
-                'İmtahanın adı': result.exam.name,
+                'İmtahanın adı': result.exam?.name,
                 'Balı': result.score,
-                'Tarixi': result.exam.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
-                'Azərbaycan dili': result.disciplines.az || 0,
-                'Riyaziyyat': result.disciplines.math || 0,
-                'Həyat bilgisi': result.disciplines.lifeKnowledge || 0,
-                'Məntiq': result.disciplines.logic || 0,
+                'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
+                'Azərbaycan dili': result.disciplines?.az || 0,
+                'Riyaziyyat': result.disciplines?.math || 0,
+                'Həyat bilgisi': result.disciplines?.lifeKnowledge || 0,
+                'Məntiq': result.disciplines?.logic || 0,
                 'Ümumi balı': result.totalScore || 0,
                 'Pilləsi': result.level || 'Pillə tapılmadı',
                 'Statusu': this.formatStudentAchievements(result),
             }
-            : 
+            :
             {
                 'Şagirdin kodu': student.code,
                 'Soyadı': student.lastName,
@@ -131,13 +131,13 @@ export class ExcelService {
                 'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
                 'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
                 'Rayonu / şəhəri': student.district?.name || 'Rayon / şəhər tapılmadı',
-                'İmtahanın adı': result.exam.name,
+                'İmtahanın adı': result.exam?.name,
                 'Balı': result.score,
-                'Tarixi': result.exam.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
+                'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
                 //'Tarixi': result.exam.date ? new Date(result.exam.date).toLocaleDateString() : 'Tarix tapılmadı',
-                'Azərbaycan dili': result.disciplines.az || 0,
-                'Riyaziyyat': result.disciplines.math || 0,
-                'Məntiq': result.disciplines.logic || 0,
+                'Azərbaycan dili': result.disciplines?.az || 0,
+                'Riyaziyyat': result.disciplines?.math || 0,
+                'Məntiq': result.disciplines?.logic || 0,
                 'Ümumi balı': result.totalScore || 0,
                 'Pilləsi': result.level || 'Pillə tapılmadı',
                 'Statusu': this.formatStudentAchievements(result),
@@ -148,7 +148,7 @@ export class ExcelService {
     formatHeaders(ws: XLSX.WorkSheet) {
         const range = XLSX.utils.decode_range(ws['!ref'] || 'A1'); // Получаем диапазон данных
         const headerRow = 0; // Первая строка — это заголовки
-    
+
         for (let col = range.s.c; col <= range.e.c; col++) {
         const cellAddress = XLSX.utils.encode_cell({ r: headerRow, c: col });
         if (!ws[cellAddress]) continue;
@@ -163,7 +163,7 @@ export class ExcelService {
                 },
             };
         }
-    
+
         // Устанавливаем высоту строки заголовков (опционально)
         if (!ws['!rows']) ws['!rows'] = [];
         ws['!rows'][headerRow] = { hpt: 20 }; // Высота строки в пунктах

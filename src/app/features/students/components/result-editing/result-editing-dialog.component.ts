@@ -53,8 +53,8 @@ export class ResultEditingDialogComponent {
         // Create a copy of the result for editing
         this.editedResult = {
             grade: data.result.grade,
-            disciplines: { ...data.result.disciplines },
-            questionCounts: { ...data.result.questionCounts },
+            disciplines: data.result.disciplines ? { ...data.result.disciplines } : undefined,
+            questionCounts: data.result.questionCounts ? { ...data.result.questionCounts } : undefined,
             level: data.result.level,
             totalScore: data.result.totalScore
         };

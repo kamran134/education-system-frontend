@@ -352,9 +352,9 @@ export class AuthService {
                 this.authStatus.next(true);
                 return true;
             }),
-            catchError(() =>
+            catchError(() => {
                 // Если токен невалиден, пробуем refresh
-                this.refreshToken().pipe(
+                return this.refreshToken().pipe(
                     switchMap(() => this.getCurrentUser()),
                     map(() => {
                         this.authStatus.next(true);

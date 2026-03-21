@@ -9,14 +9,14 @@
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h3 class="text-sm font-semibold text-gray-700 mb-2">İmtahan məlumatı</h3>
             <div class="text-sm text-gray-600">
-                <div><span class="font-medium">Tarix:</span> {{ data.result.exam.date | date: 'dd.MM.yyyy' }}</div>
+                <div><span class="font-medium">Tarix:</span> {{ data.result.exam?.date | date: 'dd.MM.yyyy' }}</div>
             </div>
         </div>
 
         <!-- Grade, Level, Total Score -->
         <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-700">Ümumi məlumat</h3>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <app-select
                     label="Sinif"
@@ -45,7 +45,7 @@
         <!-- Disciplines Scores -->
         <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-700">Fənnlər üzrə nəticələr</h3>
-            
+
             <div class="space-y-3">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
                     <app-input
@@ -54,7 +54,7 @@
                         [(ngModel)]="editedResult.disciplines!.az"
                         name="az"
                         placeholder="Düzgün cavabların sayı" />
-                    
+
                     <app-input
                         label="Azərbaycan dili - Sualların sayı"
                         type="number"
@@ -70,7 +70,7 @@
                         [(ngModel)]="editedResult.disciplines!.math"
                         name="math"
                         placeholder="Düzgün cavabların sayı" />
-                    
+
                     <app-input
                         label="Riyaziyyat - Sualların sayı"
                         type="number"
@@ -86,7 +86,7 @@
                         [(ngModel)]="editedResult.disciplines!.lifeKnowledge"
                         name="lifeKnowledge"
                         placeholder="Düzgün cavabların sayı" />
-                    
+
                     <app-input
                         label="Həyat bilgisi - Sualların sayı"
                         type="number"
@@ -102,7 +102,7 @@
                         [(ngModel)]="editedResult.disciplines!.logic"
                         name="logic"
                         placeholder="Düzgün cavabların sayı" />
-                    
+
                     <app-input
                         label="Məntiq - Sualların sayı"
                         type="number"
@@ -118,7 +118,7 @@
                         [(ngModel)]="editedResult.disciplines!.english"
                         name="english"
                         placeholder="Düzgün cavabların sayı" />
-                    
+
                     <app-input
                         label="İngilis dili - Sualların sayı"
                         type="number"

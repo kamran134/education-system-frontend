@@ -2,7 +2,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">İmtahan nəticələri</h1>
-        
+
         <div class="flex items-center gap-4">
             <app-button
                 variant="outline"
@@ -12,7 +12,7 @@
                     <span>Filtrlər</span>
                 </div>
             </app-button>
-            
+
             <app-button
                 variant="primary"
                 (clicked)="exportToExcel()">
@@ -35,7 +35,7 @@
                 Filtrlərı təmizlə
             </button>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Search by name -->
             <app-input
@@ -142,7 +142,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr *ngFor="let result of examResults" class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ formatDate(result.exam.date) }}
+                            {{ formatDate(result.exam?.date) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {{ result.studentData?.code || result.student }}
@@ -188,7 +188,7 @@
                             <span *ngIf="!canEditExamResults" class="text-gray-400 text-sm">—</span>
                         </td>
                     </tr>
-                    
+
                     <!-- Empty state -->
                     <tr *ngIf="!isLoading && examResults.length === 0">
                         <td [attr.colspan]="displayedColumns.length" class="px-6 py-12 text-center text-gray-500">
@@ -199,7 +199,7 @@
                             </div>
                         </td>
                     </tr>
-                    
+
                     <!-- Loading state -->
                     <tr *ngIf="isLoading">
                         <td [attr.colspan]="displayedColumns.length" class="px-6 py-24 text-center">
@@ -232,7 +232,7 @@
                     <div class="text-sm text-gray-700">
                         Göstərilən: {{ pageIndex * pageSize + 1 }} - {{ Math.min((pageIndex + 1) * pageSize, totalCount) }} / {{ totalCount }}
                     </div>
-                    
+
                     <div class="flex items-center gap-2">
                         <label for="pageSize" class="text-sm text-gray-700">Səhifə başına:</label>
                         <select
@@ -245,7 +245,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center space-x-2">
                     <app-button
                         variant="outline"
@@ -253,11 +253,11 @@
                         (clicked)="onPageChange({pageIndex: pageIndex - 1, pageSize: pageSize})">
                         Əvvəlki
                     </app-button>
-                    
+
                     <span class="text-sm text-gray-700">
                         Səhifə {{ pageIndex + 1 }} / {{ Math.ceil(totalCount / pageSize) }}
                     </span>
-                    
+
                     <app-button
                         variant="outline"
                         [disabled]="(pageIndex + 1) * pageSize >= totalCount"
