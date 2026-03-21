@@ -77,17 +77,17 @@
                     </div>
                     <div>
                         <span class="font-medium text-gray-700">Müəllimi:</span>
-                        <span class="ml-2 text-gray-900">{{ student.teacher.fullname }}</span>
+                        <span class="ml-2 text-gray-900">{{ student.teacher?.fullname }}</span>
                     </div>
                 </div>
                 <div class="space-y-3">
                     <div>
                         <span class="font-medium text-gray-700">Məktəbi:</span>
-                        <span class="ml-2 text-gray-900">{{ student.school.name }}</span>
+                        <span class="ml-2 text-gray-900">{{ student.school?.name }}</span>
                     </div>
                     <div>
                         <span class="font-medium text-gray-700">Rayonu / şəhəri:</span>
-                        <span class="ml-2 text-gray-900">{{ student.district.name }}</span>
+                        <span class="ml-2 text-gray-900">{{ student.district?.name }}</span>
                     </div>
                 </div>
             </div>
@@ -132,7 +132,7 @@
                         <tbody>
                             <tr *ngFor="let result of currentResults" class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                    {{ result.exam.date | date: 'dd.MM.YYYY' }}
+                                    {{ result.exam?.date | date: 'dd.MM.YYYY' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm border-b border-gray-100">
                                     <span class="px-2 py-1 text-xs font-medium rounded-full"
@@ -207,7 +207,7 @@
                             <tbody>
                                 <tr *ngFor="let result of previousResults" class="hover:bg-blue-50 transition-colors">
                                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                        {{ result.exam.date ? (result.exam.date | date: 'dd.MM.YYYY') : '—' }}
+                                        {{ result.exam?.date ? (result.exam.date | date: 'dd.MM.YYYY') : '—' }}
                                     </td>
                                     <td class="px-4 py-3 text-sm border-b border-gray-100">
                                         <span class="px-2 py-1 text-xs font-medium rounded-full"

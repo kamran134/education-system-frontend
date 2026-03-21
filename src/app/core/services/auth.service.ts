@@ -232,13 +232,11 @@ export class AuthService {
     }
 
     login(credentials: { email: string; password: string }): Observable<any> {
-        console.log('[AUTH SERVICE] Logging in with withCredentials: true');
         return this.http.post<any>(
             `${this.configService.getAuthUrl()}/login`,
             credentials,
             { withCredentials: true }).pipe(
                 tap(response => {
-                    console.log('[AUTH SERVICE] Login response received:', response);
                     if (response.success && response.data) {
                         localStorage.setItem('token', response.data.token);
                         localStorage.setItem('id', response.data.user.id);
@@ -331,20 +329,15 @@ export class AuthService {
     validateToken(): Observable<boolean> {
         const token = this.getToken();
 
-        console.log('[AUTH SERVICE - validateToken] Token exists:', !!token);
-
         // Если токена нет, пробуем refresh
         if (!token) {
-            console.log('[AUTH SERVICE - validateToken] No token, attempting refresh...');
             return this.refreshToken().pipe(
                 switchMap(() => this.getCurrentUser()),
                 map(() => {
-                    console.log('[AUTH SERVICE - validateToken] Refresh successful');
                     this.authStatus.next(true);
                     return true;
                 }),
-                catchError((error) => {
-                    console.log('[AUTH SERVICE - validateToken] Refresh failed:', error);
+                catchError(() => {
                     this.authStatus.next(false);
                     this.userId.next(null);
                     this.userRole.next(null);
@@ -354,25 +347,20 @@ export class AuthService {
         }
 
         // Если токен есть, проверяем его валидность
-        console.log('[AUTH SERVICE - validateToken] Validating existing token...');
         return this.getCurrentUser().pipe(
             map(() => {
-                console.log('[AUTH SERVICE - validateToken] Token valid');
                 this.authStatus.next(true);
                 return true;
             }),
-            catchError((error) => {
-                console.log('[AUTH SERVICE - validateToken] Token invalid, attempting refresh...');
+            catchError(() =>
                 // Если токен невалиден, пробуем refresh
-                return this.refreshToken().pipe(
+                this.refreshToken().pipe(
                     switchMap(() => this.getCurrentUser()),
                     map(() => {
-                        console.log('[AUTH SERVICE - validateToken] Refresh successful');
                         this.authStatus.next(true);
                         return true;
                     }),
-                    catchError((refreshError) => {
-                        console.log('[AUTH SERVICE - validateToken] Refresh failed:', refreshError);
+                    catchError(() => {
                         // Если refresh тоже не сработал, очищаем все
                         if (isPlatformBrowser(this.platformId)) {
                             localStorage.removeItem('token');
@@ -390,24 +378,18 @@ export class AuthService {
     }
 
     logout(): void {
-        console.log('[AUTH SERVICE] Logging out...');
-
         // Сначала очищаем локальные данные
         this.clearLocalData();
 
         // Затем уведомляем сервер (но не зависим от результата)
         this.http.post(`${this.configService.getAuthUrl()}/logout`, {}, { withCredentials: true })
             .pipe(
-                catchError(error => {
-                    console.log('[AUTH SERVICE] Logout request failed, but continuing with local logout:', error);
-                    return of(null); // Игнорируем ошибку
-                })
+                catchError(() => of(null)) // Игнорируем ошибку
             )
             .subscribe();
     }
 
     private clearLocalData(): void {
-        console.log('[AUTH SERVICE] Clearing local data...');
         if (isPlatformBrowser(this.platformId)) {
             localStorage.removeItem('token');
             localStorage.removeItem('id');
