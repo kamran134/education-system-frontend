@@ -1,9 +1,9 @@
 // Новый формат ответа с ResponseHandler
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
     success: boolean;
     data?: T;
     message?: string;
-    error?: any;
+    error?: unknown;
 }
 
 // Старый формат (оставляем для совместимости)

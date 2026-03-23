@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { 
-    StatisticsFilter, 
-    StatisticsResponse, 
-    YearlyStatistics, 
-    MonthlyStatistics 
+import {
+    StatisticsFilter,
+    StatisticsResponse,
+    YearlyStatistics,
+    MonthlyStatistics
 } from '../../../core/models/statistics.model';
+import { ApiResponse } from '../../../core/models/response.model';
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +21,7 @@ export class StatisticsService {
     /**
      * Получить полную статистику (годовая + помесячная)
      */
-    getStatistics(filters?: StatisticsFilter): Observable<any> {
+    getStatistics(filters?: StatisticsFilter): Observable<ApiResponse<StatisticsResponse>> {
         let params = new HttpParams();
 
         if (filters) {
@@ -38,13 +39,13 @@ export class StatisticsService {
             }
         }
 
-        return this.http.get<any>(this.apiUrl, { params });
+        return this.http.get<ApiResponse<StatisticsResponse>>(this.apiUrl, { params });
     }
 
     /**
      * Получить только годовую статистику
      */
-    getYearlyStatistics(filters?: StatisticsFilter): Observable<any> {
+    getYearlyStatistics(filters?: StatisticsFilter): Observable<ApiResponse<YearlyStatistics>> {
         let params = new HttpParams();
 
         if (filters) {
@@ -62,13 +63,13 @@ export class StatisticsService {
             }
         }
 
-        return this.http.get<any>(`${this.apiUrl}/yearly`, { params });
+        return this.http.get<ApiResponse<YearlyStatistics>>(`${this.apiUrl}/yearly`, { params });
     }
 
     /**
      * Получить только помесячную статистику
      */
-    getMonthlyStatistics(filters?: StatisticsFilter): Observable<any> {
+    getMonthlyStatistics(filters?: StatisticsFilter): Observable<ApiResponse<MonthlyStatistics[]>> {
         let params = new HttpParams();
 
         if (filters) {
@@ -86,6 +87,6 @@ export class StatisticsService {
             }
         }
 
-        return this.http.get<any>(`${this.apiUrl}/monthly`, { params });
+        return this.http.get<ApiResponse<MonthlyStatistics[]>>(`${this.apiUrl}/monthly`, { params });
     }
 }

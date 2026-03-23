@@ -11,10 +11,14 @@ export interface TokenStatistics {
     averageTokensPerUser: number;
 }
 
-export interface AuthResponse<T = any> {
+export interface AuthResponse<T = unknown> {
     success: boolean;
     message?: string;
     data?: T;
+}
+
+export interface RefreshResponse {
+    token: string;
 }
 
 export interface LoginResponse {

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, map, Observable, tap, catchError, switchMap, throwError, of } from 'rxjs';
 import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
-import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, UserInfo } from '../models/auth.models';
+import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, RefreshResponse, UserInfo } from '../models/auth.models';
 import { ROLE_PERMISSIONS, RolePermissions, UserRole } from '../config/rbac.config';
 
 @Injectable({
@@ -161,8 +161,8 @@ export class AuthService {
         }
     }
 
-    login(credentials: { email: string; password: string }): Observable<any> {
-        return this.http.post<any>(
+    login(credentials: { email: string; password: string }): Observable<AuthResponse<LoginResponse>> {
+        return this.http.post<AuthResponse<LoginResponse>>(
             `${this.configService.getAuthUrl()}/login`,
             credentials,
             { withCredentials: true }).pipe(
@@ -187,8 +187,8 @@ export class AuthService {
         return this.http.post(`${this.configService.getAuthUrl()}/register`, credentials, { withCredentials: true });
     }
 
-    refreshToken(): Observable<any> {
-        return this.http.post<any>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
+    refreshToken(): Observable<AuthResponse<RefreshResponse>> {
+        return this.http.post<AuthResponse<RefreshResponse>>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
             .pipe(
                 tap(response => {
                     if (response.success && response.data && response.data.token) {
