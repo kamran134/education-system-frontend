@@ -1071,37 +1071,37 @@ export class StatsComponent implements OnInit, OnDestroy {
 
         switch (tableName) {
             case 'developingStudents': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.developingStudents || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.developingStudents || [], this.developingStudentColumns));
                 sheetName = `İE şagirdlər (${this.selectedMonth})`;
                 break;
             }
             case 'studentsOfMonth': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.studentsOfMonth || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.studentsOfMonth || [], this.monthStudentColumns));
                 sheetName = `AŞ (${this.selectedMonth})`;
                 break;
             }
             case 'studentsOfMonthByRepublic': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.studentsOfMonthByRepublic || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.studentsOfMonthByRepublic || [], this.monthStudentColumns));
                 sheetName = `AŞ respublika üzrə (${this.selectedMonth})`;
                 break;
             }
             case 'allStudents': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatAllStudentData(this.stats.students || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatAllStudentData(this.stats.students || [], this.studentColumns));
                 sheetName = 'İlin şagirdləri';
                 break;
             }
             case 'allTeachers': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatTeacherData(this.stats.teachers || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatTeacherData(this.stats.teachers || [], this.teacherColumns));
                 sheetName = 'İlin müəllimləri';
                 break;
             }
             case 'allSchools': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatSchoolData(this.stats.schools || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatSchoolData(this.stats.schools || [], this.schoolColumns));
                 sheetName = 'İlin məktəbləri';
                 break;
             }
             case 'allDistricts': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatDistrictData(this.stats.districts || []));
+                result = XLSX.utils.json_to_sheet(this.excelService.formatDistrictData(this.stats.districts || [], this.districtColumns));
                 sheetName = 'İlin rayonları / şəhərləri';
                 break;
             }
