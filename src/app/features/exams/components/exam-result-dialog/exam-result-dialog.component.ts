@@ -95,9 +95,13 @@ export class ExamResultDialogComponent implements OnInit {
                         errorsDialogRef.afterClosed().subscribe(() => {
                             this.dialogRef.close({ hasErrors: true });
                         });
+                    } else if (!response.processedData || response.processedData.length === 0) {
+                        // No errors but nothing was saved either
+                        this.snackBar.open('Yüklənəcək etibarlı məlumat tapılmadı. Faylı yoxlayın.', 'Bağla', this.matSnackConfig);
+                        this.dialogRef.close({ hasErrors: true });
                     } else {
-                        // No errors, show success message and close immediately
-                        this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'OK', this.matSnackConfig);
+                        // No errors, show success message with count and close immediately
+                        this.snackBar.open(`${response.processedData.length} şagirdin nəticəsi uğurla yükləndi`, 'OK', this.matSnackConfig);
                         this.dialogRef.close({ hasErrors: false });
                     }
                 },

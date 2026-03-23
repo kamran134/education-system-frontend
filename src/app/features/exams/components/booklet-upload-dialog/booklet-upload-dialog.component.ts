@@ -71,7 +71,13 @@ export class BookletUploadDialogComponent {
         this.bookletService.uploadBooklets(this.file, this.data.exam._id).subscribe({
             next: (result) => {
                 this.isUploading = false;
-                this.snackBar.open('Kitabça cavabları uğurla yükləndi!', 'OK', this.snackConfig);
+                if (result.errors && result.errors.length > 0) {
+                    const errorList = result.errors.slice(0, 5).join('\n');
+                    const more = result.errors.length > 5 ? `\n+${result.errors.length - 5} xəta daha...` : '';
+                    this.snackBar.open(`Xəbərdarlıq:\n${errorList}${more}`, 'Bağla', this.snackConfig);
+                } else {
+                    this.snackBar.open('Kitabça cavabları uğurla yükləndi!', 'OK', this.snackConfig);
+                }
                 this.dialogRef.close({ success: true, result });
             },
             error: (error: any) => {
