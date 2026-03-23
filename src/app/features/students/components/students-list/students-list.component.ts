@@ -6,7 +6,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Core models and services
 import { Student } from '../../../../core/models/student.model';
@@ -22,6 +21,7 @@ import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { connectSearchDebounce } from '../../../../core/utils/debounce.util';
 
 // UI Components
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft, Trash } from 'lucide-angular';
@@ -274,15 +274,11 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     }
 
     private setupSearchDebounce(): void {
-        this.searchSubject.pipe(
-            debounceTime(300),
-            distinctUntilChanged(),
-            takeUntil(this.destroy$)
-        ).subscribe(searchTerm => {
+        connectSearchDebounce(this.searchSubject, searchTerm => {
             this.searchString = searchTerm;
             this.pageIndex = 0;
             this.loadStudents();
-        });
+        }, this.destroy$);
     }
 
     ngOnDestroy(): void {

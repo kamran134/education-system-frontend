@@ -17,7 +17,8 @@ import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Student } from '../../../../core/models/student.model';
-import { debounceTime, Subject, takeUntil } from 'rxjs';
+import { connectDebounce } from '../../../../core/utils/debounce.util';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-user-edit-dialog',
@@ -70,26 +71,10 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        // Setup debounced search
-        this.districtSearch$.pipe(
-            debounceTime(300),
-            takeUntil(this.destroy$)
-        ).subscribe(term => this.searchDistricts(term));
-
-        this.schoolSearch$.pipe(
-            debounceTime(300),
-            takeUntil(this.destroy$)
-        ).subscribe(term => this.searchSchools(term));
-
-        this.teacherSearch$.pipe(
-            debounceTime(300),
-            takeUntil(this.destroy$)
-        ).subscribe(term => this.searchTeachers(term));
-
-        this.studentSearch$.pipe(
-            debounceTime(300),
-            takeUntil(this.destroy$)
-        ).subscribe(term => this.searchStudents(term));
+        connectDebounce(this.districtSearch$, term => this.searchDistricts(term), this.destroy$);
+        connectDebounce(this.schoolSearch$, term => this.searchSchools(term), this.destroy$);
+        connectDebounce(this.teacherSearch$, term => this.searchTeachers(term), this.destroy$);
+        connectDebounce(this.studentSearch$, term => this.searchStudents(term), this.destroy$);
 
         // Load existing entity data for editing
         this.loadExistingEntityData();

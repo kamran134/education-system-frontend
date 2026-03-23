@@ -14,6 +14,7 @@ import { District, DistrictResponse } from '../../../../core/models/district.mod
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
@@ -52,17 +53,11 @@ export class TeachersListComponent implements OnInit {
     readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     isUpdatingStats = false;
     onUpdateTeachersStats(): void {
-        this.isUpdatingStats = true;
-        this.teacherService.updateTeachersStats().subscribe({
-            next: (response: any) => {
-                this.isUpdatingStats = false;
-                this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
-                this.loadTeachers();
-            },
-            error: (error) => {
-                this.isUpdatingStats = false;
-                this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
-            }
+        runStatsUpdate(this.teacherService.updateTeachersStats(), {
+            setUpdating: v => { this.isUpdatingStats = v; },
+            onSuccess: () => this.loadTeachers(),
+            snackBar: this.snackBar,
+            config: this.matSnackConfig
         });
     }
     selectedDistrictIds: string[] = [];

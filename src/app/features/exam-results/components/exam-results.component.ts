@@ -363,6 +363,9 @@ export class ExamResultsComponent implements OnInit {
         return dateObj.toLocaleDateString('az-AZ');
     }
 
+    trackByColumnKey(_: number, col: { key: string }): string { return col.key; }
+    trackByResultId(_: number, result: ExamResult): string { return result._id; }
+
     getLevelBadgeClass(level: string): string {
         switch (level?.toLowerCase()) {
             case 'yüksək':

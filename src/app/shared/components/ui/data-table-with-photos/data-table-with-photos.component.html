@@ -1,5 +1,5 @@
 <div class="overflow-x-auto bg-white rounded-lg border border-gray-200">
-    <table class="min-w-full">
+    <table class="min-w-full" aria-label="Şəkilli cədvəl">
         <!-- Header -->
         <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
@@ -7,7 +7,7 @@
                 <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-20">
                     Şəkil
                 </th>
-                
+
                 <!-- Name Column -->
                 <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                     Ad Soyad
@@ -15,7 +15,7 @@
 
                 <!-- Data Columns -->
                 <th *ngFor="let column of columns"
-                    [class]="'px-4 py-3 text-sm font-semibold text-gray-700 ' + 
+                    [class]="'px-4 py-3 text-sm font-semibold text-gray-700 ' +
                              (column.sortable ? 'cursor-pointer hover:bg-gray-100 select-none ' : '') +
                              'text-' + (column.align || 'left')"
                     [style.width]="column.width"
@@ -29,7 +29,7 @@
                 </th>
 
                 <!-- Actions Column -->
-                <th *ngIf="actions.length > 0" 
+                <th *ngIf="actions.length > 0"
                     class="px-4 py-3 text-right text-sm font-semibold text-gray-700 w-32">
                     Əməliyyatlar
                 </th>
@@ -38,17 +38,18 @@
 
         <!-- Body -->
         <tbody class="divide-y divide-gray-200">
-            <tr *ngFor="let row of data; let i = index" 
+            <tr *ngFor="let row of data; let i = index"
                 class="hover:bg-gray-50 transition-colors h-24">
-                
+
                 <!-- Photo Cell -->
                 <td class="px-4 py-2">
                     <div class="w-16 h-20 rounded overflow-hidden border border-gray-200 bg-gray-100">
-                        <img *ngIf="getPhotoUrl(row)" 
-                             [src]="getPhotoUrl(row)" 
+                        <img *ngIf="getPhotoUrl(row)"
+                             [src]="getPhotoUrl(row)"
                              [alt]="getName(row)"
+                             loading="lazy"
                              class="w-full h-full object-cover">
-                        <div *ngIf="!getPhotoUrl(row)" 
+                        <div *ngIf="!getPhotoUrl(row)"
                              class="w-full h-full flex items-center justify-center">
                             <lucide-icon [img]="User" class="w-8 h-8 text-gray-400"></lucide-icon>
                         </div>
@@ -84,7 +85,7 @@
 
             <!-- Empty State -->
             <tr *ngIf="data.length === 0">
-                <td [attr.colspan]="columns.length + 2 + (actions.length > 0 ? 1 : 0)" 
+                <td [attr.colspan]="columns.length + 2 + (actions.length > 0 ? 1 : 0)"
                     class="px-4 py-12 text-center text-gray-500">
                     Məlumat tapılmadı
                 </td>
@@ -93,9 +94,9 @@
     </table>
 
     <!-- Pagination -->
-    <div *ngIf="showPagination && totalPages > 1" 
+    <div *ngIf="showPagination && totalPages > 1"
          class="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
-        
+
         <div class="text-sm text-gray-700">
             Cəmi: <span class="font-medium">{{ totalCount }}</span> nəticə
         </div>
@@ -111,7 +112,7 @@
             <!-- Page Numbers -->
             <button *ngFor="let page of paginationPages"
                     (click)="onPageChange(page)"
-                    [class]="page === currentPage 
+                    [class]="page === currentPage
                              ? 'px-3 py-1 rounded-md bg-blue-600 text-white font-medium'
                              : 'px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 text-gray-700 transition-colors'">
                 {{ page }}

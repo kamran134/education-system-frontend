@@ -130,7 +130,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let result of currentResults" class="hover:bg-gray-50 transition-colors">
+                            <tr *ngFor="let result of currentResults; trackBy: trackByResultId" class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                                     {{ result.exam?.date | date: 'dd.MM.YYYY' }}
                                 </td>
@@ -205,7 +205,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let result of previousResults" class="hover:bg-blue-50 transition-colors">
+                                <tr *ngFor="let result of previousResults; trackBy: trackByResultId" class="hover:bg-blue-50 transition-colors">
                                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                                         {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.YYYY') : '—' }}
                                     </td>

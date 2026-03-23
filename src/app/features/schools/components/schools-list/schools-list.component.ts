@@ -10,6 +10,7 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -225,21 +226,12 @@ export class SchoolsListComponent implements OnInit {
     }
 
     onUpdateSchoolsStats(): void {
-        this.isUpdatingStats = true;
-        this.setupActionButtons();
-
-        this.schoolService.updateSchoolsStats().subscribe({
-            next: (response: any) => {
-                this.isUpdatingStats = false;
-                this.setupActionButtons();
-                this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
-                this.loadSchools();
-            },
-            error: (error) => {
-                this.isUpdatingStats = false;
-                this.setupActionButtons();
-                this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
-            }
+        runStatsUpdate(this.schoolService.updateSchoolsStats(), {
+            setUpdating: v => { this.isUpdatingStats = v; },
+            onSuccess: () => this.loadSchools(),
+            snackBar: this.snackBar,
+            config: this.matSnackConfig,
+            onToggle: () => this.setupActionButtons()
         });
     }
 

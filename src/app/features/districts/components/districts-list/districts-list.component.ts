@@ -13,6 +13,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2 } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
@@ -72,21 +73,12 @@ export class DistrictsListComponent implements OnInit {
 
     isUpdatingStats = false;
     onUpdateDistrictsStats(): void {
-        this.isUpdatingStats = true;
-        this.setupActionButtons(); // Обновляем кнопки с loading состоянием
-
-        this.districtService.updateDistrictsStats().subscribe({
-            next: (response: any) => {
-                this.isUpdatingStats = false;
-                this.setupActionButtons(); // Обновляем кнопки без loading
-                this.snackBar.open('Statistika uğurla yeniləndi', 'OK', this.matSnackConfig);
-                this.loadDistricts();
-            },
-            error: (error) => {
-                this.isUpdatingStats = false;
-                this.setupActionButtons(); // Обновляем кнопки без loading
-                this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
-            }
+        runStatsUpdate(this.districtService.updateDistrictsStats(), {
+            setUpdating: v => { this.isUpdatingStats = v; },
+            onSuccess: () => this.loadDistricts(),
+            snackBar: this.snackBar,
+            config: this.matSnackConfig,
+            onToggle: () => this.setupActionButtons()
         });
     }
 

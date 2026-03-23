@@ -74,6 +74,8 @@ export class StudentDetailsComponent implements OnInit {
         );
     }
 
+    trackByResultId(_: number, result: ExamResult): string { return result._id; }
+
     // Icons
     readonly ArrowLeft = ArrowLeft;
     readonly Download = Download;

@@ -35,7 +35,6 @@ export const appConfig: ApplicationConfig = {
         ),
         { provide: DateAdapter, useClass: CustomDateAdapter },
         { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
-        { provide: 'NG_HYDRATION', useValue: false },
         { provide: ErrorHandler, useClass: GlobalErrorHandler }
     ]
 };
