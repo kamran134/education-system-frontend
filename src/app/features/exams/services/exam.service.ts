@@ -72,7 +72,7 @@ export class ExamService {
     }
 
     deleteResults(examId: string): Observable<any> {
-        const url: string = `${this.configService.getApiUrl()}/student-results/${examId}`;
+        const url: string = `${this.configService.getApiUrl()}/student-results/exam/${examId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
