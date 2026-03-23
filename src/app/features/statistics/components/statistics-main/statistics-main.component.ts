@@ -36,7 +36,7 @@ export class StatisticsMainComponent implements OnInit {
     selectedSchoolIds: string[] = [];
     selectedGrades: number[] = [];
     selectedMonth: number | null = null;
-    selectedYear: number = new Date().getFullYear();
+    selectedYear: number = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
 
     // Данные для фильтров
     districts: District[] = [];
@@ -58,7 +58,8 @@ export class StatisticsMainComponent implements OnInit {
         { value: 12, label: 'Dekabr' }
     ];
 
-    years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
+    private readonly currentAcademicYear = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
+    years = Array.from({ length: 6 }, (_, i) => this.currentAcademicYear - i);
 
     // Options для select компонентов
     get districtOptions() {
@@ -78,7 +79,7 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     get yearOptions() {
-        return this.years.map(y => ({ label: y.toString(), value: y }));
+        return this.years.map(y => ({ label: `${y}-${y + 1}`, value: y }));
     }
 
     get statisticsTitle(): string {
@@ -197,7 +198,7 @@ export class StatisticsMainComponent implements OnInit {
         this.selectedSchoolIds = [];
         this.selectedGrades = [];
         this.selectedMonth = null;
-        this.selectedYear = new Date().getFullYear();
+        this.selectedYear = this.currentAcademicYear;
         this.schools = [];
         this.loadStatistics();
     }
