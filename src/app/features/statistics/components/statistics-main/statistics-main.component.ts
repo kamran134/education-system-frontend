@@ -22,7 +22,7 @@ export class StatisticsMainComponent implements OnInit {
     readonly Filter = Filter;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
-    
+
     private statisticsService = inject(StatisticsService);
     private districtService = inject(DistrictService);
     private schoolService = inject(SchoolService);
@@ -42,7 +42,7 @@ export class StatisticsMainComponent implements OnInit {
     districts: District[] = [];
     schools: School[] = [];
     allGrades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    
+
     months = [
         { value: 1, label: 'Yanvar' },
         { value: 2, label: 'Fevral' },
@@ -57,7 +57,7 @@ export class StatisticsMainComponent implements OnInit {
         { value: 11, label: 'Noyabr' },
         { value: 12, label: 'Dekabr' }
     ];
-    
+
     years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
     // Options для select компонентов
@@ -92,15 +92,14 @@ export class StatisticsMainComponent implements OnInit {
     // Получаем статистику для отображения (годовая или за выбранный месяц)
     get displayedStats() {
         if (!this.statistics) return null;
-        
+
         if (this.selectedMonth !== null) {
-            // Если выбран месяц, находим его в помесячной статистике
-            return this.statistics.monthly.find(m => {
-                const [year, month] = m.month.split('-');
-                return parseInt(month) === this.selectedMonth;
-            }) || null;
+            // Учебный год: месяцы 9-12 принадлежат году начала, 1-8 — году+1
+            const calendarYear = this.selectedMonth >= 9 ? this.selectedYear : this.selectedYear + 1;
+            const expectedKey = `${calendarYear}-${String(this.selectedMonth).padStart(2, '0')}`;
+            return this.statistics.monthly.find(m => m.month === expectedKey) || null;
         }
-        
+
         // Иначе возвращаем годовую статистику
         return this.statistics.yearly;
     }

@@ -37,6 +37,9 @@ export class StatisticsService {
             if (filters.year) {
                 params = params.set('year', filters.year.toString());
             }
+            if (filters.month != null) {
+                params = params.set('month', filters.month.toString());
+            }
         }
 
         return this.http.get<ApiResponse<StatisticsResponse>>(this.apiUrl, { params });
@@ -61,6 +64,9 @@ export class StatisticsService {
             if (filters.year) {
                 params = params.set('year', filters.year.toString());
             }
+            if (filters.month != null) {
+                params = params.set('month', filters.month.toString());
+            }
         }
 
         return this.http.get<ApiResponse<YearlyStatistics>>(`${this.apiUrl}/yearly`, { params });
@@ -84,6 +90,9 @@ export class StatisticsService {
             }
             if (filters.year) {
                 params = params.set('year', filters.year.toString());
+            }
+            if (filters.month != null) {
+                params = params.set('month', filters.month.toString());
             }
         }
 

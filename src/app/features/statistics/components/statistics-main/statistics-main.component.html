@@ -15,7 +15,7 @@
                 <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
                 Filtrlər
             </h3>
-            <button 
+            <button
                 type="button"
                 (click)="toggleFilters()"
                 class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
@@ -73,7 +73,7 @@
             </div>
 
             <div>
-                <button 
+                <button
                     type="button"
                     (click)="onFilterReset()"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
@@ -88,12 +88,19 @@
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
     </div>
 
+    <!-- Нет данных за выбранный месяц -->
+    <div *ngIf="!isLoading && statistics && selectedMonth !== null && !displayedStats"
+         class="flex flex-col items-center justify-center py-16 text-gray-400">
+        <p class="text-lg font-medium">Bu ay üçün statistika mövcud deyil</p>
+        <p class="text-sm mt-1">Başqa ay seçin və ya filtirləri sıfırlayın</p>
+    </div>
+
     <!-- Статистика -->
     <div *ngIf="!isLoading && statistics && displayedStats" class="statistics-content">
         <!-- Годовая/Месячная статистика -->
         <div class="yearly-stats mb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ statisticsTitle }}</h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <!-- Общее количество студентов / результатов -->
                 <div class="stat-card bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -177,10 +184,10 @@
             </div>
         </div>
 
-        <!-- Помесячная статистика -->
-        <div class="monthly-stats">
+        <!-- Помесячная статистика (только когда месяц не выбран) -->
+        <div class="monthly-stats" *ngIf="selectedMonth === null">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">Aylıq statistika</h2>
-            
+
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white rounded-lg overflow-hidden border border-gray-200">
                     <thead class="bg-gray-100">
@@ -203,7 +210,7 @@
                             <td class="px-4 py-3 font-medium text-gray-900">{{ month.monthName }}</td>
                             <td class="px-4 py-3 text-right text-gray-900">{{ month.totalResults }}</td>
                             <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.studentsOfMonth.count }} 
+                                {{ month.studentsOfMonth.count }}
                                 <span class="text-sm text-gray-600">({{ month.studentsOfMonth.percentage }}%)</span>
                             </td>
                             <td class="px-4 py-3 text-right text-gray-900">
