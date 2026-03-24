@@ -231,6 +231,7 @@ export class ExcelService {
         const allHeaders  = [...fixedBefore, ...activeDisciplines.map(d => d.label), 'Yekun bal', 'Pillə'];
         const totalCols   = allHeaders.length;
         const yekunBalIdx = fixedBefore.length + activeDisciplines.length;
+        const pilleIdx    = yekunBalIdx + 1;
 
         // ── 3. Shared style tokens ────────────────────────────────────────────
         const BLUE   = '244185';
@@ -265,6 +266,12 @@ export class ExcelService {
         };
         const dataYekun = {
             fill:      { patternType: 'solid', fgColor: { rgb: YELLOW } },
+            alignment: { horizontal: 'center', vertical: 'center' },
+            border:    borderThin,
+        };
+        const dataBlue = {
+            font:      { color: { rgb: WHITE } },
+            fill:      { patternType: 'solid', fgColor: { rgb: BLUE } },
             alignment: { horizontal: 'center', vertical: 'center' },
             border:    borderThin,
         };
@@ -306,9 +313,10 @@ export class ExcelService {
 
             cells.forEach((val, c) => {
                 const isYekunBal = c === yekunBalIdx;
-                // centre: №, Sinif, discipline scores, Yekun bal, Pillə
+                const isPille    = c === pilleIdx;
                 const isLeftAlign = c >= 2 && c < fixedBefore.length && c !== 1;
                 const style = isYekunBal ? dataYekun
+                            : isPille    ? dataBlue
                             : isLeftAlign ? dataLeft
                             : dataCenter;
                 ws[XLSX.utils.encode_cell({ r: rowR, c })] = {
