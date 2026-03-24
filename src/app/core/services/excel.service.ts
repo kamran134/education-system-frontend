@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { ExamResult } from "../models/examResult.model";
 import { Student, StudentWithResult } from "../models/student.model";
 import { Teacher } from "../models/teacher.model";
@@ -211,8 +211,7 @@ export class ExcelService {
      * – blue header row, yellow Yekun bal column
      * – dynamic discipline columns (only those with at least one non-zero value)
      */
-    async exportExamResultsStyled(results: ExamResult[], filterLabel: string): Promise<void> {
-        const XLS = await import('xlsx-js-style') as typeof import('xlsx-js-style');
+    exportExamResultsStyled(results: ExamResult[], filterLabel: string): void {
         type DisciplineKey = 'az' | 'math' | 'lifeKnowledge' | 'logic' | 'english';
 
         // ── 1. Active discipline columns ──────────────────────────────────────
@@ -271,10 +270,10 @@ export class ExcelService {
         };
 
         // ── 4. Build worksheet ────────────────────────────────────────────────
-        const ws: any = {};
+        const ws: XLSX.WorkSheet = {};
 
         // Row 0 — merged title
-        ws[XLS.utils.encode_cell({ r: 0, c: 0 })] = {
+        ws[XLSX.utils.encode_cell({ r: 0, c: 0 })] = {
             v: filterLabel, t: 's',
             s: {
                 font:      { bold: true, sz: 13 },
@@ -284,7 +283,7 @@ export class ExcelService {
 
         // Row 1 — headers
         allHeaders.forEach((header, c) => {
-            ws[XLS.utils.encode_cell({ r: 1, c })] = {
+            ws[XLSX.utils.encode_cell({ r: 1, c })] = {
                 v: header, t: 's',
                 s: c === yekunBalIdx ? headerYekun : headerBase,
             };
@@ -312,7 +311,7 @@ export class ExcelService {
                 const style = isYekunBal ? dataYekun
                             : isLeftAlign ? dataLeft
                             : dataCenter;
-                ws[XLS.utils.encode_cell({ r: rowR, c })] = {
+                ws[XLSX.utils.encode_cell({ r: rowR, c })] = {
                     v: val,
                     t: typeof val === 'number' ? 'n' : 's',
                     s: style,
@@ -321,7 +320,7 @@ export class ExcelService {
         });
 
         // ── 5. Worksheet metadata ─────────────────────────────────────────────
-        ws['!ref'] = XLS.utils.encode_range({
+        ws['!ref'] = XLSX.utils.encode_range({
             s: { r: 0, c: 0 },
             e: { r: 1 + results.length, c: totalCols - 1 },
         });
@@ -340,9 +339,9 @@ export class ExcelService {
         ws['!rows'] = [{ hpt: 28 }, { hpt: 26 }];
 
         // ── 6. Write file ─────────────────────────────────────────────────────
-        const wb = XLS.utils.book_new();
-        XLS.utils.book_append_sheet(wb, ws, 'Nəticələr');
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Nəticələr');
         const dateStr = new Date().toISOString().split('T')[0];
-        XLS.writeFile(wb, `imtahan-neticeleri-${dateStr}.xlsx`);
+        XLSX.writeFile(wb, `imtahan-neticeleri-${dateStr}.xlsx`);
     }
 }

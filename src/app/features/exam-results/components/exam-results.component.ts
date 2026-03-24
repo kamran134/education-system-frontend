@@ -1,5 +1,6 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -102,6 +103,9 @@ export class ExamResultsComponent implements OnInit {
     sortColumn = '';
     sortDirection: 'asc' | 'desc' = 'desc';
 
+    isExporting = false;
+
+    private filterTrigger$ = new Subject<void>();
     private destroyRef = inject(DestroyRef);
 
     constructor(
@@ -116,6 +120,38 @@ export class ExamResultsComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        this.filterTrigger$.pipe(
+            debounceTime(150),
+            switchMap(() => {
+                this.isLoading = true;
+                const filters: FilterParams = {
+                    page: this.pageIndex + 1,
+                    size: this.pageSize,
+                    search: this.searchText || undefined,
+                    code: this.studentCode || undefined,
+                    districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
+                    schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
+                    teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
+                    examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
+                    grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
+                    sortColumn: this.sortColumn || undefined,
+                    sortDirection: this.sortDirection || undefined
+                };
+                return this.examResultsService.getExamResults(filters);
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (response) => {
+                this.examResults = response.data;
+                this.totalCount = response.totalCount;
+                this.isLoading = false;
+            },
+            error: (error) => {
+                console.error('Nəticələrin yüklənməsində xəta:', error);
+                this.isLoading = false;
+            }
+        });
+
         this.loadDistricts();
         this.loadExams();
         this.loadExamResults();
@@ -157,42 +193,7 @@ export class ExamResultsComponent implements OnInit {
     }
 
     loadExamResults(): void {
-        console.log('🔄 Loading started, isLoading =', true);
-        this.isLoading = true;
-
-        const filters: FilterParams = {
-            page: this.pageIndex + 1,
-            size: this.pageSize,
-            search: this.searchText || undefined,
-            code: this.studentCode || undefined,
-            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
-            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
-            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
-            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(",") : undefined,
-            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(",") : undefined,
-            sortColumn: this.sortColumn || undefined,
-            sortDirection: this.sortDirection || undefined
-        };
-
-        console.log('📊 Exam Results Filters:', filters);
-        console.log('🎯 Selected Exam IDs:', this.selectedExamIds);
-        console.log('🎓 Selected Grades:', this.selectedGrades);
-        console.log('🎓 Grades string:', filters.grades);
-
-        this.examResultsService.getExamResults(filters).subscribe({
-            next: (response) => {
-                console.log('✅ Exam Results Response:', response);
-                this.examResults = response.data;
-                this.totalCount = response.totalCount;
-                console.log('🏁 Loading finished, isLoading =', false);
-                this.isLoading = false;
-            },
-            error: (error) => {
-                console.error('Nəticələrin yüklənməsində xəta:', error);
-                console.log('❌ Loading error, isLoading =', false);
-                this.isLoading = false;
-            }
-        });
+        this.filterTrigger$.next();
     }
 
     loadDistricts(): void {
@@ -384,6 +385,8 @@ export class ExamResultsComponent implements OnInit {
     }
 
     exportToExcel(): void {
+        if (this.isExporting) return;
+        this.isExporting = true;
         const parts: string[] = [];
 
         if (this.selectedDistrictIds.length > 0) {
@@ -399,7 +402,13 @@ export class ExamResultsComponent implements OnInit {
         }
 
         const filterLabel = parts.length > 0 ? parts.join(' | ') : 'İmtahan nəticələri';
-        this.excelService.exportExamResultsStyled(this.examResults, filterLabel).catch(err => console.error('Excel export error:', err));
+        try {
+            this.excelService.exportExamResultsStyled(this.examResults, filterLabel);
+        } catch (err) {
+            console.error('Excel export error:', err);
+        } finally {
+            this.isExporting = false;
+        }
     }
 
     get canEditExamResults(): boolean {
