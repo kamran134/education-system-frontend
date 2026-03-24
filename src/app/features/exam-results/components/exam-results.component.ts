@@ -399,7 +399,7 @@ export class ExamResultsComponent implements OnInit {
         }
 
         const filterLabel = parts.length > 0 ? parts.join(' | ') : 'İmtahan nəticələri';
-        this.excelService.exportExamResultsStyled(this.examResults, filterLabel);
+        this.excelService.exportExamResultsStyled(this.examResults, filterLabel).catch(err => console.error('Excel export error:', err));
     }
 
     get canEditExamResults(): boolean {

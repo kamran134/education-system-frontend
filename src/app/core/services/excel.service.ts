@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import * as XLSX from 'xlsx-js-style';
 import { ExamResult } from "../models/examResult.model";
 import { Student, StudentWithResult } from "../models/student.model";
 import { Teacher } from "../models/teacher.model";
@@ -211,7 +210,8 @@ export class ExcelService {
      * – blue header row, yellow Yekun bal column
      * – dynamic discipline columns (only those with at least one non-zero value)
      */
-    exportExamResultsStyled(results: ExamResult[], filterLabel: string): void {
+    async exportExamResultsStyled(results: ExamResult[], filterLabel: string): Promise<void> {
+        const XLSX = await import('xlsx-js-style');
         type DisciplineKey = 'az' | 'math' | 'lifeKnowledge' | 'logic' | 'english';
 
         // ── 1. Active discipline columns ──────────────────────────────────────
