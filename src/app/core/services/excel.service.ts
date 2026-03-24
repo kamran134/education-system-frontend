@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { ExamResult } from "../models/examResult.model";
 import { Student, StudentWithResult } from "../models/student.model";
 import { Teacher } from "../models/teacher.model";
@@ -189,26 +189,159 @@ export class ExcelService {
     }
 
     formatHeaders(ws: XLSX.WorkSheet) {
-        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1'); // Получаем диапазон данных
-        const headerRow = 0; // Первая строка — это заголовки
+        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+        const headerRow = 0;
 
         for (let col = range.s.c; col <= range.e.c; col++) {
         const cellAddress = XLSX.utils.encode_cell({ r: headerRow, c: col });
         if (!ws[cellAddress]) continue;
-            // Применяем стили к заголовкам
             ws[cellAddress].s = {
-                font: {
-                    bold: true, // Жирный шрифт
-                    sz: 14,     // Размер шрифта (14 — чуть больше стандартного)
-                },
-                alignment: {
-                    horizontal: 'center', // Выравнивание по центру (опционально)
-                },
+                font: { bold: true, sz: 14 },
+                alignment: { horizontal: 'center' },
             };
         }
 
-        // Устанавливаем высоту строки заголовков (опционально)
         if (!ws['!rows']) ws['!rows'] = [];
-        ws['!rows'][headerRow] = { hpt: 20 }; // Высота строки в пунктах
+        ws['!rows'][headerRow] = { hpt: 20 };
+    }
+
+    /**
+     * Styled export for İmtahan nəticələri:
+     * – merged title row with active filter label
+     * – blue header row, yellow Yekun bal column
+     * – dynamic discipline columns (only those with at least one non-zero value)
+     */
+    exportExamResultsStyled(results: ExamResult[], filterLabel: string): void {
+        type DisciplineKey = 'az' | 'math' | 'lifeKnowledge' | 'logic' | 'english';
+
+        // ── 1. Active discipline columns ──────────────────────────────────────
+        const allDisciplines: Array<{ key: DisciplineKey; label: string }> = [
+            { key: 'az',            label: 'Az.' },
+            { key: 'math',          label: 'Riy.' },
+            { key: 'lifeKnowledge', label: 'H.B.' },
+            { key: 'logic',         label: 'Məntiq' },
+            { key: 'english',       label: 'İng.' },
+        ];
+        const activeDisciplines = allDisciplines.filter(d =>
+            results.some(r => r.disciplines && ((r.disciplines as any)[d.key] ?? 0) > 0)
+        );
+
+        // ── 2. Column layout ──────────────────────────────────────────────────
+        const fixedBefore = ['№', 'Sinif', 'Şagirdin kodu', 'Şagirdin soyadı', 'Şagirdin adı', 'Şagirdin ata adı'];
+        const allHeaders  = [...fixedBefore, ...activeDisciplines.map(d => d.label), 'Yekun bal', 'Pillə'];
+        const totalCols   = allHeaders.length;
+        const yekunBalIdx = fixedBefore.length + activeDisciplines.length;
+
+        // ── 3. Shared style tokens ────────────────────────────────────────────
+        const BLUE   = '244185';
+        const YELLOW = 'FFFF00';
+        const WHITE  = 'FFFFFF';
+        const BLACK  = '000000';
+        const borderThin = {
+            top:    { style: 'thin', color: { rgb: BLACK } },
+            bottom: { style: 'thin', color: { rgb: BLACK } },
+            left:   { style: 'thin', color: { rgb: BLACK } },
+            right:  { style: 'thin', color: { rgb: BLACK } },
+        };
+        const headerBase = {
+            font:      { bold: true, sz: 10, color: { rgb: WHITE } },
+            fill:      { patternType: 'solid', fgColor: { rgb: BLUE } },
+            alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+            border:    borderThin,
+        };
+        const headerYekun = {
+            font:      { bold: true, sz: 10, color: { rgb: BLACK } },
+            fill:      { patternType: 'solid', fgColor: { rgb: YELLOW } },
+            alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+            border:    borderThin,
+        };
+        const dataCenter = {
+            alignment: { horizontal: 'center', vertical: 'center' },
+            border:    borderThin,
+        };
+        const dataLeft = {
+            alignment: { horizontal: 'left', vertical: 'center' },
+            border:    borderThin,
+        };
+        const dataYekun = {
+            fill:      { patternType: 'solid', fgColor: { rgb: YELLOW } },
+            alignment: { horizontal: 'center', vertical: 'center' },
+            border:    borderThin,
+        };
+
+        // ── 4. Build worksheet ────────────────────────────────────────────────
+        const ws: XLSX.WorkSheet = {};
+
+        // Row 0 — merged title
+        ws[XLSX.utils.encode_cell({ r: 0, c: 0 })] = {
+            v: filterLabel, t: 's',
+            s: {
+                font:      { bold: true, sz: 13 },
+                alignment: { horizontal: 'center', vertical: 'center' },
+            },
+        };
+
+        // Row 1 — headers
+        allHeaders.forEach((header, c) => {
+            ws[XLSX.utils.encode_cell({ r: 1, c })] = {
+                v: header, t: 's',
+                s: c === yekunBalIdx ? headerYekun : headerBase,
+            };
+        });
+
+        // Rows 2+ — data
+        results.forEach((r, rowIdx) => {
+            const rowR = rowIdx + 2;
+            const cells: Array<string | number> = [
+                rowIdx + 1,
+                r.grade ?? '',
+                r.studentData?.code ?? '',
+                r.studentData?.lastName ?? '',
+                r.studentData?.firstName ?? '',
+                r.studentData?.middleName ?? '',
+                ...activeDisciplines.map(d => (r.disciplines as any)?.[d.key] ?? ''),
+                r.totalScore ?? 0,
+                r.level ?? '',
+            ];
+
+            cells.forEach((val, c) => {
+                const isYekunBal = c === yekunBalIdx;
+                // centre: №, Sinif, discipline scores, Yekun bal, Pillə
+                const isLeftAlign = c >= 2 && c < fixedBefore.length && c !== 1;
+                const style = isYekunBal ? dataYekun
+                            : isLeftAlign ? dataLeft
+                            : dataCenter;
+                ws[XLSX.utils.encode_cell({ r: rowR, c })] = {
+                    v: val,
+                    t: typeof val === 'number' ? 'n' : 's',
+                    s: style,
+                };
+            });
+        });
+
+        // ── 5. Worksheet metadata ─────────────────────────────────────────────
+        ws['!ref'] = XLSX.utils.encode_range({
+            s: { r: 0, c: 0 },
+            e: { r: 1 + results.length, c: totalCols - 1 },
+        });
+        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: totalCols - 1 } }];
+        ws['!cols'] = [
+            { wch: 4  },  // №
+            { wch: 6  },  // Sinif
+            { wch: 13 },  // kod
+            { wch: 16 },  // soyadı
+            { wch: 13 },  // adı
+            { wch: 13 },  // ata adı
+            ...activeDisciplines.map(() => ({ wch: 8 })),
+            { wch: 11 },  // Yekun bal
+            { wch: 9  },  // Pillə
+        ];
+        ws['!rows'] = [{ hpt: 28 }, { hpt: 26 }];
+
+        // ── 6. Write file ─────────────────────────────────────────────────────
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Nəticələr');
+        const dateStr = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(wb, `imtahan-neticeleri-${dateStr}.xlsx`);
     }
 }

@@ -16,6 +16,7 @@ import { SchoolService } from '../../schools/services/school.service';
 import { TeacherService } from '../../teachers/services/teacher.service';
 import { ExamService } from '../../exams/services/exam.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ExcelService } from '../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 import { ResultEditingDialogComponent } from '../../students/components/result-editing/result-editing-dialog.component';
 
@@ -110,7 +111,8 @@ export class ExamResultsComponent implements OnInit {
         private teacherService: TeacherService,
         private examService: ExamService,
         private dialog: MatDialog,
-        private authService: AuthService
+        private authService: AuthService,
+        private excelService: ExcelService
     ) {}
 
     ngOnInit(): void {
@@ -382,8 +384,22 @@ export class ExamResultsComponent implements OnInit {
     }
 
     exportToExcel(): void {
-        // TODO: Implement Excel export
-        console.log('Excel export functionality will be implemented');
+        const parts: string[] = [];
+
+        if (this.selectedDistrictIds.length > 0) {
+            const names = this.selectedDistrictIds
+                .map(id => this.districts.find(d => d._id === id)?.name)
+                .filter((n): n is string => !!n)
+                .join(', ');
+            if (names) parts.push(names);
+        }
+
+        if (this.selectedGrades.length > 0) {
+            parts.push(this.selectedGrades.join(', ') + ' sinif');
+        }
+
+        const filterLabel = parts.length > 0 ? parts.join(' | ') : 'İmtahan nəticələri';
+        this.excelService.exportExamResultsStyled(this.examResults, filterLabel);
     }
 
     get canEditExamResults(): boolean {
