@@ -10,6 +10,25 @@
         </app-button>
     </div>
 
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+        <div class="flex items-center space-x-4">
+            <lucide-icon [img]="Filter" class="w-4 h-4 text-gray-500 flex-shrink-0"></lucide-icon>
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Rol:</label>
+                <select
+                    [(ngModel)]="selectedRole"
+                    (ngModelChange)="onRoleFilterChange()"
+                    class="block rounded-md border border-gray-300 py-1.5 pl-3 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
+                </select>
+            </div>
+            <span *ngIf="totalCount > 0" class="text-sm text-gray-500 ml-auto">
+                Cəmi: <span class="font-medium text-gray-700">{{ totalCount }}</span>
+            </span>
+        </div>
+    </div>
+
     <!-- Table -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
@@ -17,10 +36,26 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            E-mail
+                            <button type="button" class="group inline-flex items-center space-x-1 hover:text-gray-700" (click)="onSortChange('email')">
+                                <span>E-mail</span>
+                                <lucide-icon
+                                    [img]="sortColumn === 'email' && sortDirection === 'asc' ? ChevronUp : ChevronDown"
+                                    class="w-3.5 h-3.5 transition-colors"
+                                    [class.text-indigo-600]="sortColumn === 'email'"
+                                    [class.text-gray-300]="sortColumn !== 'email'">
+                                </lucide-icon>
+                            </button>
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Vəzifəsi
+                            <button type="button" class="group inline-flex items-center space-x-1 hover:text-gray-700" (click)="onSortChange('role')">
+                                <span>Vəzifəsi</span>
+                                <lucide-icon
+                                    [img]="sortColumn === 'role' && sortDirection === 'asc' ? ChevronUp : ChevronDown"
+                                    class="w-3.5 h-3.5 transition-colors"
+                                    [class.text-indigo-600]="sortColumn === 'role'"
+                                    [class.text-gray-300]="sortColumn !== 'role'">
+                                </lucide-icon>
+                            </button>
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Təsdiq
@@ -36,13 +71,13 @@
                             {{ user.email }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" 
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
                                   [class]="getRoleBadgeClass(user.role)">
                                 {{ user.role }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                   [class]="user.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
                                 {{ user.isApproved ? 'təsdiq edilmiş' : 'təsdiq edilməmiş' }}
                             </span>
@@ -55,10 +90,10 @@
                                         <span>Redaktə</span>
                                     </div>
                                 </app-button>
-                                <app-button 
-                                    *ngIf="user.role != 'superadmin'" 
-                                    variant="danger" 
-                                    (clicked)="onUserDelete(user)" 
+                                <app-button
+                                    *ngIf="user.role != 'superadmin'"
+                                    variant="danger"
+                                    (clicked)="onUserDelete(user)"
                                     size="sm">
                                     <div class="flex items-center space-x-1">
                                         <lucide-icon [img]="Trash2" class="w-3.5 h-3.5"></lucide-icon>
@@ -71,11 +106,54 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Empty State -->
         <div *ngIf="dataSource.length === 0" class="text-center py-12">
             <lucide-icon [img]="Users" class="w-12 h-12 mx-auto text-gray-400 mb-4"></lucide-icon>
             <p class="text-gray-500">İstifadəçi tapılmadı</p>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="totalCount > 0" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                <div class="flex items-center space-x-4">
+                    <p class="text-sm text-gray-700">
+                        <span class="font-medium">{{ getDisplayStart() }}</span>
+                        –
+                        <span class="font-medium">{{ getDisplayEnd() }}</span>
+                        arası,
+                        <span class="font-medium">{{ totalCount }}</span>
+                        nəticədən
+                    </p>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-700 whitespace-nowrap">Səhifə ölçüsü:</label>
+                        <select
+                            [(ngModel)]="pageSize"
+                            (ngModelChange)="onPageSizeChange($event)"
+                            class="block rounded-md border-gray-300 py-1 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500">
+                            <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <app-button variant="outline" size="sm" aria-label="Birinci səhifə" [disabled]="currentPage === 0" (clicked)="goToPage(0)">
+                        <lucide-icon [img]="ChevronsLeft" class="h-4 w-4"></lucide-icon>
+                    </app-button>
+                    <app-button variant="outline" size="sm" aria-label="Əvvəlki səhifə" [disabled]="currentPage === 0" (clicked)="goToPage(currentPage - 1)">
+                        <lucide-icon [img]="ChevronLeft" class="h-4 w-4"></lucide-icon>
+                    </app-button>
+                    <span class="text-sm text-gray-700 px-2">
+                        {{ currentPage + 1 }} / {{ getTotalPages() }}
+                    </span>
+                    <app-button variant="outline" size="sm" aria-label="Növbəti səhifə" [disabled]="currentPage >= getTotalPages() - 1" (clicked)="goToPage(currentPage + 1)">
+                        <lucide-icon [img]="ChevronRight" class="h-4 w-4"></lucide-icon>
+                    </app-button>
+                    <app-button variant="outline" size="sm" aria-label="Son səhifə" [disabled]="currentPage >= getTotalPages() - 1" (clicked)="goToPage(getTotalPages() - 1)">
+                        <lucide-icon [img]="ChevronsRight" class="h-4 w-4"></lucide-icon>
+                    </app-button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

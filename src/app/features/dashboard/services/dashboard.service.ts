@@ -31,6 +31,8 @@ export class DashboardService {
         if (userParams.isApproved != null) params = params.set('isApproved', userParams.isApproved);
         if (userParams.createdAt)          params = params.set('createdAt', userParams.createdAt.toISOString());
         if (userParams.updatedAt)          params = params.set('updatedAt', userParams.updatedAt.toISOString());
+        if (userParams.sortColumn)         params = params.set('sortColumn', userParams.sortColumn);
+        if (userParams.sortDirection)      params = params.set('sortDirection', userParams.sortDirection);
         return this.http.get<UserResponse>(url, { params, withCredentials: true }).pipe(
             catchError(this.handleError.bind(this))
         );

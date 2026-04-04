@@ -26,4 +26,6 @@ export interface UserParams {
     size?: number;
     createdAt?: Date;
     updatedAt?: Date;
+    sortColumn?: string;
+    sortDirection?: 'asc' | 'desc';
 }

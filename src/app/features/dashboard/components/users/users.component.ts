@@ -8,15 +8,16 @@ import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar
 import { AuthService } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, UserPlus, Edit, Trash2, Users } from 'lucide-angular';
+import { LucideAngularModule, UserPlus, Edit, Trash2, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, ChevronDown, Filter } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-users',
     standalone: true,
-    imports: [CommonModule, LucideAngularModule, ButtonComponent],
+    imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent],
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss'
 })
@@ -26,6 +27,28 @@ export class UsersComponent implements OnInit, OnDestroy {
     readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     authorizedUserRole: string | null = null;
 
+    // Pagination
+    currentPage = 0;
+    pageSize = 100;
+    readonly pageSizeOptions = [25, 50, 100, 250, 500];
+
+    // Filter
+    selectedRole = '';
+    readonly roleOptions = [
+        { value: '', label: 'Bütün rolllar' },
+        { value: 'superadmin', label: 'Superadmin' },
+        { value: 'admin', label: 'Admin' },
+        { value: 'moderator', label: 'Moderator' },
+        { value: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
+        { value: 'schoolDirector', label: 'Məktəb direktoru' },
+        { value: 'teacher', label: 'Müəllim' },
+        { value: 'student', label: 'Şagird' },
+    ];
+
+    // Sort
+    sortColumn = 'email';
+    sortDirection: 'asc' | 'desc' = 'asc';
+
     private destroy$ = new Subject<void>();
 
     // Icons
@@ -33,6 +56,13 @@ export class UsersComponent implements OnInit, OnDestroy {
     readonly Edit = Edit;
     readonly Trash2 = Trash2;
     readonly Users = Users;
+    readonly ChevronLeft = ChevronLeft;
+    readonly ChevronRight = ChevronRight;
+    readonly ChevronsLeft = ChevronsLeft;
+    readonly ChevronsRight = ChevronsRight;
+    readonly ChevronUp = ChevronUp;
+    readonly ChevronDown = ChevronDown;
+    readonly Filter = Filter;
 
     isSuperAdmin$ = this.authService.isSuperAdmin$;
     isLevelUpUser$ = this.authService.isLevelUpUser$;
@@ -80,7 +110,13 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
 
     loadUsers(): void {
-        this.dashboardService.getUsers({ page: 1, size: 10 })
+        this.dashboardService.getUsers({
+            page: this.currentPage + 1,
+            size: this.pageSize,
+            role: this.selectedRole || undefined,
+            sortColumn: this.sortColumn,
+            sortDirection: this.sortDirection
+        })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (data: UserResponse) => {
@@ -91,6 +127,47 @@ export class UsersComponent implements OnInit, OnDestroy {
                     console.error('Error loading users:', err);
                 }
             });
+    }
+
+    getTotalPages(): number {
+        return Math.ceil(this.totalCount / this.pageSize);
+    }
+
+    getDisplayStart(): number {
+        return this.currentPage * this.pageSize + 1;
+    }
+
+    getDisplayEnd(): number {
+        return Math.min((this.currentPage + 1) * this.pageSize, this.totalCount);
+    }
+
+    goToPage(page: number): void {
+        if (page >= 0 && page < this.getTotalPages()) {
+            this.currentPage = page;
+            this.loadUsers();
+        }
+    }
+
+    onPageSizeChange(size: number): void {
+        this.pageSize = size;
+        this.currentPage = 0;
+        this.loadUsers();
+    }
+
+    onRoleFilterChange(): void {
+        this.currentPage = 0;
+        this.loadUsers();
+    }
+
+    onSortChange(column: string): void {
+        if (this.sortColumn === column) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortColumn = column;
+            this.sortDirection = 'asc';
+        }
+        this.currentPage = 0;
+        this.loadUsers();
     }
 
     onUserCreate(): void {
