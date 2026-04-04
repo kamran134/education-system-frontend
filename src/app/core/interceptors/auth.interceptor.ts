@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take, Observable } from 'rxjs';
 
+const REFRESH_FAILED = 'REFRESH_FAILED';
 let isRefreshing = false;
 let refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
@@ -22,14 +23,14 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
             withCredentials: true
         });
     }
-    
+
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
-            if (error.status === 401 && 
-                !req.url.includes('/refresh') && 
+            if (error.status === 401 &&
+                !req.url.includes('/refresh') &&
                 !req.url.includes('/login') &&
                 !req.url.includes('/register')) {
-                
+
                 return handle401Error(req, next, authService);
             }
             return throwError(() => error);
@@ -49,12 +50,12 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
     if (!isRefreshing) {
         isRefreshing = true;
         refreshTokenSubject.next(null);
-        
+
         return authService.refreshToken().pipe(
             switchMap((response: any) => {
                 isRefreshing = false;
                 refreshTokenSubject.next(response.data.token);
-                
+
                 // Повторяем оригинальный запрос с новым токеном
                 const newToken = authService.getToken();
                 const newReq = req.clone({
@@ -65,8 +66,8 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
             }),
             catchError((error) => {
                 isRefreshing = false;
-                refreshTokenSubject.next(null);
-                // Если обновление токена не удалось, логаут
+                // Сигнализируем ожидающим запросам, что refresh провалился
+                refreshTokenSubject.next(REFRESH_FAILED);
                 authService.logout();
                 return throwError(() => error);
             })
@@ -77,6 +78,10 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
             filter(token => token != null),
             take(1),
             switchMap(token => {
+                // Если refresh провалился, выбрасываем ошибку для ожидающих запросов
+                if (token === REFRESH_FAILED) {
+                    return throwError(() => new Error('Token refresh failed'));
+                }
                 const newReq = req.clone({
                     setHeaders: { Authorization: `Bearer ${token}` },
                     withCredentials: true
