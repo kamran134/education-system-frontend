@@ -58,7 +58,7 @@ export class StatsColumnsComponent implements OnInit{
 
     developingStudentColumnOptions: Column[] = [
         { key: 'level', label: 'Pillə', selected: false, order: 0 },
-        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
         { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
         { key: 'firstName', label: 'Adı', selected: false, order: 3 },
         { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
@@ -71,7 +71,7 @@ export class StatsColumnsComponent implements OnInit{
     ];
 
     monthStudentColumnOptions: Column[] = [
-        { key: 'code', label: 'Kodu', selected: false, order: 0 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 0 },
         { key: 'lastName', label: 'Soyadı', selected: false, order: 1 },
         { key: 'firstName', label: 'Adı', selected: false, order: 2 },
         { key: 'middleName', label: 'Ata adı', selected: false, order: 3 },
@@ -86,7 +86,7 @@ export class StatsColumnsComponent implements OnInit{
 
     studentColumnOptions: Column[] = [
         { key: 'place', label: 'Yer', selected: false, order: 0 },
-        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
         { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
         { key: 'firstName', label: 'Adı', selected: false, order: 3 },
         { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },

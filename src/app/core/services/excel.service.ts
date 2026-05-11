@@ -18,7 +18,7 @@ export class ExcelService {
     private readonly examResultColumnMap = new Map<string, { label: string; accessor: (r: any) => any }>([
         ['level',             { label: 'Pillə',            accessor: (r: any) => r.level || '' }],
         ['place',             { label: 'Yer',              accessor: (r: any) => r.place || '' }],
-        ['code',              { label: 'Şagirdin kodu',    accessor: (r: any) => r.studentData?.code }],
+        ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (r: any) => r.studentData?.code }],
         ['lastName',          { label: 'Soyadı',           accessor: (r: any) => r.studentData?.lastName }],
         ['firstName',         { label: 'Adı',              accessor: (r: any) => r.studentData?.firstName }],
         ['middleName',        { label: 'Atasının adı',     accessor: (r: any) => r.studentData?.middleName }],
@@ -34,7 +34,7 @@ export class ExcelService {
 
     private readonly studentColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
         ['place',             { label: 'Yer',              accessor: (s: any) => s.place || '' }],
-        ['code',              { label: 'Şagirdin kodu',    accessor: (s: any) => s.code }],
+        ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (s: any) => s.code }],
         ['lastName',          { label: 'Soyadı',           accessor: (s: any) => s.lastName }],
         ['firstName',         { label: 'Adı',              accessor: (s: any) => s.firstName }],
         ['middleName',        { label: 'Atasının adı',     accessor: (s: any) => s.middleName }],

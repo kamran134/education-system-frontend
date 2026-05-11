@@ -87,7 +87,7 @@ export class ExamResultsComponent implements OnInit {
     // Table columns
     displayedColumns = [
         { key: 'exam.date', label: 'Tarix', sortable: true },
-        { key: 'studentData.code', label: 'Kod', sortable: true },
+        { key: 'studentData.code', label: 'İş nömrəsi', sortable: true },
         { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
         { key: 'studentData.firstName', label: 'Adı', sortable: true },
         { key: 'grade', label: 'Sinif', sortable: true },
