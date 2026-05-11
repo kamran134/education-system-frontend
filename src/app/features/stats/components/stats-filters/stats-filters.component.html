@@ -5,7 +5,7 @@
             <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
             Filtrlər
         </h3>
-        <button 
+        <button
             type="button"
             (click)="toggleFilters()"
             class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
@@ -26,12 +26,21 @@
                 </app-select>
             </div>
 
-            <!-- Year Filter -->
+            <!-- Year Filter (monthly tabs) -->
             <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
                 <app-select
                     label="İl seçin"
                     [formControl]="yearControl"
                     [options]="yearOptions">
+                </app-select>
+            </div>
+
+            <!-- Academic Year Filter (İlin... tabs) -->
+            <div *ngIf="['allStudents', 'allTeachers', 'allSchools', 'allDistricts'].includes(selectedTab)">
+                <app-select
+                    label="Tədris ili"
+                    [formControl]="academicYearControl"
+                    [options]="academicYearOptions">
                 </app-select>
             </div>
 

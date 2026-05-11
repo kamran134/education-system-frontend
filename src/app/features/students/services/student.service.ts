@@ -61,6 +61,10 @@ export class StudentService {
             queryParams.push(`code=${params.code}`);
         }
 
+        if (params.academicYear) {
+            queryParams.push(`academicYear=${params.academicYear}`);
+        }
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }

@@ -124,6 +124,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     private readonly availableDistrictColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
+    selectedAcademicYear: number = (() => { const now = new Date(); return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1; })();
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
@@ -564,6 +565,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             examIds: this.selectedExamIds.join(',') || '',
+            academicYear: this.selectedAcademicYear,
         };
 
         this.isloading = true;
@@ -618,6 +620,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
+            academicYear: this.selectedAcademicYear,
         }
 
         this.statsService.getTeachersStats(params).subscribe({
@@ -648,6 +651,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
+            academicYear: this.selectedAcademicYear,
         }
 
         this.statsService.getSchoolsStats(params).subscribe({
@@ -672,6 +676,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
+            academicYear: this.selectedAcademicYear,
         }
 
         this.statsService.getDistrictsStats(params).subscribe({
@@ -688,6 +693,19 @@ export class StatsComponent implements OnInit, OnDestroy {
         });
     }
 
+
+    onAcademicYearChanged(year: number): void {
+        this.selectedAcademicYear = year;
+        if (this.selectedTab === 'allStudents') {
+            this.loadAllStudentsStats();
+        } else if (this.selectedTab === 'allTeachers') {
+            this.loadTeachersStats();
+        } else if (this.selectedTab === 'allSchools') {
+            this.loadSchoolsStats();
+        } else if (this.selectedTab === 'allDistricts') {
+            this.loadDistrictsStats();
+        }
+    }
 
     // Filters
 

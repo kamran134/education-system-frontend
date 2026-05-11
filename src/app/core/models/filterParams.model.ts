@@ -13,6 +13,7 @@ export interface FilterParams {
     code?: string | number;
     month?: string;
     year?: string;
+    academicYear?: number;
     search?: string;
     dateFrom?: string;
     dateTo?: string;

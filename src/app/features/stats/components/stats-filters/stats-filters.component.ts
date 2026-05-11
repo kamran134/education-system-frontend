@@ -62,6 +62,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Output() gradeChanged = new EventEmitter<number[]>();
     @Output() examChanged = new EventEmitter<string[]>();
     @Output() searchStringChanged = new EventEmitter<string>();
+    @Output() academicYearUpdated = new EventEmitter<number>();
 
     searchString: string = '';
     private searchTerms = new Subject<string>();
@@ -70,6 +71,14 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     // Контролы для месяца и года
     monthControl = new FormControl(Number(this.selectedMonth.substring(5))); // 0-11
     yearControl = new FormControl(new Date().getFullYear());
+
+    private getCurrentAcademicYear(): number {
+        const now = new Date();
+        return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1;
+    }
+
+    academicYearControl = new FormControl(this.getCurrentAcademicYear());
+    academicYears: { value: number; label: string }[] = [];
     // examControl = new FormControl<Exam[] | undefined>(undefined);
 
     months = [
@@ -124,8 +133,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         this.setupSearch();
         this.setupMonthYearChange();
         this.setupYears();
-        // this.setupExamChange();
-
+        this.setupAcademicYears();
     }
 
     ngOnInit() {
@@ -144,6 +152,24 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         for (let i: number = currentYear - 5; i <= currentYear + 5; i++) {
             this.years.push(i);
         }
+    }
+
+    setupAcademicYears() {
+        const current = this.getCurrentAcademicYear();
+        for (let y = current - 4; y <= current; y++) {
+            this.academicYears.push({ value: y, label: `${y}/${y + 1}` });
+        }
+        this.academicYearControl.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(year => {
+                if (year != null) {
+                    this.academicYearUpdated.emit(year);
+                }
+            });
+    }
+
+    get academicYearOptions() {
+        return this.academicYears;
     }
 
     setupMonthYearChange() {

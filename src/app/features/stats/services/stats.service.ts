@@ -155,7 +155,7 @@ export class StatsService {
     getTeachersStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/teachers`;
         const queryParams = [];
-        
+
         if (params.districtIds && params.districtIds.length > 0) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
@@ -171,11 +171,14 @@ export class StatsService {
         if (params.size) {
             queryParams.push(`size=${params.size}`);
         }
-        
+        if (params.academicYear) {
+            queryParams.push(`academicYear=${params.academicYear}`);
+        }
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<StatsResponse>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -183,7 +186,7 @@ export class StatsService {
     getSchoolsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/schools`;
         const queryParams = [];
-        
+
         if (params.districtIds && params.districtIds.length > 0) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
@@ -196,11 +199,14 @@ export class StatsService {
         if (params.size) {
             queryParams.push(`size=${params.size}`);
         }
-        
+        if (params.academicYear) {
+            queryParams.push(`academicYear=${params.academicYear}`);
+        }
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<StatsResponse>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -208,7 +214,7 @@ export class StatsService {
     getDistrictsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/districts`;
         const queryParams = [];
-        
+
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
         }
@@ -218,11 +224,14 @@ export class StatsService {
         if (params.size) {
             queryParams.push(`size=${params.size}`);
         }
-        
+        if (params.academicYear) {
+            queryParams.push(`academicYear=${params.academicYear}`);
+        }
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<StatsResponse>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
