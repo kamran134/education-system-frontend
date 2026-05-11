@@ -129,6 +129,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
     selectedGrades: number[] = [];
+    selectedLevels: string[] = [];
     selectedExams: Exam[] | undefined = undefined;
     selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
@@ -444,6 +445,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
+            levels: this.selectedLevels.join(","),
             sortColumn: this.sortActive || 'averageScore',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
@@ -482,6 +484,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
+            levels: this.selectedLevels.join(","),
             sortColumn: this.sortActive || 'averageScore',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
@@ -520,6 +523,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
+            levels: this.selectedLevels.join(","),
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
@@ -955,6 +959,13 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
         else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
+        }
+    }
+
+    onLevelSelectChanged(levels: string[]) {
+        this.selectedLevels = levels;
+        if (this.isStudentMonthTab()) {
+            this.loadMonthStudentsStats();
         }
     }
 

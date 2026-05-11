@@ -91,6 +91,17 @@
                 </app-select>
             </div>
 
+            <!-- Levels Filter -->
+            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
+                <app-select
+                    label="Pillə"
+                    [multiple]="true"
+                    [(ngModel)]="selectedLevels"
+                    [options]="levelOptions"
+                    (ngModelChange)="onLevelSelectChanged($event)">
+                </app-select>
+            </div>
+
             <!-- Exams Filter -->
             <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
                 <app-select

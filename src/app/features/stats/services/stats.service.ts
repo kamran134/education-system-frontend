@@ -75,6 +75,9 @@ export class StatsService {
         if (params.grades && params.grades.length > 0) {
             url = `${url}&grades=${params.grades}`;
         }
+        if (params.levels && params.levels.length > 0) {
+            url = `${url}&levels=${params.levels}`;
+        }
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
@@ -103,6 +106,9 @@ export class StatsService {
         if (params.grades && params.grades.length > 0) {
             url = `${url}&grades=${params.grades}`;
         }
+        if (params.levels && params.levels.length > 0) {
+            url = `${url}&levels=${params.levels}`;
+        }
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
@@ -130,6 +136,9 @@ export class StatsService {
         }
         if (params.grades && params.grades.length > 0) {
             url = `${url}&grades=${params.grades}`;
+        }
+        if (params.levels && params.levels.length > 0) {
+            url = `${url}&levels=${params.levels}`;
         }
         if (params.code) {
             url = `${url}&code=${params.code}`;

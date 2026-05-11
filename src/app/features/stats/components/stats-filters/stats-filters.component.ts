@@ -47,6 +47,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedSchoolIds: string[] = [];
     @Input() selectedTeacherIds: string[] = [];
     @Input() selectedGrades: number[] = [];
+    @Input() selectedLevels: string[] = [];
     @Input() selectedExamIds: string[] | [] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
 
@@ -60,6 +61,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Output() schoolChanged = new EventEmitter<string[]>();
     @Output() teacherChanged = new EventEmitter<string[]>();
     @Output() gradeChanged = new EventEmitter<number[]>();
+    @Output() levelChanged = new EventEmitter<string[]>();
     @Output() examChanged = new EventEmitter<string[]>();
     @Output() searchStringChanged = new EventEmitter<string>();
     @Output() academicYearUpdated = new EventEmitter<number>();
@@ -126,6 +128,15 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     get examOptions() {
         return (this.exams || []).map(exam => ({ label: exam.name, value: exam._id }));
     }
+
+    readonly levelOptions = [
+        { label: 'E', value: 'E' },
+        { label: 'D', value: 'D' },
+        { label: 'C', value: 'C' },
+        { label: 'B', value: 'B' },
+        { label: 'A', value: 'A' },
+        { label: 'Lisey', value: 'Lisey' }
+    ];
 
     private destroyRef = inject(DestroyRef);
 
@@ -225,6 +236,13 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
             this.selectedGrades = grades;
         }
         this.gradeChanged.emit(this.selectedGrades);
+    }
+
+    onLevelSelectChanged(levels?: string[]) {
+        if (levels !== undefined) {
+            this.selectedLevels = levels;
+        }
+        this.levelChanged.emit(this.selectedLevels);
     }
 
     toggleFilters(): void {

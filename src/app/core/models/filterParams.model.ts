@@ -6,6 +6,7 @@ export interface FilterParams {
     teacherIds?: string | string[];
     defective?: boolean;
     grades?: string;
+    levels?: string;
     examIds?: string;
     examId?: string;
     sortColumn?: string;

@@ -31,9 +31,9 @@ export class StudentRatingTableComponent {
     @Output() rowClicked: EventEmitter<string> = new EventEmitter<string>();
     @Output() excelExport: EventEmitter<string> = new EventEmitter<string>();
 
-    // Computed columns with avatar at the beginning
+    // Computed columns with row number and avatar at the beginning
     get displayedColumns(): string[] {
-        return ['avatar', ...this.columns];
+        return ['rowNum', 'avatar', ...this.columns];
     }
 
     // Column definitions with labels and sort keys
