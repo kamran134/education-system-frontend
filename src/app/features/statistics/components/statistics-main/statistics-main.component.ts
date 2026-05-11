@@ -9,7 +9,7 @@ import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
-import { LucideAngularModule, Filter, ChevronDown, ChevronUp } from 'lucide-angular';
+import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X } from 'lucide-angular';
 
 @Component({
     selector: 'app-statistics-main',
@@ -22,6 +22,7 @@ export class StatisticsMainComponent implements OnInit {
     readonly Filter = Filter;
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
+    readonly X = X;
 
     private statisticsService = inject(StatisticsService);
     private districtService = inject(DistrictService);
@@ -94,6 +95,14 @@ export class StatisticsMainComponent implements OnInit {
 
     get yearOptions() {
         return this.years.map(y => ({ label: `${y}-${y + 1}`, value: y }));
+    }
+
+    get inkishafTitle(): string {
+        if (this.selectedMonth !== null) {
+            const monthName = this.months.find(m => m.value === this.selectedMonth)?.label;
+            return `${monthName} ayı üzrə inkişaf statistikası`;
+        }
+        return 'İnkişaf statistikası';
     }
 
     get statisticsTitle(): string {
@@ -229,6 +238,11 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     onMonthChange(): void {
+        this.loadStatistics();
+    }
+
+    onMonthReset(): void {
+        this.selectedMonth = null;
         this.loadStatistics();
     }
 
