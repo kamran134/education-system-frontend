@@ -205,5 +205,104 @@ body {
         .mat-mdc-dialog-actions {
             border-top-color: #383737 !important;
         }
+
+        // ── Statistika səhifəsi ────────────────────────────────────────────────
+        .statistics-container {
+            h1, h2, h3, h4 {
+                color: #dae5e4 !important;
+            }
+
+            p, span, td, th, label {
+                &.text-gray-900 { color: #dae5e4 !important; }
+                &.text-gray-600 { color: #8a9393 !important; }
+                &.text-gray-700 { color: #a3acac !important; }
+            }
+
+            // Панель фильтров и İnkişaf блок
+            .bg-white {
+                background-color: #0d1a1a !important;
+                border-color: #2a3838 !important;
+            }
+
+            // İnkişaf statistikası блок
+            .inkishaf-stats {
+                background-color: #0d1a1a !important;
+                border-color: #1e3838 !important;
+
+                label {
+                    color: #8a9393 !important;
+                }
+            }
+
+            // Stat-карточки
+            .stat-card {
+                border-color: #2a3838 !important;
+
+                h3 { color: #8a9393 !important; }
+
+                &.bg-blue-50 {
+                    background-color: #0a1825 !important;
+                    p { color: #60a5fa !important; }
+                }
+
+                &.bg-green-50 {
+                    background-color: #0a1a0f !important;
+                    p { color: #4ade80 !important; }
+                }
+
+                &.bg-purple-50 {
+                    background-color: #1a0f2e !important;
+                    p { color: #c084fc !important; }
+                }
+
+                &.bg-orange-50 {
+                    background-color: #261408 !important;
+                    p { color: #fb923c !important; }
+                }
+
+                &.bg-teal-50 {
+                    background-color: #082020 !important;
+                    border-color: #1e3838 !important;
+                    h3 { color: #8a9393 !important; }
+                    p { color: #2dd4bf !important; }
+                }
+            }
+
+            // Level-карточки (Pillələr üzrə)
+            .level-card.bg-gray-100 {
+                background-color: #1a2424 !important;
+                border-color: #2a3838 !important;
+
+                h4 { color: #a3acac !important; }
+                p   { color: #dae5e4 !important; }
+                p.text-gray-600 { color: #8a9393 !important; }
+            }
+
+            // Aylıq statistika таблица
+            table {
+                background-color: #0d1a1a !important;
+                border-color: #2a3838 !important;
+
+                thead {
+                    background-color: #0a1414 !important;
+
+                    th {
+                        color: #a3acac !important;
+                        border-color: #2a3838 !important;
+                    }
+                }
+
+                tbody tr {
+                    border-color: #2a3838 !important;
+
+                    td { color: #dae5e4 !important; }
+                    span { color: #8a9393 !important; }
+
+                    &:hover {
+                        background-color: #1a2828 !important;
+                    }
+                }
+            }
+        }
     }
 }
