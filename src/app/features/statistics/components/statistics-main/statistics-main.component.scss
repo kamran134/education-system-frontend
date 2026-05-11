@@ -23,3 +23,124 @@
 select[multiple] {
     min-height: 120px;
 }
+
+// ─── Dark mode ───────────────────────────────────────────────────────────────
+body.dark-mode {
+    .statistics-container {
+        // Заголовки
+        h1, h2, h3, h4 {
+            &.text-gray-900 { color: #dae5e4 !important; }
+            &.text-gray-700 { color: #a3acac !important; }
+        }
+
+        p, span, td, th, label {
+            &.text-gray-900 { color: #dae5e4 !important; }
+            &.text-gray-600 { color: #8a9393 !important; }
+            &.text-gray-700 { color: #a3acac !important; }
+        }
+
+        // Панель фильтров
+        .bg-white {
+            background-color: #0d1a1a !important;
+            border-color: #2a3838 !important;
+        }
+
+        // Таблица
+        table {
+            background-color: #0d1a1a !important;
+            border-color: #2a3838 !important;
+
+            thead {
+                background-color: #0a1414 !important;
+
+                th {
+                    color: #a3acac !important;
+                    border-color: #2a3838 !important;
+                }
+            }
+
+            tbody tr {
+                border-color: #2a3838 !important;
+
+                td {
+                    color: #dae5e4 !important;
+                }
+
+                span.text-gray-600 {
+                    color: #8a9393 !important;
+                }
+
+                &:hover {
+                    background-color: #1a2828 !important;
+                }
+            }
+        }
+
+        // Stat-карточки — общее
+        .stat-card {
+            border-color: #2a3838 !important;
+
+            h3 { color: #8a9393 !important; }
+
+            // Blue
+            &.bg-blue-50 {
+                background-color: #0a1825 !important;
+                p.text-blue-600 { color: #60a5fa !important; }
+            }
+
+            // Green
+            &.bg-green-50 {
+                background-color: #0a1a0f !important;
+                p.text-green-600 { color: #4ade80 !important; }
+            }
+
+            // Purple
+            &.bg-purple-50 {
+                background-color: #1a0f2e !important;
+                p.text-purple-600 { color: #c084fc !important; }
+            }
+
+            // Orange
+            &.bg-orange-50 {
+                background-color: #261408 !important;
+                p.text-orange-600 { color: #fb923c !important; }
+            }
+
+            // Teal (İnkişaf карточки)
+            &.bg-teal-50 {
+                background-color: #082020 !important;
+                p.text-teal-700 { color: #2dd4bf !important; }
+                p.text-teal-600 { color: #2dd4bf !important; }
+                h3 { color: #8a9393 !important; }
+            }
+        }
+
+        // Level-карточки
+        .level-card {
+            &.bg-gray-100 {
+                background-color: #1a2424 !important;
+                border-color: #2a3838 !important;
+
+                h4.text-gray-700  { color: #a3acac !important; }
+                p.text-gray-900   { color: #dae5e4 !important; }
+                p.text-gray-600   { color: #8a9393 !important; }
+            }
+        }
+
+        // Блок İnkişaf statistikası
+        .inkishaf-stats {
+            background-color: #0d1a1a !important;
+            border-color: #1e3838 !important;
+
+            h2.text-gray-900 { color: #dae5e4 !important; }
+
+            label.text-gray-600 { color: #8a9393 !important; }
+        }
+
+        // Заголовок Pillələr üzrə и Aylıq statistika
+        .yearly-stats, .monthly-stats {
+            h2.text-gray-900,
+            h3.text-gray-900 { color: #dae5e4 !important; }
+        }
+    }
+}
