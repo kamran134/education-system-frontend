@@ -97,6 +97,45 @@
 
     <!-- Статистика -->
     <div *ngIf="!isLoading && statistics && displayedStats" class="statistics-content">
+
+        <!-- İnkişaf statistikası -->
+        <div class="inkishaf-stats bg-white rounded-lg border border-teal-200 p-6 mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+                <h2 class="text-2xl font-bold text-gray-900">İnkişaf statistikası</h2>
+                <div class="flex items-center gap-3">
+                    <label class="text-sm font-medium text-gray-600 whitespace-nowrap">
+                        İştirak sayı (minimum):
+                    </label>
+                    <app-select
+                        [(ngModel)]="inkishafMinParticipations"
+                        [options]="inkishafParticipationOptions"
+                        (ngModelChange)="onInkishafParticipationsChange()">
+                    </app-select>
+                </div>
+            </div>
+
+            <div *ngIf="inkishafLoading" class="flex justify-center py-6">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+            </div>
+
+            <div *ngIf="!inkishafLoading && inkishafStatistics" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">
+                        ≥ {{ inkishafStatistics.minParticipations }} dəfə iştirak edən şagirdlər
+                    </h3>
+                    <p class="text-3xl font-bold text-teal-700">{{ inkishafStatistics.baseCount }}</p>
+                </div>
+                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf edən şagirdlər</h3>
+                    <p class="text-3xl font-bold text-teal-600">{{ inkishafStatistics.developingCount }}</p>
+                </div>
+                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+                    <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf faizi</h3>
+                    <p class="text-3xl font-bold text-teal-600">{{ inkishafStatistics.percentage }}%</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Годовая/Месячная статистика -->
         <div class="yearly-stats mb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ statisticsTitle }}</h2>
@@ -135,15 +174,6 @@
                     <p class="text-3xl font-bold text-orange-600">
                         {{ displayedStats.republicStudentsOfMonth.count }}
                         <span class="text-lg">({{ displayedStats.republicStudentsOfMonth.percentage }}%)</span>
-                    </p>
-                </div>
-
-                <!-- ИЕШ -->
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200">
-                    <h3 class="text-sm font-medium text-gray-600">İnkişaf edən şagirdlər</h3>
-                    <p class="text-3xl font-bold text-teal-600">
-                        {{ displayedStats.developingStudents.count }}
-                        <span class="text-lg">({{ displayedStats.developingStudents.percentage }}%)</span>
                     </p>
                 </div>
             </div>

@@ -6,7 +6,9 @@ import {
     StatisticsFilter,
     StatisticsResponse,
     YearlyStatistics,
-    MonthlyStatistics
+    MonthlyStatistics,
+    InkishafFilter,
+    InkishafStatistics
 } from '../../../core/models/statistics.model';
 import { ApiResponse } from '../../../core/models/response.model';
 
@@ -97,5 +99,32 @@ export class StatisticsService {
         }
 
         return this.http.get<ApiResponse<MonthlyStatistics[]>>(`${this.apiUrl}/monthly`, { params });
+    }
+
+    /**
+     * Получить inkişaf statistikası по минимуму участий
+     */
+    getInkishafStatistics(filters?: InkishafFilter): Observable<ApiResponse<InkishafStatistics>> {
+        let params = new HttpParams();
+
+        if (filters) {
+            if (filters.districtIds && filters.districtIds.length > 0) {
+                params = params.set('districtIds', filters.districtIds.join(','));
+            }
+            if (filters.schoolIds && filters.schoolIds.length > 0) {
+                params = params.set('schoolIds', filters.schoolIds.join(','));
+            }
+            if (filters.grades && filters.grades.length > 0) {
+                params = params.set('grades', filters.grades.join(','));
+            }
+            if (filters.year) {
+                params = params.set('year', filters.year.toString());
+            }
+            if (filters.minParticipations != null) {
+                params = params.set('minParticipations', filters.minParticipations.toString());
+            }
+        }
+
+        return this.http.get<ApiResponse<InkishafStatistics>>(`${this.apiUrl}/inkishaf`, { params });
     }
 }

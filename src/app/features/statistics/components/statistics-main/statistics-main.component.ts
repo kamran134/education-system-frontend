@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { StatisticsService } from '../../services/statistics.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
-import { StatisticsFilter, StatisticsResponse } from '../../../../core/models/statistics.model';
+import { StatisticsFilter, StatisticsResponse, InkishafStatistics } from '../../../../core/models/statistics.model';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
@@ -30,6 +30,20 @@ export class StatisticsMainComponent implements OnInit {
     statistics: StatisticsResponse | null = null;
     isLoading = false;
     filtersExpanded = true;
+
+    // İnkişaf statistikası
+    inkishafStatistics: InkishafStatistics | null = null;
+    inkishafMinParticipations: number = 2;
+    inkishafLoading = false;
+
+    get inkishafParticipationOptions(): { label: string; value: number }[] {
+        const max = this.inkishafStatistics?.maxParticipations ?? 2;
+        const upperBound = Math.max(max, this.inkishafMinParticipations);
+        return Array.from({ length: upperBound - 1 }, (_, i) => ({
+            label: `${i + 2}`,
+            value: i + 2
+        }));
+    }
 
     // Фильтры
     selectedDistrictIds: string[] = [];
@@ -121,6 +135,7 @@ export class StatisticsMainComponent implements OnInit {
     ngOnInit(): void {
         this.loadDistricts();
         this.loadStatistics();
+        this.loadInkishafStatistics();
     }
 
     loadDistricts(): void {
@@ -171,18 +186,46 @@ export class StatisticsMainComponent implements OnInit {
         });
     }
 
+    loadInkishafStatistics(): void {
+        this.inkishafLoading = true;
+
+        this.statisticsService.getInkishafStatistics({
+            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
+            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined,
+            year: this.selectedYear,
+            minParticipations: this.inkishafMinParticipations
+        }).subscribe({
+            next: (response) => {
+                this.inkishafStatistics = ResponseHandlerUtil.extractData<InkishafStatistics>(response);
+                this.inkishafLoading = false;
+            },
+            error: (error) => {
+                console.error('Error loading inkishaf statistics:', error);
+                this.inkishafLoading = false;
+            }
+        });
+    }
+
+    onInkishafParticipationsChange(): void {
+        this.loadInkishafStatistics();
+    }
+
     onDistrictChange(): void {
         this.selectedSchoolIds = [];
         this.loadSchools();
         this.loadStatistics();
+        this.loadInkishafStatistics();
     }
 
     onSchoolChange(): void {
         this.loadStatistics();
+        this.loadInkishafStatistics();
     }
 
     onGradeChange(): void {
         this.loadStatistics();
+        this.loadInkishafStatistics();
     }
 
     onMonthChange(): void {
@@ -191,6 +234,7 @@ export class StatisticsMainComponent implements OnInit {
 
     onYearChange(): void {
         this.loadStatistics();
+        this.loadInkishafStatistics();
     }
 
     onFilterReset(): void {
@@ -199,8 +243,10 @@ export class StatisticsMainComponent implements OnInit {
         this.selectedGrades = [];
         this.selectedMonth = null;
         this.selectedYear = this.currentAcademicYear;
+        this.inkishafMinParticipations = 2;
         this.schools = [];
         this.loadStatistics();
+        this.loadInkishafStatistics();
     }
 
     toggleFilters(): void {
