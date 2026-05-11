@@ -59,6 +59,13 @@ export class DashboardService {
         );
     }
 
+    changeUserPassword(id: string, newPassword: string): Observable<{message: string}> {
+        const url = `${this.configService.getApiUrl()}/users/${id}/password`;
+        return this.http.put<{message: string}>(url, { newPassword }, { withCredentials: true }).pipe(
+            catchError(this.handleError.bind(this))
+        );
+    }
+
     getRatingColumns(id: string): Observable<UserSettings> {
         const url = `${this.configService.getApiUrl()}/user-settings?userId=${id}`;
         return this.http.get<ApiResponse<UserSettings>>(url, { withCredentials: true }).pipe(

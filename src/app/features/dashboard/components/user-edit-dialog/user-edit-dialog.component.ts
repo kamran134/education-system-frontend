@@ -19,6 +19,8 @@ import { Teacher } from '../../../../core/models/teacher.model';
 import { Student } from '../../../../core/models/student.model';
 import { connectDebounce } from '../../../../core/utils/debounce.util';
 import { Subject, takeUntil } from 'rxjs';
+import { LucideAngularModule, Eye, EyeOff, KeyRound } from 'lucide-angular';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
     selector: 'app-user-edit-dialog',
@@ -28,7 +30,8 @@ import { Subject, takeUntil } from 'rxjs';
         FormsModule,
         InputComponent,
         ModalComponent,
-        SelectComponent
+        SelectComponent,
+        LucideAngularModule
     ],
     templateUrl: './user-edit-dialog.component.html',
     styleUrl: './user-edit-dialog.component.scss'
@@ -37,6 +40,23 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     repeatedPassword: string = '';
     emailPattern: string = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
     readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
+
+    // Password visibility
+    showPassword = false;
+    showRepeatedPassword = false;
+    showNewPasswordForEdit = false;
+    showConfirmNewPasswordForEdit = false;
+
+    // Change password in edit mode
+    isChangingPassword = false;
+    newPasswordForEdit = '';
+    confirmedNewPasswordForEdit = '';
+    isPasswordChanging = false;
+
+    // Icons
+    readonly Eye = Eye;
+    readonly EyeOff = EyeOff;
+    readonly KeyRound = KeyRound;
 
     // Search fields
     districtSearchTerm: string = '';
@@ -67,7 +87,8 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService,
-        private studentService: StudentService
+        private studentService: StudentService,
+        private dashboardService: DashboardService
     ) {}
 
     ngOnInit(): void {
@@ -258,6 +279,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
 
         if (this.isNewUser()) {
             const passwordValid = !!(this.dataSource.password?.trim()) &&
+                                  this.dataSource.password.length >= 6 &&
                                   this.dataSource.password === this.repeatedPassword;
 
             if (!basicValidation || !passwordValid) {
@@ -453,11 +475,48 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             });
     }
 
+    get isPasswordChangeFormValid(): boolean {
+        return this.newPasswordForEdit.length >= 6 &&
+               this.newPasswordForEdit === this.confirmedNewPasswordForEdit;
+    }
+
+    onChangePassword(): void {
+        if (!this.isPasswordChangeFormValid) {
+            if (this.newPasswordForEdit.length < 6) {
+                this.matSnackBar.open('Şifrə ən az 6 simvol olmalıdır!', '', this.matSnackConfig);
+            } else {
+                this.matSnackBar.open('Şifrələr uyğun gəlmir!', '', this.matSnackConfig);
+            }
+            return;
+        }
+
+        this.isPasswordChanging = true;
+        this.dashboardService.changeUserPassword(this.dataSource._id!, this.newPasswordForEdit)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.matSnackBar.open('Şifrə uğurla dəyişdirildi', '', this.matSnackConfig);
+                    this.isChangingPassword = false;
+                    this.newPasswordForEdit = '';
+                    this.confirmedNewPasswordForEdit = '';
+                    this.isPasswordChanging = false;
+                },
+                error: (error) => {
+                    this.matSnackBar.open(error.message || 'Şifrə dəyişdirilmədi', '', this.matSnackConfig);
+                    this.isPasswordChanging = false;
+                }
+            });
+    }
+
     onSave(): void {
         if (this.isNewUser()) {
             // Create new user logic
             if (!this.dataSource.email || !this.dataSource.password) {
                 this.matSnackBar.open('Email və şifrə mütləqdir!', '', this.matSnackConfig);
+                return;
+            }
+            if (this.dataSource.password.length < 6) {
+                this.matSnackBar.open('Şifrə ən az 6 simvol olmalıdır!', '', this.matSnackConfig);
                 return;
             }
             if (this.dataSource.password !== this.repeatedPassword) {
