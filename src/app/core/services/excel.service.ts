@@ -27,8 +27,8 @@ export class ExcelService {
         ['school',            { label: 'Məktəbi',          accessor: (r: any) => r.studentData?.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Rayonu / şəhəri', accessor: (r: any) => r.studentData?.district?.name || 'Rayon / şəhər tapılmadı' }],
         ['totalScore',        { label: 'İmtahan balı',    accessor: (r: any) => r.totalScore ?? 0 }],
-        ['score',             { label: 'Balı',             accessor: (r: any) => r.score ?? 0 }],
-        ['averageScore',      { label: 'Orta balı',        accessor: (r: any) => r.studentData?.averageScore ?? 0 }],
+        ['score',             { label: 'Reytinq xalı',             accessor: (r: any) => r.score ?? 0 }],
+        ['averageScore',      { label: 'Orta reytinq xalı',        accessor: (r: any) => r.studentData?.averageScore ?? 0 }],
         ['participationCount',{ label: 'İştirak sayı',    accessor: (r: any) => r.participationCount ?? 0 }],
     ]);
 
@@ -42,8 +42,8 @@ export class ExcelService {
         ['teacher',           { label: 'Müəllimi',         accessor: (s: any) => s.teacher?.fullname || 'Müəllim tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (s: any) => s.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Rayonu / şəhəri', accessor: (s: any) => s.district?.name || 'Rayon / şəhər tapılmadı' }],
-        ['score',             { label: 'Reytinq balı',     accessor: (s: any) => s.score ?? 0 }],
-        ['averageScore',      { label: 'Orta balı',        accessor: (s: any) => s.averageScore ?? 0 }],
+        ['score',             { label: 'Reytinq xalı',     accessor: (s: any) => s.score ?? 0 }],
+        ['averageScore',      { label: 'Orta reytinq xalı',        accessor: (s: any) => s.averageScore ?? 0 }],
         ['participationCount',{ label: 'İştirak sayı',    accessor: (s: any) => s.participationCount ?? 0 }],
     ]);
 
@@ -54,8 +54,8 @@ export class ExcelService {
         ['school',       { label: 'Məktəbi',               accessor: (t: any) => t.school?.name || '' }],
         ['district',     { label: 'Rayonu / şəhəri',       accessor: (t: any) => t.district?.name || 'Rayon / şəhər tapılmadı' }],
         ['studentCount', { label: 'Şagird sayı',           accessor: (t: any) => t.studentCount ?? 0 }],
-        ['score',        { label: 'Ümumi balı',            accessor: (t: any) => t.score ?? 0 }],
-        ['averageScore', { label: 'Orta balı',             accessor: (t: any) => t.averageScore ?? 0 }],
+        ['score',        { label: 'Reytinq xalı',            accessor: (t: any) => t.score ?? 0 }],
+        ['averageScore', { label: 'Orta reytinq xalı',             accessor: (t: any) => t.averageScore ?? 0 }],
     ]);
 
     private readonly schoolColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
@@ -64,8 +64,8 @@ export class ExcelService {
         ['name',         { label: 'Adı',               accessor: (s: any) => s.name }],
         ['district',     { label: 'Rayonu / şəhəri',  accessor: (s: any) => s.district?.name || 'Rayon / şəhər tapılmadı' }],
         ['studentCount', { label: 'Şagird sayı',       accessor: (s: any) => s.studentCount ?? 0 }],
-        ['score',        { label: 'Ümumi balı',        accessor: (s: any) => s.score ?? 0 }],
-        ['averageScore', { label: 'Orta balı',         accessor: (s: any) => s.averageScore ?? 0 }],
+        ['score',        { label: 'Reytinq xalı',        accessor: (s: any) => s.score ?? 0 }],
+        ['averageScore', { label: 'Orta reytinq xalı',         accessor: (s: any) => s.averageScore ?? 0 }],
     ]);
 
     private readonly districtColumnMap = new Map<string, { label: string; accessor: (d: any) => any }>([
@@ -73,8 +73,8 @@ export class ExcelService {
         ['code',         { label: 'Rayon / şəhər kodu', accessor: (d: any) => d.code }],
         ['name',         { label: 'Adı',                 accessor: (d: any) => d.name }],
         ['studentCount', { label: 'Şagird sayı',         accessor: (d: any) => d.studentCount ?? 0 }],
-        ['score',        { label: 'Ümumi balı',          accessor: (d: any) => d.score ?? 0 }],
-        ['averageScore', { label: 'Orta balı',           accessor: (d: any) => d.averageScore ?? 0 }],
+        ['score',        { label: 'Reytinq xalı',          accessor: (d: any) => d.score ?? 0 }],
+        ['averageScore', { label: 'Orta reytinq xalı',           accessor: (d: any) => d.averageScore ?? 0 }],
     ]);
 
     // Builds rows using only the requested columns (or all columns if `columns` is undefined)

@@ -6,7 +6,7 @@ export enum TableColumnsEnum {
     middleName = 'Ata adı',
     fullName = 'Soyadı, adı və ata adı',
     code = 'Kodu',
-    score = 'Reytinq balı',
+    score = 'Reytinq xalı',
     place = 'Yeri',
     district = 'Rayonu / şəhəri',
     school = 'Məktəbi',
@@ -35,8 +35,8 @@ export enum StudentColumnsEnum {
     teacher = 'Müəllimi',
     school = 'Məktəbi',
     district = 'Rayonu',
-    score = 'Balı',
-    averageScore = 'Orta balı',
+    score = 'Reytinq xalı',
+    averageScore = 'Orta reytinq xalı',
 }
 
 export enum TeacherColumnsEnum {
@@ -44,21 +44,21 @@ export enum TeacherColumnsEnum {
     fullName = 'Soyadı, adı və ata adı',
     school = 'Məktəbi',
     district = 'Rayonu',
-    score = 'Balı',
-    averageScore = 'Orta balı',
+    score = 'Reytinq xalı',
+    averageScore = 'Orta reytinq xalı',
 }
 
 export enum SchoolColumnsEnum {
     code = 'Kodu',
     name = 'Adı',
     district = 'Rayonu',
-    score = 'Balı',
-    averageScore = 'Orta balı',
+    score = 'Reytinq xalı',
+    averageScore = 'Orta reytinq xalı',
 }
 
 export enum DistrictColumnsEnum {
     code = 'Kodu',
     name = 'Adı',
-    score = 'Balı',
-    averageScore = 'Orta balı',
+    score = 'Reytinq xalı',
+    averageScore = 'Orta reytinq xalı',
 }

@@ -66,7 +66,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
         { key: 'district', label: 'Rayonu', selected: false, order: 8 },
-        { key: 'averageScore', label: 'Orta balı', selected: false, order: 9 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 9 },
         { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 10 },
     ];
 
@@ -79,7 +79,7 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'teacher', label: 'Müəllimi', selected: false, order: 5 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 6 },
         { key: 'district', label: 'Rayonu', selected: false, order: 7 },
-        { key: 'averageScore', label: 'Orta balı', selected: false, order: 8 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 8 },
         { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 9 },
         // { key: 'place', label: 'Yer', selected: false, order: 10 }
     ];
@@ -94,8 +94,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
         { key: 'district', label: 'Rayonu', selected: false, order: 8 },
-        { key: 'score', label: 'Balı', selected: false, order: 9 },
-        { key: 'averageScore', label: 'Orta balı', selected: false, order: 10 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 9 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 10 },
         { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 11 },
     ];
 
@@ -106,8 +106,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'school', label: 'Məktəbi', selected: false, order: 3 },
         { key: 'district', label: 'Rayonu', selected: false, order: 4 },
         { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 5 },
-        { key: 'score', label: 'Balı', selected: false, order: 6 },
-        { key: 'averageScore', label: 'Orta balı', selected: false, order: 7 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 6 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 7 },
     ];
 
     schoolColumnOptions: Column[] = [
@@ -116,8 +116,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'name', label: 'Adı', selected: false, order: 2 },
         { key: 'district', label: 'Rayonu', selected: false, order: 3 },
         { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 4 },
-        { key: 'score', label: 'Balı', selected: false, order: 5 },
-        { key: 'averageScore', label: 'Orta balı', selected: false, order: 6 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 5 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
     ];
 
     districtColumnOptions: Column[] = [
@@ -125,8 +125,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'code', label: 'Kodu', selected: false, order: 1 },
         { key: 'name', label: 'Adı', selected: false, order: 2 },
         { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 3 },
-        { key: 'score', label: 'Balı', selected: false, order: 4 },
-        { key: 'averageScore', label: 'Orta balı', selected: false, order: 5 }
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 4 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 5 }
     ];
 
     userId: string = '';

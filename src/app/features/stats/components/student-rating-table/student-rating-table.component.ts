@@ -48,9 +48,9 @@ export class StudentRatingTableComponent {
         ['teacher', {label: 'Müəllimi', sortKey: 'teacher'}],
         ['school', {label: 'Məktəbi', sortKey: 'school'}],
         ['district', {label: 'Rayonu / şəhəri', sortKey: 'district'}],
-        ['averageScore', {label: 'Orta balı', sortKey: 'averageScore'}],
+        ['averageScore', {label: 'Orta reytinq xalı', sortKey: 'averageScore'}],
         ['place', {label: 'Yer', sortKey: 'place'}],
-        ['score', {label: 'Balı', sortKey: 'score'}]
+        ['score', {label: 'Reytinq xalı', sortKey: 'score'}]
     ]);
 
     // Get ordered column definitions based on columns array
