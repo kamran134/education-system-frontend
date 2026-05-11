@@ -98,7 +98,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
     // Table configuration
     tableColumns: TableColumn[] = [
-        { key: 'code', label: 'Şagirdin kodu', sortable: true, type: 'text' },
+        { key: 'code', label: 'İş nömrəsi', sortable: true, type: 'text' },
         { key: 'lastName', label: 'Soyadı', sortable: true, type: 'text' },
         { key: 'firstName', label: 'Adı', sortable: true, type: 'text' },
         { key: 'middleName', label: 'Ata adı', sortable: true, type: 'text' },

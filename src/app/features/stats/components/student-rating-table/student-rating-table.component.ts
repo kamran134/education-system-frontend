@@ -39,7 +39,7 @@ export class StudentRatingTableComponent {
     // Column definitions with labels and sort keys
     columnDefinitions = new Map<string, {label: string, sortKey: string}>([
         ['level', {label: 'Pillə', sortKey: 'level'}],
-        ['code', {label: 'Şagirdin kodu', sortKey: 'code'}],
+        ['code', {label: 'İş nömrəsi', sortKey: 'code'}],
         ['lastName', {label: 'Soyadı', sortKey: 'lastName'}],
         ['firstName', {label: 'Adı', sortKey: 'firstName'}],
         ['middleName', {label: 'Ata adı', sortKey: 'middleName'}],

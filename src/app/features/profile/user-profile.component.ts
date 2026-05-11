@@ -51,13 +51,13 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
                         <mat-icon>person</mat-icon>
                         Şəxsi məlumatlar
                     </ng-template>
-                    
+
                     <div class="tab-content">
                         <mat-card>
                             <mat-card-header>
                                 <mat-card-title>Hesab məlumatları</mat-card-title>
                             </mat-card-header>
-                            
+
                             <mat-card-content>
                                 <div class="profile-info" *ngIf="userInfo && !editMode">
                                     <div class="info-row">
@@ -65,13 +65,13 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
                                         <span class="label">E-mail:</span>
                                         <span class="value">{{userInfo.email}}</span>
                                     </div>
-                                    
+
                                     <div class="info-row">
                                         <mat-icon>admin_panel_settings</mat-icon>
                                         <span class="label">Rol:</span>
                                         <span class="value">{{getRoleDisplayName(userInfo.role)}}</span>
                                     </div>
-                                    
+
                                     <div class="info-row">
                                         <mat-icon>verified</mat-icon>
                                         <span class="label">Status:</span>
@@ -79,7 +79,7 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
                                             {{userInfo.isApproved ? 'Təsdiqlənib' : 'Təsdiq gözlənilir'}}
                                         </span>
                                     </div>
-                                    
+
                                     <div class="info-row" *ngIf="userInfo.lastLoginAt">
                                         <mat-icon>schedule</mat-icon>
                                         <span class="label">Son giriş:</span>
@@ -122,30 +122,30 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
                                         </mat-error>
                                     </mat-form-field>
                                 </form>
-                                
+
                                 <div class="loading" *ngIf="loading">
                                     <mat-spinner diameter="30"></mat-spinner>
                                     <span>Yüklənir...</span>
                                 </div>
                             </mat-card-content>
-                            
+
                             <mat-card-actions>
                                 <button mat-button (click)="refreshProfile()" [disabled]="loading || editMode">
                                     <mat-icon>refresh</mat-icon>
                                     Yenilə
                                 </button>
-                                
-                                <button mat-raised-button 
-                                        color="primary" 
-                                        (click)="toggleEditMode()" 
+
+                                <button mat-raised-button
+                                        color="primary"
+                                        (click)="toggleEditMode()"
                                         [disabled]="loading">
                                     <mat-icon>{{editMode ? 'cancel' : 'edit'}}</mat-icon>
                                     {{editMode ? 'Ləğv et' : 'Şifrəni dəyiş'}}
                                 </button>
-                                
-                                <button mat-raised-button 
-                                        color="accent" 
-                                        (click)="changePassword()" 
+
+                                <button mat-raised-button
+                                        color="accent"
+                                        (click)="changePassword()"
                                         [disabled]="!passwordForm.valid || loading"
                                         *ngIf="editMode">
                                     <mat-icon>save</mat-icon>
@@ -162,10 +162,10 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
                         <mat-icon>devices</mat-icon>
                         Sessiyalar
                     </ng-template>
-                    
+
                     <div class="tab-content">
                         <app-user-sessions></app-user-sessions>
-                        
+
                         <mat-card class="security-tips">
                             <mat-card-header>
                                 <mat-card-title>
@@ -298,15 +298,15 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
             .profile-container {
                 padding: 10px;
             }
-            
+
             mat-card-actions {
                 justify-content: center;
             }
-            
+
             .info-row {
                 flex-wrap: wrap;
             }
-            
+
             .info-row .label {
                 min-width: auto;
             }
@@ -337,7 +337,7 @@ export class UserProfileComponent implements OnInit {
 
     loadUserInfo(): void {
         this.loading = true;
-        
+
         this.authService.getCurrentUser().subscribe({
             next: (response) => {
                 if (response.success && response.data) {
@@ -395,7 +395,7 @@ export class UserProfileComponent implements OnInit {
 
     formatDate(date: Date | string): string {
         if (!date) return '';
-        
+
         const d = new Date(date);
         return d.toLocaleDateString('az-AZ', {
             year: 'numeric',
@@ -409,7 +409,7 @@ export class UserProfileComponent implements OnInit {
     private passwordMatchValidator(form: FormGroup) {
         const newPassword = form.get('newPassword');
         const confirmPassword = form.get('confirmPassword');
-        
+
         if (newPassword && confirmPassword && newPassword.value !== confirmPassword.value) {
             return { passwordMismatch: true };
         }
