@@ -351,6 +351,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     if (school.district?._id) {
                         this.selectedDistrictIds = [school.district._id];
                     }
+                    // Reload current tab now that filters are set
+                    this.reloadCurrentTab();
                 },
                 error: (error) => console.error('Error loading school data:', error)
             });
@@ -361,6 +363,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.currentDistrictName = district.name;
                     // Автоматически устанавливаем фильтр для представителя района
                     this.selectedDistrictIds = [this.currentUser.districtId];
+                    // Reload current tab now that filters are set
+                    this.reloadCurrentTab();
                 },
                 error: (error) => console.error('Error loading district data:', error)
             });
@@ -379,9 +383,24 @@ export class StatsComponent implements OnInit, OnDestroy {
                         this.selectedDistrictIds = [teacher.district._id];
                         this.currentDistrictName = teacher.district.name;
                     }
+                    // Reload current tab now that filters are set
+                    this.reloadCurrentTab();
                 },
                 error: (error) => console.error('Error loading teacher data:', error)
             });
+        }
+    }
+
+    // Перезагружает данные текущей вкладки после установки ролевых фильтров
+    private reloadCurrentTab(): void {
+        switch (this.selectedTab) {
+            case 'allTeachers':               this.loadTeachersStats(); break;
+            case 'allSchools':                this.loadSchoolsStats(); break;
+            case 'allDistricts':              this.loadDistrictsStats(); break;
+            case 'allStudents':               this.loadAllStudentsStats(); break;
+            case 'developingStudents':        this.loadDevelopingStudentsStats(); break;
+            case 'studentsOfMonth':           this.loadStudentsOfMonthStats(); break;
+            case 'studentsOfMonthByRepublic': this.loadStudentsOfMonthByRepublicStats(); break;
         }
     }
 
