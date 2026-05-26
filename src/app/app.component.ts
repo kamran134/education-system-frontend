@@ -209,7 +209,7 @@ export class AppComponent implements OnInit {
             this.router.navigate(['/login']);
             return;
         }
-        if (!this.permissions.canAccessRoute('canAccessStats')) {
+        if (!this.permissions.canAccessRoute('canAccessStatistics')) {
             this.router.navigate(['/']);
             return;
         }

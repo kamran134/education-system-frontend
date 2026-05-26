@@ -47,7 +47,7 @@
               Reytinqlər
             </app-dropdown-item>
             
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStats')" (clicked)="goToStatistics()">
+            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStatistics')" (clicked)="goToStatistics()">
               <lucide-icon [img]="TrendingUp" class="mr-3 h-4 w-4"></lucide-icon>
               Statistika
             </app-dropdown-item>

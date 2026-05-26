@@ -22,6 +22,7 @@ export interface RolePermissions {
         canAccessRatingColumns: boolean;       // /admin/rating-columns
         canAccessProfile: boolean;             // /profile
         canAccessStats: boolean;               // /stats
+        canAccessStatistics: boolean;          // /statistics
         canAccessDistricts: boolean;           // /districts
         canAccessSchools: boolean;             // /schools
         canAccessTeachers: boolean;            // /teachers
@@ -106,6 +107,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: true,
             canAccessProfile: true,
             canAccessStats: true,
+            canAccessStatistics: true,
             canAccessDistricts: true,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -179,6 +181,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: true,
             canAccessProfile: true,
             canAccessStats: true,
+            canAccessStatistics: true,
             canAccessDistricts: true,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -252,6 +255,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: false,
             canAccessProfile: true,
             canAccessStats: true,
+            canAccessStatistics: true,
             canAccessDistricts: true,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -325,7 +329,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: true,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessDistricts: true,
+            canAccessStatistics: false,
+            canAccessDistricts: false,
             canAccessSchools: true,
             canAccessTeachers: true,
             canAccessStudents: true,
@@ -399,8 +404,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: true,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessDistricts: true,
-            canAccessSchools: true,
+            canAccessStatistics: false,
+            canAccessDistricts: false,
+            canAccessSchools: false,
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
@@ -473,9 +479,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: true,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessDistricts: true,
-            canAccessSchools: true,
-            canAccessTeachers: true,
+            canAccessStatistics: false,
+            canAccessDistricts: false,
+            canAccessSchools: false,
+            canAccessTeachers: false,
             canAccessStudents: true,
             canAccessExams: true,
             canAccessBooklets: true,
@@ -547,6 +554,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessRatingColumns: true,
             canAccessProfile: true,
             canAccessStats: true,
+            canAccessStatistics: false,
             canAccessDistricts: false,
             canAccessSchools: false,
             canAccessTeachers: false,
