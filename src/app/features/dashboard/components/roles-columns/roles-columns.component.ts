@@ -80,6 +80,21 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 10 },
     ];
 
+    studentViewColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 8 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 9 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 10 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 11 },
+    ];
+
     constructor(
         private dashboardService: DashboardService,
         private snackBar: MatSnackBar,
@@ -97,6 +112,7 @@ export class RolesColumnsComponent implements OnInit {
                     this.restoreColumnOrder(this.teacherViewColumnOptions, settings.teacherViewCollumns || []);
                     this.restoreColumnOrder(this.directorViewColumnOptions, settings.directorViewCollumns || []);
                     this.restoreColumnOrder(this.districtViewColumnOptions, settings.districtViewCollumns || []);
+                    this.restoreColumnOrder(this.studentViewColumnOptions, settings.studentViewCollumns || []);
                 }
             },
             error: (error) => {
@@ -126,8 +142,9 @@ export class RolesColumnsComponent implements OnInit {
         const teacherViewCollumns = this.teacherViewColumnOptions.filter(c => c.selected).map(c => c.key);
         const directorViewCollumns = this.directorViewColumnOptions.filter(c => c.selected).map(c => c.key);
         const districtViewCollumns = this.districtViewColumnOptions.filter(c => c.selected).map(c => c.key);
+        const studentViewCollumns = this.studentViewColumnOptions.filter(c => c.selected).map(c => c.key);
 
-        this.dashboardService.saveGlobalColumns({ teacherViewCollumns, directorViewCollumns, districtViewCollumns }).subscribe({
+        this.dashboardService.saveGlobalColumns({ teacherViewCollumns, directorViewCollumns, districtViewCollumns, studentViewCollumns }).subscribe({
             next: () => {
                 this.snackBar.open('Parametrlər uğurla yadda saxlanıldı', 'Bağla', this.matSnackConfig);
             },
@@ -142,6 +159,7 @@ export class RolesColumnsComponent implements OnInit {
         this.teacherViewColumnOptions.forEach(c => c.selected = false);
         this.directorViewColumnOptions.forEach(c => c.selected = false);
         this.districtViewColumnOptions.forEach(c => c.selected = false);
+        this.studentViewColumnOptions.forEach(c => c.selected = false);
         this.saveSettings();
     }
 
@@ -158,5 +176,10 @@ export class RolesColumnsComponent implements OnInit {
     dropDistrictView(event: CdkDragDrop<Column[]>): void {
         moveItemInArray(this.districtViewColumnOptions, event.previousIndex, event.currentIndex);
         this.districtViewColumnOptions.forEach((c, i) => { c.order = i; });
+    }
+
+    dropStudentView(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.studentViewColumnOptions, event.previousIndex, event.currentIndex);
+        this.studentViewColumnOptions.forEach((c, i) => { c.order = i; });
     }
 }

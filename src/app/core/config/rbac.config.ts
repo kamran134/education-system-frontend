@@ -551,7 +551,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
         routes: {
             canAccessAdminPanel: true,
             canAccessUserManagement: false,
-            canAccessRatingColumns: true,
+            canAccessRatingColumns: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,

@@ -9,4 +9,5 @@ export interface UserSettings {
     teacherViewCollumns?: string[];
     directorViewCollumns?: string[];
     districtViewCollumns?: string[];
+    studentViewCollumns?: string[];
 }
