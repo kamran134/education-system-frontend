@@ -90,6 +90,51 @@ body {
             }
         }
 
+        // ── Пагинатор ─────────────────────────────────────────────────────────
+        .mat-mdc-paginator {
+            background-color: $backgroundColor !important;
+            color: $white !important;
+
+            // CSS Custom Properties для Angular Material theming
+            --mat-paginator-container-background-color: #{$backgroundColor};
+            --mat-paginator-container-text-color: #{$white};
+            --mat-paginator-enabled-icon-color: #{$white};
+            --mat-paginator-disabled-icon-color: #555;
+
+            .mat-mdc-paginator-range-label,
+            .mat-mdc-paginator-page-size-label {
+                color: $white !important;
+            }
+
+            .mat-mdc-icon-button {
+                color: $white !important;
+
+                &:disabled,
+                &[disabled] {
+                    color: #555 !important;
+                }
+            }
+
+            .mat-mdc-select-value-text,
+            .mat-mdc-select-value {
+                color: $white !important;
+            }
+
+            .mat-mdc-select-arrow {
+                color: $darkWhite !important;
+            }
+
+            .mdc-notched-outline__leading,
+            .mdc-notched-outline__notch,
+            .mdc-notched-outline__trailing {
+                border-color: #444 !important;
+            }
+
+            .mat-mdc-form-field-infix {
+                color: $white !important;
+            }
+        }
+
         // Hover states для обычных таблиц (не Material)
         table {
             tr {
@@ -98,6 +143,10 @@ body {
                     background-color: #2a2a2a !important;
                 }
             }
+        }
+
+        .clickable-row:hover {
+            background-color: #2a2a2a !important;
         }
 
         .mat-drawer-container {
