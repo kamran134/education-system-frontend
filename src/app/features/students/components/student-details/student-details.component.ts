@@ -228,6 +228,11 @@ export class StudentDetailsComponent implements OnInit {
         });
     }
 
+    get canEditResults(): boolean {
+        const currentUser = this.authService.getCurrentUserValue();
+        return currentUser?.role === 'admin' || currentUser?.role === 'superadmin';
+    }
+
     // Avatar methods
     get canEditAvatar(): boolean {
         const currentUser = this.authService.getCurrentUserValue();

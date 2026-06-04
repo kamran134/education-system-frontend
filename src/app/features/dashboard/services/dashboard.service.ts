@@ -81,4 +81,20 @@ export class DashboardService {
             catchError(this.handleError.bind(this))
         );
     }
+
+    getGlobalColumns(): Observable<UserSettings> {
+        const url = `${this.configService.getApiUrl()}/user-settings/global`;
+        return this.http.get<ApiResponse<UserSettings>>(url, { withCredentials: true }).pipe(
+            map(response => ResponseHandlerUtil.extractData<UserSettings>(response)),
+            catchError(this.handleError.bind(this))
+        );
+    }
+
+    saveGlobalColumns(settings: Partial<UserSettings>): Observable<{message: string}> {
+        const url = `${this.configService.getApiUrl()}/user-settings/global`;
+        return this.http.put<ApiResponse<{message: string}>>(url, settings, { withCredentials: true }).pipe(
+            map(response => ResponseHandlerUtil.extractData<{message: string}>(response)),
+            catchError(this.handleError.bind(this))
+        );
+    }
 }

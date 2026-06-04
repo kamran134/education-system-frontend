@@ -106,8 +106,8 @@ export class StatsComponent implements OnInit, OnDestroy {
     developingStudentColumns: string[] = [];
     monthStudentColumns: string[] = [];
     studentColumns: string[] = [];
-    teacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
-    schoolColumns: string[] = ['code', 'name', 'district', 'studentCount', 'score', 'averageScore', 'place'];
+    teacherColumns: string[] = ['districtPlace', 'place', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
+    schoolColumns: string[] = ['districtPlace', 'place', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
     districtColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
     developingStudentsLabel$ = new BehaviorSubject<string>('Cari ayda inkişaf edən şagirdlər');
     studentsOfMonthLabel$ = new BehaviorSubject<string>('Cari ayın şagirdləri');
@@ -119,8 +119,8 @@ export class StatsComponent implements OnInit, OnDestroy {
     private readonly availableStudentColumns: string[] = [
         'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
     ];
-    private readonly availableTeacherColumns: string[] = ['code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore', 'place'];
-    private readonly availableSchoolColumns: string[] = ['code', 'name', 'district', 'studentCount', 'score', 'averageScore', 'place'];
+    private readonly availableTeacherColumns: string[] = ['districtPlace', 'place', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
+    private readonly availableSchoolColumns: string[] = ['districtPlace', 'place', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
     private readonly availableDistrictColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
@@ -291,20 +291,57 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     // CHANGE: Метод для загрузки настроек из localStorage
     private loadSettings() {
-        this.dashboardService.getRatingColumns(this.authService.getUserId() || '')
-            .subscribe({
+        const role = this.authService.getCurrentUserValue()?.role;
+        const isAdmin = role === 'admin' || role === 'superadmin' || role === 'moderator';
+
+        if (isAdmin) {
+            // Admin loads their own personal settings
+            this.dashboardService.getRatingColumns(this.authService.getUserId() || '')
+                .subscribe({
+                    next: (settings: UserSettings) => {
+                        this.developingStudentColumns = settings.developingStudentCollumns || this.availableDevelopingStudentColumns;
+                        this.monthStudentColumns = settings.studentCollumns || this.availableStudentColumns;
+                        this.studentColumns = settings.allStudentCollumns || this.availableStudentColumns;
+                        this.teacherColumns = settings.allTeacherCollumns || this.availableTeacherColumns;
+                        this.schoolColumns = settings.allSchoolCollumns || this.availableSchoolColumns;
+                        this.districtColumns = settings.allDistrictCollumns || this.availableDistrictColumns;
+                    },
+                    error: (error: Error) => {
+                        console.error('Error loading settings:', error);
+                    }
+                });
+        } else {
+            // Non-admin roles load global role-specific columns
+            this.dashboardService.getGlobalColumns().subscribe({
                 next: (settings: UserSettings) => {
-                    this.developingStudentColumns = settings.developingStudentCollumns || this.availableDevelopingStudentColumns;
-                    this.monthStudentColumns = settings.studentCollumns || this.availableStudentColumns;
-                    this.studentColumns = settings.allStudentCollumns || this.availableStudentColumns;
-                    this.teacherColumns = settings.allTeacherCollumns || this.availableTeacherColumns;
-                    this.schoolColumns = settings.allSchoolCollumns || this.availableSchoolColumns;
-                    this.districtColumns = settings.allDistrictCollumns || this.availableDistrictColumns;
+                    if (role === 'teacher') {
+                        const cols = settings?.teacherViewCollumns;
+                        if (cols && cols.length > 0) {
+                            this.studentColumns = cols;
+                            this.monthStudentColumns = cols;
+                            this.developingStudentColumns = cols;
+                        }
+                    } else if (role === 'schoolDirector') {
+                        const cols = settings?.directorViewCollumns;
+                        if (cols && cols.length > 0) {
+                            this.studentColumns = cols;
+                            this.monthStudentColumns = cols;
+                            this.developingStudentColumns = cols;
+                        }
+                    } else if (role === 'districtRepresenter') {
+                        const cols = settings?.districtViewCollumns;
+                        if (cols && cols.length > 0) {
+                            this.studentColumns = cols;
+                            this.monthStudentColumns = cols;
+                            this.developingStudentColumns = cols;
+                        }
+                    }
                 },
                 error: (error: Error) => {
-                    console.error('Error loading settings:', error);
+                    console.error('Error loading global settings:', error);
                 }
             });
+        }
     }
 
     // Загрузка данных текущего пользователя для отображения заголовков

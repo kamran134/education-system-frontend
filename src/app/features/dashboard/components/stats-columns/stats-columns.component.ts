@@ -100,24 +100,26 @@ export class StatsColumnsComponent implements OnInit{
     ];
 
     teacherColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: true, order: 0 },
-        { key: 'code', label: 'Kodu', selected: true, order: 1 },
-        { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: true, order: 2 },
-        { key: 'school', label: 'Məktəbi', selected: true, order: 3 },
+        { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', selected: true, order: 0 },
+        { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 1 },
+        { key: 'code', label: 'Kodu', selected: true, order: 2 },
+        { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: true, order: 3 },
+        { key: 'school', label: 'Məktəbi', selected: true, order: 4 },
+        { key: 'district', label: 'Rayonu', selected: true, order: 5 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 6 },
+        { key: 'score', label: 'Reytinq xalı', selected: true, order: 7 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 8 },
+    ];
+
+    schoolColumnOptions: Column[] = [
+        { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', selected: true, order: 0 },
+        { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 1 },
+        { key: 'code', label: 'Kodu', selected: true, order: 2 },
+        { key: 'name', label: 'Adı', selected: true, order: 3 },
         { key: 'district', label: 'Rayonu', selected: true, order: 4 },
         { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 5 },
         { key: 'score', label: 'Reytinq xalı', selected: true, order: 6 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 7 },
-    ];
-
-    schoolColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: true, order: 0 },
-        { key: 'code', label: 'Kodu', selected: true, order: 1 },
-        { key: 'name', label: 'Adı', selected: true, order: 2 },
-        { key: 'district', label: 'Rayonu', selected: true, order: 3 },
-        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 4 },
-        { key: 'score', label: 'Reytinq xalı', selected: true, order: 5 },
-        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 6 },
     ];
 
     districtColumnOptions: Column[] = [
@@ -130,6 +132,49 @@ export class StatsColumnsComponent implements OnInit{
     ];
 
     userId: string = '';
+
+    // Role-view column options (same column set, saved globally per role)
+    teacherViewColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 6 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 7 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 8 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 9 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 10 },
+    ];
+
+    directorViewColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 7 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 8 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 9 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 10 },
+    ];
+
+    districtViewColumnOptions: Column[] = [
+        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 8 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 9 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 10 },
+    ];
 
     constructor(
         private authService: AuthService,
@@ -164,6 +209,19 @@ export class StatsColumnsComponent implements OnInit{
             },
             error: (error) => {
                 console.error('Error loading columns:', error);
+            }
+        });
+        // Load global role-view settings
+        this.dashboardService.getGlobalColumns().subscribe({
+            next: (settings: UserSettings) => {
+                if (settings) {
+                    this.restoreColumnOrder(this.teacherViewColumnOptions, settings.teacherViewCollumns || []);
+                    this.restoreColumnOrder(this.directorViewColumnOptions, settings.directorViewCollumns || []);
+                    this.restoreColumnOrder(this.districtViewColumnOptions, settings.districtViewCollumns || []);
+                }
+            },
+            error: (error) => {
+                console.error('Error loading global columns:', error);
             }
         });
     }
@@ -229,12 +287,23 @@ export class StatsColumnsComponent implements OnInit{
             allDistrictCollumns: selectedDistrictColumns
         };
 
+        // Save global role-view settings
+        const teacherViewCollumns = this.teacherViewColumnOptions.filter(c => c.selected).map(c => c.key);
+        const directorViewCollumns = this.directorViewColumnOptions.filter(c => c.selected).map(c => c.key);
+        const districtViewCollumns = this.districtViewColumnOptions.filter(c => c.selected).map(c => c.key);
+
         this.dashboardService.saveRatingColumns(userSettings).subscribe({
             next: (response) => {
                 this.snackBar.open(response.message || 'Sütunlar uğurla yeniləndi', 'Bağla', this.matSnackConfig);
             },
             error: (error) => {
                 console.error('Error saving settings:', error);
+            }
+        });
+
+        this.dashboardService.saveGlobalColumns({ teacherViewCollumns, directorViewCollumns, districtViewCollumns }).subscribe({
+            error: (error) => {
+                console.error('Error saving global settings:', error);
             }
         });
     }
@@ -246,6 +315,9 @@ export class StatsColumnsComponent implements OnInit{
         this.teacherColumnOptions.forEach(column => column.selected = false);
         this.schoolColumnOptions.forEach(column => column.selected = false);
         this.districtColumnOptions.forEach(column => column.selected = false);
+        this.teacherViewColumnOptions.forEach(column => column.selected = false);
+        this.directorViewColumnOptions.forEach(column => column.selected = false);
+        this.districtViewColumnOptions.forEach(column => column.selected = false);
 
         // Reset the dataSource to its initial state
         this.dataSource.developingStudentCollumns = [];
@@ -288,6 +360,21 @@ export class StatsColumnsComponent implements OnInit{
     dropDistrict(event: CdkDragDrop<Column[]>): void {
         moveItemInArray(this.districtColumnOptions, event.previousIndex, event.currentIndex);
         this.updateColumnOrder(this.districtColumnOptions);
+    }
+
+    dropTeacherView(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.teacherViewColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.teacherViewColumnOptions);
+    }
+
+    dropDirectorView(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.directorViewColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.directorViewColumnOptions);
+    }
+
+    dropDistrictView(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.districtViewColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.districtViewColumnOptions);
     }
 
     private updateColumnOrder(columns: Column[]): void {

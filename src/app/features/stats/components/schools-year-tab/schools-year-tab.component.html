@@ -23,8 +23,15 @@
     </div>
 
     <table mat-table [dataSource]="isLoading ? [] : schools" class="mat-elevation-z8" matSort #schoolSort (matSortChange)="sortChanged.emit($event)">
+        <ng-container matColumnDef="districtPlace" *ngIf="displayedColumns.includes('districtPlace')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Şəhər/rayon üzrə yer </th>
+            <td mat-cell *matCellDef="let result">
+                {{ result.districtPlace ? result.districtPlace : '—' }}
+            </td>
+        </ng-container>
+
         <ng-container matColumnDef="place" *ngIf="displayedColumns.includes('place')">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Yer </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Respublika üzrə yer </th>
             <td mat-cell *matCellDef="let result">
                 {{ result.place ? result.place : '—' }}
             </td>

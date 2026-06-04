@@ -75,6 +75,24 @@
                         (click)="activeTab = 5">
                         İlin rayonları
                     </button>
+                    <button
+                        [class]="activeTab === 6 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 6">
+                        Müəllimlər üçün
+                    </button>
+                    <button
+                        [class]="activeTab === 7 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 7">
+                        Direktorlar üçün
+                    </button>
+                    <button
+                        [class]="activeTab === 8 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                        (click)="activeTab = 8">
+                        Rayon nümayəndəsi üçün
+                    </button>
                 </nav>
             </div>
 
@@ -304,6 +322,69 @@
                                 class="text-sm">
                                 {{ column.label }}
                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teacher View Tab (Müəllimlər üçün) -->
+                <div *ngIf="activeTab === 6"
+                     cdkDropList
+                     (cdkDropListDropped)="dropTeacherView($event)"
+                     class="space-y-2">
+                    <p class="text-sm text-gray-500 mb-4">Müəllim rolunun reytinq cədvəlində görəcəyi sütunlar</p>
+                    <div
+                        *ngFor="let column of teacherViewColumnOptions; let i = index"
+                        cdkDrag
+                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                            <lucide-icon [img]="GripVertical" class="w-5 h-5 text-gray-400"></lucide-icon>
+                        </div>
+                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">{{ i + 1 }}</div>
+                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                            <lucide-icon [img]="column.selected ? CheckSquare : Square" [class]="column.selected ? 'text-primary-600' : 'text-gray-400'" class="w-5 h-5 mr-3"></lucide-icon>
+                            <span [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'" class="text-sm">{{ column.label }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Director View Tab (Direktorlar üçün) -->
+                <div *ngIf="activeTab === 7"
+                     cdkDropList
+                     (cdkDropListDropped)="dropDirectorView($event)"
+                     class="space-y-2">
+                    <p class="text-sm text-gray-500 mb-4">Direktor rolunun reytinq cədvəlində görəcəyi sütunlar</p>
+                    <div
+                        *ngFor="let column of directorViewColumnOptions; let i = index"
+                        cdkDrag
+                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                            <lucide-icon [img]="GripVertical" class="w-5 h-5 text-gray-400"></lucide-icon>
+                        </div>
+                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">{{ i + 1 }}</div>
+                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                            <lucide-icon [img]="column.selected ? CheckSquare : Square" [class]="column.selected ? 'text-primary-600' : 'text-gray-400'" class="w-5 h-5 mr-3"></lucide-icon>
+                            <span [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'" class="text-sm">{{ column.label }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- District View Tab (Rayon nümayəndəsi üçün) -->
+                <div *ngIf="activeTab === 8"
+                     cdkDropList
+                     (cdkDropListDropped)="dropDistrictView($event)"
+                     class="space-y-2">
+                    <p class="text-sm text-gray-500 mb-4">Rayon nümayəndəsi rolunun reytinq cədvəlində görəcəyi sütunlar</p>
+                    <div
+                        *ngFor="let column of districtViewColumnOptions; let i = index"
+                        cdkDrag
+                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                            <lucide-icon [img]="GripVertical" class="w-5 h-5 text-gray-400"></lucide-icon>
+                        </div>
+                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">{{ i + 1 }}</div>
+                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                            <lucide-icon [img]="column.selected ? CheckSquare : Square" [class]="column.selected ? 'text-primary-600' : 'text-gray-400'" class="w-5 h-5 mr-3"></lucide-icon>
+                            <span [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'" class="text-sm">{{ column.label }}</span>
                         </div>
                     </div>
                 </div>

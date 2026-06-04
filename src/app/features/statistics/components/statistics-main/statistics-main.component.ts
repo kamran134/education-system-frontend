@@ -10,6 +10,7 @@ import { School } from '../../../../core/models/school.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X } from 'lucide-angular';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-statistics-main',
@@ -27,6 +28,7 @@ export class StatisticsMainComponent implements OnInit {
     private statisticsService = inject(StatisticsService);
     private districtService = inject(DistrictService);
     private schoolService = inject(SchoolService);
+    private authService = inject(AuthService);
 
     statistics: StatisticsResponse | null = null;
     isLoading = false;
@@ -36,6 +38,10 @@ export class StatisticsMainComponent implements OnInit {
     inkishafStatistics: InkishafStatistics | null = null;
     inkishafMinParticipations: number = 2;
     inkishafLoading = false;
+
+    get isAdminUser(): boolean {
+        return this.authService.isAdminOrSuperAdmin();
+    }
 
     get inkishafParticipationOptions(): { label: string; value: number }[] {
         const max = this.inkishafStatistics?.maxParticipations ?? 2;
@@ -76,6 +82,10 @@ export class StatisticsMainComponent implements OnInit {
     private readonly currentAcademicYear = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
     years = Array.from({ length: 6 }, (_, i) => this.currentAcademicYear - i);
 
+    get availableYears(): number[] {
+        return this.isAdminUser ? this.years : [this.currentAcademicYear];
+    }
+
     // Options для select компонентов
     get districtOptions() {
         return this.districts.map(d => ({ label: d.name, value: d._id }));
@@ -94,7 +104,7 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     get yearOptions() {
-        return this.years.map(y => ({ label: `${y}-${y + 1}`, value: y }));
+        return this.availableYears.map(y => ({ label: `${y}-${y + 1}`, value: y }));
     }
 
     get inkishafTitle(): string {
@@ -142,6 +152,10 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        if (!this.isAdminUser) {
+            this.inkishafMinParticipations = 3;
+            this.selectedYear = this.currentAcademicYear;
+        }
         this.loadDistricts();
         this.loadStatistics();
         this.loadInkishafStatistics();

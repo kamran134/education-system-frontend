@@ -29,6 +29,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
                 <!-- Фильтр по году -->
                 <app-select
+                    *ngIf="isAdminUser"
                     label="İl"
                     [(ngModel)]="selectedYear"
                     [options]="yearOptions"
@@ -133,7 +134,7 @@
             <div *ngIf="!inkishafLoading && inkishafStatistics && selectedMonth === null" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
                     <h3 class="text-sm font-medium text-gray-600 mb-1">
-                        ≥ {{ inkishafStatistics.minParticipations }} dəfə iştirak edən şagirdlər
+                        Ən azı {{ inkishafStatistics.minParticipations }} dəfə iştirak edən şagirdlər
                     </h3>
                     <p class="text-3xl font-bold text-teal-700">{{ inkishafStatistics.baseCount }}</p>
                 </div>
