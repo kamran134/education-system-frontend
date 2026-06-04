@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { LucideAngularModule, Users, Settings, BarChart3, Menu, X, LogOut, Database } from 'lucide-angular';
+import { LucideAngularModule, Users, Settings, BarChart3, Menu, X, LogOut, Database, ShieldCheck } from 'lucide-angular';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 
 @Component({
@@ -25,6 +25,7 @@ export class AdminLayoutComponent {
     readonly X = X;
     readonly LogOut = LogOut;
     readonly Database = Database;
+    readonly ShieldCheck = ShieldCheck;
 
     sidebarOpen = signal(true);
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
