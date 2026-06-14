@@ -1,3 +1,21 @@
+export interface RoleTabSettings {
+    developingStudents?: string[];
+    monthStudents?: string[];
+    republicMonthStudents?: string[];
+    allStudents?: string[];
+    allTeachers?: string[];
+    allSchools?: string[];
+    allDistricts?: string[];
+}
+
+export interface RoleSettings {
+    moderator?: RoleTabSettings;
+    districtRepresenter?: RoleTabSettings;
+    schoolDirector?: RoleTabSettings;
+    teacher?: RoleTabSettings;
+    student?: RoleTabSettings;
+}
+
 export interface UserSettings {
     userId: string;
     developingStudentCollumns?: string[];
@@ -10,4 +28,5 @@ export interface UserSettings {
     directorViewCollumns?: string[];
     districtViewCollumns?: string[];
     studentViewCollumns?: string[];
+    roleSettings?: RoleSettings;
 }
