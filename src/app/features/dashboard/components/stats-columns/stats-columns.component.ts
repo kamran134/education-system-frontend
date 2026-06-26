@@ -85,18 +85,19 @@ export class StatsColumnsComponent implements OnInit{
     ];
 
     studentColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: false, order: 0 },
-        { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
-        { key: 'lastName', label: 'Soyadı', selected: false, order: 2 },
-        { key: 'firstName', label: 'Adı', selected: false, order: 3 },
-        { key: 'middleName', label: 'Ata adı', selected: false, order: 4 },
-        { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
-        { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
-        { key: 'district', label: 'Rayonu', selected: false, order: 8 },
-        { key: 'score', label: 'Reytinq xalı', selected: false, order: 9 },
-        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 10 },
-        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 11 },
+        { key: 'place', label: 'Respublika üzrə yer', selected: false, order: 0 },
+        { key: 'districtPlace', label: 'Rayon/şəhər üzrə yer', selected: false, order: 1 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 2 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 3 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 4 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 5 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 6 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 7 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 8 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 9 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 10 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 11 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 12 },
     ];
 
     teacherColumnOptions: Column[] = [

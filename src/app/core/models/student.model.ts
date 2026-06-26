@@ -50,6 +50,7 @@ export interface Student {
     score?: number;
     averageScore?: number;
     place?: number;
+    districtPlace?: number | null;
     avatarUrl?: string;
     participationCount?: number; // number of exams participated
     ratings?: YearRating[];
