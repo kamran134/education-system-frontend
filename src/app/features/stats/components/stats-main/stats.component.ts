@@ -117,7 +117,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         'level', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
     ];
     private readonly availableStudentColumns: string[] = [
-        'place', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
+        'place', 'districtPlace', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
     ];
     private readonly availableTeacherColumns: string[] = ['districtPlace', 'place', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
     private readonly availableSchoolColumns: string[] = ['districtPlace', 'place', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
@@ -311,31 +311,24 @@ export class StatsComponent implements OnInit, OnDestroy {
                     }
                 });
         } else {
-            // Non-admin roles load global role-specific columns
+            // Non-admin roles load global role-specific columns from roleSettings
             this.dashboardService.getGlobalColumns().subscribe({
                 next: (settings: UserSettings) => {
-                    if (role === 'teacher') {
-                        const cols = settings?.teacherViewCollumns;
-                        if (cols && cols.length > 0) {
-                            this.studentColumns = cols;
-                            this.monthStudentColumns = cols;
-                            this.developingStudentColumns = cols;
-                        }
-                    } else if (role === 'schoolDirector') {
-                        const cols = settings?.directorViewCollumns;
-                        if (cols && cols.length > 0) {
-                            this.studentColumns = cols;
-                            this.monthStudentColumns = cols;
-                            this.developingStudentColumns = cols;
-                        }
-                    } else if (role === 'districtRepresenter') {
-                        const cols = settings?.districtViewCollumns;
-                        if (cols && cols.length > 0) {
-                            this.studentColumns = cols;
-                            this.monthStudentColumns = cols;
-                            this.developingStudentColumns = cols;
-                        }
-                    }
+                    const roleKey = role as string;
+                    const roleData = (settings?.roleSettings as any)?.[roleKey];
+                    if (!roleData) return;
+
+                    const pick = (tabKey: string, fallback: string[]) => {
+                        const cols: string[] = roleData[tabKey];
+                        return cols && cols.length > 0 ? cols : fallback;
+                    };
+
+                    this.developingStudentColumns = pick('developingStudents', this.availableDevelopingStudentColumns);
+                    this.monthStudentColumns      = pick('monthStudents', this.availableStudentColumns);
+                    this.studentColumns           = pick('allStudents', this.availableStudentColumns);
+                    this.teacherColumns           = pick('allTeachers', this.availableTeacherColumns);
+                    this.schoolColumns            = pick('allSchools', this.availableSchoolColumns);
+                    this.districtColumns          = pick('allDistricts', this.availableDistrictColumns);
                 },
                 error: (error: Error) => {
                     console.error('Error loading global settings:', error);
