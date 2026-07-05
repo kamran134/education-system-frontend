@@ -19,5 +19,6 @@ export interface District {
     studentCount: number;
     districtOfTheYearScore?: number;
     place?: number;
+    filterPlace?: number | null;
     ratings?: YearRating[];
 }

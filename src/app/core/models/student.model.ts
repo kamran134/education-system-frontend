@@ -51,6 +51,7 @@ export interface Student {
     averageScore?: number;
     place?: number;
     districtPlace?: number | null;
+    filterPlace?: number | null;
     avatarUrl?: string;
     participationCount?: number; // number of exams participated
     ratings?: YearRating[];

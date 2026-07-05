@@ -33,7 +33,9 @@ export class ExcelService {
     ]);
 
     private readonly studentColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
-        ['place',             { label: 'Yer',              accessor: (s: any) => s.place || '' }],
+        ['place',             { label: 'Respublika üzrə yer', accessor: (s: any) => s.place || '' }],
+        ['districtPlace',     { label: 'Rayon/şəhər üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
+        ['filterPlace',       { label: 'Filtr üzrə yer',    accessor: (s: any) => s.filterPlace || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (s: any) => s.code }],
         ['lastName',          { label: 'Soyadı',           accessor: (s: any) => s.lastName }],
         ['firstName',         { label: 'Adı',              accessor: (s: any) => s.firstName }],
@@ -48,7 +50,9 @@ export class ExcelService {
     ]);
 
     private readonly teacherColumnMap = new Map<string, { label: string; accessor: (t: any) => any }>([
-        ['place',        { label: 'Yer',                   accessor: (t: any) => t.place || '' }],
+        ['place',        { label: 'Respublika üzrə yer',   accessor: (t: any) => t.place || '' }],
+        ['districtPlace',{ label: 'Şəhər/rayon üzrə yer',  accessor: (t: any) => t.districtPlace || '' }],
+        ['filterPlace',  { label: 'Filtr üzrə yer',        accessor: (t: any) => t.filterPlace || '' }],
         ['code',         { label: 'Müəllimin kodu',        accessor: (t: any) => t.code }],
         ['fullName',     { label: 'Soyadı, adı, ata adı', accessor: (t: any) => t.fullname }],
         ['school',       { label: 'Məktəbi',               accessor: (t: any) => t.school?.name || '' }],
@@ -59,7 +63,9 @@ export class ExcelService {
     ]);
 
     private readonly schoolColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
-        ['place',        { label: 'Yer',               accessor: (s: any) => s.place || '' }],
+        ['place',        { label: 'Respublika üzrə yer', accessor: (s: any) => s.place || '' }],
+        ['districtPlace',{ label: 'Şəhər/rayon üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
+        ['filterPlace',  { label: 'Filtr üzrə yer',      accessor: (s: any) => s.filterPlace || '' }],
         ['code',         { label: 'Məktəbin kodu',     accessor: (s: any) => s.code }],
         ['name',         { label: 'Adı',               accessor: (s: any) => s.name }],
         ['district',     { label: 'Rayonu / şəhəri',  accessor: (s: any) => s.district?.name || 'Rayon / şəhər tapılmadı' }],
@@ -69,7 +75,8 @@ export class ExcelService {
     ]);
 
     private readonly districtColumnMap = new Map<string, { label: string; accessor: (d: any) => any }>([
-        ['place',        { label: 'Yer',                 accessor: (d: any) => d.place || '' }],
+        ['place',        { label: 'Respublika üzrə yer', accessor: (d: any) => d.place || '' }],
+        ['filterPlace',  { label: 'Filtr üzrə yer',       accessor: (d: any) => d.filterPlace || '' }],
         ['code',         { label: 'Rayon / şəhər kodu', accessor: (d: any) => d.code }],
         ['name',         { label: 'Adı',                 accessor: (d: any) => d.name }],
         ['studentCount', { label: 'Şagird sayı',         accessor: (d: any) => d.studentCount ?? 0 }],

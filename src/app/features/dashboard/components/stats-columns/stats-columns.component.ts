@@ -87,49 +87,53 @@ export class StatsColumnsComponent implements OnInit{
     studentColumnOptions: Column[] = [
         { key: 'place', label: 'Respublika üzrə yer', selected: false, order: 0 },
         { key: 'districtPlace', label: 'Rayon/şəhər üzrə yer', selected: false, order: 1 },
-        { key: 'code', label: 'İş nömrəsi', selected: false, order: 2 },
-        { key: 'lastName', label: 'Soyadı', selected: false, order: 3 },
-        { key: 'firstName', label: 'Adı', selected: false, order: 4 },
-        { key: 'middleName', label: 'Ata adı', selected: false, order: 5 },
-        { key: 'grade', label: 'Sinifi', selected: false, order: 6 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 7 },
-        { key: 'school', label: 'Məktəbi', selected: false, order: 8 },
-        { key: 'district', label: 'Rayonu', selected: false, order: 9 },
-        { key: 'score', label: 'Reytinq xalı', selected: false, order: 10 },
-        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 11 },
-        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 12 },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', selected: false, order: 2 },
+        { key: 'code', label: 'İş nömrəsi', selected: false, order: 3 },
+        { key: 'lastName', label: 'Soyadı', selected: false, order: 4 },
+        { key: 'firstName', label: 'Adı', selected: false, order: 5 },
+        { key: 'middleName', label: 'Ata adı', selected: false, order: 6 },
+        { key: 'grade', label: 'Sinifi', selected: false, order: 7 },
+        { key: 'teacher', label: 'Müəllimi', selected: false, order: 8 },
+        { key: 'school', label: 'Məktəbi', selected: false, order: 9 },
+        { key: 'district', label: 'Rayonu', selected: false, order: 10 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 11 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 12 },
+        { key: 'participationCount', label: 'İştirak sayı', selected: false, order: 13 },
     ];
 
     teacherColumnOptions: Column[] = [
         { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', selected: true, order: 0 },
         { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 1 },
-        { key: 'code', label: 'Kodu', selected: true, order: 2 },
-        { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: true, order: 3 },
-        { key: 'school', label: 'Məktəbi', selected: true, order: 4 },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', selected: false, order: 2 },
+        { key: 'code', label: 'Kodu', selected: true, order: 3 },
+        { key: 'fullName', label: 'Soyadı, adı, ata adı', selected: true, order: 4 },
+        { key: 'school', label: 'Məktəbi', selected: true, order: 5 },
+        { key: 'district', label: 'Rayonu', selected: true, order: 6 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 7 },
+        { key: 'score', label: 'Reytinq xalı', selected: true, order: 8 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 9 },
+    ];
+
+    schoolColumnOptions: Column[] = [
+        { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', selected: true, order: 0 },
+        { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 1 },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', selected: false, order: 2 },
+        { key: 'code', label: 'Kodu', selected: true, order: 3 },
+        { key: 'name', label: 'Adı', selected: true, order: 4 },
         { key: 'district', label: 'Rayonu', selected: true, order: 5 },
         { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 6 },
         { key: 'score', label: 'Reytinq xalı', selected: true, order: 7 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 8 },
     ];
 
-    schoolColumnOptions: Column[] = [
-        { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', selected: true, order: 0 },
-        { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 1 },
+    districtColumnOptions: Column[] = [
+        { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 0 },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', selected: false, order: 1 },
         { key: 'code', label: 'Kodu', selected: true, order: 2 },
         { key: 'name', label: 'Adı', selected: true, order: 3 },
-        { key: 'district', label: 'Rayonu', selected: true, order: 4 },
-        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 5 },
-        { key: 'score', label: 'Reytinq xalı', selected: true, order: 6 },
-        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 7 },
-    ];
-
-    districtColumnOptions: Column[] = [
-        { key: 'place', label: 'Yer', selected: true, order: 0 },
-        { key: 'code', label: 'Kodu', selected: true, order: 1 },
-        { key: 'name', label: 'Adı', selected: true, order: 2 },
-        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 3 },
-        { key: 'score', label: 'Reytinq xalı', selected: true, order: 4 },
-        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 5 }
+        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 4 },
+        { key: 'score', label: 'Reytinq xalı', selected: true, order: 5 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 6 }
     ];
 
     userId: string = '';

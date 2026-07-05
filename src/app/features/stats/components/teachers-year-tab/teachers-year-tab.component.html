@@ -37,6 +37,13 @@
             </td>
         </ng-container>
 
+        <ng-container matColumnDef="filterPlace" *ngIf="displayedColumns.includes('filterPlace')">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Filtr üzrə yer </th>
+            <td mat-cell *matCellDef="let result">
+                {{ result.filterPlace > 0 ? result.filterPlace : '—' }}
+            </td>
+        </ng-container>
+
         <ng-container matColumnDef="code" *ngIf="displayedColumns.includes('code')">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Müəllimin kodu </th>
             <td mat-cell *matCellDef="let result"> {{ result.code }} </td>

@@ -43,3 +43,5 @@ Thumbs.db
 
 # Local dev notes
 *.md
+!CLAUDE.md
+!.claude/**/*.md

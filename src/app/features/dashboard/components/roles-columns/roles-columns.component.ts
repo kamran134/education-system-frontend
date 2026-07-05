@@ -100,7 +100,7 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 7 },
     ],
     allDistricts: [
-        { key: 'place', label: 'Yer', selected: false, order: 0 },
+        { key: 'place', label: 'Respublika üzrə yer', selected: false, order: 0 },
         { key: 'code', label: 'Kodu', selected: false, order: 1 },
         { key: 'name', label: 'Adı', selected: false, order: 2 },
         { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 3 },

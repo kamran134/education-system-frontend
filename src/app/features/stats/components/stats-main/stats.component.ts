@@ -106,9 +106,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     developingStudentColumns: string[] = [];
     monthStudentColumns: string[] = [];
     studentColumns: string[] = [];
-    teacherColumns: string[] = ['districtPlace', 'place', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
-    schoolColumns: string[] = ['districtPlace', 'place', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
-    districtColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
+    teacherColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
+    schoolColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
+    districtColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'studentCount', 'score', 'averageScore'];
     developingStudentsLabel$ = new BehaviorSubject<string>('Cari ayda inkişaf edən şagirdlər');
     studentsOfMonthLabel$ = new BehaviorSubject<string>('Cari ayın şagirdləri');
     studentsOfMonthByRepublicLabel$ = new BehaviorSubject<string>('Respublika üzrə cari ayın şagirdləri');
@@ -117,11 +117,11 @@ export class StatsComponent implements OnInit, OnDestroy {
         'level', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'totalScore', 'averageScore',
     ];
     private readonly availableStudentColumns: string[] = [
-        'place', 'districtPlace', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
+        'place', 'districtPlace', 'filterPlace', 'code', 'lastName', 'firstName', 'middleName', 'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
     ];
-    private readonly availableTeacherColumns: string[] = ['districtPlace', 'place', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
-    private readonly availableSchoolColumns: string[] = ['districtPlace', 'place', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
-    private readonly availableDistrictColumns: string[] = ['code', 'name', 'studentCount', 'score', 'averageScore', 'place'];
+    private readonly availableTeacherColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
+    private readonly availableSchoolColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
+    private readonly availableDistrictColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'studentCount', 'score', 'averageScore'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
     selectedAcademicYear: number = (() => { const now = new Date(); return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1; })();

@@ -21,6 +21,8 @@ export interface Teacher {
     studentCount?: number;
     teacherOfTheYearScore?: number;
     place?: number;
+    districtPlace?: number | null;
+    filterPlace?: number | null;
     active: boolean;
     ratings?: YearRating[];
 }
