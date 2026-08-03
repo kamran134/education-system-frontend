@@ -60,7 +60,8 @@ export class AcademicYearComponent implements OnInit {
             width: '450px',
             data: {
                 title: 'Sinifləri yüksəlt',
-                text: `${this.preview.promotableCount} şagird 1 sinif yüksəldiləcək (${this.preview.targetAcademicYear}/${this.preview.targetAcademicYear + 1} tədris ili). Bu əməliyyat geri qaytarılmır. Davam edilsin?`
+                text: `${this.preview.promotableCount} şagird 1 sinif yüksəldiləcək (${this.preview.targetAcademicYear}/${this.preview.targetAcademicYear + 1} tədris ili). Bu əməliyyat geri qaytarılmır. Davam edilsin?`,
+                confirmText: 'Təsdiq et'
             }
         });
 

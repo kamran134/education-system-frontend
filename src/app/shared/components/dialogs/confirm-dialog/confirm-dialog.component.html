@@ -3,6 +3,6 @@
     {{ text }}
 </mat-dialog-content>
 <mat-dialog-actions>
-    <button mat-button (click)="onNoClick()">İmtina</button>
-    <button mat-button color="warn" (click)="onYesClick()" cdkFocusInitial>Sil</button>
+    <button mat-button (click)="onNoClick()">{{ cancelText }}</button>
+    <button mat-button color="warn" (click)="onYesClick()" cdkFocusInitial>{{ confirmText }}</button>
 </mat-dialog-actions>

@@ -253,6 +253,14 @@ body {
 
         .mat-mdc-dialog-actions {
             border-top-color: #383737 !important;
+
+            .mat-mdc-button {
+                color: $white !important;
+
+                &.mat-warn {
+                    color: #f87171 !important;
+                }
+            }
         }
 
         // ── Statistika səhifəsi ────────────────────────────────────────────────
