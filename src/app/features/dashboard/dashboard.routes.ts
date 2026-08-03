@@ -4,6 +4,7 @@ import { UsersComponent } from './components/users/users.component';
 import { StatsColumnsComponent } from './components/stats-columns/stats-columns.component';
 import { LegacyImportComponent } from './components/legacy-import/legacy-import.component';
 import { RolesColumnsComponent } from './components/roles-columns/roles-columns.component';
+import { AcademicYearComponent } from './components/academic-year/academic-year.component';
 import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
 
@@ -16,6 +17,7 @@ export const routes: Routes = [
             { path: 'rating-columns', component: StatsColumnsComponent, canActivate: [authGuard] },
             { path: 'roles', component: RolesColumnsComponent, canActivate: [adminGuard] },
             { path: 'legacy-import', component: LegacyImportComponent, canActivate: [adminGuard] },
+            { path: 'academic-year', component: AcademicYearComponent, canActivate: [adminGuard] },
             { path: '', redirectTo: 'rating-columns', pathMatch: 'full' }
         ]
     }

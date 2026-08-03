@@ -1,0 +1,89 @@
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center mb-2">
+            <lucide-icon [img]="GraduationCap" class="w-8 h-8 text-primary-600 mr-3"></lucide-icon>
+            <h1 class="text-3xl font-bold text-gray-900">Yeni tədris ili</h1>
+        </div>
+        <p class="text-gray-600">
+            Bütün şagirdləri 1 sinif yüksəltmək. Yalnız iyul-avqust aylarında və tədris ili üçün bir dəfə mümkündür.
+        </p>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-16 text-gray-500">
+        <lucide-icon [img]="Loader" class="w-6 h-6 mr-2 animate-spin"></lucide-icon>
+        Yüklənir...
+    </div>
+
+    <ng-container *ngIf="!isLoading && preview">
+        <!-- Window closed banner -->
+        <div *ngIf="!preview.windowOpen" class="bg-gray-100 border-l-4 border-gray-400 p-4 mb-6 flex items-start">
+            <lucide-icon [img]="AlertTriangle" class="w-5 h-5 text-gray-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
+            <div>
+                <h3 class="text-sm font-medium text-gray-800">Əməliyyat bağlıdır</h3>
+                <p class="text-sm text-gray-600 mt-1">Sinif yüksəltmə yalnız iyul-avqust aylarında mümkündür — tədris ili davam edir.</p>
+            </div>
+        </div>
+
+        <!-- Already promoted banner -->
+        <div *ngIf="preview.windowOpen && preview.alreadyPromotedThisYear" class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 flex items-start">
+            <lucide-icon [img]="CheckCircle" class="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
+            <div>
+                <h3 class="text-sm font-medium text-green-800">Artıq yerinə yetirilib</h3>
+                <p class="text-sm text-green-700 mt-1">
+                    {{ preview.targetAcademicYear }}/{{ preview.targetAcademicYear + 1 }} tədris ili üçün siniflər artıq yüksəldilib. Təkrar mümkün deyil.
+                </p>
+            </div>
+        </div>
+
+        <!-- Warning when action is actually available -->
+        <div *ngIf="canPromote" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 flex items-start">
+            <lucide-icon [img]="AlertTriangle" class="w-5 h-5 text-yellow-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
+            <div>
+                <h3 class="text-sm font-medium text-yellow-800">Diqqət!</h3>
+                <p class="text-sm text-yellow-700 mt-1">Bu əməliyyat bütün şagirdlərin sinfini +1 edəcək və geri qaytarıla bilməz. Bir dəfədən çox işə düşmür.</p>
+            </div>
+        </div>
+
+        <!-- Grade breakdown table -->
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                    <tr>
+                        <th class="text-left px-4 py-3">Sinif</th>
+                        <th class="text-left px-4 py-3">Şagird sayı</th>
+                        <th class="text-left px-4 py-3">Yeni sinif</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr *ngFor="let bucket of preview.byGrade">
+                        <td class="px-4 py-3 text-gray-900">{{ bucket.grade ?? '—' }}</td>
+                        <td class="px-4 py-3 text-gray-700">{{ bucket.count }}</td>
+                        <td class="px-4 py-3">
+                            <span *ngIf="bucket.targetGrade !== null" class="text-gray-900">{{ bucket.targetGrade }}</span>
+                            <span *ngIf="bucket.targetGrade === null" class="text-gray-400">Dəyişmir (buraxılış / sinfi yoxdur)</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="px-4 py-3 bg-gray-50 text-sm text-gray-600 flex justify-between">
+                <span>Yüksəldiləcək: <strong>{{ preview.promotableCount }}</strong></span>
+                <span>Dəyişməyəcək: <strong>{{ preview.ceilingCount }}</strong></span>
+            </div>
+        </div>
+
+        <div *ngIf="lastPromotedCount !== null" class="text-sm text-green-700 mb-4">
+            Son əməliyyat: {{ lastPromotedCount }} şagird yüksəldildi.
+        </div>
+
+        <button
+            type="button"
+            [disabled]="!canPromote"
+            (click)="openConfirm()"
+            class="px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2">
+            <lucide-icon *ngIf="isExecuting" [img]="Loader" class="w-4 h-4 animate-spin"></lucide-icon>
+            Sinifləri yüksəlt
+        </button>
+    </ng-container>
+</div>
