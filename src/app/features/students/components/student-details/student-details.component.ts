@@ -15,7 +15,7 @@ import { ResultEditingDialogComponent } from '../result-editing/result-editing-d
 import { ExamResult } from '../../../../core/models/examResult.model';
 import { ImageCropModalComponent } from '../../../../shared/components/modals/image-crop-modal/image-crop-modal.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { environment } from '../../../../../environments/environment';
+import { ConfigService } from '../../../../core/services/config.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 
@@ -95,7 +95,8 @@ export class StudentDetailsComponent implements OnInit {
         private excelService: ExcelService,
         private dialog: MatDialog,
         private authService: AuthService,
-        private snackBarService: SnackBarService
+        private snackBarService: SnackBarService,
+        private configService: ConfigService
     ) { }
 
     ngOnInit(): void {
@@ -240,12 +241,7 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     get avatarUrl(): string | null {
-        if (!this.student?.avatarUrl) return null;
-        // Для production nginx проксирует, для dev нужен полный URL
-        if (environment.production) {
-            return this.student.avatarUrl;
-        }
-        return `http://localhost:5000${this.student.avatarUrl}`;
+        return this.configService.resolveAssetUrl(this.student?.avatarUrl);
     }
 
     onAvatarHover(state: boolean): void {

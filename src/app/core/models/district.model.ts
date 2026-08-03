@@ -21,4 +21,5 @@ export interface District {
     place?: number;
     filterPlace?: number | null;
     ratings?: YearRating[];
+    avatarUrl?: string;
 }

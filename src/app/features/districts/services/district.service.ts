@@ -75,4 +75,16 @@ export class DistrictService {
         return this.http.post<ApiResponse<any>>(url, {}, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    uploadAvatar(districtId: string, formData: FormData): Observable<{ avatarUrl: string }> {
+        const url: string = `${this.configService.getApiUrl()}/districts/${districtId}/avatar`;
+        return this.http.post<ApiResponse<{ avatarUrl: string }>>(url, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    deleteAvatar(districtId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/districts/${districtId}/avatar`;
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }

@@ -132,4 +132,16 @@ export class TeacherService {
             { withCredentials: true }
         ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    uploadAvatar(teacherId: string, formData: FormData): Observable<{ avatarUrl: string }> {
+        const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/avatar`;
+        return this.http.post<ApiResponse<{ avatarUrl: string }>>(url, formData, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    deleteAvatar(teacherId: string): Observable<any> {
+        const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/avatar`;
+        return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
 }

@@ -25,6 +25,7 @@ export interface School {
     filterPlace?: number | null;
     active: boolean;
     ratings?: YearRating[];
+    avatarUrl?: string;
 }
 
 export interface SchoolForCreation {

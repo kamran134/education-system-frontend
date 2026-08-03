@@ -17,8 +17,8 @@ import { ModalComponent } from '../../ui/modal/modal.component';
         <image-cropper
           [imageChangedEvent]="imageChangedEvent"
           [maintainAspectRatio]="true"
-          [aspectRatio]="3 / 4"
-          [resizeToWidth]="600"
+          [aspectRatio]="aspectRatio"
+          [resizeToWidth]="resizeToWidth"
           [cropperMinWidth]="100"
           format="jpeg"
           [imageQuality]="80"
@@ -56,6 +56,8 @@ import { ModalComponent } from '../../ui/modal/modal.component';
 export class ImageCropModalComponent {
   @Input() isOpen = false;
   @Input() imageChangedEvent: any;
+  @Input() aspectRatio = 3 / 4;
+  @Input() resizeToWidth = 600;
   @Output() close = new EventEmitter<void>();
   @Output() save = new EventEmitter<Blob>();
 
