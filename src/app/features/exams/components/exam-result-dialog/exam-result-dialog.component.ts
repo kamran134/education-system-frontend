@@ -67,7 +67,7 @@ export class ExamResultDialogComponent implements OnInit {
         event.preventDefault();
 
         if (this.file) {
-            this.examService.uploadResults(this.file, this.data.exam._id).subscribe({
+            this.examService.uploadResults(this.file, this.data.exam.id).subscribe({
                 next: (response) => {
                     const validationErrors = response.validationErrors || {};
 
@@ -114,7 +114,7 @@ export class ExamResultDialogComponent implements OnInit {
 
     onDelete(event: Event): void {
         event.preventDefault();
-        this.examService.deleteResults(this.data.exam._id).subscribe({
+        this.examService.deleteResults(this.data.exam.id).subscribe({
             next: (response) => {
                 this.snackBar.open(response.message || 'Nəticələr uğurla silindi', 'OK', this.matSnackConfig)
             },

@@ -13,6 +13,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2 } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
@@ -218,7 +219,7 @@ export class DistrictsListComponent implements OnInit {
             width: '400px',
             data: {
                 district: {
-                    _id: district._id,
+                    id: district.id,
                     name: district.name,
                     code: district.code,
                     studentCount: district.studentCount
@@ -235,10 +236,10 @@ export class DistrictsListComponent implements OnInit {
             } else if (result?.action === 'save') {
                 // Обработка сохранения
                 this.isLoading = true;
-                this.districtService.updateDistrict(district._id, result.data).subscribe({
+                this.districtService.updateDistrict(district.id, result.data).subscribe({
                     next: (response: ResponseFromBackend) => {
                         const updatedDistrict = ResponseHandlerUtil.extractData<District>(response);
-                        const index = this.districts.findIndex(d => d._id === district._id);
+                        const index = this.districts.findIndex(d => IdUtil.equals(d.id, district.id));
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.districts = [
@@ -268,10 +269,10 @@ export class DistrictsListComponent implements OnInit {
         confirmRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
                 this.isLoading = true;
-                this.districtService.deleteDistrict(district._id).subscribe({
+                this.districtService.deleteDistrict(district.id).subscribe({
                     next: (data) => {
                         // Удаляем район из списка без перезагрузки
-                        this.districts = this.districts.filter(d => d._id !== district._id);
+                        this.districts = this.districts.filter(d => d.id !== district.id);
                         this.totalCount--;
                         this.isLoading = false;
                         this.snackBar.open('Rayon / şəhər uğurla silindi', 'Bağla', this.matSnackConfig);
@@ -292,7 +293,7 @@ export class DistrictsListComponent implements OnInit {
             districtPage: this.pageIndex,
             districtPageSize: this.pageSize
         };
-        this.router.navigate(['/districts', district._id, 'schools'], {
+        this.router.navigate(['/districts', district.id, 'schools'], {
             queryParams
         });
     }

@@ -88,11 +88,11 @@ export class StatisticsMainComponent implements OnInit {
 
     // Options для select компонентов
     get districtOptions() {
-        return this.districts.map(d => ({ label: d.name, value: d._id }));
+        return this.districts.map(d => ({ label: d.name, value: d.id }));
     }
 
     get schoolOptions() {
-        return this.schools.map(s => ({ label: s.name, value: s._id }));
+        return this.schools.map(s => ({ label: s.name, value: s.id }));
     }
 
     get gradeOptions() {

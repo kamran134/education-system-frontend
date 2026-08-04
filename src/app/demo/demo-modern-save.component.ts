@@ -141,7 +141,7 @@ export class DemoModernSaveComponent {
 
   openSchoolDialog() {
     const school: School = {
-      _id: '',
+      id: '',
       code: 0,
       name: '',
       address: '',
@@ -156,13 +156,13 @@ export class DemoModernSaveComponent {
 
   openSchoolEditDialog() {
     const school: School = {
-      _id: '123',
+      id: '123',
       code: 12345,
       name: 'Bakı Məktəbi №1',
       address: 'Bakı şəhəri',
       active: true,
       district: {
-        _id: 'dist1',
+        id: 'dist1',
         name: 'Bakı',
         code: 1
       }
@@ -176,7 +176,7 @@ export class DemoModernSaveComponent {
 
   openStudentDialog() {
     const student: Partial<Student> = {
-      _id: '456',
+      id: '456',
       code: 12001,
       firstName: 'Ayşe',
       lastName: 'Əliyeva',
@@ -206,7 +206,7 @@ export class DemoModernSaveComponent {
 
   openUserEditDialog() {
     const user: UserEdit = {
-      _id: '789',
+      id: '789',
       email: 'admin@example.com',
       role: 'admin',
       isApproved: true

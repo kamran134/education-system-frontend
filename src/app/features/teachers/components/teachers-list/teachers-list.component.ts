@@ -14,6 +14,7 @@ import { District, DistrictResponse } from '../../../../core/models/district.mod
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
@@ -230,7 +231,7 @@ export class TeachersListComponent implements OnInit {
                 key: 'districts',
                 label: 'Rayonlar / şəhərlər',
                 type: 'multi-select',
-                options: this.districts.map(d => ({ value: d._id, label: d.name })),
+                options: this.districts.map(d => ({ value: d.id, label: d.name })),
                 placeholder: 'Rayonları seçin...',
                 searchable: true,
                 clearable: true,
@@ -240,7 +241,7 @@ export class TeachersListComponent implements OnInit {
                 key: 'schools',
                 label: 'Məktəblər',
                 type: 'multi-select',
-                options: this.schools.map(s => ({ value: s._id, label: s.name })),
+                options: this.schools.map(s => ({ value: s.id, label: s.name })),
                 placeholder: 'Məktəbləri seçin...',
                 searchable: true,
                 clearable: true,
@@ -320,7 +321,7 @@ export class TeachersListComponent implements OnInit {
             }
         });
 
-        this.router.navigate(['/teachers', teacher._id, 'students'], {
+        this.router.navigate(['/teachers', teacher.id, 'students'], {
             queryParams
         });
     }
@@ -406,7 +407,7 @@ export class TeachersListComponent implements OnInit {
                     this.schools = schools || [];
                     this.schoolOptions = this.schools.map(school => {
                         return {
-                            value: school._id,
+                            value: school.id,
                             label: school.name
                         };
                     });
@@ -432,7 +433,7 @@ export class TeachersListComponent implements OnInit {
                 next: (response: DistrictResponse) => {
                     this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
                     this.districtOptions = this.districts.map(district => ({
-                        value: district._id,
+                        value: district.id,
                         label: district.name
                     }));
                 },
@@ -481,7 +482,7 @@ export class TeachersListComponent implements OnInit {
 
         confirmRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
-                const teacherIds = this.teachers.map(s => s._id).join(",");
+                const teacherIds = this.teachers.map(s => s.id).join(",");
                 this.teacherService.deleteTeachers(teacherIds).subscribe({
                     next: (response) => {
                         this.loadTeachers();
@@ -539,14 +540,14 @@ export class TeachersListComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result) => {
             if (result?.action === 'delete') {
                 // Обработка удаления
-                this.handleTeacherDelete(teacher._id);
+                this.handleTeacherDelete(teacher.id);
             } else if (result?.action === 'save') {
                 // Обработка сохранения
                 this.isLoading = true;
                 this.teacherService.updateTeacher(result.data).subscribe({
                     next: (response) => {
                         const updatedTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
-                        const index = this.teachers.findIndex(s => s._id === result.data._id);
+                        const index = this.teachers.findIndex(s => IdUtil.equals(s.id, result.data.id));
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.teachers = [
@@ -568,7 +569,7 @@ export class TeachersListComponent implements OnInit {
         });
     }
 
-    private handleTeacherDelete(studentId: string): void {
+    private handleTeacherDelete(studentId: string | number): void {
         const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'Müəllimi silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nMüəllim silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
@@ -578,7 +579,7 @@ export class TeachersListComponent implements OnInit {
             if (result) {
                 this.teacherService.deleteTeacher(studentId).subscribe({
                     next: (response) => {
-                        this.teachers = this.teachers.filter(s => s._id !== studentId);
+                        this.teachers = this.teachers.filter(s => !IdUtil.equals(s.id, studentId));
                         this.snackBar.open(response.message || 'Müəllim uğurla silindi', 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {

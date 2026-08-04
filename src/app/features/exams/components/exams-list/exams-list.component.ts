@@ -367,7 +367,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result?.action === 'save') {
-                this.examService.updateExam(exam._id, result.data).subscribe({
+                this.examService.updateExam(exam.id, result.data).subscribe({
                     next: () => {
                         this.snackBar.open('İmtahan uğurla redaktə edildi', 'OK', this.matSnackConfig);
                         this.loadExams();
@@ -393,7 +393,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(result => {
             if (result) {
-                this.examService.deleteExam(exam._id).subscribe({
+                this.examService.deleteExam(exam.id).subscribe({
                     next: () => {
                         this.snackBar.open('İmtahan uğurla silindi', 'OK', this.matSnackConfig);
                         this.loadExams();

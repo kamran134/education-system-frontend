@@ -6,7 +6,7 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 import { CommonModule } from '@angular/common';
 
 interface DistrictData {
-    _id?: string;
+    id?: string;
     name: string;
     code: string;
     studentCount: number;

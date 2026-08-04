@@ -110,15 +110,15 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     }
 
     get districtOptions() {
-        return (this.districts || []).map(district => ({ label: district.name, value: district._id }));
+        return (this.districts || []).map(district => ({ label: district.name, value: district.id }));
     }
 
     get schoolOptions() {
-        return (this.schools || []).map(school => ({ label: school.name, value: school._id }));
+        return (this.schools || []).map(school => ({ label: school.name, value: school.id }));
     }
 
     get teacherOptions() {
-        return (this.teachers || []).map(teacher => ({ label: teacher.fullname, value: teacher._id }));
+        return (this.teachers || []).map(teacher => ({ label: teacher.fullname, value: teacher.id }));
     }
 
     get gradeOptionsForSelect() {
@@ -126,7 +126,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     }
 
     get examOptions() {
-        return (this.exams || []).map(exam => ({ label: exam.name, value: exam._id }));
+        return (this.exams || []).map(exam => ({ label: exam.name, value: exam.id }));
     }
 
     readonly levelOptions = [

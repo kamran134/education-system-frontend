@@ -31,7 +31,7 @@ export class StatsFilterService {
         this.selectedGrades$.next(grades);
     }
 
-    setExamId(examId: string | undefined): void {
+    setExamId(examId: string | number | undefined): void {
         this.selectedExamId$.next(examId);
     }
 

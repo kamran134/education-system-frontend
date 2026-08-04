@@ -72,8 +72,8 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     sortDirection: 'asc' | 'desc' = 'asc';
 
     // Filters
-    selectedExamId: string | null = null;
-    selectedDistrictId: string | null = null;
+    selectedExamId: string | number | null = null;
+    selectedDistrictId: string | number | null = null;
 
     // UI State
     filtersExpanded = true;
@@ -159,7 +159,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
                     if (this.exams.length > 0) {
-                        this.selectedExamId = this.exams[0]._id;
+                        this.selectedExamId = this.exams[0].id;
                     }
                     this.loadBooklets();
                 },
@@ -249,7 +249,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         const booklet = event.item as Booklet;
         switch (event.action) {
             case 'open-public':
-                window.open(`/public/booklets/${booklet._id}`, '_blank');
+                window.open(`/public/booklets/${booklet.id}`, '_blank');
                 break;
             case 'edit':
                 this.openEditDialog(booklet);
@@ -269,7 +269,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe((result: BookletEditDialogResult | null) => {
             if (!result) return;
             if (result.action === 'save' && result.data) {
-                this.bookletService.updateBooklet(booklet._id, result.data)
+                this.bookletService.updateBooklet(booklet.id, result.data)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe({
                         next: () => {
@@ -297,7 +297,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe((confirmed: boolean) => {
             if (!confirmed) return;
-            this.bookletService.deleteBooklet(booklet._id)
+            this.bookletService.deleteBooklet(booklet.id)
                 .pipe(takeUntil(this.destroy$))
                 .subscribe({
                     next: () => {

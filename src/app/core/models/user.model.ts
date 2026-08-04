@@ -6,7 +6,7 @@ export interface UserResponse {
 export type UserRole = "superadmin" | "admin" | "moderator" | "districtRepresenter" | "schoolDirector" | "teacher" | "student";
 
 export interface User {
-    _id: string;
+    id: number;
     email: string;
     passwordHash: string;
     role: UserRole;
@@ -18,7 +18,7 @@ export interface User {
 }
 
 export interface UserEdit {
-    _id: string;
+    id: number;
     email: string;
     password?: string;
     role: UserRole;

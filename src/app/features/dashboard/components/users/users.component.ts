@@ -218,7 +218,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
         confirmRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((confirmed: boolean) => {
             if (confirmed && this.authService.isAdminOrSuperAdmin()) {
-                this.dashboardService.deleteUser(user._id)
+                this.dashboardService.deleteUser(user.id)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe({
                         next: () => {

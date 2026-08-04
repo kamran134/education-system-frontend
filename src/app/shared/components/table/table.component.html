@@ -13,7 +13,7 @@
                 <button mat-raised-button class="mat-edit-button" *ngIf="isAdminOrSuperAdmin && actions?.edit" (click)="onUpdate(row)">
                     <mat-icon>edit</mat-icon> düzəliş et
                 </button>
-                <button mat-raised-button color="warn" *ngIf="isAdminOrSuperAdmin && actions?.delete" (click)="onDelete(row._id)">
+                <button mat-raised-button color="warn" *ngIf="isAdminOrSuperAdmin && actions?.delete" (click)="onDelete(row.id)">
                     <mat-icon>delete</mat-icon> sil
                 </button>
             </td>

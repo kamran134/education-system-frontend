@@ -9,6 +9,7 @@ import { School } from '../../../../core/models/school.model';
 import { CommonModule } from '@angular/common';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -62,33 +63,33 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
 
     get districtOptions(): SelectOption[] {
         return this.districts.map(district => ({
-            value: district._id,
+            value: district.id,
             label: district.name
         }));
     }
 
     get schoolOptions(): SelectOption[] {
         return this.schools.map(school => ({
-            value: school._id,
+            value: school.id,
             label: school.name
         }));
     }
 
-    get selectedDistrictId(): string {
-        return this.data.teacher.district?._id || '';
+    get selectedDistrictId(): string | number {
+        return this.data.teacher.district?.id || '';
     }
 
-    set selectedDistrictId(districtId: string) {
-        this.selectedDistrict = this.districts.find(d => d._id === districtId) || null;
+    set selectedDistrictId(districtId: string | number) {
+        this.selectedDistrict = this.districts.find(d => IdUtil.equals(d.id, districtId)) || null;
         this.onDistrictSelectChanged();
     }
 
-    get selectedSchoolId(): string {
-        return this.data.teacher.school?._id || '';
+    get selectedSchoolId(): string | number {
+        return this.data.teacher.school?.id || '';
     }
 
-    set selectedSchoolId(schoolId: string) {
-        this.selectedSchool = this.schools.find(s => s._id === schoolId) || null;
+    set selectedSchoolId(schoolId: string | number) {
+        this.selectedSchool = this.schools.find(s => IdUtil.equals(s.id, schoolId)) || null;
         this.onSchoolSelectChanged();
     }
 
@@ -151,7 +152,7 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (response) => {
                     this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                    this.selectedDistrict = this.districts.find(d => d._id === this.data.teacher.district?._id) || null;
+                    this.selectedDistrict = this.districts.find(d => IdUtil.equals(d.id, this.data.teacher.district?.id)) || null;
                     if (this.selectedDistrict) {
                         this.loadSchools(); // Загружаем школы только если район есть
                     }
@@ -163,12 +164,12 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
     }
 
     loadSchools(): void {
-        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id })
+        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?.id !== undefined ? String(this.selectedDistrict.id) : undefined })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response) => {
                     this.schools = ResponseHandlerUtil.extractData<School[]>(response);
-                    this.selectedSchool = this.schools.find(s => s._id === this.data.teacher.school?._id) || null;
+                    this.selectedSchool = this.schools.find(s => IdUtil.equals(s.id, this.data.teacher.school?.id)) || null;
                 },
                 error: (error) => {
                     console.error('error', error);

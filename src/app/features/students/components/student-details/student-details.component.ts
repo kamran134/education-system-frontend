@@ -74,7 +74,7 @@ export class StudentDetailsComponent implements OnInit {
         );
     }
 
-    trackByResultId(_: number, result: ExamResult): string { return result._id; }
+    trackByResultId(_: number, result: ExamResult): number { return result.id; }
 
     // Icons
     readonly ArrowLeft = ArrowLeft;
@@ -192,9 +192,9 @@ export class StudentDetailsComponent implements OnInit {
 
         dialogRef.afterClosed().subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
             if (response?.action === 'save' && response.data) {
-                this.updateResult(result._id, response.data);
+                this.updateResult(result.id, response.data);
             } else if (response?.action === 'delete') {
-                this.deleteResult(result._id);
+                this.deleteResult(result.id);
             }
         });
     }
@@ -202,7 +202,7 @@ export class StudentDetailsComponent implements OnInit {
     /**
      * Updates a student result via API
      */
-    private updateResult(resultId: string, editedResult: Partial<ExamResult>): void {
+    private updateResult(resultId: string | number, editedResult: Partial<ExamResult>): void {
         this.studentService.updateStudentResult(resultId, editedResult).subscribe({
             next: () => {
                 console.log('Nəticə uğurla yeniləndi');
@@ -217,7 +217,7 @@ export class StudentDetailsComponent implements OnInit {
     /**
      * Deletes a student result via API
      */
-    private deleteResult(resultId: string): void {
+    private deleteResult(resultId: string | number): void {
         this.studentService.deleteStudentResult(resultId).subscribe({
             next: () => {
                 console.log('Nəticə uğurla silindi');
@@ -290,7 +290,7 @@ export class StudentDetailsComponent implements OnInit {
         const formData = new FormData();
         formData.append('avatar', croppedImage, 'avatar.jpg');
 
-        this.studentService.uploadAvatar(this.student._id, formData).subscribe({
+        this.studentService.uploadAvatar(this.student.id, formData).subscribe({
             next: (response) => {
                 if (this.student) {
                     this.student.avatarUrl = response.avatarUrl;
@@ -320,7 +320,7 @@ export class StudentDetailsComponent implements OnInit {
 
         confirmRef.afterClosed().subscribe((confirmed: boolean) => {
             if (confirmed) {
-                this.studentService.deleteAvatar(this.student!._id).subscribe({
+                this.studentService.deleteAvatar(this.student!.id).subscribe({
                     next: () => {
                         if (this.student) {
                             this.student.avatarUrl = undefined;

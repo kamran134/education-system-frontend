@@ -19,6 +19,7 @@ import { ExamService } from '../../exams/services/exam.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ExcelService } from '../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../core/utils/id.util';
 import { ResultEditingDialogComponent } from '../../students/components/result-editing/result-editing-dialog.component';
 
 // UI Components
@@ -159,28 +160,28 @@ export class ExamResultsComponent implements OnInit {
 
     get districtOptions(): SelectOption[] {
         return this.districts.map(district => ({
-            value: district._id,
+            value: district.id,
             label: district.name
         }));
     }
 
     get schoolOptions(): SelectOption[] {
         return this.schools.map(school => ({
-            value: school._id,
+            value: school.id,
             label: school.name
         }));
     }
 
     get teacherOptions(): SelectOption[] {
         return this.teachers.map(teacher => ({
-            value: teacher._id,
+            value: teacher.id,
             label: teacher.fullname
         }));
     }
 
     get examOptions(): SelectOption[] {
         return this.exams.map(exam => ({
-            value: exam._id,
+            value: exam.id,
             label: `${exam.name} (${new Date(exam.date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
         }));
     }
@@ -367,7 +368,7 @@ export class ExamResultsComponent implements OnInit {
     }
 
     trackByColumnKey(_: number, col: { key: string }): string { return col.key; }
-    trackByResultId(_: number, result: ExamResult): string { return result._id; }
+    trackByResultId(_: number, result: ExamResult): number { return result.id; }
 
     getLevelBadgeClass(level: string): string {
         switch (level?.toLowerCase()) {
@@ -391,7 +392,7 @@ export class ExamResultsComponent implements OnInit {
 
         if (this.selectedDistrictIds.length > 0) {
             const names = this.selectedDistrictIds
-                .map(id => this.districts.find(d => d._id === id)?.name)
+                .map(id => this.districts.find(d => IdUtil.equals(d.id, id))?.name)
                 .filter((n): n is string => !!n)
                 .join(', ');
             if (names) parts.push(names);
@@ -427,21 +428,21 @@ export class ExamResultsComponent implements OnInit {
         });
         dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
             if (response?.action === 'save' && response.data) {
-                this.updateResult(result._id, response.data);
+                this.updateResult(result.id, response.data);
             } else if (response?.action === 'delete') {
-                this.deleteResult(result._id);
+                this.deleteResult(result.id);
             }
         });
     }
 
-    private updateResult(resultId: string, editedResult: Partial<ExamResult>): void {
+    private updateResult(resultId: string | number, editedResult: Partial<ExamResult>): void {
         this.examResultsService.updateStudentResult(resultId, editedResult).subscribe({
             next: () => { this.loadExamResults(); },
             error: (error: any) => { console.error('Xəta!', error); }
         });
     }
 
-    private deleteResult(resultId: string): void {
+    private deleteResult(resultId: string | number): void {
         this.examResultsService.deleteStudentResult(resultId).subscribe({
             next: () => { this.loadExamResults(); },
             error: (error: any) => { console.error('Xəta!', error); }

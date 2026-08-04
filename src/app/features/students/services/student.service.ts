@@ -73,7 +73,7 @@ export class StudentService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    getStudentById(studentId: string): Observable<StudentWithResultResponse> {
+    getStudentById(studentId: string | number): Observable<StudentWithResultResponse> {
         let url: string = `${this.configService.getApiUrl()}/students/${studentId}`;
         return this.http.get<ApiResponse<StudentWithResultResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -92,12 +92,12 @@ export class StudentService {
     }
 
     updateStudent(student: Student): Observable<StudentWithResult> {
-        const url: string = `${this.configService.getApiUrl()}/students/${student._id}`;
+        const url: string = `${this.configService.getApiUrl()}/students/${student.id}`;
         return this.http.put<ApiResponse<StudentWithResult>>(url, student, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteStudent(studentId: string): Observable<any> {
+    deleteStudent(studentId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/students/${studentId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -123,25 +123,25 @@ export class StudentService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateStudentResult(resultId: string, result: Partial<ExamResult>): Observable<ExamResult> {
+    updateStudentResult(resultId: string | number, result: Partial<ExamResult>): Observable<ExamResult> {
         const url: string = `${this.configService.getApiUrl()}/student-results/${resultId}`;
         return this.http.put<ApiResponse<ExamResult>>(url, result, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteStudentResult(resultId: string): Observable<any> {
+    deleteStudentResult(resultId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/student-results/${resultId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    uploadAvatar(studentId: string, formData: FormData): Observable<{ avatarUrl: string }> {
+    uploadAvatar(studentId: string | number, formData: FormData): Observable<{ avatarUrl: string }> {
         const url: string = `${this.configService.getApiUrl()}/students/${studentId}/avatar`;
         return this.http.post<ApiResponse<{ avatarUrl: string }>>(url, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteAvatar(studentId: string): Observable<any> {
+    deleteAvatar(studentId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/students/${studentId}/avatar`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));

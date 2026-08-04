@@ -8,6 +8,7 @@ import { SchoolService } from '../../services/school.service';
 import { School, SchoolForCreation } from '../../../../core/models/school.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -57,17 +58,17 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
 
     get districtOptions(): SelectOption[] {
         return this.districts.map(district => ({
-            value: district._id,
+            value: district.id,
             label: district.name
         }));
     }
 
-    get selectedDistrictId(): string {
-        return this.data.school.district?._id || '';
+    get selectedDistrictId(): string | number {
+        return this.data.school.district?.id || '';
     }
 
-    set selectedDistrictId(districtId: string) {
-        this.selectedDistrict = this.districts.find(d => d._id === districtId) || null;
+    set selectedDistrictId(districtId: string | number) {
+        this.selectedDistrict = this.districts.find(d => IdUtil.equals(d.id, districtId)) || null;
         this.onDistrictSelectChanged();
     }
 
@@ -109,7 +110,7 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
         this.loadDistricts();
         if (!this.data.isEditing) {
             this.data.school = {
-                _id: '',
+                id: '',
                 code: 0,
                 name: '',
                 address: '',
@@ -132,7 +133,7 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (response) => {
                     this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                    this.selectedDistrict = this.districts.find(d => d._id === this.data.school.district?._id) || null;
+                    this.selectedDistrict = this.districts.find(d => IdUtil.equals(d.id, this.data.school.district?.id)) || null;
                 },
                 error: (error) => {
                     console.error('error', error);

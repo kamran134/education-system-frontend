@@ -9,7 +9,7 @@ export interface DistrictResponse {
 export interface DistrictApiResponse extends ApiResponse<{ data: District[], totalCount: number }> {}
 
 export interface District {
-    _id: string;
+    id: number;
     name: string;
     code: number;
     region: string;

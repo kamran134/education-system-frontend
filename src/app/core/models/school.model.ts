@@ -10,7 +10,7 @@ export interface SchoolResponse {
 export interface SchoolApiResponse extends ApiResponse<{ data: School[], totalCount: number }> {}
 
 export interface School {
-    _id: string;
+    id: number;
     name: string;
     address: string;
     code: number;

@@ -129,7 +129,7 @@ export class ProfileHeaderComponent implements OnInit {
         });
     }
 
-    private uploadForRole(role: string, entityId: string, croppedImage: Blob): Observable<{ avatarUrl: string }> | null {
+    private uploadForRole(role: string, entityId: number, croppedImage: Blob): Observable<{ avatarUrl: string }> | null {
         const formData = new FormData();
         formData.append('avatar', croppedImage, 'avatar.jpg');
 

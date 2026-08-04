@@ -68,7 +68,7 @@ export class BookletUploadDialogComponent {
 
         this.isUploading = true;
 
-        this.bookletService.uploadBooklets(this.file, this.data.exam._id).subscribe({
+        this.bookletService.uploadBooklets(this.file, this.data.exam.id).subscribe({
             next: (result) => {
                 this.isUploading = false;
                 if (result.errors && result.errors.length > 0) {

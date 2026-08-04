@@ -21,7 +21,7 @@ import { TableColumn } from '../../models/tableColumn.model';
   templateUrl: './reusable-stats-table.component.html',
   styleUrls: []
 })
-export class ReusableStatsTableComponent<T extends { _id: string }> implements OnInit, OnChanges {
+export class ReusableStatsTableComponent<T extends { id: number }> implements OnInit, OnChanges {
     @Input() data: T[] = [];
     @Input() tableColumns: TableColumn[] = [];
     @Input() totalCount: number = 0;
@@ -34,6 +34,8 @@ export class ReusableStatsTableComponent<T extends { _id: string }> implements O
     @Output() pageChanged = new EventEmitter<PageEvent>();
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
+
+    readonly String = String;
 
     displayedColumns: string[] = [];
     dataSource = new MatTableDataSource<T>([]);

@@ -51,7 +51,7 @@
             </ng-container>
     
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns;" class="clickable-row" (click)="onRowClick(row.student._id)"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns;" class="clickable-row" (click)="onRowClick(row.student.id)"></tr>
       </table>
     </mat-card-content>
   </mat-card>

@@ -29,6 +29,7 @@ import { DistrictService } from '../../../districts/services/district.service';
     styleUrl: './districts-year-tab.component.scss'
 })
 export class DistrictsYearTabComponent {
+    readonly String = String;
     @Input() districts: District[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;

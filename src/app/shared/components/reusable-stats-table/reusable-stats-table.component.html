@@ -8,7 +8,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="rowClicked.emit(row._id)" [class.clickable-row]="rowClicked.observed"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="rowClicked.emit(String(row.id))" [class.clickable-row]="rowClicked.observed"></tr>
     </table>
 
     <div *ngIf="!isLoading && data.length > 0 && showPaginator">

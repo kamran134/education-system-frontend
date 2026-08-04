@@ -21,6 +21,7 @@ import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { connectSearchDebounce } from '../../../../core/utils/debounce.util';
 
 // UI Components
@@ -460,7 +461,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             next: (districts: any) => {
                 this.districts = districts || [];
                 this.districtOptions = this.districts.map(district => ({
-                    value: district._id,
+                    value: district.id,
                     label: district.name
                 }));
             },
@@ -485,7 +486,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             next: (schools: any) => {
                 this.schools = schools || [];
                 this.schoolOptions = this.schools.map(school => ({
-                    value: school._id,
+                    value: school.id,
                     label: school.name
                 }));
             },
@@ -510,7 +511,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             next: (teachers: any) => {
                 this.teachers = teachers || [];
                 this.teacherOptions = this.teachers.map(teacher => ({
-                    value: teacher._id,
+                    value: teacher.id,
                     label: teacher.fullname
                 }));
             },
@@ -565,14 +566,14 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe(result => {
             if (result?.action === 'delete') {
                 // Обработка удаления
-                this.handleStudentDelete(student._id);
+                this.handleStudentDelete(student.id);
             } else if (result?.action === 'save') {
                 // Обработка сохранения
                 this.isLoading = true;
                 this.studentService.updateStudent(result.data).subscribe({
                     next: (response: any) => {
                         const updatedStudent = ResponseHandlerUtil.extractData<Student>(response);
-                        const index = this.students.findIndex(s => s._id === result.data._id);
+                        const index = this.students.findIndex(s => IdUtil.equals(s.id, result.data.id));
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.students = [
@@ -593,7 +594,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         });
     }
 
-    private handleStudentDelete(studentId: string): void {
+    private handleStudentDelete(studentId: string | number): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             width: '400px',
             data: {
@@ -608,7 +609,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 this.studentService.deleteStudent(studentId).subscribe({
                     next: () => {
                         // Удаляем студента из списка без перезагрузки
-                        this.students = this.students.filter(s => s._id !== studentId);
+                        this.students = this.students.filter(s => !IdUtil.equals(s.id, studentId));
                         this.totalCount--;
                         this.isLoading = false;
                         this.snackBar.open('Şagird uğurla silindi', 'OK', this.matSnackConfig);
@@ -646,7 +647,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
         confirmRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
-                const studentIds = this.students.map(s => s._id).join(",");
+                const studentIds = this.students.map(s => s.id).join(",");
                 this.studentService.deleteStudents(studentIds).subscribe({
                     next: (response) => {
                         this.loadStudents();
@@ -709,7 +710,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 queryParams.fromDistrictId = currentParams['fromDistrictId'];
             }
 
-            this.router.navigate(['/students', student._id], { queryParams });
+            this.router.navigate(['/students', student.id], { queryParams });
         });
     }
 

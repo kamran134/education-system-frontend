@@ -8,7 +8,7 @@ export interface ExamResponse {
 export interface ExamApiResponse extends ApiResponse<{ data: Exam[], totalCount: number }> {}
 
 export interface Exam {
-    _id: string;
+    id: number;
     name: string;
     code: number;
     date: Date;

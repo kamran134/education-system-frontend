@@ -327,8 +327,8 @@ export class DataTableComponent {
 
   trackByColumnKey(_: number, col: TableColumn): string { return col.key; }
   trackByItemId(index: number, item: unknown): unknown {
-    const i = item as { _id?: unknown; id?: unknown };
-    return i._id ?? i.id ?? index;
+    const i = item as { id?: unknown };
+    return i.id ?? index;
   }
   trackByActionKey(_: number, action: TableAction): string { return action.key; }
   trackByPageSizeValue(_: number, opt: PageSizeOption): number { return opt.value; }

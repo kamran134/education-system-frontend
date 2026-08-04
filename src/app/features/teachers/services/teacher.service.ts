@@ -54,7 +54,7 @@ export class TeacherService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    getTeacherById(teacherId: string): Observable<any> {
+    getTeacherById(teacherId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}`;
         return this.http.get<ApiResponse<any>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -83,12 +83,12 @@ export class TeacherService {
     }
 
     updateTeacher(teacher: Teacher): Observable<any> {
-        const url: string = `${this.configService.getApiUrl()}/teachers/${teacher._id}`;
+        const url: string = `${this.configService.getApiUrl()}/teachers/${teacher.id}`;
         return this.http.put<ApiResponse<any>>(url, teacher, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteTeacher(teacherId: string): Observable<any> {
+    deleteTeacher(teacherId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -133,13 +133,13 @@ export class TeacherService {
         ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    uploadAvatar(teacherId: string, formData: FormData): Observable<{ avatarUrl: string }> {
+    uploadAvatar(teacherId: string | number, formData: FormData): Observable<{ avatarUrl: string }> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/avatar`;
         return this.http.post<ApiResponse<{ avatarUrl: string }>>(url, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteAvatar(teacherId: string): Observable<any> {
+    deleteAvatar(teacherId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/avatar`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));

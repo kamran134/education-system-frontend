@@ -11,6 +11,7 @@ import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -72,21 +73,21 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
 
     get districtOptions(): SelectOption[] {
         return this.districts.map(district => ({
-            value: district._id,
+            value: district.id,
             label: district.name
         }));
     }
 
     get schoolOptions(): SelectOption[] {
         return this.schools.map(school => ({
-            value: school._id,
+            value: school.id,
             label: school.name
         }));
     }
 
     get teacherOptions(): SelectOption[] {
         return this.teachers.map(teacher => ({
-            value: teacher._id,
+            value: teacher.id,
             label: teacher.fullname
         }));
     }
@@ -98,30 +99,30 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
         }));
     }
 
-    get selectedDistrictId(): string {
-        return this.data.student.district?._id || '';
+    get selectedDistrictId(): string | number {
+        return this.data.student.district?.id || '';
     }
 
-    set selectedDistrictId(districtId: string) {
-        this.selectedDistrict = this.districts.find(d => d._id === districtId) || null;
+    set selectedDistrictId(districtId: string | number) {
+        this.selectedDistrict = this.districts.find(d => IdUtil.equals(d.id, districtId)) || null;
         this.onDistrictSelectChanged();
     }
 
-    get selectedSchoolId(): string {
-        return this.data.student.school?._id || '';
+    get selectedSchoolId(): string | number {
+        return this.data.student.school?.id || '';
     }
 
-    set selectedSchoolId(schoolId: string) {
-        this.selectedSchool = this.schools.find(s => s._id === schoolId) || null;
+    set selectedSchoolId(schoolId: string | number) {
+        this.selectedSchool = this.schools.find(s => IdUtil.equals(s.id, schoolId)) || null;
         this.onSchoolSelectChanged();
     }
 
-    get selectedTeacherId(): string {
-        return this.data.student.teacher?._id || '';
+    get selectedTeacherId(): string | number {
+        return this.data.student.teacher?.id || '';
     }
 
-    set selectedTeacherId(teacherId: string) {
-        this.selectedTeacher = this.teachers.find(t => t._id === teacherId) || null;
+    set selectedTeacherId(teacherId: string | number) {
+        this.selectedTeacher = this.teachers.find(t => IdUtil.equals(t.id, teacherId)) || null;
         this.onTeacherSelectChanged();
     }
 
@@ -178,7 +179,7 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (response) => {
                     this.districts = ResponseHandlerUtil.extractData<District[]>(response);
-                    this.selectedDistrict = this.districts.find(d => d._id === this.data.student.district?._id) || null;
+                    this.selectedDistrict = this.districts.find(d => IdUtil.equals(d.id, this.data.student.district?.id)) || null;
                     if (this.selectedDistrict) {
                         this.loadSchools(); // Загружаем школы только если район есть
                     }
@@ -190,12 +191,12 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
     }
 
     loadSchools(): void {
-        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?._id })
+        this.schoolService.getSchoolsForFilter({ districtIds: this.selectedDistrict?.id !== undefined ? String(this.selectedDistrict.id) : undefined })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response) => {
                     this.schools = ResponseHandlerUtil.extractData<School[]>(response);
-                    this.selectedSchool = this.schools.find(s => s._id === this.data.student.school?._id) || null;
+                    this.selectedSchool = this.schools.find(s => IdUtil.equals(s.id, this.data.student.school?.id)) || null;
                     if (this.selectedSchool) {
                         this.loadTeachers(); // Загружаем учителей только если школа есть
                     }
@@ -207,12 +208,12 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
     }
 
     loadTeachers(): void {
-        this.teacherService.getTeachersForFilter({ schoolIds: this.selectedSchool?._id })
+        this.teacherService.getTeachersForFilter({ schoolIds: this.selectedSchool?.id !== undefined ? String(this.selectedSchool.id) : undefined })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (response) => {
                     this.teachers = ResponseHandlerUtil.extractData<Teacher[]>(response);
-                    this.selectedTeacher = this.teachers.find(t => t._id === this.data.student.teacher?._id) || null;
+                    this.selectedTeacher = this.teachers.find(t => IdUtil.equals(t.id, this.data.student.teacher?.id)) || null;
                 },
                 error: (error) => {
                     console.error('error', error);

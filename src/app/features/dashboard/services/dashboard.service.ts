@@ -52,21 +52,21 @@ export class DashboardService {
         );
     }
 
-    deleteUser(id: string): Observable<{message: string}> {
+    deleteUser(id: string | number): Observable<{message: string}> {
         const url = `${this.configService.getApiUrl()}/users/${id}`;
         return this.http.delete<{message: string}>(url, { withCredentials: true }).pipe(
             catchError(this.handleError.bind(this))
         );
     }
 
-    changeUserPassword(id: string, newPassword: string): Observable<{message: string}> {
+    changeUserPassword(id: string | number, newPassword: string): Observable<{message: string}> {
         const url = `${this.configService.getApiUrl()}/users/${id}/password`;
         return this.http.put<{message: string}>(url, { newPassword }, { withCredentials: true }).pipe(
             catchError(this.handleError.bind(this))
         );
     }
 
-    getRatingColumns(id: string): Observable<UserSettings> {
+    getRatingColumns(id: string | number): Observable<UserSettings> {
         const url = `${this.configService.getApiUrl()}/user-settings?userId=${id}`;
         return this.http.get<ApiResponse<UserSettings>>(url, { withCredentials: true }).pipe(
             map(response => ResponseHandlerUtil.extractData<UserSettings>(response)),

@@ -169,12 +169,12 @@ export class AuthService {
                 tap(response => {
                     if (response.success && response.data) {
                         localStorage.setItem('token', response.data.token);
-                        localStorage.setItem('id', response.data.user.id);
+                        localStorage.setItem('id', String(response.data.user.id));
                         localStorage.setItem('role', response.data.user.role);
 
                         // Обновляем состояние
                         this.authStatus.next(true);
-                        this.userId.next(response.data.user.id);
+                        this.userId.next(String(response.data.user.id));
                         this.userRole.next(response.data.user.role);
 
                         this.router.navigate(['/admin']);
@@ -227,10 +227,10 @@ export class AuthService {
                 tap(response => {
                     if (response.success && response.data) {
                         if (isPlatformBrowser(this.platformId)) {
-                            localStorage.setItem('id', response.data.id);
+                            localStorage.setItem('id', String(response.data.id));
                             localStorage.setItem('role', response.data.role);
                         }
-                        this.userId.next(response.data.id);
+                        this.userId.next(String(response.data.id));
                         this.userRole.next(response.data.role);
                         this.currentUserData.next(response.data); // Сохраняем полные данные пользователя
                         this.authStatus.next(true);

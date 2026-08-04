@@ -28,6 +28,7 @@ import { TeacherService } from '../../../teachers/services/teacher.service';
     styleUrl: './teachers-year-tab.component.scss'
 })
 export class TeachersYearTabComponent {
+    readonly String = String;
     @Input() teachers: Teacher[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;

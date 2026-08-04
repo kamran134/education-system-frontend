@@ -332,7 +332,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     }
 
     isNewUser(): boolean {
-        return !this.dataSource._id;
+        return !this.dataSource.id;
     }
 
     // Search methods
@@ -390,7 +390,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
                 next: (response) => {
                     const districts = response.data || [];
                     this.districtOptions = districts.map((d: District) => ({
-                        value: d._id,
+                        value: d.id,
                         label: `${d.name}`
                     }));
                 },
@@ -414,7 +414,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
                 next: (response) => {
                     const schools = response.data || [];
                     this.schoolOptions = schools.map((s: School) => ({
-                        value: s._id,
+                        value: s.id,
                         label: `${s.name} (${s.code})`
                     }));
                 },
@@ -438,7 +438,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
                 next: (response) => {
                     const teachers = response.data || [];
                     this.teacherOptions = teachers.map((t: Teacher) => ({
-                        value: t._id,
+                        value: t.id,
                         label: `${t.fullname} (${t.code})`
                     }));
                 },
@@ -464,7 +464,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
                     const students = Array.isArray(response) ? response : (response.data || []);
                     console.log('Student search response:', students);
                     this.studentOptions = students.map((s: Student) => ({
-                        value: s._id,
+                        value: s.id,
                         label: `${s.lastName} ${s.firstName} ${s.middleName} (${s.code})`
                     }));
                 },
@@ -491,7 +491,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         }
 
         this.isPasswordChanging = true;
-        this.dashboardService.changeUserPassword(this.dataSource._id!, this.newPasswordForEdit)
+        this.dashboardService.changeUserPassword(this.dataSource.id!, this.newPasswordForEdit)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: () => {

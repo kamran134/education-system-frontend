@@ -10,7 +10,7 @@ interface IDisciplines {
 }
 
 export interface ExamResult {
-    _id: string;
+    id: number;
     disciplines?: IDisciplines;
     questionCounts?: IDisciplines;
     exam: Exam | null;

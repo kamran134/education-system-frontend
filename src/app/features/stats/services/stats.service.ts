@@ -155,7 +155,7 @@ export class StatsService {
 
     getStatsByExam(exam: Exam[]): Observable<StatsResponse> {
         // Используем первый экзамен из массива для получения статистики
-        const examId = exam.length > 0 ? exam[0]._id : '';
+        const examId = exam.length > 0 ? exam[0].id : '';
         let url: string = `${this.configService.getApiUrl()}/stats/by-exam/${examId}`;
         return this.http.get<ApiResponse<StatsResponse>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));

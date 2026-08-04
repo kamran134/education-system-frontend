@@ -378,8 +378,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     }
                     // Автоматически устанавливаем фильтры для директора
                     this.selectedSchoolIds = [this.currentUser.schoolId];
-                    if (school.district?._id) {
-                        this.selectedDistrictIds = [school.district._id];
+                    if (school.district?.id) {
+                        this.selectedDistrictIds = [school.district.id];
                     }
                     // Reload current tab now that filters are set
                     this.reloadCurrentTab();
@@ -405,12 +405,12 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.currentUserName = teacher.fullname;
                     // Автоматически устанавливаем фильтры для учителя
                     this.selectedTeacherIds = [this.currentUser.teacherId];
-                    if (teacher.school?._id) {
-                        this.selectedSchoolIds = [teacher.school._id];
+                    if (teacher.school?.id) {
+                        this.selectedSchoolIds = [teacher.school.id];
                         this.currentSchoolName = teacher.school.name;
                     }
-                    if (teacher.district?._id) {
-                        this.selectedDistrictIds = [teacher.district._id];
+                    if (teacher.district?.id) {
+                        this.selectedDistrictIds = [teacher.district.id];
                         this.currentDistrictName = teacher.district.name;
                     }
                     // Reload current tab now that filters are set

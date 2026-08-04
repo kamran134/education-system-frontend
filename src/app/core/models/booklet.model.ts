@@ -9,20 +9,20 @@ export interface BookletDisciplines {
 }
 
 export interface BookletDistrict {
-    _id: string;
+    id: number;
     name: string;
     code: number;
 }
 
 export interface BookletExam {
-    _id: string;
+    id: number;
     name: string;
     code: number;
     date: string;
 }
 
 export interface Booklet {
-    _id: string;
+    id: number;
     exam: BookletExam | string;
     variant: string;
     grade: number;

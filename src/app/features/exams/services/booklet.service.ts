@@ -13,8 +13,8 @@ export interface BookletUploadResult {
 }
 
 export interface BookletListParams {
-    examId?: string;
-    districtId?: string;
+    examId?: string | number;
+    districtId?: string | number;
     page?: number;
     size?: number;
     sortColumn?: string;
@@ -31,10 +31,10 @@ export class BookletService {
         private configService: ConfigService
     ) {}
 
-    uploadBooklets(file: File, examId: string): Observable<BookletUploadResult> {
+    uploadBooklets(file: File, examId: string | number): Observable<BookletUploadResult> {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('examId', examId);
+        formData.append('examId', String(examId));
 
         return this.http
             .post<ApiResponse<BookletUploadResult>>(
@@ -60,7 +60,7 @@ export class BookletService {
             .pipe(map(response => ResponseHandlerUtil.extractData<BookletResponse>(response)));
     }
 
-    getBookletById(id: string): Observable<Booklet> {
+    getBookletById(id: string | number): Observable<Booklet> {
         return this.http
             .get<ApiResponse<Booklet>>(
                 `${this.configService.getApiUrl()}/booklets/${id}`,
@@ -70,13 +70,13 @@ export class BookletService {
     }
 
     /** Public endpoint — no credentials required */
-    getBookletPublic(id: string): Observable<Booklet> {
+    getBookletPublic(id: string | number): Observable<Booklet> {
         return this.http
             .get<ApiResponse<Booklet>>(`${this.configService.getApiUrl()}/booklets/public/${id}`)
             .pipe(map(response => ResponseHandlerUtil.extractData<Booklet>(response)));
     }
 
-    updateBooklet(id: string, data: { name?: string; districtId?: string }): Observable<Booklet> {
+    updateBooklet(id: string | number, data: { name?: string; districtId?: string | number }): Observable<Booklet> {
         return this.http
             .put<ApiResponse<Booklet>>(
                 `${this.configService.getApiUrl()}/booklets/${id}`,
@@ -86,7 +86,7 @@ export class BookletService {
             .pipe(map(response => ResponseHandlerUtil.extractData<Booklet>(response)));
     }
 
-    deleteBooklet(id: string): Observable<any> {
+    deleteBooklet(id: string | number): Observable<any> {
         return this.http
             .delete<ApiResponse<any>>(
                 `${this.configService.getApiUrl()}/booklets/${id}`,

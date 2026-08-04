@@ -15,7 +15,7 @@ export interface BookletEditDialogData {
 
 export interface BookletEditDialogResult {
     action: 'save' | 'delete';
-    data?: { name?: string; district?: string };
+    data?: { name?: string; district?: string | number };
 }
 
 @Component({
@@ -26,7 +26,7 @@ export interface BookletEditDialogResult {
 })
 export class BookletEditDialogComponent implements OnInit {
     name: string;
-    selectedDistrictId: string;
+    selectedDistrictId: string | number;
     districts: District[] = [];
 
     constructor(
@@ -36,7 +36,7 @@ export class BookletEditDialogComponent implements OnInit {
     ) {
         this.name = data.booklet.name ?? '';
         const d = data.booklet.district;
-        this.selectedDistrictId = d ? (typeof d === 'object' ? (d as BookletDistrict)._id : d) : '';
+        this.selectedDistrictId = d ? (typeof d === 'object' ? (d as BookletDistrict).id : d) : '';
     }
 
     ngOnInit(): void {

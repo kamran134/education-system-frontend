@@ -95,12 +95,12 @@ export class ExamResultsService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response) as ExamResultsResponse));
     }
 
-    updateStudentResult(resultId: string, result: any): Observable<any> {
+    updateStudentResult(resultId: string | number, result: any): Observable<any> {
         return this.http.put<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/${resultId}`, result)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteStudentResult(resultId: string): Observable<any> {
+    deleteStudentResult(resultId: string | number): Observable<any> {
         return this.http.delete<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/${resultId}`)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }

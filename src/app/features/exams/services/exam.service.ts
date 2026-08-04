@@ -62,28 +62,28 @@ export class ExamService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    uploadResults(file: File, examId: string): Observable<any> {
+    uploadResults(file: File, examId: string | number): Observable<any> {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('examId', examId);
+        formData.append('examId', String(examId));
 
         return this.http.post<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/upload`, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteResults(examId: string): Observable<any> {
+    deleteResults(examId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/student-results/exam/${examId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteExam(examId: string): Observable<any> {
+    deleteExam(examId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/exams/${examId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateExam(examId: string, exam: Partial<Exam>): Observable<Exam> {
+    updateExam(examId: string | number, exam: Partial<Exam>): Observable<Exam> {
         const url: string = `${this.configService.getApiUrl()}/exams/${examId}`;
         return this.http.put<ApiResponse<Exam>>(url, exam, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -105,7 +105,7 @@ export class ExamService {
         ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    exportResultsAsJson(examId?: string): Observable<Blob> {
+    exportResultsAsJson(examId?: string | number): Observable<Blob> {
         const base: string = `${this.configService.getApiUrl()}/student-results/export`;
         const url: string = examId ? `${base}?examId=${examId}` : base;
         return this.http.get(url, { responseType: 'blob', withCredentials: true });

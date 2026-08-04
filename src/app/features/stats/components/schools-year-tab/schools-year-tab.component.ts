@@ -29,6 +29,7 @@ import { SchoolService } from '../../../schools/services/school.service';
     styleUrl: './schools-year-tab.component.scss'
 })
 export class SchoolsYearTabComponent {
+    readonly String = String;
     @Input() schools: School[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;

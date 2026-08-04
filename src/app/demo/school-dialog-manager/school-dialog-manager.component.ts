@@ -59,13 +59,13 @@ export class SchoolDialogManagerComponent {
     openEditSchoolDialog(): void {
         // Simulate existing school data
         const existingSchool: SchoolModel = {
-            _id: '1',
+            id: '1',
             name: 'Example School',
             code: 123,
             address: 'Example Address',
             districtCode: 1,
             district: {
-                _id: '1',
+                id: '1',
                 name: 'Example District',
                 code: 1,
                 region: 'Example Region',
@@ -100,7 +100,7 @@ export class SchoolDialogManagerComponent {
     
     private openSchoolFormDialog(school: SchoolModel | null, isEditing: boolean): void {
         const formData = school ? { ...school } : {
-            _id: '',
+            id: '',
             name: '',
             code: 0,
             address: '',
@@ -202,7 +202,7 @@ export class SchoolDialogManagerComponent {
                     <label class="block text-sm font-medium text-gray-700 mb-1">Rayon</label>
                     <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
                         <option value="">Rayon seçin</option>
-                        <option value="1" ${school.district?._id === '1' ? 'selected' : ''}>Nümunə rayon</option>
+                        <option value="1" ${school.district?.id === '1' ? 'selected' : ''}>Nümunə rayon</option>
                     </select>
                 </div>
                 

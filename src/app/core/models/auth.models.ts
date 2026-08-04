@@ -24,14 +24,14 @@ export interface RefreshResponse {
 export interface LoginResponse {
     token: string;
     user: {
-        id: string;
+        id: number;
         role: string;
         email: string;
     };
 }
 
 export interface UserInfo {
-    id: string;
+    id: number;
     email: string;
     role: string;
     isApproved: boolean;
@@ -45,7 +45,7 @@ export interface UserInfo {
  * поля читаются выборочно в зависимости от роли, см. ProfileHeaderComponent.
  */
 export interface ProfileSummary {
-    entityId: string;
+    entityId: number;
     avatarUrl?: string;
     fullName?: string;    // student, teacher
     name?: string;         // school, district

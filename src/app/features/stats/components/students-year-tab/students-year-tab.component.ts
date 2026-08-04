@@ -29,6 +29,7 @@ import { StatsService } from '../../services/stats.service';
     styleUrl: './students-year-tab.component.scss'
 })
 export class StudentsYearTabComponent implements OnChanges {
+    readonly String = String;
     @Input() students: Student[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;

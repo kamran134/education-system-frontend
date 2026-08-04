@@ -11,7 +11,7 @@ export interface TeacherResponse {
 export interface TeacherApiResponse extends ApiResponse<{ data: Teacher[], totalCount: number }> {}
 
 export interface Teacher {
-    _id: string;
+    id: number;
     fullname: string;
     code: number;
     school: School;

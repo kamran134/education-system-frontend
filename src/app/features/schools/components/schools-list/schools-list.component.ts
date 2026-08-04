@@ -10,6 +10,7 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -195,7 +196,7 @@ export class SchoolsListComponent implements OnInit {
             next: (response: DistrictResponse) => {
                 this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
                 this.districtOptions = this.districts.map(district => ({
-                    value: district._id,
+                    value: district.id,
                     label: district.name
                 }));
             },
@@ -211,7 +212,7 @@ export class SchoolsListComponent implements OnInit {
                 type: 'multi-select',
                 key: 'districtIds',
                 label: 'Rayon / şəhər seçin',
-                options: this.districts.map(d => ({ value: d._id, label: d.name })),
+                options: this.districts.map(d => ({ value: d.id, label: d.name })),
                 placeholder: 'Rayonları seçin...',
                 searchable: true,
                 clearable: true
@@ -305,7 +306,7 @@ export class SchoolsListComponent implements OnInit {
             schoolPage: this.pageIndex,
             schoolPageSize: this.pageSize,
             selectedDistrictIds: this.selectedDistrictIds.join(','),
-            fromSchoolId: school._id  // Remember which school we're viewing
+            fromSchoolId: school.id  // Remember which school we're viewing
         };
 
         // If we came from districts, preserve district state
@@ -321,7 +322,7 @@ export class SchoolsListComponent implements OnInit {
             }
         });
 
-        this.router.navigate(['/schools', school._id, 'teachers'], {
+        this.router.navigate(['/schools', school.id, 'teachers'], {
             queryParams
         });
     }
@@ -371,7 +372,7 @@ export class SchoolsListComponent implements OnInit {
                 this.schoolService.updateSchool(result.data).subscribe({
                     next: (response) => {
                         const updatedSchool = ResponseHandlerUtil.extractData<School>(response);
-                        const index = this.schools.findIndex(s => s._id === result.data._id);
+                        const index = this.schools.findIndex(s => IdUtil.equals(s.id, result.data.id));
                         if (index !== -1) {
                             // Создаем новый массив для триггера change detection
                             this.schools = [
@@ -404,7 +405,7 @@ export class SchoolsListComponent implements OnInit {
 
         confirmRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
-                this.schoolService.deleteSchool(school._id).subscribe({
+                this.schoolService.deleteSchool(school.id).subscribe({
                     next: (data) => {
                         this.loadSchools();
                         this.snackBar.open('Məktəb uğurla silindi', 'Bağla', this.matSnackConfig);
@@ -429,7 +430,7 @@ export class SchoolsListComponent implements OnInit {
 
         confirmRef.afterClosed().subscribe((result: boolean) => {
             if (result) {
-                const schoolIds = this.schools.map(s => s._id).join(",");
+                const schoolIds = this.schools.map(s => s.id).join(",");
                 this.schoolService.deleteSchools(schoolIds).subscribe({
                     next: (response) => {
                         this.loadSchools();

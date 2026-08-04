@@ -46,7 +46,7 @@ export class DistrictService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    getDistrictById(districtId: string): Observable<any> {
+    getDistrictById(districtId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.get<ApiResponse<any>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -58,13 +58,13 @@ export class DistrictService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateDistrict(districtId: string, district: {name: string, code: number, studentCount: number}): Observable<any> {
+    updateDistrict(districtId: string | number, district: {name: string, code: number, studentCount: number}): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.put<ApiResponse<any>>(url, district, { withCredentials: true })
             .pipe(map(response => response));
     }
 
-    deleteDistrict(districtId: string): Observable<any> {
+    deleteDistrict(districtId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -76,13 +76,13 @@ export class DistrictService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    uploadAvatar(districtId: string, formData: FormData): Observable<{ avatarUrl: string }> {
+    uploadAvatar(districtId: string | number, formData: FormData): Observable<{ avatarUrl: string }> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}/avatar`;
         return this.http.post<ApiResponse<{ avatarUrl: string }>>(url, formData, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    deleteAvatar(districtId: string): Observable<any> {
+    deleteAvatar(districtId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}/avatar`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
