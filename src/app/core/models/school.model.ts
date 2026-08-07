@@ -26,6 +26,10 @@ export interface School {
     active: boolean;
     ratings?: YearRating[];
     avatarUrl?: string;
+    // Только в ответе updateSchool, когда меняется code — сколько учителей и их учеников
+    // автоматически перекодировано каскадом (PHASE3_PLAN.md п.4).
+    cascadedTeachersCount?: number;
+    cascadedStudentsCount?: number;
 }
 
 export interface SchoolForCreation {

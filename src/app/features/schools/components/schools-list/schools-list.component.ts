@@ -382,7 +382,12 @@ export class SchoolsListComponent implements OnInit {
                             ];
                         }
                         this.isLoading = false;
-                        this.snackBar.open(response.message || 'Məktəb uğurla yeniləndi', 'Bağla', this.matSnackConfig);
+                        const baseMessage = response.message || 'Məktəb uğurla yeniləndi';
+                        const cascadeParts: string[] = [];
+                        if (updatedSchool.cascadedTeachersCount) cascadeParts.push(`${updatedSchool.cascadedTeachersCount} müəllimin`);
+                        if (updatedSchool.cascadedStudentsCount) cascadeParts.push(`${updatedSchool.cascadedStudentsCount} şagirdin`);
+                        const cascadeMessage = cascadeParts.length ? ` (${cascadeParts.join(' və ')} kodu avtomatik yeniləndi)` : '';
+                        this.snackBar.open(baseMessage + cascadeMessage, 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);

@@ -93,6 +93,29 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
         this.onSchoolSelectChanged();
     }
 
+    // Kod = məktəbin kodu (prefiks) + fərdi hissə (son 2 rəqəm). Redaktə zamanı yalnız fərdi
+    // hissə dəyişilə bilər — prefiksi əl ilə dəyişmək backend-də rədd olunur (PHASE3 п.4: kaskad
+    // yalnız Məktəb sahəsindən keçir, kodun özündən yox). Yaratma zamanı məhdudiyyət yoxdur —
+    // backend createTeacher də tələb etmir.
+    get isCodePrefixLocked(): boolean {
+        return this.data.isEditing && !!this.selectedSchool;
+    }
+
+    get codePrefix(): number {
+        return this.selectedSchool?.code ?? 0;
+    }
+
+    get ownCodeSuffix(): number {
+        if (!this.selectedSchool) return 0;
+        return this.data.teacher.code % 100;
+    }
+
+    set ownCodeSuffix(value: number) {
+        if (!this.selectedSchool) return;
+        const suffix = Math.max(0, Math.min(99, Math.floor(value) || 0));
+        this.data.teacher.code = this.selectedSchool.code * 100 + suffix;
+    }
+
     get activeOptions(): SelectOption[] {
         return [
             { value: true, label: 'Bəli' },

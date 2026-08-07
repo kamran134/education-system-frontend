@@ -72,6 +72,28 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
         this.onDistrictSelectChanged();
     }
 
+    // Kod = rayonun kodu (prefiks) + fərdi hissə (son 2 rəqəm). Redaktə zamanı yalnız fərdi
+    // hissə dəyişilə bilər — prefiksi əl ilə dəyişmək backend-də rədd olunur (PHASE3 п.4: kaskad
+    // yalnız District sahəsindən keçir, kodun özündən yox). Yaratma zamanı məhdudiyyət yoxdur.
+    get isCodePrefixLocked(): boolean {
+        return this.data.isEditing && !!this.selectedDistrict;
+    }
+
+    get codePrefix(): number {
+        return this.selectedDistrict?.code ?? 0;
+    }
+
+    get ownCodeSuffix(): number {
+        if (!this.selectedDistrict) return 0;
+        return this.data.school.code % 100;
+    }
+
+    set ownCodeSuffix(value: number) {
+        if (!this.selectedDistrict) return;
+        const suffix = Math.max(0, Math.min(99, Math.floor(value) || 0));
+        this.data.school.code = this.selectedDistrict.code * 100 + suffix;
+    }
+
     get activeOptions(): SelectOption[] {
         return [
             { value: true, label: 'Bəli' },

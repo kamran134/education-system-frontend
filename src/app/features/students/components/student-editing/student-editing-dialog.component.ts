@@ -99,6 +99,28 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
         }));
     }
 
+    // Kod = müəllimin kodu (prefiks) + fərdi hissə (son 3 rəqəm). Redaktə zamanı yalnız fərdi
+    // hissə dəyişilə bilər — prefiksi əl ilə dəyişmək backend-də rədd olunur (teacher/school
+    // dialoqları ilə eyni qayda). Yaratma zamanı məhdudiyyət yoxdur.
+    get isCodePrefixLocked(): boolean {
+        return this.data.isEditing && !!this.selectedTeacher;
+    }
+
+    get codePrefix(): number {
+        return this.selectedTeacher?.code ?? 0;
+    }
+
+    get ownCodeSuffix(): number {
+        if (!this.selectedTeacher) return 0;
+        return this.data.student.code % 1000;
+    }
+
+    set ownCodeSuffix(value: number) {
+        if (!this.selectedTeacher) return;
+        const suffix = Math.max(0, Math.min(999, Math.floor(value) || 0));
+        this.data.student.code = this.selectedTeacher.code * 1000 + suffix;
+    }
+
     get selectedDistrictId(): string | number {
         return this.data.student.district?.id || '';
     }

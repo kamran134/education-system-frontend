@@ -557,7 +557,11 @@ export class TeachersListComponent implements OnInit {
                             ];
                         }
                         this.isLoading = false;
-                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi', 'Bağla', this.matSnackConfig);
+                        const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi';
+                        const cascadeMessage = updatedTeacher.cascadedStudentsCount
+                            ? ` (${updatedTeacher.cascadedStudentsCount} şagirdin kodu avtomatik yeniləndi)`
+                            : '';
+                        this.snackBar.open(baseMessage + cascadeMessage, 'Bağla', this.matSnackConfig);
                     },
                     error: (error) => {
                         console.error(error);

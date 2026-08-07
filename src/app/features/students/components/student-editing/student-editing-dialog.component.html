@@ -6,14 +6,32 @@
   (closed)="onModalClose()"
 >
   <form class="space-y-6">
-    <app-input
-      label="İş nömrəsi"
-      placeholder="İş nömrəsini daxil edin"
-      [(ngModel)]="data.student.code"
-      name="code"
-      type="number"
-      [required]="true"
-    ></app-input>
+    <div *ngIf="isCodePrefixLocked; else freeCodeInput" class="grid grid-cols-[1fr_1fr] gap-3">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Müəllim prefiksi</label>
+        <input type="text" [value]="codePrefix" disabled
+               class="block w-full rounded-lg px-3 py-2 text-sm border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" />
+        <p class="text-sm text-gray-500 mt-2">Müəllimdən asılıdır, dəyişmək üçün "Müəllim" seçin</p>
+      </div>
+      <app-input
+        label="Fərdi hissə (000-999)"
+        placeholder="Son 3 rəqəm"
+        [(ngModel)]="ownCodeSuffix"
+        name="ownCodeSuffix"
+        type="number"
+        [required]="true"
+      ></app-input>
+    </div>
+    <ng-template #freeCodeInput>
+      <app-input
+        label="İş nömrəsi"
+        placeholder="İş nömrəsini daxil edin"
+        [(ngModel)]="data.student.code"
+        name="code"
+        type="number"
+        [required]="true"
+      ></app-input>
+    </ng-template>
 
     <app-input
       label="Şagirdin soyadı"

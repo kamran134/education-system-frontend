@@ -26,6 +26,9 @@ export interface Teacher {
     active: boolean;
     ratings?: YearRating[];
     avatarUrl?: string;
+    // Только в ответе updateTeacher, когда меняется code — сколько учеников этого учителя
+    // автоматически перекодировано каскадом (PHASE3_PLAN.md п.4).
+    cascadedStudentsCount?: number;
 }
 
 export interface TeacherForCreation {
