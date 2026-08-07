@@ -113,7 +113,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
-            canAccessBooklets: true,
+            canAccessBooklets: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
         },
         crud: {
             canCreateUsers: true,
@@ -162,7 +162,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: true,
-            showBookletsSection: true,
+            showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
@@ -187,7 +187,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
-            canAccessBooklets: true,
+            canAccessBooklets: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
         },
         crud: {
             canCreateUsers: true,
@@ -236,7 +236,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: true,
-            showBookletsSection: true,
+            showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
@@ -261,7 +261,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
-            canAccessBooklets: true,
+            canAccessBooklets: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
         },
         crud: {
             canCreateUsers: false,
@@ -310,7 +310,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: true,
-            showBookletsSection: true,
+            showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
@@ -335,7 +335,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
-            canAccessBooklets: true,
+            canAccessBooklets: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
         },
         crud: {
             canCreateUsers: false,
@@ -384,7 +384,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: false,
-            showBookletsSection: true,
+            showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
             // В рейтингах вкладка районов показывает только его район
             showDistrictsTab: true,
@@ -410,7 +410,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: true,
             canAccessStudents: true,
             canAccessExams: true,
-            canAccessBooklets: true,
+            canAccessBooklets: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
         },
         crud: {
             canCreateUsers: false,
@@ -459,7 +459,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: true,
             showStudentsSection: true,
             showExamsSection: false,
-            showBookletsSection: true,
+            showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
             // В рейтингах нет вкладки районов, вкладка школ показывает только его школу
             showDistrictsTab: false,
@@ -485,7 +485,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessTeachers: false,
             canAccessStudents: true,
             canAccessExams: true,
-            canAccessBooklets: true,
+            canAccessBooklets: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
         },
         crud: {
             canCreateUsers: false,
@@ -534,7 +534,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showTeachersSection: false,
             showStudentsSection: true,
             showExamsSection: false,
-            showBookletsSection: true,
+            showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
             // В рейтингах нет вкладок районов и школ, вкладка учителей показывает только его
             showDistrictsTab: false,
