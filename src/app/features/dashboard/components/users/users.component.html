@@ -10,23 +10,21 @@
         </app-button>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-        <div class="flex items-center space-x-4">
-            <lucide-icon [img]="Filter" class="w-4 h-4 text-gray-500 flex-shrink-0"></lucide-icon>
-            <div class="flex items-center space-x-2">
-                <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Rol:</label>
-                <select
-                    [(ngModel)]="selectedRole"
-                    (ngModelChange)="onRoleFilterChange()"
-                    class="block rounded-md border border-gray-300 py-1.5 pl-3 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
-                </select>
-            </div>
-            <span *ngIf="totalCount > 0" class="text-sm text-gray-500 ml-auto">
+    <!-- Role tabs -->
+    <div class="border-b border-gray-200 mb-4">
+        <nav class="flex items-center space-x-6 overflow-x-auto" aria-label="Rollar">
+            <button
+                *ngFor="let tab of roleTabs"
+                type="button"
+                (click)="selectRoleTab(tab.value)"
+                class="whitespace-nowrap py-3 px-1 border-b-2 text-sm font-medium transition-colors"
+                [class]="getTabClasses(tab.value)">
+                {{ tab.label }}
+            </button>
+            <span *ngIf="totalCount > 0" class="text-sm text-gray-500 ml-auto pb-3 flex-shrink-0">
                 Cəmi: <span class="font-medium text-gray-700">{{ totalCount }}</span>
             </span>
-        </div>
+        </nav>
     </div>
 
     <!-- Table -->

@@ -149,6 +149,35 @@ export class ExcelService {
         return this.mapRows(districts, this.districtColumnMap, columns);
     }
 
+    private readonly userRoleLabels: Record<string, string> = {
+        superadmin: 'Superadmin',
+        admin: 'Admin',
+        moderator: 'Moderator',
+        districtRepresenter: 'Rayon nümayəndəsi',
+        schoolDirector: 'Məktəb direktoru',
+        teacher: 'Müəllim',
+        student: 'Şagird',
+    };
+
+    /**
+     * Downloads a single-row Excel file with a newly created user's login credentials,
+     * so an admin can hand them off (email + generated password won't be retrievable later).
+     */
+    exportUserCredentials(user: { email: string; password: string; role: string }): void {
+        const ws = XLSX.utils.json_to_sheet([{
+            'E-mail': user.email,
+            'Şifrə': user.password,
+            'Vəzifəsi': this.userRoleLabels[user.role] || user.role,
+        }]);
+        this.formatHeaders(ws);
+        ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 20 }];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'İstifadəçi');
+        const safeEmail = user.email.replace(/[^a-zA-Z0-9]/g, '_');
+        XLSX.writeFile(wb, `istifadeci-${safeEmail}.xlsx`);
+    }
+
     formatStudentDetailsData(student: StudentWithResult): any[] {
         return student.results.map(result => (
             student.grade < 5 ? {

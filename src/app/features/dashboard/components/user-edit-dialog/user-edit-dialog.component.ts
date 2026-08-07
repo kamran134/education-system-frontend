@@ -508,6 +508,24 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             });
     }
 
+    generatePassword(): void {
+        const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        const lower = 'abcdefghijkmnpqrstuvwxyz';
+        const digits = '23456789';
+        const symbols = '!@#$%';
+        const all = upper + lower + digits + symbols;
+
+        const randomChar = (charset: string) => charset[Math.floor(Math.random() * charset.length)];
+        const required = [randomChar(upper), randomChar(lower), randomChar(digits), randomChar(symbols)];
+        const rest = Array.from({ length: 8 }, () => randomChar(all));
+        const generated = [...required, ...rest].sort(() => Math.random() - 0.5).join('');
+
+        this.dataSource.password = generated;
+        this.repeatedPassword = generated;
+        this.showPassword = true;
+        this.showRepeatedPassword = true;
+    }
+
     onSave(): void {
         if (this.isNewUser()) {
             // Create new user logic

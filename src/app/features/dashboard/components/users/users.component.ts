@@ -6,11 +6,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ExcelService } from '../../../../core/services/excel.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, UserPlus, Edit, Trash2, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, ChevronDown, Filter } from 'lucide-angular';
+import { LucideAngularModule, UserPlus, Edit, Trash2, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, ChevronDown } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -32,10 +33,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     pageSize = 100;
     readonly pageSizeOptions = [25, 50, 100, 250, 500];
 
-    // Filter
-    selectedRole = '';
-    readonly roleOptions = [
-        { value: '', label: 'Bütün rolllar' },
+    // Role tabs
+    readonly roleTabs = [
         { value: 'superadmin', label: 'Superadmin' },
         { value: 'admin', label: 'Admin' },
         { value: 'moderator', label: 'Moderator' },
@@ -44,6 +43,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         { value: 'teacher', label: 'Müəllim' },
         { value: 'student', label: 'Şagird' },
     ];
+    selectedRole = 'student';
 
     // Sort
     sortColumn = 'email';
@@ -62,7 +62,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     readonly ChevronsRight = ChevronsRight;
     readonly ChevronUp = ChevronUp;
     readonly ChevronDown = ChevronDown;
-    readonly Filter = Filter;
 
     isSuperAdmin$ = this.authService.isSuperAdmin$;
     isLevelUpUser$ = this.authService.isLevelUpUser$;
@@ -73,7 +72,8 @@ export class UsersComponent implements OnInit, OnDestroy {
         private dialog: MatDialog,
         private snackBar: MatSnackBar,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private excelService: ExcelService
     ) {}
 
     ngOnInit(): void {
@@ -154,9 +154,17 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.loadUsers();
     }
 
-    onRoleFilterChange(): void {
+    selectRoleTab(role: string): void {
+        if (this.selectedRole === role) return;
+        this.selectedRole = role;
         this.currentPage = 0;
         this.loadUsers();
+    }
+
+    getTabClasses(role: string): string {
+        return this.selectedRole === role
+            ? 'border-indigo-600 text-indigo-600'
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
     }
 
     onSortChange(column: string): void {
@@ -176,7 +184,7 @@ export class UsersComponent implements OnInit, OnDestroy {
             data: {
                 email: '',
                 password: '',
-                role: 'USER', // Default role, can be changed in dialog
+                role: this.selectedRole, // Default to the currently active role tab
                 isApproved: false,
                 firstName: '',
                 lastName: ''
@@ -193,6 +201,13 @@ export class UsersComponent implements OnInit, OnDestroy {
                             next: () => {
                                 this.loadUsers();
                                 this.snackBar.open('Yeni istifadəçi yaradıldı', 'Bağla', this.matSnackConfig);
+                                if (result.password) {
+                                    this.excelService.exportUserCredentials({
+                                        email: result.email,
+                                        password: result.password,
+                                        role: result.role
+                                    });
+                                }
                             },
                             error: (error) => {
                                 console.error(error);
