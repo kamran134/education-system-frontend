@@ -697,7 +697,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessStats: true,
             canAccessStatistics: false,
             canAccessRegions: false, // свой регион видит в кабинете, не в CRUD-разделе
-            canAccessDistricts: false,
+            canAccessDistricts: true, // районы своего региона — просмотр, без CRUD (см. crud ниже)
             canAccessSchools: true,
             canAccessTeachers: true,
             canAccessStudents: true,
@@ -750,9 +750,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
-            // Региональный представитель НЕ видит секции регионов (CRUD) и экзаменов
+            // Региональный представитель НЕ видит секцию регионов (CRUD) и экзаменов,
+            // но видит районы своего региона — они ниже его уровня, как школы/учителя/студенты
             showRegionsSection: false,
-            showDistrictsSection: false,
+            showDistrictsSection: true,
             showSchoolsSection: true,
             showTeachersSection: true,
             showStudentsSection: true,
