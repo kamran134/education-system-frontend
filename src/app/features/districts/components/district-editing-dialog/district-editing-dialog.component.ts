@@ -1,10 +1,13 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { District } from '../../../../core/models/district.model';
+import { Region } from '../../../../core/models/region.model';
+import { RegionService } from '../../../regions/services/region.service';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
     selector: 'app-district-editing-dialog',
@@ -13,16 +16,29 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
         CommonModule,
         FormsModule,
         InputComponent,
-        ModalComponent
+        ModalComponent,
+        SelectComponent
     ],
     templateUrl: './district-editing-dialog.component.html',
     styleUrl: './district-editing-dialog.component.scss'
 })
-export class DistrictEditingDialogComponent {
+export class DistrictEditingDialogComponent implements OnInit {
+    regionOptions: SelectOption[] = [];
+
     constructor(
         public dialogRef: MatDialogRef<DistrictEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { district: District, isEditing: boolean, canDelete?: boolean }
+        @Inject(MAT_DIALOG_DATA) public data: { district: District, isEditing: boolean, canDelete?: boolean },
+        private regionService: RegionService
     ) {}
+
+    ngOnInit(): void {
+        this.regionService.getRegionsForFilter().subscribe({
+            next: (regions: Region[]) => {
+                this.regionOptions = (regions || []).map(r => ({ value: r.id, label: r.name }));
+            },
+            error: () => { this.regionOptions = []; }
+        });
+    }
 
     get modalTitle(): string {
         return this.data.isEditing ? 'Rayonun / şəhərin redaktə edilməsi' : 'Yeni rayon / şəhər əlavə et';

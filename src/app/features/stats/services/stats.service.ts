@@ -35,6 +35,9 @@ export class StatsService {
 
     getStudentsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/students?month=${params.month}`;
+        if (params.regionIds && params.regionIds.length > 0) {
+            url = `${url}&regionIds=${params.regionIds}`;
+        }
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}&districtIds=${params.districtIds}`;
         }
@@ -63,6 +66,9 @@ export class StatsService {
     // Отдельный метод для получения развивающихся студентов
     getDevelopingStudentsStats(params: FilterParams): Observable<any[]> {
         let url: string = `${this.configService.getApiUrl()}/stats/students/developing?month=${params.month}`;
+        if (params.regionIds && params.regionIds.length > 0) {
+            url = `${url}&regionIds=${params.regionIds}`;
+        }
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}&districtIds=${params.districtIds}`;
         }
@@ -94,6 +100,9 @@ export class StatsService {
     // Отдельный метод для получения студентов месяца по районам
     getStudentsOfMonthStats(params: FilterParams): Observable<any[]> {
         let url: string = `${this.configService.getApiUrl()}/stats/students/month?month=${params.month}`;
+        if (params.regionIds && params.regionIds.length > 0) {
+            url = `${url}&regionIds=${params.regionIds}`;
+        }
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}&districtIds=${params.districtIds}`;
         }
@@ -125,6 +134,9 @@ export class StatsService {
     // Отдельный метод для получения студентов месяца по республике
     getStudentsOfMonthByRepublicStats(params: FilterParams): Observable<any[]> {
         let url: string = `${this.configService.getApiUrl()}/stats/students/month-republic?month=${params.month}`;
+        if (params.regionIds && params.regionIds.length > 0) {
+            url = `${url}&regionIds=${params.regionIds}`;
+        }
         if (params.districtIds && params.districtIds.length > 0) {
             url = `${url}&districtIds=${params.districtIds}`;
         }
@@ -165,6 +177,9 @@ export class StatsService {
         let url: string = `${this.configService.getApiUrl()}/stats/teachers`;
         const queryParams = [];
 
+        if (params.regionIds && params.regionIds.length > 0) {
+            queryParams.push(`regionIds=${params.regionIds}`);
+        }
         if (params.districtIds && params.districtIds.length > 0) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
@@ -196,6 +211,9 @@ export class StatsService {
         let url: string = `${this.configService.getApiUrl()}/stats/schools`;
         const queryParams = [];
 
+        if (params.regionIds && params.regionIds.length > 0) {
+            queryParams.push(`regionIds=${params.regionIds}`);
+        }
         if (params.districtIds && params.districtIds.length > 0) {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
@@ -222,6 +240,34 @@ export class StatsService {
 
     getDistrictsStats(params: FilterParams): Observable<StatsResponse> {
         let url: string = `${this.configService.getApiUrl()}/stats/districts`;
+        const queryParams = [];
+
+        if (params.regionIds && params.regionIds.length > 0) {
+            queryParams.push(`regionIds=${params.regionIds}`);
+        }
+        if (params.sortColumn && params.sortDirection) {
+            queryParams.push(`sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`);
+        }
+        if (params.page) {
+            queryParams.push(`page=${params.page}`);
+        }
+        if (params.size) {
+            queryParams.push(`size=${params.size}`);
+        }
+        if (params.academicYear) {
+            queryParams.push(`academicYear=${params.academicYear}`);
+        }
+
+        if (queryParams.length > 0) {
+            url = `${url}?${queryParams.join('&')}`;
+        }
+
+        return this.http.get<ApiResponse<StatsResponse>>(url, {})
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    getRegionsStats(params: FilterParams): Observable<StatsResponse> {
+        let url: string = `${this.configService.getApiUrl()}/stats/regions`;
         const queryParams = [];
 
         if (params.sortColumn && params.sortDirection) {

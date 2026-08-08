@@ -18,11 +18,13 @@
 
 <app-stats-filters
     [selectedTab]="selectedTab"
+    [regions]="regions"
     [districts]="districts"
     [schools]="schools"
     [teachers]="teachers"
     [exams]="exams"
     [gradesOptions]="gradesOptions"
+    [selectedRegionIds]="selectedRegionIds"
     [selectedDistrictIds]="selectedDistrictIds"
     [selectedSchoolIds]="selectedSchoolIds"
     [selectedTeacherIds]="selectedTeacherIds"
@@ -30,10 +32,12 @@
     [selectedLevels]="selectedLevels"
     [selectedExamIds]="selectedExamIds || []"
     [selectedMonth]="selectedMonth"
+    [disableRegionFilter]="shouldDisableRegionFilter"
     [disableDistrictFilter]="shouldDisableDistrictFilter"
     [disableSchoolFilter]="shouldDisableSchoolFilter"
     [disableTeacherFilter]="shouldDisableTeacherFilter"
     (monthUpdated)="updateMonth($event)"
+    (regionChanged)="onRegionSelectChanged($event)"
     (districtChanged)="onDistrictSelectChanged($event)"
     (schoolChanged)="onSchoolSelectChanged($event)"
     (teacherChanged)="onTeacherSelectChanged($event)"
@@ -169,6 +173,24 @@
                     (rowClicked)="onDistrictRowClick($event)"
                     (backClicked)="goBack()"
                 ></app-districts-year-tab>
+            </div>
+
+            <!-- Regions Year Tab -->
+            <div *ngIf="selectedTabIndex === 7">
+                <app-regions-year-tab
+                    [regions]="stats.regions ?? []"
+                    [displayedColumns]="regionColumns"
+                    [totalCount]="totalCounts.allRegionsTotalCount ?? 0"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="pageSize"
+                    [isLoading]="isloading"
+                    [canGoBack]="canGoBack()"
+                    (sortChanged)="onSortChange($event)"
+                    (pageChanged)="onPageChange($event)"
+                    (exportClicked)="exportToExcel('allRegions')"
+                    (rowClicked)="onRegionRowClick($event)"
+                    (backClicked)="goBack()"
+                ></app-regions-year-tab>
             </div>
         </div>
     </div>

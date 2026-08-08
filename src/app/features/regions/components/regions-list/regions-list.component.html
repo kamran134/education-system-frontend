@@ -1,16 +1,15 @@
 <app-list-layout
-  title="Rayonlar / şəhərlər"
-  description="Bütün rayonlar və şəhərlərin siyahısı"
+  title="Regional Təhsil İdarələri"
+  description="Bütün regional təhsil idarələrinin siyahısı"
   [isLoading]="isLoading"
   [hasError]="hasError"
   [errorMessage]="errorMessage"
-  loadingText="Rayonlar yüklənir..."
+  loadingText="Regional idarələr yüklənir..."
   [actionButtons]="actionButtons"
-  [backButton]="backButton"
 >
   <div slot="content">
     <app-data-table
-      [data]="districts"
+      [data]="regions"
       [columns]="tableColumns"
       [actions]="tableActions"
       [totalCount]="totalCount"
@@ -21,7 +20,7 @@
       (actionClicked)="onTableAction($event)"
       (pageChanged)="onPageChange($event)"
       (sortChanged)="onSortChange($event)"
-      (rowClicked)="onDistrictView($event)"
+      (rowClicked)="onRegionView($event)"
     ></app-data-table>
   </div>
 </app-list-layout>

@@ -31,5 +31,15 @@
       type="number"
       [required]="true"
     ></app-input>
+
+    <app-select
+      label="Regional Təhsil İdarəsi"
+      placeholder="Regional idarə seçin..."
+      [(ngModel)]="data.district.regionId"
+      name="regionId"
+      [options]="regionOptions"
+      [clearable]="true"
+      [searchable]="true"
+    ></app-select>
   </form>
 </app-modal>

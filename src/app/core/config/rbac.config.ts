@@ -9,6 +9,7 @@ export type UserRole =
     | 'superadmin'
     | 'admin'
     | 'moderator'
+    | 'regionRepresenter'
     | 'districtRepresenter'
     | 'schoolDirector'
     | 'teacher'
@@ -23,6 +24,7 @@ export interface RolePermissions {
         canAccessProfile: boolean;             // /profile
         canAccessStats: boolean;               // /stats
         canAccessStatistics: boolean;          // /statistics
+        canAccessRegions: boolean;             // /regions
         canAccessDistricts: boolean;           // /districts
         canAccessSchools: boolean;             // /schools
         canAccessTeachers: boolean;            // /teachers
@@ -36,6 +38,9 @@ export interface RolePermissions {
         canCreateUsers: boolean;
         canEditUsers: boolean;
         canDeleteUsers: boolean;
+        canCreateRegions: boolean;
+        canEditRegions: boolean;
+        canDeleteRegions: boolean;
         canCreateDistricts: boolean;
         canEditDistricts: boolean;
         canDeleteDistricts: boolean;
@@ -59,6 +64,8 @@ export interface RolePermissions {
 
     // Фильтрация данных (для RBAC на бэкенде)
     dataAccess: {
+        seeAllRegions: boolean;
+        seeOwnRegionOnly: boolean;
         seeAllDistricts: boolean;
         seeOwnDistrictOnly: boolean;
         seeAllSchools: boolean;
@@ -78,6 +85,7 @@ export interface RolePermissions {
         showExportButtons: boolean;
         showBulkActions: boolean;
         // Главная страница - секции
+        showRegionsSection: boolean;
         showDistrictsSection: boolean;
         showSchoolsSection: boolean;
         showTeachersSection: boolean;
@@ -86,6 +94,7 @@ export interface RolePermissions {
         showBookletsSection: boolean;
         showStatsSection: boolean;
         // Рейтинги - табы
+        showRegionsTab: boolean;
         showDistrictsTab: boolean;
         showSchoolsTab: boolean;
         showTeachersTab: boolean;
@@ -108,6 +117,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
+            canAccessRegions: true,
             canAccessDistricts: true,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -119,6 +129,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: true,
             canEditUsers: true,
             canDeleteUsers: true,
+            canCreateRegions: true,
+            canEditRegions: true,
+            canDeleteRegions: true,
             canCreateDistricts: true,
             canEditDistricts: true,
             canDeleteDistricts: true,
@@ -140,6 +153,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: true,
         },
         dataAccess: {
+            seeAllRegions: true,
+            seeOwnRegionOnly: false,
             seeAllDistricts: true,
             seeOwnDistrictOnly: false,
             seeAllSchools: true,
@@ -157,6 +172,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExportButtons: true,
             showBulkActions: true,
             // Суперадмин видит все
+            showRegionsSection: true,
             showDistrictsSection: true,
             showSchoolsSection: true,
             showTeachersSection: true,
@@ -164,6 +180,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExamsSection: true,
             showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
+            showRegionsTab: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
             showTeachersTab: true,
@@ -182,6 +199,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
+            canAccessRegions: true,
             canAccessDistricts: true,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -193,6 +211,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: true,
             canEditUsers: true,
             canDeleteUsers: true,
+            canCreateRegions: true,
+            canEditRegions: true,
+            canDeleteRegions: true,
             canCreateDistricts: true,
             canEditDistricts: true,
             canDeleteDistricts: true,
@@ -214,6 +235,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: true,
         },
         dataAccess: {
+            seeAllRegions: true,
+            seeOwnRegionOnly: false,
             seeAllDistricts: true,
             seeOwnDistrictOnly: false,
             seeAllSchools: true,
@@ -231,6 +254,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExportButtons: true,
             showBulkActions: true,
             // Админ видит все
+            showRegionsSection: true,
             showDistrictsSection: true,
             showSchoolsSection: true,
             showTeachersSection: true,
@@ -238,6 +262,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExamsSection: true,
             showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
+            showRegionsTab: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
             showTeachersTab: true,
@@ -256,6 +281,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
+            canAccessRegions: true,
             canAccessDistricts: true,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -267,6 +293,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: false,
             canEditUsers: false,
             canDeleteUsers: false,
+            canCreateRegions: true,
+            canEditRegions: true,
+            canDeleteRegions: false,   // НЕ МОЖЕТ УДАЛЯТЬ
             canCreateDistricts: true,
             canEditDistricts: true,
             canDeleteDistricts: false,  // НЕ МОЖЕТ УДАЛЯТЬ
@@ -288,6 +317,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: false,   // НЕ МОЖЕТ УДАЛЯТЬ
         },
         dataAccess: {
+            seeAllRegions: true,
+            seeOwnRegionOnly: false,
             seeAllDistricts: true,
             seeOwnDistrictOnly: false,
             seeAllSchools: true,
@@ -305,6 +336,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExportButtons: true,
             showBulkActions: false,  // НЕТ массовых действий (часто это удаление)
             // Модератор видит все секции кроме админ-панели
+            showRegionsSection: true,
             showDistrictsSection: true,
             showSchoolsSection: true,
             showTeachersSection: true,
@@ -312,6 +344,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExamsSection: true,
             showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
+            showRegionsTab: true,
             showDistrictsTab: true,
             showSchoolsTab: true,
             showTeachersTab: true,
@@ -330,6 +363,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,
+            canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: true,
             canAccessTeachers: true,
@@ -341,6 +375,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: false,
             canEditUsers: false,
             canDeleteUsers: false,
+            canCreateRegions: false,
+            canEditRegions: false,
+            canDeleteRegions: false,
             canCreateDistricts: false,
             canEditDistricts: false,
             canDeleteDistricts: false,
@@ -362,6 +399,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: false,
         },
         dataAccess: {
+            seeAllRegions: false,
+            seeOwnRegionOnly: false,
             seeAllDistricts: false,
             seeOwnDistrictOnly: true,
             seeAllSchools: false,
@@ -378,7 +417,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
-            // Районный представитель НЕ видит секцию районов и экзаменов
+            // Районный представитель НЕ видит секцию регионов, районов и экзаменов
+            showRegionsSection: false,
             showDistrictsSection: false,
             showSchoolsSection: true,
             showTeachersSection: true,
@@ -386,7 +426,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExamsSection: false,
             showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
-            // В рейтингах вкладка районов показывает только его район
+            // В рейтингах нет вкладки регионов (уровень выше своего), вкладка районов показывает только его район
+            showRegionsTab: false,
             showDistrictsTab: true,
             showSchoolsTab: true,
             showTeachersTab: true,
@@ -405,6 +446,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,
+            canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: false,
             canAccessTeachers: true,
@@ -416,6 +458,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: false,
             canEditUsers: false,
             canDeleteUsers: false,
+            canCreateRegions: false,
+            canEditRegions: false,
+            canDeleteRegions: false,
             canCreateDistricts: false,
             canEditDistricts: false,
             canDeleteDistricts: false,
@@ -437,6 +482,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: false,
         },
         dataAccess: {
+            seeAllRegions: false,
+            seeOwnRegionOnly: false,
             seeAllDistricts: false,
             seeOwnDistrictOnly: false,
             seeAllSchools: false,
@@ -453,7 +500,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
-            // Директор школы НЕ видит секции районов, школ и экзаменов
+            // Директор школы НЕ видит секции регионов, районов, школ и экзаменов
+            showRegionsSection: false,
             showDistrictsSection: false,
             showSchoolsSection: false,
             showTeachersSection: true,
@@ -461,7 +509,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExamsSection: false,
             showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
-            // В рейтингах нет вкладки районов, вкладка школ показывает только его школу
+            // В рейтингах нет вкладок регионов и районов, вкладка школ показывает только его школу
+            showRegionsTab: false,
             showDistrictsTab: false,
             showSchoolsTab: true,
             showTeachersTab: true,
@@ -480,6 +529,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,
+            canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: false,
             canAccessTeachers: false,
@@ -491,6 +541,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: false,
             canEditUsers: false,
             canDeleteUsers: false,
+            canCreateRegions: false,
+            canEditRegions: false,
+            canDeleteRegions: false,
             canCreateDistricts: false,
             canEditDistricts: false,
             canDeleteDistricts: false,
@@ -512,6 +565,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: false,
         },
         dataAccess: {
+            seeAllRegions: false,
+            seeOwnRegionOnly: false,
             seeAllDistricts: false,
             seeOwnDistrictOnly: false,
             seeAllSchools: false,
@@ -528,7 +583,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showStatsUpdateButton: false,
             showExportButtons: true,
             showBulkActions: false,
-            // Учитель НЕ видит секции районов, школ, учителей и экзаменов
+            // Учитель НЕ видит секции регионов, районов, школ, учителей и экзаменов
+            showRegionsSection: false,
             showDistrictsSection: false,
             showSchoolsSection: false,
             showTeachersSection: false,
@@ -536,7 +592,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExamsSection: false,
             showBookletsSection: false, // заказчик попросил скрыть раздел Kitabçalar (2026-08-08)
             showStatsSection: true,
-            // В рейтингах нет вкладок районов и школ, вкладка учителей показывает только его
+            // В рейтингах нет вкладок регионов, районов и школ, вкладка учителей показывает только его
+            showRegionsTab: false,
             showDistrictsTab: false,
             showSchoolsTab: false,
             showTeachersTab: true,
@@ -555,6 +612,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,
+            canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: false,
             canAccessTeachers: false,
@@ -566,6 +624,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateUsers: false,
             canEditUsers: false,
             canDeleteUsers: false,
+            canCreateRegions: false,
+            canEditRegions: false,
+            canDeleteRegions: false,
             canCreateDistricts: false,
             canEditDistricts: false,
             canDeleteDistricts: false,
@@ -587,6 +648,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canDeleteBooklets: false,
         },
         dataAccess: {
+            seeAllRegions: false,
+            seeOwnRegionOnly: false,
             seeAllDistricts: false,
             seeOwnDistrictOnly: false,
             seeAllSchools: false,
@@ -604,6 +667,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showExportButtons: false,
             showBulkActions: false,
             // Студент видит только себя в секции студентов и рейтингах, не видит экзамены
+            showRegionsSection: false,
             showDistrictsSection: false,
             showSchoolsSection: false,
             showTeachersSection: false,
@@ -612,9 +676,94 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showBookletsSection: false,
             showStatsSection: true,
             // В рейтингах видит только вкладку студентов (себя)
+            showRegionsTab: false,
             showDistrictsTab: false,
             showSchoolsTab: false,
             showTeachersTab: false,
+            showStudentsTab: true,
+        },
+    },
+
+    /**
+     * REGION REPRESENTER - видит только свой регион и всё что в нём (районы/школы/учителя/студенты
+     * своего региона). Зеркалит districtRepresenter на уровень выше. PHASE3 п.1б (REGIONS_TASKS.md).
+     */
+    regionRepresenter: {
+        routes: {
+            canAccessAdminPanel: true,
+            canAccessUserManagement: false,
+            canAccessRatingColumns: false,
+            canAccessProfile: true,
+            canAccessStats: true,
+            canAccessStatistics: false,
+            canAccessRegions: false, // свой регион видит в кабинете, не в CRUD-разделе
+            canAccessDistricts: false,
+            canAccessSchools: true,
+            canAccessTeachers: true,
+            canAccessStudents: true,
+            canAccessExams: true,
+            canAccessBooklets: false,
+        },
+        crud: {
+            canCreateUsers: false,
+            canEditUsers: false,
+            canDeleteUsers: false,
+            canCreateRegions: false,
+            canEditRegions: false,
+            canDeleteRegions: false,
+            canCreateDistricts: false,
+            canEditDistricts: false,
+            canDeleteDistricts: false,
+            canCreateSchools: false,
+            canEditSchools: false,
+            canDeleteSchools: false,
+            canCreateTeachers: false,
+            canEditTeachers: false,
+            canDeleteTeachers: false,
+            canCreateStudents: false,
+            canEditStudents: false,
+            canDeleteStudents: false,
+            canCreateExams: false,
+            canEditExams: false,
+            canDeleteExams: false,
+            canEditExamResults: false,
+            canDeleteExamResults: false,
+            canEditBooklets: false,
+            canDeleteBooklets: false,
+        },
+        dataAccess: {
+            seeAllRegions: false,
+            seeOwnRegionOnly: true,
+            seeAllDistricts: false,
+            seeOwnDistrictOnly: false, // Видит районы своего региона (не один конкретный)
+            seeAllSchools: false,
+            seeOwnSchoolOnly: false,   // Видит школы своего региона
+            seeAllTeachers: false,
+            seeOwnTeachersOnly: false, // Видит учителей своего региона
+            seeAllStudents: false,
+            seeOwnStudentsOnly: false, // Видит студентов своего региона
+        },
+        ui: {
+            showAdminMenu: false,
+            showUserManagementLink: false,
+            showRatingColumnsLink: true,
+            showStatsUpdateButton: false,
+            showExportButtons: true,
+            showBulkActions: false,
+            // Региональный представитель НЕ видит секции регионов (CRUD) и экзаменов
+            showRegionsSection: false,
+            showDistrictsSection: false,
+            showSchoolsSection: true,
+            showTeachersSection: true,
+            showStudentsSection: true,
+            showExamsSection: false,
+            showBookletsSection: false,
+            showStatsSection: true,
+            // В рейтингах вкладка регионов показывает только его регион, районов — только его районы
+            showRegionsTab: true,
+            showDistrictsTab: true,
+            showSchoolsTab: true,
+            showTeachersTab: true,
             showStudentsTab: true,
         },
     },
@@ -684,6 +833,7 @@ export class RbacService {
 
         if (permissions.routes.canAccessProfile) routes.push('/profile');
         if (permissions.routes.canAccessStats) routes.push('/stats');
+        if (permissions.routes.canAccessRegions) routes.push('/regions');
         if (permissions.routes.canAccessDistricts) routes.push('/districts');
         if (permissions.routes.canAccessSchools) routes.push('/schools');
         if (permissions.routes.canAccessTeachers) routes.push('/teachers');

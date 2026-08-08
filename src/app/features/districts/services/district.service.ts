@@ -18,30 +18,36 @@ export class DistrictService {
     getDistricts(params: FilterParams): Observable<DistrictResponse> {
         let url: string = `${this.configService.getApiUrl()}/districts`;
         const queryParams: string[] = [];
-        
+
+        if (params.regionIds && params.regionIds.length > 0) {
+            queryParams.push(`regionIds=${params.regionIds}`);
+        }
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}`);
             queryParams.push(`sortDirection=${params.sortDirection}`);
         }
-        
+
         if (params.search) {
             queryParams.push(`search=${encodeURIComponent(params.search)}`);
         }
-        
+
         if (params.code) {
             queryParams.push(`code=${params.code}`);
         }
-        
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+
         return this.http.get<ApiResponse<DistrictResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    getDistrictsForFilter(): Observable<District[]> {
-        const url: string = `${this.configService.getApiUrl()}/districts/filter`;
+    getDistrictsForFilter(params?: FilterParams): Observable<District[]> {
+        let url: string = `${this.configService.getApiUrl()}/districts/filter`;
+        if (params?.regionIds && params.regionIds.length > 0) {
+            url = `${url}?regionIds=${params.regionIds}`;
+        }
         return this.http.get<ApiResponse<District[]>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -52,13 +58,13 @@ export class DistrictService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    addDistrict(district: {name: string, code: number, studentCount: number}): Observable<any> {
+    addDistrict(district: {name: string, code: number, studentCount: number, regionId?: number | null}): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts`;
         return this.http.post<ApiResponse<any>>(url, district, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateDistrict(districtId: string | number, district: {name: string, code: number, studentCount: number}): Observable<any> {
+    updateDistrict(districtId: string | number, district: {name: string, code: number, studentCount: number, regionId?: number | null}): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.put<ApiResponse<any>>(url, district, { withCredentials: true })
             .pipe(map(response => response));

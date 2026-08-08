@@ -51,7 +51,8 @@ export class StatsColumnsComponent implements OnInit{
         allStudentCollumns: [],
         allTeacherCollumns: [],
         allSchoolCollumns: [],
-        allDistrictCollumns: []
+        allDistrictCollumns: [],
+        allRegionCollumns: []
     }; // Assuming Settings is the type for the columns
 
     readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
@@ -136,6 +137,17 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 6 }
     ];
 
+    regionColumnOptions: Column[] = [
+        { key: 'place', label: 'Respublika üzrə yer', selected: true, order: 0 },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', selected: false, order: 1 },
+        { key: 'code', label: 'Kodu', selected: true, order: 2 },
+        { key: 'name', label: 'Adı', selected: true, order: 3 },
+        { key: 'districtCount', label: 'Rayon sayı', selected: true, order: 4 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: true, order: 5 },
+        { key: 'score', label: 'Reytinq xalı', selected: true, order: 6 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 7 }
+    ];
+
     userId: string = '';
 
     constructor(
@@ -168,6 +180,7 @@ export class StatsColumnsComponent implements OnInit{
                 this.restoreColumnOrder(this.teacherColumnOptions, settings.allTeacherCollumns || []);
                 this.restoreColumnOrder(this.schoolColumnOptions, settings.allSchoolCollumns || []);
                 this.restoreColumnOrder(this.districtColumnOptions, settings.allDistrictCollumns || []);
+                this.restoreColumnOrder(this.regionColumnOptions, settings.allRegionCollumns || []);
             },
             error: (error) => {
                 console.error('Error loading columns:', error);
@@ -225,6 +238,9 @@ export class StatsColumnsComponent implements OnInit{
         const selectedDistrictColumns = this.districtColumnOptions
             .filter(column => column.selected)
             .map(column => column.key);
+        const selectedRegionColumns = this.regionColumnOptions
+            .filter(column => column.selected)
+            .map(column => column.key);
 
         const userSettings: UserSettings = {
             userId: this.userId || '',
@@ -233,7 +249,8 @@ export class StatsColumnsComponent implements OnInit{
             allStudentCollumns: selectedAllStudentColumns,
             allTeacherCollumns: selectedTeacherColumns,
             allSchoolCollumns: selectedSchoolColumns,
-            allDistrictCollumns: selectedDistrictColumns
+            allDistrictCollumns: selectedDistrictColumns,
+            allRegionCollumns: selectedRegionColumns
         };
 
         this.dashboardService.saveRatingColumns(userSettings).subscribe({
@@ -253,6 +270,7 @@ export class StatsColumnsComponent implements OnInit{
         this.teacherColumnOptions.forEach(column => column.selected = false);
         this.schoolColumnOptions.forEach(column => column.selected = false);
         this.districtColumnOptions.forEach(column => column.selected = false);
+        this.regionColumnOptions.forEach(column => column.selected = false);
 
         // Reset the dataSource to its initial state
         this.dataSource.developingStudentCollumns = [];
@@ -261,6 +279,7 @@ export class StatsColumnsComponent implements OnInit{
         this.dataSource.allTeacherCollumns = [];
         this.dataSource.allSchoolCollumns = [];
         this.dataSource.allDistrictCollumns = [];
+        this.dataSource.allRegionCollumns = [];
 
         // Save the reset settings
         this.saveColumnSettings();
@@ -295,6 +314,11 @@ export class StatsColumnsComponent implements OnInit{
     dropDistrict(event: CdkDragDrop<Column[]>): void {
         moveItemInArray(this.districtColumnOptions, event.previousIndex, event.currentIndex);
         this.updateColumnOrder(this.districtColumnOptions);
+    }
+
+    dropRegion(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.regionColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.regionColumnOptions);
     }
 
     private updateColumnOrder(columns: Column[]): void {

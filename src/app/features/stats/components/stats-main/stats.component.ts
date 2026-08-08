@@ -16,10 +16,12 @@ import { Sort } from '@angular/material/sort';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
+import { Region, RegionResponse } from '../../../../core/models/region.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { DistrictService } from '../../../districts/services/district.service';
+import { RegionService } from '../../../regions/services/region.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Student } from '../../../../core/models/student.model';
 import { StudentService } from '../../../students/services/student.service';
@@ -41,6 +43,7 @@ import { StudentsYearTabComponent } from '../students-year-tab/students-year-tab
 import { TeachersYearTabComponent } from "../teachers-year-tab/teachers-year-tab.component";
 import { SchoolsYearTabComponent } from "../schools-year-tab/schools-year-tab.component";
 import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-tab.component";
+import { RegionsYearTabComponent } from "../regions-year-tab/regions-year-tab.component";
 import { PermissionsService } from '../../../../core/services/permissions.service';
 
 // UI Components
@@ -63,7 +66,8 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
     StudentsYearTabComponent,
     TeachersYearTabComponent,
     SchoolsYearTabComponent,
-    DistrictsYearTabComponent
+    DistrictsYearTabComponent,
+    RegionsYearTabComponent
 ],
     providers: [MonthNamePipe, MomentDateFormatPipe],
     templateUrl: './stats.component.html',
@@ -93,6 +97,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         teachers: [],
         schools: [],
         districts: [],
+        regions: [],
         studentsRating: []
     };
     totalCounts: StatsPagination = {
@@ -100,15 +105,17 @@ export class StatsComponent implements OnInit, OnDestroy {
         allStudentsTotalCount: 0,
         allTeachersTotalCount: 0,
         allSchoolsTotalCount: 0,
-        allDistrictsTotalCount: 0
+        allDistrictsTotalCount: 0,
+        allRegionsTotalCount: 0
     };
-    selectedTab: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' = 'developingStudents';
+    selectedTab: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' | 'allRegions' = 'developingStudents';
     developingStudentColumns: string[] = [];
     monthStudentColumns: string[] = [];
     studentColumns: string[] = [];
     teacherColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
     schoolColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
     districtColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'studentCount', 'score', 'averageScore'];
+    regionColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'districtCount', 'studentCount', 'score', 'averageScore'];
     developingStudentsLabel$ = new BehaviorSubject<string>('Cari ayda inkişaf edən şagirdlər');
     studentsOfMonthLabel$ = new BehaviorSubject<string>('Cari ayın şagirdləri');
     studentsOfMonthByRepublicLabel$ = new BehaviorSubject<string>('Respublika üzrə cari ayın şagirdləri');
@@ -122,9 +129,11 @@ export class StatsComponent implements OnInit, OnDestroy {
     private readonly availableTeacherColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'fullName', 'school', 'district', 'studentCount', 'score', 'averageScore'];
     private readonly availableSchoolColumns: string[] = ['districtPlace', 'place', 'filterPlace', 'code', 'name', 'district', 'studentCount', 'score', 'averageScore'];
     private readonly availableDistrictColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'studentCount', 'score', 'averageScore'];
+    private readonly availableRegionColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'districtCount', 'studentCount', 'score', 'averageScore'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
     selectedAcademicYear: number = (() => { const now = new Date(); return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1; })();
+    selectedRegionIds: string[] = [];
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
     selectedTeacherIds: string[] = [];
@@ -142,7 +151,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         { label: 'İlin şagirdləri', key: 'allStudents', permission: 'showStudentsTab' },
         { label: 'İlin müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
         { label: 'İlin məktəbləri', key: 'allSchools', permission: 'showSchoolsTab' },
-        { label: 'İlin rayonları / şəhərləri', key: 'allDistricts', permission: 'showDistrictsTab' }
+        { label: 'İlin rayonları / şəhərləri', key: 'allDistricts', permission: 'showDistrictsTab' },
+        { label: 'İlin regional idarələri', key: 'allRegions', permission: 'showRegionsTab' }
     ];
 
     // Геттер для фильтрации табов по правам доступа
@@ -151,6 +161,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.permissions.canShowUI(tab.permission as any)
         );
     }
+    regions: Region[] = [];
     districts: District[] = [];
     schools: School[] = [];
     teachers: Teacher[] = [];
@@ -174,6 +185,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     // Navigation history for back button functionality
     private navigationHistory: Array<{
         tabIndex: number;
+        regionIds: string[];
         districtIds: string[];
         schoolIds: string[];
         teacherIds: string[];
@@ -187,11 +199,13 @@ export class StatsComponent implements OnInit, OnDestroy {
     currentUserName: string = '';
     currentSchoolName: string = '';
     currentDistrictName: string = '';
+    currentRegionName: string = '';
 
     constructor(
         private authService: AuthService,
         private statsService: StatsService,
         private districtService: DistrictService,
+        private regionService: RegionService,
         private schoolService: SchoolService,
         private teacherService: TeacherService,
         private studentService: StudentService,
@@ -219,17 +233,22 @@ export class StatsComponent implements OnInit, OnDestroy {
                 this.loadCurrentUserData();
                 this.loadSettings();
                 this.loadExams();
-                this.loadDistricts();
-                // Не загружаем школы и учителей сразу, только по необходимости
+                this.loadRegions();
+                // Не загружаем районы/школы/учителей сразу — районы зависят от возможного
+                // restored regionIds из query-параметров, см. подписку ниже
 
                 this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
                     // Restore filters
+                    this.selectedRegionIds = params['regionIds'] ? params['regionIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
                     this.selectedExamIds = params['examIds'] ? params['examIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.searchString = params['search'] || '';
+
+                    // Список районов зависит от возможного restored regionIds
+                    this.loadDistricts();
 
                     // Restore month and tab
                     this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
@@ -273,6 +292,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                     } else if (this.selectedTab === 'allDistricts') {
                         this.selectedTabIndex = 6;
                         this.loadDistrictsStats();
+                    } else if (this.selectedTab === 'allRegions') {
+                        this.selectedTabIndex = 7;
+                        this.loadRegionsStats();
                     }
 
                     const monthPart = this.selectedMonth.split('-')[1];
@@ -305,6 +327,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                         this.teacherColumns = settings.allTeacherCollumns || this.availableTeacherColumns;
                         this.schoolColumns = settings.allSchoolCollumns || this.availableSchoolColumns;
                         this.districtColumns = settings.allDistrictCollumns || this.availableDistrictColumns;
+                        this.regionColumns = settings.allRegionCollumns || this.availableRegionColumns;
                     },
                     error: (error: Error) => {
                         console.error('Error loading settings:', error);
@@ -329,6 +352,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.teacherColumns           = pick('allTeachers', this.availableTeacherColumns);
                     this.schoolColumns            = pick('allSchools', this.availableSchoolColumns);
                     this.districtColumns          = pick('allDistricts', this.availableDistrictColumns);
+                    this.regionColumns            = pick('allRegions', this.availableRegionColumns);
                 },
                 error: (error: Error) => {
                     console.error('Error loading global settings:', error);
@@ -386,6 +410,19 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => console.error('Error loading school data:', error)
             });
+        } else if (role === 'regionRepresenter' && this.currentUser.regionId) {
+            // Для представителя региона - загружаем данные региона
+            this.regionService.getRegionById(this.currentUser.regionId).subscribe({
+                next: (region) => {
+                    this.currentRegionName = region.name;
+                    // Автоматически устанавливаем фильтр для представителя региона
+                    this.selectedRegionIds = [this.currentUser.regionId];
+                    this.loadDistricts();
+                    // Reload current tab now that filters are set
+                    this.reloadCurrentTab();
+                },
+                error: (error) => console.error('Error loading region data:', error)
+            });
         } else if (role === 'districtRepresenter' && this.currentUser.districtId) {
             // Для представителя района - загружаем данные района
             this.districtService.getDistrictById(this.currentUser.districtId).subscribe({
@@ -427,6 +464,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             case 'allTeachers':               this.loadTeachersStats(); break;
             case 'allSchools':                this.loadSchoolsStats(); break;
             case 'allDistricts':              this.loadDistrictsStats(); break;
+            case 'allRegions':                this.loadRegionsStats(); break;
             case 'allStudents':               this.loadAllStudentsStats(); break;
             case 'developingStudents':        this.loadDevelopingStudentsStats(); break;
             case 'studentsOfMonth':           this.loadStudentsOfMonthStats(); break;
@@ -450,6 +488,10 @@ export class StatsComponent implements OnInit, OnDestroy {
             return this.currentDistrictName
                 ? `${this.currentDistrictName} rayon`
                 : 'Rayon nümayəndəsi';
+        } else if (role === 'regionRepresenter') {
+            return this.currentRegionName
+                ? this.currentRegionName
+                : 'Regional təhsil idarəsi nümayəndəsi';
         }
 
         return '';
@@ -458,10 +500,15 @@ export class StatsComponent implements OnInit, OnDestroy {
     // Проверка, должны ли быть отключены фильтры
     get shouldDisableFilters(): boolean {
         const role = this.authorizedUserRole;
-        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter';
+        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter' || role === 'regionRepresenter';
     }
 
     // Методы для проверки конкретных фильтров
+    get shouldDisableRegionFilter(): boolean {
+        const role = this.authorizedUserRole;
+        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter' || role === 'regionRepresenter';
+    }
+
     get shouldDisableDistrictFilter(): boolean {
         const role = this.authorizedUserRole;
         return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter';
@@ -490,6 +537,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.stats.developingStudents = [];
 
         const params: FilterParams = {
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
@@ -529,6 +577,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.stats.studentsOfMonth = [];
 
         const params: FilterParams = {
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
@@ -568,6 +617,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.stats.studentsOfMonthByRepublic = [];
 
         const params: FilterParams = {
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
@@ -610,6 +660,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.studentsPageSize,
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
@@ -666,6 +717,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
@@ -697,6 +749,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
@@ -726,6 +779,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
+            regionIds: this.selectedRegionIds.join(","),
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
@@ -746,6 +800,30 @@ export class StatsComponent implements OnInit, OnDestroy {
         });
     }
 
+    loadRegionsStats(): void {
+        const params: FilterParams = {
+            page: this.pageIndex + 1,
+            size: this.pageSize,
+            sortColumn: this.sortActive || 'score',
+            sortDirection: this.sortDirection || 'desc',
+            code: this.searchString || undefined,
+            academicYear: this.selectedAcademicYear,
+        }
+
+        this.statsService.getRegionsStats(params).subscribe({
+            next: (response: any) => {
+                this.isloading = false;
+                const statsData = ResponseHandlerUtil.extractPaginatedData<Region>(response);
+                this.stats = { ...this.stats, regions: statsData.data || [] };
+                this.totalCounts.allRegionsTotalCount = statsData.totalCount || 0;
+            },
+            error: (error: Error) => {
+                this.isloading = false;
+                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+            }
+        });
+    }
+
 
     onAcademicYearChanged(year: number): void {
         this.selectedAcademicYear = year;
@@ -757,6 +835,8 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.loadSchoolsStats();
         } else if (this.selectedTab === 'allDistricts') {
             this.loadDistrictsStats();
+        } else if (this.selectedTab === 'allRegions') {
+            this.loadRegionsStats();
         }
     }
 
@@ -766,6 +846,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
+            regionIds: this.selectedRegionIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             sortColumn: 'fullname',
@@ -789,6 +870,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
+            regionIds: this.selectedRegionIds.join(","),
             districtIds: this.selectedDistrictIds.join(","),
             sortColumn: 'name',
             sortDirection: 'asc',
@@ -809,6 +891,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     loadDistricts(): void {
         const params: FilterParams = {
+            regionIds: this.selectedRegionIds.join(","),
             sortColumn: 'name',
             sortDirection: 'asc'
         }
@@ -821,6 +904,19 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                     this.districts = [];
+                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                }
+            });
+    }
+
+    loadRegions(): void {
+        this.regionService.getRegionsForFilter()
+            .subscribe({
+                next: (data: Region[]) => {
+                    this.regions = Array.isArray(data) ? data : [];
+                },
+                error: (error: Error) => {
+                    this.regions = [];
                     this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
                 }
             });
@@ -945,6 +1041,47 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.sortActive = 'score';
             this.sortDirection = 'desc';
             this.loadDistrictsStats();
+        } else if (event.index === 7) {
+            this.selectedTab = 'allRegions'
+            // Сбрасываем сортировку для рейтинга по умолчанию (по баллу от большего к меньшему)
+            this.sortActive = 'score';
+            this.sortDirection = 'desc';
+            this.loadRegionsStats();
+        }
+    }
+
+    onRegionSelectChanged(regionIds: string[]) {
+        this.selectedRegionIds = regionIds;
+        // Выбор региона сужает список районов в соседнем селекте (иерархия сверху вниз,
+        // по образцу связки район→школа)
+        this.selectedDistrictIds = [];
+        this.loadDistricts();
+
+        if (this.isStudentMonthTab()) {
+            this.loadSchools();
+            this.loadTeachers();
+            if (this.selectedTabIndex === 0) {
+                this.loadDevelopingStudentsStats();
+            } else if (this.selectedTabIndex === 1) {
+                this.loadStudentsOfMonthStats();
+            } else if (this.selectedTabIndex === 2) {
+                this.loadStudentsOfMonthByRepublicStats();
+            }
+        }
+        else if (this.selectedTab === 'allStudents') {
+            this.loadSchools();
+            this.loadTeachers();
+            this.loadAllStudentsStats();
+        }
+        else if (this.selectedTab === 'allTeachers') {
+            this.loadSchools();
+            this.loadTeachersStats();
+        }
+        else if (this.selectedTab === 'allSchools') {
+            this.loadSchoolsStats();
+        }
+        else if (this.selectedTab === 'allDistricts') {
+            this.loadDistrictsStats();
         }
     }
 
@@ -1037,6 +1174,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     openStudentDetails(studentId: string): void {
         const queryParams = {
+            regionIds: this.selectedRegionIds.length > 0 ? this.selectedRegionIds.join(",") : undefined,
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(",") : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(",") : undefined,
@@ -1110,6 +1248,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             else if (this.selectedTab === 'allDistricts') {
                 this.loadDistrictsStats();
             }
+            else if (this.selectedTab === 'allRegions') {
+                this.loadRegionsStats();
+            }
         } else {
             if (this.selectedTab === 'allStudents') {
                 this.loadAllStudentsStats();
@@ -1122,6 +1263,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             }
             else if (this.selectedTab === 'allDistricts') {
                 this.loadDistrictsStats();
+            }
+            else if (this.selectedTab === 'allRegions') {
+                this.loadRegionsStats();
             }
         }
     }
@@ -1139,10 +1283,12 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.loadSchoolsStats();
         } else if (this.selectedTab === 'allDistricts') {
             this.loadDistrictsStats();
+        } else if (this.selectedTab === 'allRegions') {
+            this.loadRegionsStats();
         }
     }
 
-    exportToExcel(tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' | string) {
+    exportToExcel(tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' | 'allRegions' | string) {
         const workbook = XLSX.utils.book_new();
         let sheetName: string = '';
         let result: XLSX.WorkSheet = {};
@@ -1183,6 +1329,11 @@ export class StatsComponent implements OnInit, OnDestroy {
                 sheetName = 'İlin rayonları / şəhərləri';
                 break;
             }
+            case 'allRegions': {
+                result = XLSX.utils.json_to_sheet(this.excelService.formatRegionData(this.stats.regions || [], this.regionColumns));
+                sheetName = 'İlin regional idarələri';
+                break;
+            }
         }
 
         this.excelService.formatHeaders(result);
@@ -1207,10 +1358,30 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     // Navigation between stats tabs with filtering
+    onRegionRowClick(regionId: string): void {
+        // Save current state to history before navigating
+        this.navigationHistory.push({
+            tabIndex: this.selectedTabIndex,
+            regionIds: [...this.selectedRegionIds],
+            districtIds: [...this.selectedDistrictIds],
+            schoolIds: [...this.selectedSchoolIds],
+            teacherIds: [...this.selectedTeacherIds]
+        });
+
+        // Navigate to Districts Year tab (index 6) with region filter
+        this.selectedRegionIds = [regionId];
+        this.selectedDistrictIds = [];
+        this.selectedSchoolIds = [];
+        this.selectedTeacherIds = [];
+        this.loadDistricts();
+        this.selectTab(6); // Districts Year tab
+    }
+
     onDistrictRowClick(districtId: string): void {
         // Save current state to history before navigating
         this.navigationHistory.push({
             tabIndex: this.selectedTabIndex,
+            regionIds: [...this.selectedRegionIds],
             districtIds: [...this.selectedDistrictIds],
             schoolIds: [...this.selectedSchoolIds],
             teacherIds: [...this.selectedTeacherIds]
@@ -1227,6 +1398,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         // Save current state to history before navigating
         this.navigationHistory.push({
             tabIndex: this.selectedTabIndex,
+            regionIds: [...this.selectedRegionIds],
             districtIds: [...this.selectedDistrictIds],
             schoolIds: [...this.selectedSchoolIds],
             teacherIds: [...this.selectedTeacherIds]
@@ -1242,6 +1414,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         // Save current state to history before navigating
         this.navigationHistory.push({
             tabIndex: this.selectedTabIndex,
+            regionIds: [...this.selectedRegionIds],
             districtIds: [...this.selectedDistrictIds],
             schoolIds: [...this.selectedSchoolIds],
             teacherIds: [...this.selectedTeacherIds]
@@ -1266,9 +1439,11 @@ export class StatsComponent implements OnInit, OnDestroy {
         const previousState = this.navigationHistory.pop()!;
 
         // Restore filter state
+        this.selectedRegionIds = previousState.regionIds;
         this.selectedDistrictIds = previousState.districtIds;
         this.selectedSchoolIds = previousState.schoolIds;
         this.selectedTeacherIds = previousState.teacherIds;
+        this.loadDistricts();
 
         // Navigate to previous tab
         this.selectTab(previousState.tabIndex);

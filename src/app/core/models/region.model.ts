@@ -1,24 +1,23 @@
 import { ApiResponse } from "./response.model";
 import { YearRating } from "./year-rating.model";
 
-export interface DistrictResponse {
-    data: District[];
+export interface RegionResponse {
+    data: Region[];
     totalCount: number;
 }
 
-export interface DistrictApiResponse extends ApiResponse<{ data: District[], totalCount: number }> {}
+export interface RegionApiResponse extends ApiResponse<{ data: Region[], totalCount: number }> {}
 
-export interface District {
+export interface Region {
     id: number;
     name: string;
     code: number;
-    regionId?: number | null;
-    regionName?: string | null;
-    rate: number;
     score: number;
     averageScore: number;
+    districtCount: number;
     studentCount: number;
-    districtOfTheYearScore?: number;
+    regionOfTheYearScore?: number;
+    active: boolean;
     place?: number;
     filterPlace?: number | null;
     ratings?: YearRating[];

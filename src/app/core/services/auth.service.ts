@@ -103,6 +103,9 @@ export class AuthService {
         return role ? (ROLE_PERMISSIONS[role]?.crud[permission] ?? false) : false;
     }
 
+    canCreateRegions(): boolean { return this.canPerformCrud('canCreateRegions'); }
+    canEditRegions(): boolean { return this.canPerformCrud('canEditRegions'); }
+    canDeleteRegions(): boolean { return this.canPerformCrud('canDeleteRegions'); }
     canCreateDistricts(): boolean { return this.canPerformCrud('canCreateDistricts'); }
     canEditDistricts(): boolean { return this.canPerformCrud('canEditDistricts'); }
     canDeleteDistricts(): boolean { return this.canPerformCrud('canDeleteDistricts'); }

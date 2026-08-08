@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './features/home/components/home/home.component';
 import { DistrictsListComponent } from './features/districts/components/districts-list/districts-list.component';
+import { RegionsListComponent } from './features/regions/components/regions-list/regions-list.component';
 import { SchoolsListComponent } from './features/schools/components/schools-list/schools-list.component';
 import { TeachersListComponent } from './features/teachers/components/teachers-list/teachers-list.component';
 import { ExamsListComponent } from './features/exams/components/exams-list/exams-list.component';
@@ -19,6 +20,8 @@ import { RegisterComponent } from './features/auth/register/register/register.co
 
 export const routes: Routes = [
     { path: '', component: HomeComponent, canActivate: [authGuard] },
+    { path: 'regions', component: RegionsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
+    { path: 'regions/:id/districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
     { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
     { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },

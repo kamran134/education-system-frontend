@@ -36,11 +36,23 @@
             </div>
 
             <!-- Academic Year Filter (İlin... tabs) -->
-            <div *ngIf="['allStudents', 'allTeachers', 'allSchools', 'allDistricts'].includes(selectedTab)">
+            <div *ngIf="['allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'].includes(selectedTab)">
                 <app-select
                     label="Tədris ili"
                     [formControl]="academicYearControl"
                     [options]="academicYearOptions">
+                </app-select>
+            </div>
+
+            <!-- Regions Filter -->
+            <div *ngIf="selectedTab !== 'allRegions'">
+                <app-select
+                    label="Regional Təhsil İdarələri"
+                    [multiple]="true"
+                    [(ngModel)]="selectedRegionIds"
+                    [options]="regionOptions"
+                    [disabled]="disableRegionFilter"
+                    (ngModelChange)="onRegionSelectChanged($event)">
                 </app-select>
             </div>
 

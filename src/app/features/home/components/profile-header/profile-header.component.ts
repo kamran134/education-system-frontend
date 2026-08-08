@@ -8,13 +8,14 @@ import { ProfileSummary } from '../../../../core/models/auth.models';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { DistrictService } from '../../../districts/services/district.service';
+import { RegionService } from '../../../regions/services/region.service';
 import { ImageCropModalComponent } from '../../../../shared/components/modals/image-crop-modal/image-crop-modal.component';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 
-/** Роли, у которых фото — широкий баннер школы/района, а не портрет. */
-const BANNER_ROLES = ['schoolDirector', 'districtRepresenter'];
+/** Роли, у которых фото — широкий баннер школы/района/региона, а не портрет. */
+const BANNER_ROLES = ['schoolDirector', 'districtRepresenter', 'regionRepresenter'];
 /** Роли с самообслуживанием загрузки фото (студенческий аватар остаётся админским). */
-const UPLOADABLE_ROLES = ['teacher', 'schoolDirector', 'districtRepresenter'];
+const UPLOADABLE_ROLES = ['teacher', 'schoolDirector', 'districtRepresenter', 'regionRepresenter'];
 
 @Component({
     selector: 'app-profile-header',
@@ -41,6 +42,7 @@ export class ProfileHeaderComponent implements OnInit {
         private teacherService: TeacherService,
         private schoolService: SchoolService,
         private districtService: DistrictService,
+        private regionService: RegionService,
         private snackBarService: SnackBarService
     ) { }
 
@@ -137,6 +139,7 @@ export class ProfileHeaderComponent implements OnInit {
             case 'teacher': return this.teacherService.uploadAvatar(entityId, formData);
             case 'schoolDirector': return this.schoolService.uploadAvatar(entityId, formData);
             case 'districtRepresenter': return this.districtService.uploadAvatar(entityId, formData);
+            case 'regionRepresenter': return this.regionService.uploadAvatar(entityId, formData);
             default: return null;
         }
     }

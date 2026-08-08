@@ -5,6 +5,7 @@ import { Student, StudentWithResult } from "../models/student.model";
 import { Teacher } from "../models/teacher.model";
 import { School } from "../models/school.model";
 import { District } from "../models/district.model";
+import { Region } from "../models/region.model";
 import moment from "moment";
 
 @Injectable({
@@ -84,6 +85,17 @@ export class ExcelService {
         ['averageScore', { label: 'Orta reytinq xalı',           accessor: (d: any) => d.averageScore ?? 0 }],
     ]);
 
+    private readonly regionColumnMap = new Map<string, { label: string; accessor: (r: any) => any }>([
+        ['place',         { label: 'Respublika üzrə yer', accessor: (r: any) => r.place || '' }],
+        ['filterPlace',   { label: 'Filtr üzrə yer',       accessor: (r: any) => r.filterPlace || '' }],
+        ['code',          { label: 'Regional idarə kodu', accessor: (r: any) => r.code }],
+        ['name',          { label: 'Adı',                 accessor: (r: any) => r.name }],
+        ['districtCount', { label: 'Rayon sayı',          accessor: (r: any) => r.districtCount ?? 0 }],
+        ['studentCount',  { label: 'Şagird sayı',         accessor: (r: any) => r.studentCount ?? 0 }],
+        ['score',         { label: 'Reytinq xalı',          accessor: (r: any) => r.score ?? 0 }],
+        ['averageScore',  { label: 'Orta reytinq xalı',           accessor: (r: any) => r.averageScore ?? 0 }],
+    ]);
+
     // Builds rows using only the requested columns (or all columns if `columns` is undefined)
     private mapRows<T>(
         items: T[],
@@ -149,10 +161,16 @@ export class ExcelService {
         return this.mapRows(districts, this.districtColumnMap, columns);
     }
 
+    // Форматирование данных для регионов (Regional Təhsil İdarələri)
+    formatRegionData(regions: Region[], columns?: string[]): any[] {
+        return this.mapRows(regions, this.regionColumnMap, columns);
+    }
+
     private readonly userRoleLabels: Record<string, string> = {
         superadmin: 'Superadmin',
         admin: 'Admin',
         moderator: 'Moderator',
+        regionRepresenter: 'Regional idarə nümayəndəsi',
         districtRepresenter: 'Rayon nümayəndəsi',
         schoolDirector: 'Məktəb direktoru',
         teacher: 'Müəllim',

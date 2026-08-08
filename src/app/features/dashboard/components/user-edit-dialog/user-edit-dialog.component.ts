@@ -13,10 +13,12 @@ import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { StudentService } from '../../../students/services/student.service';
+import { RegionService } from '../../../regions/services/region.service';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Student } from '../../../../core/models/student.model';
+import { Region } from '../../../../core/models/region.model';
 import { connectDebounce } from '../../../../core/utils/debounce.util';
 import { Subject, takeUntil } from 'rxjs';
 import { LucideAngularModule, Eye, EyeOff, KeyRound } from 'lucide-angular';
@@ -59,18 +61,21 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     readonly KeyRound = KeyRound;
 
     // Search fields
+    regionSearchTerm: string = '';
     districtSearchTerm: string = '';
     schoolSearchTerm: string = '';
     teacherSearchTerm: string = '';
     studentSearchTerm: string = '';
 
     // Search results
+    regionOptions: SelectOption[] = [];
     districtOptions: SelectOption[] = [];
     schoolOptions: SelectOption[] = [];
     teacherOptions: SelectOption[] = [];
     studentOptions: SelectOption[] = [];
 
     // Search subjects for debounce
+    private regionSearch$ = new Subject<string>();
     private districtSearch$ = new Subject<string>();
     private schoolSearch$ = new Subject<string>();
     private teacherSearch$ = new Subject<string>();
@@ -88,10 +93,12 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         private schoolService: SchoolService,
         private teacherService: TeacherService,
         private studentService: StudentService,
+        private regionService: RegionService,
         private dashboardService: DashboardService
     ) {}
 
     ngOnInit(): void {
+        connectDebounce(this.regionSearch$, term => this.searchRegions(term), this.destroy$);
         connectDebounce(this.districtSearch$, term => this.searchDistricts(term), this.destroy$);
         connectDebounce(this.schoolSearch$, term => this.searchSchools(term), this.destroy$);
         connectDebounce(this.teacherSearch$, term => this.searchTeachers(term), this.destroy$);
@@ -107,6 +114,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
 
         // Complete search subjects
+        this.regionSearch$.complete();
         this.districtSearch$.complete();
         this.schoolSearch$.complete();
         this.teacherSearch$.complete();
@@ -128,6 +136,21 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         });
 
         switch (this.dataSource.role) {
+            case 'regionRepresenter':
+                if (this.dataSource.regionId) {
+                    this.regionService.getRegionById(this.dataSource.regionId)
+                        .pipe(takeUntil(this.destroy$))
+                        .subscribe({
+                            next: (region: any) => {
+                                if (region) {
+                                    this.regionSearchTerm = region.name;
+                                }
+                            },
+                            error: (error) => console.error('Error loading region:', error)
+                        });
+                }
+                break;
+
             case 'districtRepresenter':
                 if (this.dataSource.districtId) {
                     this.districtService.getDistrictById(this.dataSource.districtId)
@@ -206,6 +229,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             'superadmin': 'Super Admin',
             'admin': 'Admin',
             'moderator': 'Moderator',
+            'regionRepresenter': 'Regional idarə nümayəndəsi',
             'districtRepresenter': 'Rayon nümayəndəsi',
             'schoolDirector': 'Məktəb direktoru',
             'teacher': 'Müəllim',
@@ -226,6 +250,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             'superadmin': 'Super Admin məlumatlarını redaktə edin',
             'admin': 'Admin məlumatlarını redaktə edin',
             'moderator': 'Moderator məlumatlarını redaktə edin',
+            'regionRepresenter': 'Regional idarə nümayəndəsinin məlumatlarını redaktə edin',
             'districtRepresenter': 'Rayon nümayəndəsinin məlumatlarını redaktə edin',
             'schoolDirector': 'Məktəb direktorunun məlumatlarını redaktə edin',
             'teacher': 'Müəllimin məlumatlarını redaktə edin',
@@ -240,6 +265,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         const options: SelectOption[] = [
             { value: 'admin', label: 'Admin' },
             { value: 'moderator', label: 'Moderator' },
+            { value: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
             { value: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
             { value: 'schoolDirector', label: 'Məktəb direktoru' },
             { value: 'teacher', label: 'Müəllim' },
@@ -252,6 +278,10 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         }
 
         return options;
+    }
+
+    get needsRegionSelection(): boolean {
+        return this.dataSource.role === 'regionRepresenter';
     }
 
     get needsDistrictSelection(): boolean {
@@ -292,6 +322,10 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         }
 
         // Role-specific validation
+        if (this.needsRegionSelection && !this.dataSource.regionId) {
+            return false;
+        }
+
         if (this.needsDistrictSelection && !this.dataSource.districtId) {
             return false;
         }
@@ -336,6 +370,10 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     }
 
     // Search methods
+    onRegionSearchChange(term: string): void {
+        this.regionSearch$.next(term);
+    }
+
     onDistrictSearchChange(term: string): void {
         this.districtSearch$.next(term);
     }
@@ -353,6 +391,12 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     }
 
     // Select handlers for autocomplete items
+    selectRegion(option: { value: string; label: string }): void {
+        this.dataSource.regionId = option.value as any;
+        this.regionSearchTerm = option.label;
+        this.regionOptions = [];
+    }
+
     selectDistrict(option: { value: string; label: string }): void {
         this.dataSource.districtId = option.value as any;
         this.districtSearchTerm = option.label;
@@ -375,6 +419,29 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         this.dataSource.studentId = option.value as any;
         this.studentSearchTerm = option.label;
         this.studentOptions = [];
+    }
+
+    private searchRegions(term: string): void {
+        if (!term || term.length < 2) {
+            this.regionOptions = [];
+            return;
+        }
+
+        this.regionService.getRegions({ search: term, sortColumn: 'name', sortDirection: 'asc' })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    const regions = response.data || [];
+                    this.regionOptions = regions.map((r: Region) => ({
+                        value: r.id,
+                        label: `${r.name}`
+                    }));
+                },
+                error: (error) => {
+                    console.error('Region search error:', error);
+                    this.regionOptions = [];
+                }
+            });
     }
 
     private searchDistricts(term: string): void {
@@ -557,6 +624,11 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         }
 
         // Validate role-specific fields
+        if (this.needsRegionSelection && !this.dataSource.regionId) {
+            this.matSnackBar.open('Regional idarə nümayəndəsi üçün regional idarə seçilməlidir!', '', this.matSnackConfig);
+            return;
+        }
+
         if (this.needsDistrictSelection && !this.dataSource.districtId) {
             this.matSnackBar.open('Rayon nümayəndəsi üçün rayon seçilməlidir!', '', this.matSnackConfig);
             return;

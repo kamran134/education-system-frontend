@@ -16,7 +16,7 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2 } from 'lucide-angular';
-import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
+import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
 @Component({
@@ -47,10 +47,16 @@ export class DistrictsListComponent implements OnInit {
     sortColumn = 'name';
     sortDirection: 'asc' | 'desc' = 'asc';
 
+    // Navigation: ID региона из маршрута /regions/:id/districts, по образцу districtId в schools-list
+    regionId?: string;
+    selectedRegionIds: string[] = [];
+    backButton?: BackButton;
+
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'Adı', sortable: true, type: 'text' },
+        { key: 'regionName', label: 'Regional idarə', sortable: false, type: 'text' },
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
 
@@ -95,7 +101,15 @@ export class DistrictsListComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.setupActionButtons();
+        // Проверяем, не смотрим ли мы районы конкретного региона (/regions/:id/districts)
+        this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+            this.regionId = params['id'];
+            if (this.regionId) {
+                this.selectedRegionIds = [this.regionId];
+            }
+            this.setupActionButtons();
+            this.loadDistricts();
+        });
 
         // Restore state from query parameters if coming back
         this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
@@ -106,12 +120,18 @@ export class DistrictsListComponent implements OnInit {
                 this.pageSize = parseInt(params['districtPageSize']) || 100;
             }
         });
+    }
 
-        this.loadDistricts();
+    goBack(): void {
+        this.router.navigate(['/regions']);
     }
 
     private setupActionButtons(): void {
         this.actionButtons = [];
+
+        if (this.regionId) {
+            this.backButton = { show: true, action: () => this.goBack() };
+        }
 
         if (this.authService.canCreateDistricts()) {
             this.actionButtons.push({
@@ -142,7 +162,7 @@ export class DistrictsListComponent implements OnInit {
         const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
           width: '400px',
           data: {
-            district: { name: '', code: '', studentCount: 0 },
+            district: { name: '', code: '', studentCount: 0, regionId: this.regionId ? parseInt(this.regionId, 10) : null },
             isEditing: false,
             canDelete: false
           },
@@ -174,6 +194,7 @@ export class DistrictsListComponent implements OnInit {
         const params: FilterParams = {
             page: this.pageIndex + 1,
             size: this.pageSize,
+            regionIds: this.selectedRegionIds.join(","),
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection
         }
@@ -222,7 +243,8 @@ export class DistrictsListComponent implements OnInit {
                     id: district.id,
                     name: district.name,
                     code: district.code,
-                    studentCount: district.studentCount
+                    studentCount: district.studentCount,
+                    regionId: district.regionId ?? null
                 },
                 isEditing: true,
                 canDelete: this.authService.canDeleteDistricts()

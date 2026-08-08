@@ -6,10 +6,12 @@ export interface RoleTabSettings {
     allTeachers?: string[];
     allSchools?: string[];
     allDistricts?: string[];
+    allRegions?: string[];
 }
 
 export interface RoleSettings {
     moderator?: RoleTabSettings;
+    regionRepresenter?: RoleTabSettings;
     districtRepresenter?: RoleTabSettings;
     schoolDirector?: RoleTabSettings;
     teacher?: RoleTabSettings;
@@ -24,6 +26,7 @@ export interface UserSettings {
     allTeacherCollumns: string[];
     allSchoolCollumns: string[];
     allDistrictCollumns: string[];
+    allRegionCollumns?: string[];
     teacherViewCollumns?: string[];
     directorViewCollumns?: string[];
     districtViewCollumns?: string[];

@@ -3,7 +3,7 @@ export interface UserResponse {
     totalCount: number;
 }
 
-export type UserRole = "superadmin" | "admin" | "moderator" | "districtRepresenter" | "schoolDirector" | "teacher" | "student";
+export type UserRole = "superadmin" | "admin" | "moderator" | "regionRepresenter" | "districtRepresenter" | "schoolDirector" | "teacher" | "student";
 
 export interface User {
     id: number;
@@ -11,6 +11,7 @@ export interface User {
     passwordHash: string;
     role: UserRole;
     isApproved: boolean;
+    regionId?: string;
     districtId?: string;
     schoolId?: string;
     teacherId?: string;
@@ -23,6 +24,7 @@ export interface UserEdit {
     password?: string;
     role: UserRole;
     isApproved: boolean;
+    regionId?: string;
     districtId?: string;
     schoolId?: string;
     teacherId?: string;

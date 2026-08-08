@@ -38,6 +38,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         { value: 'superadmin', label: 'Superadmin' },
         { value: 'admin', label: 'Admin' },
         { value: 'moderator', label: 'Moderator' },
+        { value: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
         { value: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
         { value: 'schoolDirector', label: 'Məktəb direktoru' },
         { value: 'teacher', label: 'Müəllim' },

@@ -2,6 +2,7 @@ import { Component, DestroyRef, EventEmitter, Input, OnChanges, OnInit, Output, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { District } from '../../../../core/models/district.model';
+import { Region } from '../../../../core/models/region.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Exam } from '../../../../core/models/exam.model';
@@ -38,11 +39,13 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     readonly ChevronUp = ChevronUp;
 
     @Input() selectedTab: string = 'developingStudents';
+    @Input() regions: Region[] = [];
     @Input() districts: District[] = [];
     @Input() schools: School[] = [];
     @Input() teachers: Teacher[] = [];
     @Input() exams: Exam[] = [];
     @Input() gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    @Input() selectedRegionIds: string[] = [];
     @Input() selectedDistrictIds: string[] = [];
     @Input() selectedSchoolIds: string[] = [];
     @Input() selectedTeacherIds: string[] = [];
@@ -52,11 +55,13 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
 
     // Role-based filter disabling
+    @Input() disableRegionFilter: boolean = false;
     @Input() disableDistrictFilter: boolean = false;
     @Input() disableSchoolFilter: boolean = false;
     @Input() disableTeacherFilter: boolean = false;
 
     @Output() monthUpdated = new EventEmitter<string>();
+    @Output() regionChanged = new EventEmitter<string[]>();
     @Output() districtChanged = new EventEmitter<string[]>();
     @Output() schoolChanged = new EventEmitter<string[]>();
     @Output() teacherChanged = new EventEmitter<string[]>();
@@ -109,6 +114,10 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         return this.years.map(year => ({ label: year.toString(), value: year }));
     }
 
+    get regionOptions() {
+        return (this.regions || []).map(region => ({ label: region.name, value: region.id }));
+    }
+
     get districtOptions() {
         return (this.districts || []).map(district => ({ label: district.name, value: district.id }));
     }
@@ -153,7 +162,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         // Trigger change detection when input data changes
-        if (changes['districts'] || changes['schools'] || changes['teachers'] || changes['exams']) {
+        if (changes['regions'] || changes['districts'] || changes['schools'] || changes['teachers'] || changes['exams']) {
             // Data has been updated, component will re-render
         }
     }
@@ -208,6 +217,13 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
             this.selectedExamIds = examIds;
         }
         this.examChanged.emit(this.selectedExamIds);
+    }
+
+    onRegionSelectChanged(regionIds?: string[]) {
+        if (regionIds !== undefined) {
+            this.selectedRegionIds = regionIds;
+        }
+        this.regionChanged.emit(this.selectedRegionIds);
     }
 
     onDistrictSelectChanged(districtIds?: string[]) {

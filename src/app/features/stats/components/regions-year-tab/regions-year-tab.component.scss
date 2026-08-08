@@ -1,0 +1,10 @@
+tr.mat-mdc-row {
+    &:hover {
+        background-color: #f9fafb !important;
+        cursor: pointer;
+    }
+}
+
+:host-context(body.dark-mode) tr.mat-mdc-row:hover {
+    background-color: #2a2a2a !important;
+}

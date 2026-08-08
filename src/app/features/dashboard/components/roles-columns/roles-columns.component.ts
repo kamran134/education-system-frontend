@@ -107,6 +107,15 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'score', label: 'Reytinq xalı', selected: false, order: 4 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 5 },
     ],
+    allRegions: [
+        { key: 'place', label: 'Respublika üzrə yer', selected: false, order: 0 },
+        { key: 'code', label: 'Kodu', selected: false, order: 1 },
+        { key: 'name', label: 'Adı', selected: false, order: 2 },
+        { key: 'districtCount', label: 'Rayon sayı', selected: false, order: 3 },
+        { key: 'studentCount', label: 'Şagird sayı', selected: false, order: 4 },
+        { key: 'score', label: 'Reytinq xalı', selected: false, order: 5 },
+        { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
+    ],
 };
 
 @Component({
@@ -133,6 +142,7 @@ export class RolesColumnsComponent implements OnInit {
 
     readonly roles: RoleDef[] = [
         { key: 'moderator', label: 'Moderator' },
+        { key: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
         { key: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
         { key: 'schoolDirector', label: 'Direktor' },
         { key: 'teacher', label: 'Müəllim' },
@@ -147,10 +157,12 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'allTeachers', label: 'İlin müəllimləri' },
         { key: 'allSchools', label: 'İlin məktəbləri' },
         { key: 'allDistricts', label: 'İlin rayonları' },
+        { key: 'allRegions', label: 'İlin regional idarələri' },
     ];
 
     readonly roleTabAccess: Record<string, string[]> = {
-        moderator: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts'],
+        moderator: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'],
+        regionRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'],
         districtRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts'],
         schoolDirector: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools'],
         teacher: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers'],

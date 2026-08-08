@@ -4,4 +4,5 @@ export interface StatsPagination {
     allTeachersTotalCount?: number;
     allSchoolsTotalCount?: number;
     allDistrictsTotalCount?: number;
+    allRegionsTotalCount?: number;
 }

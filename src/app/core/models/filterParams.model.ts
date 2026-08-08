@@ -1,6 +1,7 @@
 export interface FilterParams {
     page?: number;
     size?: number;
+    regionIds?: string | string[];
     districtIds?: string | string[];
     schoolIds?: string | string[];
     teacherIds?: string | string[];
