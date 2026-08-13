@@ -9,7 +9,6 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -29,7 +28,6 @@ import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } fr
         MatToolbarModule,
         MatMenuModule,
         MatDividerModule,
-        HttpClientModule,
         LucideAngularModule,
         DropdownComponent,
         DropdownItemComponent,

@@ -1,4 +1,3 @@
-import { HttpClientModule } from '@angular/common/http';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,7 +8,7 @@ import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ReactiveFormsModule, HttpClientModule, CommonModule],
+    imports: [ReactiveFormsModule, CommonModule],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
 })

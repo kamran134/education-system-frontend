@@ -32,34 +32,9 @@ export interface SelectOption {
 
       <!-- Select Container -->
       <div class="relative">
-        <!-- Single Select -->
-        <div *ngIf="!multiple" 
-             #selectTrigger="cdkOverlayOrigin"
-             cdkOverlayOrigin
-             class="relative cursor-pointer" 
-             (click)="toggleDropdown()"
-             [class.ring-2]="isOpen"
-             [class.ring-primary-500]="isOpen"
-             [class.border-primary-500]="isOpen"
-             [class.border-gray-300]="!isOpen && !error"
-             [class.border-red-300]="error"
-             class="block w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none transition-colors"
-        >
-          <div class="flex items-center justify-between">
-            <span class="block truncate" [class.text-gray-500]="!selectedOption">
-              {{ selectedOption?.label || placeholder || 'Seçin...' }}
-            </span>
-            <lucide-icon 
-              [img]="ChevronDown" 
-              class="h-4 w-4 text-gray-400 transition-transform duration-200"
-              [class.rotate-180]="isOpen"
-            ></lucide-icon>
-          </div>
-        </div>
-
-        <!-- Multi Select -->
-        <div *ngIf="multiple" 
-             #selectTrigger="cdkOverlayOrigin"
+        <!-- Single trigger element, always rendered — keeps the cdkOverlayOrigin identity
+             stable across change-detection passes. Single/multi content swaps inside it. -->
+        <div #selectTrigger="cdkOverlayOrigin"
              cdkOverlayOrigin
              class="relative cursor-pointer min-h-[40px]"
              (click)="toggleDropdown()"
@@ -70,10 +45,23 @@ export interface SelectOption {
              [class.border-red-300]="error"
              class="block w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none transition-colors"
         >
-          <div class="flex items-center justify-between min-h-[24px]">
+          <!-- Single Select -->
+          <div *ngIf="!multiple" class="flex items-center justify-between">
+            <span class="block truncate" [class.text-gray-500]="!selectedOption">
+              {{ selectedOption?.label || placeholder || 'Seçin...' }}
+            </span>
+            <lucide-icon
+              [img]="ChevronDown"
+              class="h-4 w-4 text-gray-400 transition-transform duration-200"
+              [class.rotate-180]="isOpen"
+            ></lucide-icon>
+          </div>
+
+          <!-- Multi Select -->
+          <div *ngIf="multiple" class="flex items-center justify-between min-h-[24px]">
             <!-- Selected Options -->
             <div class="flex flex-wrap gap-1" *ngIf="selectedOptions.length > 0; else emptyState">
-              <span *ngFor="let option of selectedOptions; trackBy: trackByValue" 
+              <span *ngFor="let option of selectedOptions; trackBy: trackByValue"
                     class="inline-flex items-center rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-800">
                 {{ option.label }}
                 <button
@@ -89,8 +77,8 @@ export interface SelectOption {
               <span class="text-gray-500">{{ placeholder || 'Seçin...' }}</span>
             </ng-template>
 
-            <lucide-icon 
-              [img]="ChevronDown" 
+            <lucide-icon
+              [img]="ChevronDown"
               class="h-4 w-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ml-2"
               [class.rotate-180]="isOpen"
             ></lucide-icon>
