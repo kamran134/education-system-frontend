@@ -52,7 +52,8 @@ export class DistrictEditingDialogComponent implements OnInit {
         return !!(
             this.data.district.code &&
             this.data.district.name?.trim() &&
-            (this.data.district.studentCount !== undefined && this.data.district.studentCount >= 0)
+            (this.data.district.studentCount !== undefined && this.data.district.studentCount >= 0) &&
+            this.data.district.regionId
         );
     }
 
