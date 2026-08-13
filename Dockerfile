@@ -1,5 +1,5 @@
 # Используем Node.js для сборки Angular-приложения
-FROM node:18 AS build
+FROM node:22 AS build
 
 WORKDIR /app
 
