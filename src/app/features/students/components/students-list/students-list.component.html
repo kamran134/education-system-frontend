@@ -12,7 +12,7 @@
       <!-- Filter Header -->
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-medium text-gray-900">Filtrlər</h3>
-        <button 
+        <button
           type="button"
           (click)="toggleFilters()"
           class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
@@ -20,130 +20,143 @@
           <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
         </button>
       </div>
-      
+
       <!-- Collapsible Filters -->
-      <div *ngIf="filtersExpanded" class="space-y-4">
-        <!-- First Row: Districts & Schools -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- District Filter -->
-          <div>
-            <app-select
-              label="Rayonlar / şəhərlər"
-              [multiple]="true"
-              [(ngModel)]="selectedDistrictIds"
-              [options]="districtOptions"
-              [disabled]="districts.length === 0"
-              (ngModelChange)="onFilterChange({districts: $event})">
-            </app-select>
-          </div>
-          
-          <!-- School Filter -->
-          <div>
-            <app-select
-              label="Məktəblər"
-              [multiple]="true"
-              [(ngModel)]="selectedSchoolIds"
-              [options]="schoolOptions"
-              [disabled]="schools.length === 0"
-              placeholder="Əvvəl rayon seçin"
-              (ngModelChange)="onFilterChange({schools: $event})">
-            </app-select>
-          </div>
-        </div>
-
-        <!-- Second Row: Teachers & Grades -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Teachers Filter -->
-          <div>
-            <app-select
-              label="Müəllimlər"
-              [multiple]="true"
-              [(ngModel)]="selectedTeacherIds"
-              [options]="teacherOptions"
-              [disabled]="teachers.length === 0"
-              placeholder="Əvvəl məktəb seçin"
-              (ngModelChange)="onFilterChange({teachers: $event})">
-            </app-select>
-          </div>
-
-          <!-- Grades Filter -->
-          <div>
-            <app-select
-              label="Siniflər"
-              [multiple]="true"
-              [(ngModel)]="selectedGrades"
-              [options]="gradeOptions"
-              (ngModelChange)="onFilterChange({grades: $event})">
-            </app-select>
-          </div>
-
-          <!-- Search & Defective -->
-          <div class="space-y-3">
-            <!-- Search Filter -->
+      @if (filtersExpanded) {
+        <div class="space-y-4">
+          <!-- First Row: Districts & Schools -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- District Filter -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Axtarış</label>
-              <input 
-                type="text" 
-                [value]="searchString" 
-                (input)="onFilterChange({search: $any($event.target).value})"
-                placeholder="Şagird adı, soyadı və ya kodu ilə axtarış..."
-                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+              <app-select
+                label="Rayonlar / şəhərlər"
+                [multiple]="true"
+                [(ngModel)]="selectedDistrictIds"
+                [options]="districtOptions"
+                [disabled]="districts.length === 0"
+                (ngModelChange)="onFilterChange({districts: $event})">
+              </app-select>
             </div>
-
-            <!-- Defective Students Filter -->
-            <div class="flex items-center space-x-2 pt-1">
-              <input 
-                type="checkbox" 
-                id="defective" 
-                [(ngModel)]="checkedDefective" 
-                (change)="onFilterChange({defective: checkedDefective})"
-                class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-              <label for="defective" class="text-sm text-gray-700 cursor-pointer">
-                Qüsurlu şagirdlər
-              </label>
+            <!-- School Filter -->
+            <div>
+              <app-select
+                label="Məktəblər"
+                [multiple]="true"
+                [(ngModel)]="selectedSchoolIds"
+                [options]="schoolOptions"
+                [disabled]="schools.length === 0"
+                placeholder="Əvvəl rayon seçin"
+                (ngModelChange)="onFilterChange({schools: $event})">
+              </app-select>
             </div>
           </div>
+          <!-- Second Row: Teachers & Grades -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Teachers Filter -->
+            <div>
+              <app-select
+                label="Müəllimlər"
+                [multiple]="true"
+                [(ngModel)]="selectedTeacherIds"
+                [options]="teacherOptions"
+                [disabled]="teachers.length === 0"
+                placeholder="Əvvəl məktəb seçin"
+                (ngModelChange)="onFilterChange({teachers: $event})">
+              </app-select>
+            </div>
+            <!-- Grades Filter -->
+            <div>
+              <app-select
+                label="Siniflər"
+                [multiple]="true"
+                [(ngModel)]="selectedGrades"
+                [options]="gradeOptions"
+                (ngModelChange)="onFilterChange({grades: $event})">
+              </app-select>
+            </div>
+            <!-- Search & Defective -->
+            <div class="space-y-3">
+              <!-- Search Filter -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Axtarış</label>
+                <input
+                  type="text"
+                  [value]="searchString"
+                  (input)="onFilterChange({search: $any($event.target).value})"
+                  placeholder="Şagird adı, soyadı və ya kodu ilə axtarış..."
+                  class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                </div>
+                <!-- Defective Students Filter -->
+                <div class="flex items-center space-x-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="defective"
+                    [(ngModel)]="checkedDefective"
+                    (change)="onFilterChange({defective: checkedDefective})"
+                    class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                    <label for="defective" class="text-sm text-gray-700 cursor-pointer">
+                      Qüsurlu şagirdlər
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Always visible summary when collapsed -->
+          @if (!filtersExpanded) {
+            <div class="text-sm text-gray-600">
+              @if (selectedDistrictIds.length > 0) {
+                <span>{{ selectedDistrictIds.length }} rayon, </span>
+              }
+              @if (selectedSchoolIds.length > 0) {
+                <span>{{ selectedSchoolIds.length }} məktəb, </span>
+              }
+              @if (selectedTeacherIds.length > 0) {
+                <span>{{ selectedTeacherIds.length }} müəllim, </span>
+              }
+              @if (selectedGrades.length > 0) {
+                <span>{{ selectedGrades.length }} sinif, </span>
+              }
+              @if (searchString) {
+                <span>axtarış: "{{ searchString }}", </span>
+              }
+              @if (checkedDefective) {
+                <span>qüsurlu şagirdlər, </span>
+              }
+              @if (selectedDistrictIds.length === 0 && selectedSchoolIds.length === 0 && selectedTeacherIds.length === 0 && selectedGrades.length === 0 && !searchString && !checkedDefective) {
+                <span>
+                  Filtrlər tətbiq edilməyib
+                </span>
+              }
+            </div>
+          }
         </div>
       </div>
-      
-      <!-- Always visible summary when collapsed -->
-      <div *ngIf="!filtersExpanded" class="text-sm text-gray-600">
-        <span *ngIf="selectedDistrictIds.length > 0">{{ selectedDistrictIds.length }} rayon, </span>
-        <span *ngIf="selectedSchoolIds.length > 0">{{ selectedSchoolIds.length }} məktəb, </span>
-        <span *ngIf="selectedTeacherIds.length > 0">{{ selectedTeacherIds.length }} müəllim, </span>
-        <span *ngIf="selectedGrades.length > 0">{{ selectedGrades.length }} sinif, </span>
-        <span *ngIf="searchString">axtarış: "{{ searchString }}", </span>
-        <span *ngIf="checkedDefective">qüsurlu şagirdlər, </span>
-        <span *ngIf="selectedDistrictIds.length === 0 && selectedSchoolIds.length === 0 && selectedTeacherIds.length === 0 && selectedGrades.length === 0 && !searchString && !checkedDefective">
-          Filtrlər tətbiq edilməyib
-        </span>
+
+      <!-- Main Content -->
+      <div slot="content" class="flex flex-col h-full">
+        <app-data-table
+          [data]="students"
+          [columns]="tableColumns"
+          [actions]="tableActions"
+          [totalCount]="totalCount"
+          [pageSize]="pageSize"
+          [pageIndex]="pageIndex"
+          [sortBy]="sortColumn"
+          [sortDirection]="sortDirection"
+          (actionClicked)="onTableAction($event)"
+          (pageChanged)="onPageChange($event)"
+          (sortChanged)="onSortChange($event)"
+          (rowClicked)="onStudentView($event)"
+          class="flex-1">
+        </app-data-table>
       </div>
-    </div>
-  </div>
+    </app-list-layout>
 
-  <!-- Main Content -->
-  <div slot="content" class="flex flex-col h-full">
-    <app-data-table
-      [data]="students"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      [totalCount]="totalCount"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [sortBy]="sortColumn"
-      [sortDirection]="sortDirection"
-      (actionClicked)="onTableAction($event)"
-      (pageChanged)="onPageChange($event)"
-      (sortChanged)="onSortChange($event)"
-      (rowClicked)="onStudentView($event)"
-      class="flex-1">
-    </app-data-table>
-  </div>
-</app-list-layout>
-
-<!-- Bulk Avatar Upload Modal -->
-<app-bulk-avatar-upload-modal
-  [isOpen]="isBulkUploadModalOpen"
-  (closed)="closeBulkUploadModal()"
-  (uploaded)="onBulkUploadComplete()">
-</app-bulk-avatar-upload-modal>
+    <!-- Bulk Avatar Upload Modal -->
+    <app-bulk-avatar-upload-modal
+      [isOpen]="isBulkUploadModalOpen"
+      (closed)="closeBulkUploadModal()"
+      (uploaded)="onBulkUploadComplete()">
+    </app-bulk-avatar-upload-modal>

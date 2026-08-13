@@ -1,9 +1,9 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-card',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div [class]="cardClasses">
       <ng-content></ng-content>
@@ -50,7 +50,7 @@ export class CardComponent {
 
 @Component({
     selector: 'app-card-header',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div class="flex items-center justify-between mb-4">
       <ng-content></ng-content>
@@ -62,7 +62,7 @@ export class CardHeaderComponent {}
 
 @Component({
     selector: 'app-card-title',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <h3 class="text-lg font-semibold text-gray-900">
       <ng-content></ng-content>
@@ -74,7 +74,7 @@ export class CardTitleComponent {}
 
 @Component({
     selector: 'app-card-content',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div class="text-gray-600">
       <ng-content></ng-content>

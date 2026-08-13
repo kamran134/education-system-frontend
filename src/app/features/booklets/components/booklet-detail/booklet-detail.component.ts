@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute } from '@angular/router';
 
 import { Booklet, BookletDisciplines, BookletDistrict, BookletExam } from '../../../../core/models/booklet.model';
@@ -14,7 +14,7 @@ interface DisciplineTab {
 
 @Component({
     selector: 'app-booklet-detail',
-    imports: [CommonModule, LucideAngularModule],
+    imports: [LucideAngularModule],
     templateUrl: './booklet-detail.component.html',
     styleUrls: ['./booklet-detail.component.scss']
 })

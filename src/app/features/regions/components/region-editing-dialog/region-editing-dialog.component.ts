@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Region } from '../../../../core/models/region.model';
@@ -9,11 +9,10 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 @Component({
     selector: 'app-region-editing-dialog',
     imports: [
-        CommonModule,
-        FormsModule,
-        InputComponent,
-        ModalComponent
-    ],
+    FormsModule,
+    InputComponent,
+    ModalComponent
+],
     templateUrl: './region-editing-dialog.component.html',
     styleUrl: './region-editing-dialog.component.scss'
 })

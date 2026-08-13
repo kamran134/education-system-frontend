@@ -4,7 +4,7 @@
   size="lg"
   [buttons]="modalButtons"
   (closed)="onModalClose()"
->
+  >
   <div class="space-y-6">
     <!-- Exam Info -->
     <div class="bg-gray-50 p-4 rounded-lg space-y-2">
@@ -32,45 +32,47 @@
           (change)="onFileChange($event)"
           accept=".xlsx, .xls"
           required
-        />
+          />
 
-        <div class="text-center space-y-4">
-          <div class="mx-auto w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-            <lucide-icon [img]="Upload" class="w-6 h-6 text-gray-500"></lucide-icon>
-          </div>
+          <div class="text-center space-y-4">
+            <div class="mx-auto w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <lucide-icon [img]="Upload" class="w-6 h-6 text-gray-500"></lucide-icon>
+            </div>
 
-          <div>
-            <app-button
-              variant="outline"
-              (clicked)="fileInput.click()"
-            >
-              <div class="flex items-center space-x-2">
-                <lucide-icon [img]="Upload" class="w-4 h-4"></lucide-icon>
-                <span>Fayl əlavə et</span>
+            <div>
+              <app-button
+                variant="outline"
+                (clicked)="fileInput.click()"
+                >
+                <div class="flex items-center space-x-2">
+                  <lucide-icon [img]="Upload" class="w-4 h-4"></lucide-icon>
+                  <span>Fayl əlavə et</span>
+                </div>
+              </app-button>
+              <p class="text-xs text-gray-500 mt-2">Excel faylları (.xlsx, .xls)</p>
+            </div>
+
+            @if (fileName) {
+              <div class="bg-blue-50 border border-blue-200 rounded p-2">
+                <p class="text-sm text-blue-800">Seçilmiş fayl: {{ fileName }}</p>
               </div>
-            </app-button>
-            <p class="text-xs text-gray-500 mt-2">Excel faylları (.xlsx, .xls)</p>
-          </div>
-
-          <div *ngIf="fileName" class="bg-blue-50 border border-blue-200 rounded p-2">
-            <p class="text-sm text-blue-800">Seçilmiş fayl: {{ fileName }}</p>
+            }
           </div>
         </div>
-      </div>
 
-      <!-- Submit -->
-      <div class="flex flex-wrap gap-3">
-        <app-button
-          variant="primary"
-          type="submit"
-          [disabled]="!file || isUploading"
-        >
-          <div class="flex items-center space-x-2">
-            <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
-            <span>{{ isUploading ? 'Yüklənir...' : 'Yüklə' }}</span>
-          </div>
-        </app-button>
-      </div>
-    </form>
-  </div>
-</app-modal>
+        <!-- Submit -->
+        <div class="flex flex-wrap gap-3">
+          <app-button
+            variant="primary"
+            type="submit"
+            [disabled]="!file || isUploading"
+            >
+            <div class="flex items-center space-x-2">
+              <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+              <span>{{ isUploading ? 'Yüklənir...' : 'Yüklə' }}</span>
+            </div>
+          </app-button>
+        </div>
+      </form>
+    </div>
+  </app-modal>

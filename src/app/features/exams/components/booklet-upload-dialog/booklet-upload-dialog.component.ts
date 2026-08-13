@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { LucideAngularModule, Upload, Save } from 'lucide-angular';
@@ -15,7 +15,7 @@ export interface BookletUploadDialogData {
 
 @Component({
     selector: 'app-booklet-upload-dialog',
-    imports: [CommonModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
+    imports: [MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
     templateUrl: './booklet-upload-dialog.component.html',
     styleUrls: ['./booklet-upload-dialog.component.scss']
 })

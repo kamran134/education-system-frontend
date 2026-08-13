@@ -1,36 +1,46 @@
-<div *ngIf="!isLoading && !hasError">
+@if (!isLoading && !hasError) {
+  <div>
     <table mat-table [dataSource]="data" class="mat-elevation-z8">
-        <ng-container *ngFor="let column of tableColumns" [matColumnDef]="column.key">
-            <th mat-header-cell *matHeaderCellDef> {{ column.title }} </th>
-            <td mat-cell *matCellDef="let row">
-              {{ column.valueFormatter ? column.valueFormatter(row) : row[column.key] }}
-            </td>
+      @for (column of tableColumns; track column) {
+        <ng-container [matColumnDef]="column.key">
+          <th mat-header-cell *matHeaderCellDef> {{ column.title }} </th>
+          <td mat-cell *matCellDef="let row">
+            {{ column.valueFormatter ? column.valueFormatter(row) : row[column.key] }}
+          </td>
         </ng-container>
-        
-        <ng-container matColumnDef="actions" *ngIf="actions?.edit || actions?.delete">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-                <button mat-raised-button class="mat-edit-button" *ngIf="isAdminOrSuperAdmin && actions?.edit" (click)="onUpdate(row)">
-                    <mat-icon>edit</mat-icon> düzəliş et
-                </button>
-                <button mat-raised-button color="warn" *ngIf="isAdminOrSuperAdmin && actions?.delete" (click)="onDelete(row.id)">
-                    <mat-icon>delete</mat-icon> sil
-                </button>
-            </td>
+      }
+      @if (actions?.edit || actions?.delete) {
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            @if (isAdminOrSuperAdmin && actions?.edit) {
+              <button mat-raised-button class="mat-edit-button" (click)="onUpdate(row)">
+                <mat-icon>edit</mat-icon> düzəliş et
+              </button>
+            }
+            @if (isAdminOrSuperAdmin && actions?.delete) {
+              <button mat-raised-button color="warn" (click)="onDelete(row.id)">
+                <mat-icon>delete</mat-icon> sil
+              </button>
+            }
+          </td>
         </ng-container>
-    
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      }
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-</div>
+  </div>
+}
 
-<div *ngIf="!isLoading && !hasError && data.length > 0">
+@if (!isLoading && !hasError && data.length > 0) {
+  <div>
     <mat-paginator
-        [length]="totalCount"
-        [pageIndex]="pageIndex"
-        [showFirstLastButtons]="true"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="[100, 1000]"
-        (page)="onPageChange($event)"
-    />
-</div>
+      [length]="totalCount"
+      [pageIndex]="pageIndex"
+      [showFirstLastButtons]="true"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[100, 1000]"
+      (page)="onPageChange($event)"
+      />
+  </div>
+}

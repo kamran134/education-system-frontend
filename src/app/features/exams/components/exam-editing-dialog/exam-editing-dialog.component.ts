@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -9,11 +9,10 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 @Component({
     selector: 'app-exam-editing',
     imports: [
-        CommonModule,
-        FormsModule,
-        InputComponent,
-        ModalComponent
-    ],
+    FormsModule,
+    InputComponent,
+    ModalComponent
+],
     templateUrl: './exam-editing-dialog.component.html',
     styleUrl: './exam-editing-dialog.component.scss'
 })

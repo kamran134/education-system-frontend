@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -8,10 +8,9 @@ import { PermissionsService } from '../../../../core/services/permissions.servic
 @Component({
     selector: 'app-admin-layout',
     imports: [
-        CommonModule,
-        RouterModule,
-        LucideAngularModule
-    ],
+    RouterModule,
+    LucideAngularModule
+],
     templateUrl: './admin-layout.component.html',
     styleUrl: './admin-layout.component.scss'
 })

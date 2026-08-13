@@ -42,190 +42,210 @@ export interface PageSizeOption {
       <div class="overflow-auto" style="max-height: calc(100vh - 260px);">
         <div style="min-width: 100%;">
           <table class="min-w-full divide-y divide-gray-200" [attr.aria-label]="ariaLabel">
-          <thead class="bg-gray-50">
-            <tr>
-              <th
-                *ngFor="let column of columns; trackBy: trackByColumnKey"
-                scope="col"
-                [class]="getHeaderClass(column)"
-                [style.width]="column.width"
-              >
-                <button
-                  *ngIf="column.sortable"
-                  type="button"
-                  [attr.aria-label]="'Sırala: ' + column.label"
-                  [attr.aria-sort]="sortBy === column.key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
-                  class="group inline-flex items-center space-x-1 text-xs font-medium uppercase tracking-wide text-gray-500 hover:text-gray-700"
-                  (click)="onSort(column.key)"
-                >
-                  <span>{{ column.label }}</span>
-                  <!-- Sort indicators can be added here -->
-                </button>
-                <span *ngIf="!column.sortable" class="text-xs font-medium uppercase tracking-wide text-gray-500">
-                  {{ column.label }}
-                </span>
-              </th>
-              <th *ngIf="actions.length > 0" scope="col" class="relative px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
-                Əməliyyatlar
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let item of data; let i = index; trackBy: trackByItemId" class="hover:bg-gray-50 transition-colors cursor-pointer" (click)="onRowClick(item)">
-              <td
-                *ngFor="let column of columns; trackBy: trackByColumnKey"
-                [class]="getCellClass(column)"
-              >
-                <div [ngSwitch]="column.type || 'text'">
-                  <!-- Text -->
-                  <span *ngSwitchCase="'text'" class="text-sm text-gray-900">
-                    {{ getValue(item, column.key) }}
-                  </span>
-
-                  <!-- Number -->
-                  <span *ngSwitchCase="'number'" class="text-sm text-gray-900 font-mono">
-                    {{ getValue(item, column.key) | number }}
-                  </span>
-
-                  <!-- Date -->
-                  <span *ngSwitchCase="'date'" class="text-sm text-gray-500">
-                    {{ getValue(item, column.key) | date:'dd.MM.yyyy' }}
-                  </span>
-
-                  <!-- Boolean -->
-                  <span *ngSwitchCase="'boolean'" class="inline-flex items-center">
-                    <span [class]="getValue(item, column.key) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                          class="inline-flex rounded-full px-2 text-xs font-semibold leading-5">
-                      {{ getValue(item, column.key) ? 'Bəli' : 'Xeyr' }}
-                    </span>
-                  </span>
-
-                  <!-- Custom -->
-                  <ng-container *ngSwitchCase="'custom'">
-                    <ng-content [select]="'[slot=column-' + column.key + ']'"></ng-content>
-                  </ng-container>
-
-                  <!-- Default -->
-                  <span *ngSwitchDefault class="text-sm text-gray-900">
-                    {{ getValue(item, column.key) }}
-                  </span>
-                </div>
-              </td>
-
-              <!-- Actions -->
-              <td *ngIf="actions.length > 0" class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex items-center justify-end space-x-2" (click)="$event.stopPropagation()">
-                  <app-button
-                    *ngFor="let action of actions; trackBy: trackByActionKey"
-                    [variant]="action.variant || 'outline'"
-                    size="sm"
-                    [style.display]="shouldShowAction(action, item) ? 'inline-flex' : 'none'"
-                    (clicked)="onAction(action.key, item)"
-                  >
-                    <div class="flex items-center space-x-1">
-                      <lucide-icon *ngIf="action.icon" [img]="action.icon" class="h-3 w-3"></lucide-icon>
-                      <span class="hidden sm:inline">{{ action.label }}</span>
+            <thead class="bg-gray-50">
+              <tr>
+                @for (column of columns; track trackByColumnKey($index, column)) {
+                  <th
+                    scope="col"
+                    [class]="getHeaderClass(column)"
+                    [style.width]="column.width"
+                    >
+                    @if (column.sortable) {
+                      <button
+                        type="button"
+                        [attr.aria-label]="'Sırala: ' + column.label"
+                        [attr.aria-sort]="sortBy === column.key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+                        class="group inline-flex items-center space-x-1 text-xs font-medium uppercase tracking-wide text-gray-500 hover:text-gray-700"
+                        (click)="onSort(column.key)"
+                        >
+                        <span>{{ column.label }}</span>
+                        <!-- Sort indicators can be added here -->
+                      </button>
+                    }
+                    @if (!column.sortable) {
+                      <span class="text-xs font-medium uppercase tracking-wide text-gray-500">
+                        {{ column.label }}
+                      </span>
+                    }
+                  </th>
+                }
+                @if (actions.length > 0) {
+                  <th scope="col" class="relative px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
+                    Əməliyyatlar
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (item of data; track trackByItemId(i, item); let i = $index) {
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer" (click)="onRowClick(item)">
+                  @for (column of columns; track trackByColumnKey($index, column)) {
+                    <td
+                      [class]="getCellClass(column)"
+                      >
+                      <div>
+                        @switch (column.type || 'text') {
+                          <!-- Text -->
+                          @case ('text') {
+                            <span class="text-sm text-gray-900">
+                              {{ getValue(item, column.key) }}
+                            </span>
+                          }
+                          <!-- Number -->
+                          @case ('number') {
+                            <span class="text-sm text-gray-900 font-mono">
+                              {{ getValue(item, column.key) | number }}
+                            </span>
+                          }
+                          <!-- Date -->
+                          @case ('date') {
+                            <span class="text-sm text-gray-500">
+                              {{ getValue(item, column.key) | date:'dd.MM.yyyy' }}
+                            </span>
+                          }
+                          <!-- Boolean -->
+                          @case ('boolean') {
+                            <span class="inline-flex items-center">
+                              <span [class]="getValue(item, column.key) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                class="inline-flex rounded-full px-2 text-xs font-semibold leading-5">
+                                {{ getValue(item, column.key) ? 'Bəli' : 'Xeyr' }}
+                              </span>
+                            </span>
+                          }
+                          <!-- Custom -->
+                          @case ('custom') {
+                            <ng-content [select]="'[slot=column-' + column.key + ']'"></ng-content>
+                          }
+                          <!-- Default -->
+                          @default {
+                            <span class="text-sm text-gray-900">
+                              {{ getValue(item, column.key) }}
+                            </span>
+                          }
+                        }
+                      </div>
+                    </td>
+                  }
+                  <!-- Actions -->
+                  @if (actions.length > 0) {
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div class="flex items-center justify-end space-x-2" (click)="$event.stopPropagation()">
+                        @for (action of actions; track trackByActionKey($index, action)) {
+                          <app-button
+                            [variant]="action.variant || 'outline'"
+                            size="sm"
+                            [style.display]="shouldShowAction(action, item) ? 'inline-flex' : 'none'"
+                            (clicked)="onAction(action.key, item)"
+                            >
+                            <div class="flex items-center space-x-1">
+                              @if (action.icon) {
+                                <lucide-icon [img]="action.icon" class="h-3 w-3"></lucide-icon>
+                              }
+                              <span class="hidden sm:inline">{{ action.label }}</span>
+                            </div>
+                          </app-button>
+                        }
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+    
+              <!-- Empty State -->
+              @if (!data || data.length === 0) {
+                <tr>
+                  <td [attr.colspan]="columns.length + (actions.length > 0 ? 1 : 0)" class="px-6 py-12 text-center">
+                    <div class="text-gray-500">
+                      <p class="text-sm">Məlumat tapılmadı</p>
                     </div>
-                  </app-button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Empty State -->
-            <tr *ngIf="!data || data.length === 0">
-              <td [attr.colspan]="columns.length + (actions.length > 0 ? 1 : 0)" class="px-6 py-12 text-center">
-                <div class="text-gray-500">
-                  <p class="text-sm">Məlumat tapılmadı</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
-
+    
       <!-- Pagination -->
-      <div *ngIf="totalCount > 0" class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
-          <div class="flex items-center space-x-4">
-            <p class="text-sm text-gray-700">
-              <span class="font-medium">{{ getDisplayStart() }}</span>
-              -
-              <span class="font-medium">{{ getDisplayEnd() }}</span>
-              arası,
-              <span class="font-medium">{{ totalCount }}</span>
-              nəticədən
-            </p>
-
-            <!-- Page Size Selector -->
+      @if (totalCount > 0) {
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+              <p class="text-sm text-gray-700">
+                <span class="font-medium">{{ getDisplayStart() }}</span>
+                -
+                <span class="font-medium">{{ getDisplayEnd() }}</span>
+                arası,
+                <span class="font-medium">{{ totalCount }}</span>
+                nəticədən
+              </p>
+              <!-- Page Size Selector -->
+              <div class="flex items-center space-x-2">
+                <label class="text-sm text-gray-700">Səhifə ölçüsü:</label>
+                <select
+                  [(ngModel)]="pageSize"
+                  (ngModelChange)="onPageSizeChange($event)"
+                  class="block rounded-md border-gray-300 py-1 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                  >
+                  @for (option of pageSizeOptions; track trackByPageSizeValue($index, option)) {
+                    <option [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
             <div class="flex items-center space-x-2">
-              <label class="text-sm text-gray-700">Səhifə ölçüsü:</label>
-              <select
-                [(ngModel)]="pageSize"
-                (ngModelChange)="onPageSizeChange($event)"
-                class="block rounded-md border-gray-300 py-1 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
-              >
-                <option *ngFor="let option of pageSizeOptions; trackBy: trackByPageSizeValue" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
+              <!-- First page -->
+              <app-button
+                variant="outline"
+                size="sm"
+                aria-label="Birinci səhifə"
+                [disabled]="pageIndex === 0"
+                (clicked)="goToPage(0)"
+                >
+                <lucide-icon [img]="ChevronsLeft" class="h-4 w-4"></lucide-icon>
+              </app-button>
+              <!-- Previous page -->
+              <app-button
+                variant="outline"
+                size="sm"
+                aria-label="Əvvəlki səhifə"
+                [disabled]="pageIndex === 0"
+                (clicked)="goToPage(pageIndex - 1)"
+                >
+                <lucide-icon [img]="ChevronLeft" class="h-4 w-4"></lucide-icon>
+              </app-button>
+              <!-- Page numbers -->
+              <span class="text-sm text-gray-700 px-2">
+                {{ pageIndex + 1 }} / {{ getTotalPages() }}
+              </span>
+              <!-- Next page -->
+              <app-button
+                variant="outline"
+                size="sm"
+                aria-label="Növbəti səhifə"
+                [disabled]="pageIndex >= getTotalPages() - 1"
+                (clicked)="goToPage(pageIndex + 1)"
+                >
+                <lucide-icon [img]="ChevronRight" class="h-4 w-4"></lucide-icon>
+              </app-button>
+              <!-- Last page -->
+              <app-button
+                variant="outline"
+                size="sm"
+                aria-label="Son səhifə"
+                [disabled]="pageIndex >= getTotalPages() - 1"
+                (clicked)="goToPage(getTotalPages() - 1)"
+                >
+                <lucide-icon [img]="ChevronsRight" class="h-4 w-4"></lucide-icon>
+              </app-button>
             </div>
           </div>
-
-          <div class="flex items-center space-x-2">
-            <!-- First page -->
-            <app-button
-              variant="outline"
-              size="sm"
-              aria-label="Birinci səhifə"
-              [disabled]="pageIndex === 0"
-              (clicked)="goToPage(0)"
-            >
-              <lucide-icon [img]="ChevronsLeft" class="h-4 w-4"></lucide-icon>
-            </app-button>
-
-            <!-- Previous page -->
-            <app-button
-              variant="outline"
-              size="sm"
-              aria-label="Əvvəlki səhifə"
-              [disabled]="pageIndex === 0"
-              (clicked)="goToPage(pageIndex - 1)"
-            >
-              <lucide-icon [img]="ChevronLeft" class="h-4 w-4"></lucide-icon>
-            </app-button>
-
-            <!-- Page numbers -->
-            <span class="text-sm text-gray-700 px-2">
-              {{ pageIndex + 1 }} / {{ getTotalPages() }}
-            </span>
-
-            <!-- Next page -->
-            <app-button
-              variant="outline"
-              size="sm"
-              aria-label="Növbəti səhifə"
-              [disabled]="pageIndex >= getTotalPages() - 1"
-              (clicked)="goToPage(pageIndex + 1)"
-            >
-              <lucide-icon [img]="ChevronRight" class="h-4 w-4"></lucide-icon>
-            </app-button>
-
-            <!-- Last page -->
-            <app-button
-              variant="outline"
-              size="sm"
-              aria-label="Son səhifə"
-              [disabled]="pageIndex >= getTotalPages() - 1"
-              (clicked)="goToPage(getTotalPages() - 1)"
-            >
-              <lucide-icon [img]="ChevronsRight" class="h-4 w-4"></lucide-icon>
-            </app-button>
-          </div>
         </div>
-      </div>
+      }
     </app-card>
-  `,
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent {

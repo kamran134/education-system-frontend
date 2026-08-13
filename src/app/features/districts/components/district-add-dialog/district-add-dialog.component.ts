@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
-import { CommonModule } from '@angular/common';
+
 
 interface DistrictData {
     id?: string;
@@ -14,7 +14,7 @@ interface DistrictData {
 
 @Component({
     selector: 'app-district-add-dialog',
-    imports: [CommonModule, InputComponent, FormsModule, ModalComponent],
+    imports: [InputComponent, FormsModule, ModalComponent],
     templateUrl: './district-add-dialog.component.html',
     styleUrl: './district-add-dialog.component.scss'
 })

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -38,15 +38,14 @@ import { BulkAvatarUploadModalComponent } from '../../../../shared/components/mo
 @Component({
     selector: 'app-students-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent,
-        SelectComponent,
-        BulkAvatarUploadModalComponent
-    ],
+    FormsModule,
+    RouterModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent,
+    SelectComponent,
+    BulkAvatarUploadModalComponent
+],
     templateUrl: './students-list.component.html',
     styleUrls: ['./students-list.component.scss']
 })

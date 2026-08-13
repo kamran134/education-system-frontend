@@ -1,27 +1,44 @@
 <div class="max-w-4xl mx-auto px-4 mb-10">
   <!-- Student: read-only portrait, avatar managed by admin -->
-  <div *ngIf="role === 'student'" class="flex items-center gap-6 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
-    <img *ngIf="avatarUrl" [src]="avatarUrl" alt="" class="w-24 h-32 object-cover rounded-xl shadow-sm shrink-0">
-    <div *ngIf="!avatarUrl" class="w-24 h-32 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 text-gray-400 text-3xl font-semibold">
-      {{ profile?.fullName?.charAt(0) }}
-    </div>
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">{{ profile?.fullName }}</h1>
-      <p class="text-gray-600 mt-1" *ngIf="gradeLabel">{{ gradeLabel }}</p>
-      <p class="text-gray-500 text-sm mt-1">
-        {{ profile?.schoolName }}<span *ngIf="profile?.districtName"> · {{ profile?.districtName }}</span>
+  @if (role === 'student') {
+    <div class="flex items-center gap-6 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+      @if (avatarUrl) {
+        <img [src]="avatarUrl" alt="" class="w-24 h-32 object-cover rounded-xl shadow-sm shrink-0">
+      }
+      @if (!avatarUrl) {
+        <div class="w-24 h-32 rounded-xl bg-gray-100 flex items-center justify-center shrink-0 text-gray-400 text-3xl font-semibold">
+          {{ profile?.fullName?.charAt(0) }}
+        </div>
+      }
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">{{ profile?.fullName }}</h1>
+        @if (gradeLabel) {
+          <p class="text-gray-600 mt-1">{{ gradeLabel }}</p>
+        }
+        <p class="text-gray-500 text-sm mt-1">
+          {{ profile?.schoolName }}@if (profile?.districtName) {
+          <span> · {{ profile?.districtName }}</span>
+        }
       </p>
-      <p class="text-gray-500 text-sm" *ngIf="profile?.teacherName">Müəllim: {{ profile?.teacherName }}</p>
+      @if (profile?.teacherName) {
+        <p class="text-gray-500 text-sm">Müəllim: {{ profile?.teacherName }}</p>
+      }
     </div>
   </div>
+}
 
-  <!-- Teacher: bigger portrait, self-service upload -->
-  <div *ngIf="role === 'teacher'" class="flex items-center gap-6 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
+<!-- Teacher: bigger portrait, self-service upload -->
+@if (role === 'teacher') {
+  <div class="flex items-center gap-6 bg-white rounded-2xl shadow-md border border-gray-100 p-6">
     <div class="relative w-32 h-40 shrink-0 group cursor-pointer" (click)="openFilePicker()">
-      <img *ngIf="avatarUrl" [src]="avatarUrl" alt="" class="w-full h-full object-cover rounded-xl shadow-sm">
-      <div *ngIf="!avatarUrl" class="w-full h-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-4xl font-semibold">
-        {{ profile?.fullName?.charAt(0) }}
-      </div>
+      @if (avatarUrl) {
+        <img [src]="avatarUrl" alt="" class="w-full h-full object-cover rounded-xl shadow-sm">
+      }
+      @if (!avatarUrl) {
+        <div class="w-full h-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 text-4xl font-semibold">
+          {{ profile?.fullName?.charAt(0) }}
+        </div>
+      }
       <div class="absolute inset-0 rounded-xl bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors">
         <lucide-icon [img]="Camera" class="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity"></lucide-icon>
       </div>
@@ -29,27 +46,36 @@
     <div>
       <h1 class="text-2xl font-bold text-gray-900">{{ profile?.fullName }}</h1>
       <p class="text-gray-500 text-sm mt-1">
-        {{ profile?.schoolName }}<span *ngIf="profile?.districtName"> · {{ profile?.districtName }}</span>
-      </p>
-    </div>
+        {{ profile?.schoolName }}@if (profile?.districtName) {
+        <span> · {{ profile?.districtName }}</span>
+      }
+    </p>
   </div>
+</div>
+}
 
-  <!-- School director / district representer: wide cover banner, self-service upload -->
-  <div *ngIf="isBanner" class="relative w-full h-56 rounded-2xl overflow-hidden shadow-md group cursor-pointer" (click)="openFilePicker()">
-    <img *ngIf="avatarUrl" [src]="avatarUrl" alt="" class="w-full h-full object-cover">
-    <div *ngIf="!avatarUrl" class="w-full h-full bg-gradient-to-br from-primary-500 to-primary-600"></div>
-
+<!-- School director / district representer: wide cover banner, self-service upload -->
+@if (isBanner) {
+  <div class="relative w-full h-56 rounded-2xl overflow-hidden shadow-md group cursor-pointer" (click)="openFilePicker()">
+    @if (avatarUrl) {
+      <img [src]="avatarUrl" alt="" class="w-full h-full object-cover">
+    }
+    @if (!avatarUrl) {
+      <div class="w-full h-full bg-gradient-to-br from-primary-500 to-primary-600"></div>
+    }
     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent flex items-end p-6">
       <div>
         <h1 class="text-white text-3xl font-bold drop-shadow">{{ profile?.name }}</h1>
-        <p class="text-white/80 text-sm mt-1" *ngIf="profile?.districtName">{{ profile?.districtName }}</p>
+        @if (profile?.districtName) {
+          <p class="text-white/80 text-sm mt-1">{{ profile?.districtName }}</p>
+        }
       </div>
     </div>
-
     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-colors">
       <lucide-icon [img]="Camera" class="w-9 h-9 text-white opacity-0 group-hover:opacity-100 transition-opacity"></lucide-icon>
     </div>
   </div>
+}
 </div>
 
 <input #fileInput type="file" accept="image/jpeg,image/png,image/jpg" class="hidden" (change)="onFileSelected($event)">

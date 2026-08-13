@@ -6,7 +6,7 @@ import { SchoolService } from '../../../schools/services/school.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
-import { CommonModule } from '@angular/common';
+
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
@@ -18,12 +18,11 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'app-teacher-editing-dialog',
     imports: [
-        CommonModule,
-        FormsModule,
-        InputComponent,
-        ModalComponent,
-        SelectComponent
-    ],
+    FormsModule,
+    InputComponent,
+    ModalComponent,
+    SelectComponent
+],
     templateUrl: './teacher-editing-dialog.component.html',
     styleUrl: './teacher-editing-dialog.component.scss'
 })

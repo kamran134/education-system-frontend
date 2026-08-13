@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { SchoolService } from '../../services/school.service';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -27,14 +27,13 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 @Component({
     selector: 'app-schools-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent,
-        SelectComponent
-    ],
+    FormsModule,
+    RouterModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent,
+    SelectComponent
+],
     templateUrl: './schools-list.component.html',
     styleUrls: ['./schools-list.component.scss']
 })

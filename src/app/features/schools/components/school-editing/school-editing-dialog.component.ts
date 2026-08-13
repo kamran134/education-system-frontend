@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -17,12 +17,11 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'app-school-editing-dialog',
     imports: [
-        CommonModule,
-        FormsModule,
-        InputComponent,
-        ModalComponent,
-        SelectComponent
-    ],
+    FormsModule,
+    InputComponent,
+    ModalComponent,
+    SelectComponent
+],
     templateUrl: './school-editing-dialog.component.html',
     styleUrl: './school-editing-dialog.component.scss'
 })

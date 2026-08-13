@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit, OnDestroy, ElementRef, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { LucideAngularModule, X } from 'lucide-angular';
 import { ButtonComponent } from '../button/button.component';
 import { trigger, state, style, transition, animate } from '@angular/animations';
@@ -14,14 +14,14 @@ export interface ModalButton {
 
 @Component({
     selector: 'app-modal',
-    imports: [CommonModule, LucideAngularModule, ButtonComponent],
+    imports: [LucideAngularModule, ButtonComponent],
     template: `
     <!-- Backdrop -->
     <div
       class="fixed inset-0 z-50 bg-black bg-opacity-50 transition-opacity"
       [@fadeInOut]
       (click)="onBackdropClick()"
-    >
+      >
       <!-- Modal Container -->
       <div class="flex min-h-full items-center justify-center p-4">
         <!-- Modal Content -->
@@ -32,51 +32,61 @@ export interface ModalButton {
           role="dialog"
           [attr.aria-labelledby]="titleId"
           [attr.aria-describedby]="contentId"
-        >
+          >
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-gray-200 pb-4">
             <div class="flex-1">
               <h3 [id]="titleId" class="text-lg font-semibold text-gray-900">
                 {{ title }}
               </h3>
-              <p *ngIf="subtitle" class="mt-1 text-sm text-gray-600">
-                {{ subtitle }}
-              </p>
+              @if (subtitle) {
+                <p class="mt-1 text-sm text-gray-600">
+                  {{ subtitle }}
+                </p>
+              }
             </div>
-            <button
-              *ngIf="showCloseButton"
-              type="button"
-              class="ml-4 rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              (click)="onClose()"
-            >
-              <lucide-icon [img]="X" class="h-5 w-5"></lucide-icon>
-            </button>
+            @if (showCloseButton) {
+              <button
+                type="button"
+                class="ml-4 rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                (click)="onClose()"
+                >
+                <lucide-icon [img]="X" class="h-5 w-5"></lucide-icon>
+              </button>
+            }
           </div>
-
+    
           <!-- Content -->
           <div [id]="contentId" class="py-4 max-h-[60vh] overflow-y-auto">
             <ng-content></ng-content>
           </div>
-
+    
           <!-- Footer -->
-          <div *ngIf="buttons && buttons.length > 0" class="flex justify-end space-x-3 border-t border-gray-200 pt-4">
-            <app-button
-              *ngFor="let button of buttons"
-              [variant]="button.variant || 'outline'"
-              [disabled]="button.disabled || false"
-              (clicked)="button.action()"
-            >
-              <div *ngIf="button.loading" class="flex items-center space-x-2">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                <span>{{ button.label }}</span>
-              </div>
-              <span *ngIf="!button.loading">{{ button.label }}</span>
-            </app-button>
-          </div>
+          @if (buttons && buttons.length > 0) {
+            <div class="flex justify-end space-x-3 border-t border-gray-200 pt-4">
+              @for (button of buttons; track button) {
+                <app-button
+                  [variant]="button.variant || 'outline'"
+                  [disabled]="button.disabled || false"
+                  (clicked)="button.action()"
+                  >
+                  @if (button.loading) {
+                    <div class="flex items-center space-x-2">
+                      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                      <span>{{ button.label }}</span>
+                    </div>
+                  }
+                  @if (!button.loading) {
+                    <span>{{ button.label }}</span>
+                  }
+                </app-button>
+              }
+            </div>
+          }
         </div>
       </div>
     </div>
-  `,
+    `,
     animations: [
         trigger('fadeInOut', [
             transition(':enter', [

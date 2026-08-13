@@ -1,313 +1,321 @@
 <div class="statistics-container p-6">
-    <!-- Заголовок -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Statistika</h1>
-        <p class="text-gray-600 mt-2">
-            Cari tədris ili üzrə ümumi statistika
-        </p>
+  <!-- Заголовок -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Statistika</h1>
+    <p class="text-gray-600 mt-2">
+      Cari tədris ili üzrə ümumi statistika
+    </p>
+  </div>
+
+  <!-- Фильтры -->
+  <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <!-- Filter Header -->
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+        <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
+        Filtrlər
+      </h3>
+      <button
+        type="button"
+        (click)="toggleFilters()"
+        class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
+        <span>{{ filtersExpanded ? 'Gizlət' : 'Göstər' }}</span>
+        <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
+      </button>
     </div>
 
-    <!-- Фильтры -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <!-- Filter Header -->
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
-                Filtrlər
-            </h3>
+    <!-- Filters Grid -->
+    <div [class]="filtersExpanded ? 'block' : 'hidden'">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
+        <!-- Фильтр по году -->
+        @if (isAdminUser) {
+          <app-select
+            label="İl"
+            [(ngModel)]="selectedYear"
+            [options]="yearOptions"
+            (ngModelChange)="onYearChange()">
+          </app-select>
+        }
+
+        <!-- Фильтр по месяцам -->
+        <div class="flex flex-col gap-1">
+          <app-select
+            label="Ay (bütün il üçün boş buraxın)"
+            [(ngModel)]="selectedMonth"
+            [options]="monthOptions"
+            (ngModelChange)="onMonthChange()">
+          </app-select>
+          @if (selectedMonth !== null) {
             <button
-                type="button"
-                (click)="toggleFilters()"
-                class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
-                <span>{{ filtersExpanded ? 'Gizlət' : 'Göstər' }}</span>
-                <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
+              type="button"
+              (click)="onMonthReset()"
+              class="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors self-start mt-0.5">
+              <lucide-icon [img]="X" class="w-3 h-3"></lucide-icon>
+              Ayı sıfırla
             </button>
+          }
         </div>
 
-        <!-- Filters Grid -->
-        <div [class]="filtersExpanded ? 'block' : 'hidden'">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
-                <!-- Фильтр по году -->
-                <app-select
-                    *ngIf="isAdminUser"
-                    label="İl"
-                    [(ngModel)]="selectedYear"
-                    [options]="yearOptions"
-                    (ngModelChange)="onYearChange()">
-                </app-select>
+        <!-- Фильтр по районам -->
+        <app-select
+          label="Rayonlar / şəhərlər"
+          [multiple]="true"
+          [(ngModel)]="selectedDistrictIds"
+          [options]="districtOptions"
+          (ngModelChange)="onDistrictChange()">
+        </app-select>
 
-                <!-- Фильтр по месяцам -->
-                <div class="flex flex-col gap-1">
-                    <app-select
-                        label="Ay (bütün il üçün boş buraxın)"
-                        [(ngModel)]="selectedMonth"
-                        [options]="monthOptions"
-                        (ngModelChange)="onMonthChange()">
-                    </app-select>
-                    <button
-                        *ngIf="selectedMonth !== null"
-                        type="button"
-                        (click)="onMonthReset()"
-                        class="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors self-start mt-0.5">
-                        <lucide-icon [img]="X" class="w-3 h-3"></lucide-icon>
-                        Ayı sıfırla
-                    </button>
-                </div>
+        <!-- Фильтр по школам -->
+        <app-select
+          label="Məktəblər"
+          [multiple]="true"
+          [(ngModel)]="selectedSchoolIds"
+          [options]="schoolOptions"
+          [disabled]="schools.length === 0"
+          (ngModelChange)="onSchoolChange()">
+        </app-select>
 
-                <!-- Фильтр по районам -->
-                <app-select
-                    label="Rayonlar / şəhərlər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedDistrictIds"
-                    [options]="districtOptions"
-                    (ngModelChange)="onDistrictChange()">
-                </app-select>
+        <!-- Фильтр по классам -->
+        <app-select
+          label="Siniflər"
+          [multiple]="true"
+          [(ngModel)]="selectedGrades"
+          [options]="gradeOptions"
+          (ngModelChange)="onGradeChange()">
+        </app-select>
+      </div>
 
-                <!-- Фильтр по школам -->
-                <app-select
-                    label="Məktəblər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedSchoolIds"
-                    [options]="schoolOptions"
-                    [disabled]="schools.length === 0"
-                    (ngModelChange)="onSchoolChange()">
-                </app-select>
-
-                <!-- Фильтр по классам -->
-                <app-select
-                    label="Siniflər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedGrades"
-                    [options]="gradeOptions"
-                    (ngModelChange)="onGradeChange()">
-                </app-select>
-            </div>
-
-            <div>
-                <button
-                    type="button"
-                    (click)="onFilterReset()"
-                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
-                    Filtirləri sıfırla
-                </button>
-            </div>
-        </div>
+      <div>
+        <button
+          type="button"
+          (click)="onFilterReset()"
+          class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+          Filtirləri sıfırla
+        </button>
+      </div>
     </div>
+  </div>
 
-    <!-- Индикатор загрузки -->
-    <div *ngIf="isLoading" class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+  <!-- Индикатор загрузки -->
+  @if (isLoading) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
     </div>
+  }
 
-    <!-- Нет данных за выбранный месяц -->
-    <div *ngIf="!isLoading && statistics && selectedMonth !== null && !displayedStats"
-         class="flex flex-col items-center justify-center py-16 text-gray-400">
-        <p class="text-lg font-medium">Bu ay üçün statistika mövcud deyil</p>
-        <p class="text-sm mt-1">Başqa ay seçin və ya filtirləri sıfırlayın</p>
+  <!-- Нет данных за выбранный месяц -->
+  @if (!isLoading && statistics && selectedMonth !== null && !displayedStats) {
+    <div
+      class="flex flex-col items-center justify-center py-16 text-gray-400">
+      <p class="text-lg font-medium">Bu ay üçün statistika mövcud deyil</p>
+      <p class="text-sm mt-1">Başqa ay seçin və ya filtirləri sıfırlayın</p>
     </div>
+  }
 
-    <!-- Статистика -->
-    <div *ngIf="!isLoading && statistics && displayedStats" class="statistics-content">
-
-        <!-- İnkişaf statistikası -->
-        <div class="inkishaf-stats bg-white rounded-lg border border-teal-200 p-6 mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-                <h2 class="text-2xl font-bold text-gray-900">{{ inkishafTitle }}</h2>
-                <div class="flex items-center gap-3" [class.opacity-40]="selectedMonth !== null" [class.pointer-events-none]="selectedMonth !== null">
-                    <label class="text-sm font-medium text-gray-600 whitespace-nowrap">
-                        İştirak sayı (minimum):
-                    </label>
-                    <app-select
-                        [(ngModel)]="inkishafMinParticipations"
-                        [options]="inkishafParticipationOptions"
-                        [disabled]="selectedMonth !== null"
-                        (ngModelChange)="onInkishafParticipationsChange()">
-                    </app-select>
-                </div>
-            </div>
-
-            <div *ngIf="inkishafLoading && selectedMonth === null" class="flex justify-center py-6">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
-            </div>
-
-            <!-- İllik rejim -->
-            <div *ngIf="!inkishafLoading && inkishafStatistics && selectedMonth === null" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
-                    <h3 class="text-sm font-medium text-gray-600 mb-1">
-                        Ən azı {{ inkishafStatistics.minParticipations }} dəfə iştirak edən şagirdlər
-                    </h3>
-                    <p class="text-3xl font-bold text-teal-700">{{ inkishafStatistics.baseCount }}</p>
-                </div>
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
-                    <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf edən şagirdlər</h3>
-                    <p class="text-3xl font-bold text-teal-600">{{ inkishafStatistics.developingCount }}</p>
-                </div>
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
-                    <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf faizi</h3>
-                    <p class="text-3xl font-bold text-teal-600">{{ inkishafStatistics.percentage }}%</p>
-                </div>
-            </div>
-
-            <!-- Aylıq rejim -->
-            <div *ngIf="selectedMonth !== null && displayedStats" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
-                    <h3 class="text-sm font-medium text-gray-600 mb-1">Bu ay iştirak edən şagirdlər</h3>
-                    <p class="text-3xl font-bold text-teal-700">{{ $any(displayedStats).totalResults }}</p>
-                </div>
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
-                    <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf edən şagirdlər</h3>
-                    <p class="text-3xl font-bold text-teal-600">{{ $any(displayedStats).developingStudents.count }}</p>
-                </div>
-                <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
-                    <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf faizi</h3>
-                    <p class="text-3xl font-bold text-teal-600">{{ $any(displayedStats).developingStudents.percentage }}%</p>
-                </div>
-            </div>
+  <!-- Статистика -->
+  @if (!isLoading && statistics && displayedStats) {
+    <div class="statistics-content">
+      <!-- İnkişaf statistikası -->
+      <div class="inkishaf-stats bg-white rounded-lg border border-teal-200 p-6 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+          <h2 class="text-2xl font-bold text-gray-900">{{ inkishafTitle }}</h2>
+          <div class="flex items-center gap-3" [class.opacity-40]="selectedMonth !== null" [class.pointer-events-none]="selectedMonth !== null">
+            <label class="text-sm font-medium text-gray-600 whitespace-nowrap">
+              İştirak sayı (minimum):
+            </label>
+            <app-select
+              [(ngModel)]="inkishafMinParticipations"
+              [options]="inkishafParticipationOptions"
+              [disabled]="selectedMonth !== null"
+              (ngModelChange)="onInkishafParticipationsChange()">
+            </app-select>
+          </div>
         </div>
-
-        <!-- Годовая/Месячная статистика -->
-        <div class="yearly-stats mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ statisticsTitle }}</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                <!-- Общее количество студентов / результатов -->
-                <div class="stat-card bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <h3 class="text-sm font-medium text-gray-600">
-                        {{ selectedMonth !== null ? 'Nəticələrin sayı' : 'Ümumi şagird sayı' }}
-                    </h3>
-                    <p class="text-3xl font-bold text-blue-600">
-                        {{ totalCount }}
-                    </p>
-                </div>
-
-                <!-- Средний балл -->
-                <div class="stat-card bg-green-50 p-4 rounded-lg border border-green-200" *ngIf="selectedMonth === null">
-                    <h3 class="text-sm font-medium text-gray-600">Orta reytinq xalı</h3>
-                    <p class="text-3xl font-bold text-green-600">
-                        {{ averageScore | number:'1.2-2' }}
-                    </p>
-                </div>
-
-                <!-- Студенты месяца -->
-                <div class="stat-card bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <h3 class="text-sm font-medium text-gray-600">Ayın şagirdləri</h3>
-                    <p class="text-3xl font-bold text-purple-600">
-                        {{ displayedStats.studentsOfMonth.count }}
-                        <span class="text-lg">({{ displayedStats.studentsOfMonth.percentage }}%)</span>
-                    </p>
-                </div>
-
-                <!-- РАШ -->
-                <div class="stat-card bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <h3 class="text-sm font-medium text-gray-600">Respublika üzrə ayın şagirdləri</h3>
-                    <p class="text-3xl font-bold text-orange-600">
-                        {{ displayedStats.republicStudentsOfMonth.count }}
-                        <span class="text-lg">({{ displayedStats.republicStudentsOfMonth.percentage }}%)</span>
-                    </p>
-                </div>
+        @if (inkishafLoading && selectedMonth === null) {
+          <div class="flex justify-center py-6">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+          </div>
+        }
+        <!-- İllik rejim -->
+        @if (!inkishafLoading && inkishafStatistics && selectedMonth === null) {
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+              <h3 class="text-sm font-medium text-gray-600 mb-1">
+                Ən azı {{ inkishafStatistics.minParticipations }} dəfə iştirak edən şagirdlər
+              </h3>
+              <p class="text-3xl font-bold text-teal-700">{{ inkishafStatistics.baseCount }}</p>
             </div>
-
-            <!-- Статистика по уровням -->
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">Pillələr üzrə</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
-                    <h4 class="font-semibold text-gray-700">E pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.E.count }}</p>
-                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.E.percentage }}%</p>
-                </div>
-                <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
-                    <h4 class="font-semibold text-gray-700">D pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.D.count }}</p>
-                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.D.percentage }}%</p>
-                </div>
-                <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
-                    <h4 class="font-semibold text-gray-700">C pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.C.count }}</p>
-                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.C.percentage }}%</p>
-                </div>
-                <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
-                    <h4 class="font-semibold text-gray-700">B pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.B.count }}</p>
-                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.B.percentage }}%</p>
-                </div>
-                <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
-                    <h4 class="font-semibold text-gray-700">A pilləsi</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.A.count }}</p>
-                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.A.percentage }}%</p>
-                </div>
-                <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
-                    <h4 class="font-semibold text-gray-700">Lisey</h4>
-                    <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.Lisey.count }}</p>
-                    <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.Lisey.percentage }}%</p>
-                </div>
+            <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+              <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf edən şagirdlər</h3>
+              <p class="text-3xl font-bold text-teal-600">{{ inkishafStatistics.developingCount }}</p>
             </div>
+            <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+              <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf faizi</h3>
+              <p class="text-3xl font-bold text-teal-600">{{ inkishafStatistics.percentage }}%</p>
+            </div>
+          </div>
+        }
+        <!-- Aylıq rejim -->
+        @if (selectedMonth !== null && displayedStats) {
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+              <h3 class="text-sm font-medium text-gray-600 mb-1">Bu ay iştirak edən şagirdlər</h3>
+              <p class="text-3xl font-bold text-teal-700">{{ $any(displayedStats).totalResults }}</p>
+            </div>
+            <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+              <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf edən şagirdlər</h3>
+              <p class="text-3xl font-bold text-teal-600">{{ $any(displayedStats).developingStudents.count }}</p>
+            </div>
+            <div class="stat-card bg-teal-50 p-4 rounded-lg border border-teal-200 text-center">
+              <h3 class="text-sm font-medium text-gray-600 mb-1">İnkişaf faizi</h3>
+              <p class="text-3xl font-bold text-teal-600">{{ $any(displayedStats).developingStudents.percentage }}%</p>
+            </div>
+          </div>
+        }
+      </div>
+      <!-- Годовая/Месячная статистика -->
+      <div class="yearly-stats mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">{{ statisticsTitle }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <!-- Общее количество студентов / результатов -->
+          <div class="stat-card bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h3 class="text-sm font-medium text-gray-600">
+              {{ selectedMonth !== null ? 'Nəticələrin sayı' : 'Ümumi şagird sayı' }}
+            </h3>
+            <p class="text-3xl font-bold text-blue-600">
+              {{ totalCount }}
+            </p>
+          </div>
+          <!-- Средний балл -->
+          @if (selectedMonth === null) {
+            <div class="stat-card bg-green-50 p-4 rounded-lg border border-green-200">
+              <h3 class="text-sm font-medium text-gray-600">Orta reytinq xalı</h3>
+              <p class="text-3xl font-bold text-green-600">
+                {{ averageScore | number:'1.2-2' }}
+              </p>
+            </div>
+          }
+          <!-- Студенты месяца -->
+          <div class="stat-card bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <h3 class="text-sm font-medium text-gray-600">Ayın şagirdləri</h3>
+            <p class="text-3xl font-bold text-purple-600">
+              {{ displayedStats.studentsOfMonth.count }}
+              <span class="text-lg">({{ displayedStats.studentsOfMonth.percentage }}%)</span>
+            </p>
+          </div>
+          <!-- РАШ -->
+          <div class="stat-card bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <h3 class="text-sm font-medium text-gray-600">Respublika üzrə ayın şagirdləri</h3>
+            <p class="text-3xl font-bold text-orange-600">
+              {{ displayedStats.republicStudentsOfMonth.count }}
+              <span class="text-lg">({{ displayedStats.republicStudentsOfMonth.percentage }}%)</span>
+            </p>
+          </div>
         </div>
-
-        <!-- Помесячная статистика (только когда месяц не выбран) -->
-        <div class="monthly-stats" *ngIf="selectedMonth === null">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Aylıq statistika</h2>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg overflow-hidden border border-gray-200">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-gray-700">Ay</th>
-                            <th class="px-4 py-3 text-right text-gray-700">Nəticələrin sayı</th>
-                            <th class="px-4 py-3 text-right text-gray-700">Ayın şagirdləri</th>
-                            <th class="px-4 py-3 text-right text-gray-700">RAŞ</th>
-                            <th class="px-4 py-3 text-right text-gray-700">İEŞ</th>
-                            <th class="px-4 py-3 text-right text-gray-700">E</th>
-                            <th class="px-4 py-3 text-right text-gray-700">D</th>
-                            <th class="px-4 py-3 text-right text-gray-700">C</th>
-                            <th class="px-4 py-3 text-right text-gray-700">B</th>
-                            <th class="px-4 py-3 text-right text-gray-700">A</th>
-                            <th class="px-4 py-3 text-right text-gray-700">Lisey</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let month of statistics.monthly" class="border-t border-gray-200">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ month.monthName }}</td>
-                            <td class="px-4 py-3 text-right text-gray-900">{{ month.totalResults }}</td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.studentsOfMonth.count }}
-                                <span class="text-sm text-gray-600">({{ month.studentsOfMonth.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.republicStudentsOfMonth.count }}
-                                <span class="text-sm text-gray-600">({{ month.republicStudentsOfMonth.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.developingStudents.count }}
-                                <span class="text-sm text-gray-600">({{ month.developingStudents.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.levelStatistics.E.count }}
-                                <span class="text-sm text-gray-600">({{ month.levelStatistics.E.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.levelStatistics.D.count }}
-                                <span class="text-sm text-gray-600">({{ month.levelStatistics.D.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.levelStatistics.C.count }}
-                                <span class="text-sm text-gray-600">({{ month.levelStatistics.C.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.levelStatistics.B.count }}
-                                <span class="text-sm text-gray-600">({{ month.levelStatistics.B.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.levelStatistics.A.count }}
-                                <span class="text-sm text-gray-600">({{ month.levelStatistics.A.percentage }}%)</span>
-                            </td>
-                            <td class="px-4 py-3 text-right text-gray-900">
-                                {{ month.levelStatistics.Lisey.count }}
-                                <span class="text-sm text-gray-600">({{ month.levelStatistics.Lisey.percentage }}%)</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Статистика по уровням -->
+        <h3 class="text-xl font-semibold text-gray-900 mb-3">Pillələr üzrə</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+            <h4 class="font-semibold text-gray-700">E pilləsi</h4>
+            <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.E.count }}</p>
+            <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.E.percentage }}%</p>
+          </div>
+          <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+            <h4 class="font-semibold text-gray-700">D pilləsi</h4>
+            <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.D.count }}</p>
+            <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.D.percentage }}%</p>
+          </div>
+          <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+            <h4 class="font-semibold text-gray-700">C pilləsi</h4>
+            <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.C.count }}</p>
+            <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.C.percentage }}%</p>
+          </div>
+          <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+            <h4 class="font-semibold text-gray-700">B pilləsi</h4>
+            <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.B.count }}</p>
+            <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.B.percentage }}%</p>
+          </div>
+          <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+            <h4 class="font-semibold text-gray-700">A pilləsi</h4>
+            <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.A.count }}</p>
+            <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.A.percentage }}%</p>
+          </div>
+          <div class="level-card bg-gray-100 p-3 rounded-lg text-center border border-gray-200">
+            <h4 class="font-semibold text-gray-700">Lisey</h4>
+            <p class="text-2xl font-bold text-gray-900">{{ displayedStats.levelStatistics.Lisey.count }}</p>
+            <p class="text-sm text-gray-600">{{ displayedStats.levelStatistics.Lisey.percentage }}%</p>
+          </div>
         </div>
+      </div>
+      <!-- Помесячная статистика (только когда месяц не выбран) -->
+      @if (selectedMonth === null) {
+        <div class="monthly-stats">
+          <h2 class="text-2xl font-bold text-gray-900 mb-4">Aylıq statistika</h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg overflow-hidden border border-gray-200">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-3 text-left text-gray-700">Ay</th>
+                  <th class="px-4 py-3 text-right text-gray-700">Nəticələrin sayı</th>
+                  <th class="px-4 py-3 text-right text-gray-700">Ayın şagirdləri</th>
+                  <th class="px-4 py-3 text-right text-gray-700">RAŞ</th>
+                  <th class="px-4 py-3 text-right text-gray-700">İEŞ</th>
+                  <th class="px-4 py-3 text-right text-gray-700">E</th>
+                  <th class="px-4 py-3 text-right text-gray-700">D</th>
+                  <th class="px-4 py-3 text-right text-gray-700">C</th>
+                  <th class="px-4 py-3 text-right text-gray-700">B</th>
+                  <th class="px-4 py-3 text-right text-gray-700">A</th>
+                  <th class="px-4 py-3 text-right text-gray-700">Lisey</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (month of statistics.monthly; track month) {
+                  <tr class="border-t border-gray-200">
+                    <td class="px-4 py-3 font-medium text-gray-900">{{ month.monthName }}</td>
+                    <td class="px-4 py-3 text-right text-gray-900">{{ month.totalResults }}</td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.studentsOfMonth.count }}
+                      <span class="text-sm text-gray-600">({{ month.studentsOfMonth.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.republicStudentsOfMonth.count }}
+                      <span class="text-sm text-gray-600">({{ month.republicStudentsOfMonth.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.developingStudents.count }}
+                      <span class="text-sm text-gray-600">({{ month.developingStudents.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.levelStatistics.E.count }}
+                      <span class="text-sm text-gray-600">({{ month.levelStatistics.E.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.levelStatistics.D.count }}
+                      <span class="text-sm text-gray-600">({{ month.levelStatistics.D.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.levelStatistics.C.count }}
+                      <span class="text-sm text-gray-600">({{ month.levelStatistics.C.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.levelStatistics.B.count }}
+                      <span class="text-sm text-gray-600">({{ month.levelStatistics.B.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.levelStatistics.A.count }}
+                      <span class="text-sm text-gray-600">({{ month.levelStatistics.A.percentage }}%)</span>
+                    </td>
+                    <td class="px-4 py-3 text-right text-gray-900">
+                      {{ month.levelStatistics.Lisey.count }}
+                      <span class="text-sm text-gray-600">({{ month.levelStatistics.Lisey.percentage }}%)</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
     </div>
+  }
 </div>

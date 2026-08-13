@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { District } from '../../../../core/models/district.model';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { CommonModule } from '@angular/common';
+
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,16 +14,15 @@ import { DistrictService } from '../../../districts/services/district.service';
 @Component({
     selector: 'app-districts-year-tab',
     imports: [
-        CommonModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatButtonModule,
-        MatIconModule,
-        LucideAngularModule,
-        ButtonComponent,
-        RoundNumberPipe
-    ],
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    LucideAngularModule,
+    ButtonComponent,
+    RoundNumberPipe
+],
     templateUrl: './districts-year-tab.component.html',
     styleUrl: './districts-year-tab.component.scss'
 })

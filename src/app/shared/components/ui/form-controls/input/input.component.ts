@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
 
 @Component({
     selector: 'app-input',
-    imports: [CommonModule, LucideAngularModule],
+    imports: [LucideAngularModule],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -16,18 +16,24 @@ import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
     template: `
     <div class="space-y-1">
       <!-- Label -->
-      <label *ngIf="label" [for]="id" class="block text-sm font-medium text-gray-700">
-        {{ label }}
-        <span *ngIf="required" class="text-red-500 ml-1">*</span>
-      </label>
-
+      @if (label) {
+        <label [for]="id" class="block text-sm font-medium text-gray-700">
+          {{ label }}
+          @if (required) {
+            <span class="text-red-500 ml-1">*</span>
+          }
+        </label>
+      }
+    
       <!-- Input Container -->
       <div class="relative">
         <!-- Left Icon -->
-        <div *ngIf="leftIcon" class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <lucide-icon [img]="leftIcon" class="h-4 w-4 text-gray-400"></lucide-icon>
-        </div>
-
+        @if (leftIcon) {
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <lucide-icon [img]="leftIcon" class="h-4 w-4 text-gray-400"></lucide-icon>
+          </div>
+        }
+    
         <!-- Input Field -->
         <input
           [id]="id"
@@ -46,56 +52,66 @@ import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
           (focus)="onFocus()"
           (keydown.enter)="onEnterPress()"
           [class]="inputClasses"
-        />
-
-        <!-- Right Icon / Actions -->
-        <div class="absolute inset-y-0 right-0 flex items-center">
-          <!-- Clear Button -->
-          <button
-            *ngIf="clearable && value && !disabled && !readonly"
-            type="button"
-            class="px-2 text-gray-400 hover:text-gray-600"
-            (click)="clear()"
-          >
-            <lucide-icon [img]="X" class="h-4 w-4"></lucide-icon>
-          </button>
-
-          <!-- Password Toggle -->
-          <button
-            *ngIf="type === 'password'"
-            type="button"
-            class="px-3 text-gray-400 hover:text-gray-600"
-            (click)="togglePasswordVisibility()"
-          >
-            <lucide-icon [img]="showPassword ? EyeOff : Eye" class="h-4 w-4"></lucide-icon>
-          </button>
-
-          <!-- Right Icon -->
-          <div *ngIf="rightIcon && type !== 'password'" class="px-3 pointer-events-none">
-            <lucide-icon [img]="rightIcon" class="h-4 w-4 text-gray-400"></lucide-icon>
+          />
+    
+          <!-- Right Icon / Actions -->
+          <div class="absolute inset-y-0 right-0 flex items-center">
+            <!-- Clear Button -->
+            @if (clearable && value && !disabled && !readonly) {
+              <button
+                type="button"
+                class="px-2 text-gray-400 hover:text-gray-600"
+                (click)="clear()"
+                >
+                <lucide-icon [img]="X" class="h-4 w-4"></lucide-icon>
+              </button>
+            }
+    
+            <!-- Password Toggle -->
+            @if (type === 'password') {
+              <button
+                type="button"
+                class="px-3 text-gray-400 hover:text-gray-600"
+                (click)="togglePasswordVisibility()"
+                >
+                <lucide-icon [img]="showPassword ? EyeOff : Eye" class="h-4 w-4"></lucide-icon>
+              </button>
+            }
+    
+            <!-- Right Icon -->
+            @if (rightIcon && type !== 'password') {
+              <div class="px-3 pointer-events-none">
+                <lucide-icon [img]="rightIcon" class="h-4 w-4 text-gray-400"></lucide-icon>
+              </div>
+            }
           </div>
         </div>
-      </div>
-
-      <!-- Helper Text / Character Count -->
-      <div class="flex items-center justify-between">
-        <!-- Error Message -->
-        <p *ngIf="error && errorMessage" class="text-sm text-red-600">
-          {{ errorMessage }}
-        </p>
-
-        <!-- Help Text -->
-        <p *ngIf="helpText && !error" class="text-sm text-gray-500">
-          {{ helpText }}
-        </p>
-
-        <!-- Character Count -->
-        <div *ngIf="showCharacterCount && maxLength" class="text-sm text-gray-500 ml-auto">
-          {{ (value || '').length }}/{{ maxLength }}
+    
+        <!-- Helper Text / Character Count -->
+        <div class="flex items-center justify-between">
+          <!-- Error Message -->
+          @if (error && errorMessage) {
+            <p class="text-sm text-red-600">
+              {{ errorMessage }}
+            </p>
+          }
+    
+          <!-- Help Text -->
+          @if (helpText && !error) {
+            <p class="text-sm text-gray-500">
+              {{ helpText }}
+            </p>
+          }
+    
+          <!-- Character Count -->
+          @if (showCharacterCount && maxLength) {
+            <div class="text-sm text-gray-500 ml-auto">
+              {{ (value || '').length }}/{{ maxLength }}
+            </div>
+          }
         </div>
       </div>
-    </div>
-  `,
+    `,
     styles: [`
     :host {
       display: block;

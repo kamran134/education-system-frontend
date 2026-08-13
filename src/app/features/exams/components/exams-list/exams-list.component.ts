@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,13 +31,12 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 @Component({
     selector: 'app-exams-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent
-    ],
+    FormsModule,
+    RouterModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent
+],
     templateUrl: './exams-list.component.html',
     styleUrls: ['./exams-list.component.scss']
 })

@@ -4,7 +4,7 @@
   size="md"
   [buttons]="modalButtons"
   (closed)="dialogRef.close(null)"
->
+  >
   <form class="space-y-5">
     <!-- Name -->
     <app-input
@@ -22,7 +22,9 @@
         name="district"
         class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
         <option value="">— Rayon seçilməyib —</option>
-        <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
+        @for (d of districts; track d) {
+          <option [value]="d.id">{{ d.name }}</option>
+        }
       </select>
     </div>
   </form>

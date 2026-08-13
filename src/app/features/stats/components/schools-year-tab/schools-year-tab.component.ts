@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,16 +14,15 @@ import { SchoolService } from '../../../schools/services/school.service';
 @Component({
     selector: 'app-schools-year-tab',
     imports: [
-        CommonModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatButtonModule,
-        MatIconModule,
-        LucideAngularModule,
-        ButtonComponent,
-        RoundNumberPipe
-    ],
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    LucideAngularModule,
+    ButtonComponent,
+    RoundNumberPipe
+],
     templateUrl: './schools-year-tab.component.html',
     styleUrl: './schools-year-tab.component.scss'
 })

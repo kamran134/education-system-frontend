@@ -13,7 +13,7 @@
           type="button"
           class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
           (click)="darkModeToogleChanged()"
-        >
+          >
           <lucide-icon
             [img]="darkMode ? Moon : Sun"
             class="h-5 w-5"
@@ -22,99 +22,110 @@
         </button>
 
         <!-- User Menu -->
-        <app-dropdown *ngIf="isAuthorized()" position="right">
-          <div slot="trigger" class="flex items-center space-x-1">
-            <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
-            <span class="hidden sm:block">Profil</span>
-            <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
-          </div>
-
-          <div slot="content">
-            <app-dropdown-item (clicked)="goToProfile()">
-              <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
-              Şəxsi məlumatlar
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessRatingColumns')" (clicked)="goToRatingColumns()">
-              <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
-              Reytinq sütunları
-            </app-dropdown-item>
-
-            <app-dropdown-divider></app-dropdown-divider>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStats')" (clicked)="goToStats()">
-              <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
-              Reytinqlər
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStatistics')" (clicked)="goToStatistics()">
-              <lucide-icon [img]="TrendingUp" class="mr-3 h-4 w-4"></lucide-icon>
-              Statistika
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessDistricts')" (clicked)="goToDistricts()">
-              <lucide-icon [img]="Building2" class="mr-3 h-4 w-4"></lucide-icon>
-              Rayonlar
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessSchools')" (clicked)="goToSchools()">
-              <lucide-icon [img]="GraduationCap" class="mr-3 h-4 w-4"></lucide-icon>
-              Məktəblər
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessTeachers')" (clicked)="goToTeachers()">
-              <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
-              Müəllimlər
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessStudents')" (clicked)="goToStudents()">
-              <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
-              Şagirdlər
-            </app-dropdown-item>
-          </div>
-        </app-dropdown>
+        @if (isAuthorized()) {
+          <app-dropdown position="right">
+            <div slot="trigger" class="flex items-center space-x-1">
+              <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
+              <span class="hidden sm:block">Profil</span>
+              <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+            </div>
+            <div slot="content">
+              <app-dropdown-item (clicked)="goToProfile()">
+                <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
+                Şəxsi məlumatlar
+              </app-dropdown-item>
+              @if (permissions.canAccessRoute('canAccessRatingColumns')) {
+                <app-dropdown-item (clicked)="goToRatingColumns()">
+                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+                  Reytinq sütunları
+                </app-dropdown-item>
+              }
+              <app-dropdown-divider></app-dropdown-divider>
+              @if (permissions.canAccessRoute('canAccessStats')) {
+                <app-dropdown-item (clicked)="goToStats()">
+                  <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
+                  Reytinqlər
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessStatistics')) {
+                <app-dropdown-item (clicked)="goToStatistics()">
+                  <lucide-icon [img]="TrendingUp" class="mr-3 h-4 w-4"></lucide-icon>
+                  Statistika
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessDistricts')) {
+                <app-dropdown-item (clicked)="goToDistricts()">
+                  <lucide-icon [img]="Building2" class="mr-3 h-4 w-4"></lucide-icon>
+                  Rayonlar
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessSchools')) {
+                <app-dropdown-item (clicked)="goToSchools()">
+                  <lucide-icon [img]="GraduationCap" class="mr-3 h-4 w-4"></lucide-icon>
+                  Məktəblər
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessTeachers')) {
+                <app-dropdown-item (clicked)="goToTeachers()">
+                  <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
+                  Müəllimlər
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessStudents')) {
+                <app-dropdown-item (clicked)="goToStudents()">
+                  <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
+                  Şagirdlər
+                </app-dropdown-item>
+              }
+            </div>
+          </app-dropdown>
+        }
 
         <!-- Admin Menu -->
-        <app-dropdown *ngIf="isAuthorized() && permissions.canShowUI('showAdminMenu')" position="right">
-          <div slot="trigger" class="flex items-center space-x-1">
-            <lucide-icon [img]="Shield" class="h-5 w-5"></lucide-icon>
-            <span class="hidden sm:block">İdarəetmə</span>
-            <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
-          </div>
-
-          <div slot="content">
-            <app-dropdown-item (clicked)="goToAdminDashboard()">
-              <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
-              Admin Dashboard
-            </app-dropdown-item>
-
-            <app-dropdown-divider></app-dropdown-divider>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessUserManagement')" (clicked)="goToUsers()">
-              <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
-              İstifadəçilər
-            </app-dropdown-item>
-
-            <app-dropdown-item *ngIf="permissions.canAccessRoute('canAccessRatingColumns')" (clicked)="goToRatingColumns()">
-              <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
-              Reytinq sütunları
-            </app-dropdown-item>
-
-            <app-dropdown-divider *ngIf="permissions.isAdmin()"></app-dropdown-divider>
-
-            <app-dropdown-item *ngIf="permissions.isAdmin()" (clicked)="goToAdminPanel()">
-              <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
-              Köhnə admin paneli
-            </app-dropdown-item>
-          </div>
-        </app-dropdown>
+        @if (isAuthorized() && permissions.canShowUI('showAdminMenu')) {
+          <app-dropdown position="right">
+            <div slot="trigger" class="flex items-center space-x-1">
+              <lucide-icon [img]="Shield" class="h-5 w-5"></lucide-icon>
+              <span class="hidden sm:block">İdarəetmə</span>
+              <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+            </div>
+            <div slot="content">
+              <app-dropdown-item (clicked)="goToAdminDashboard()">
+                <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
+                Admin Dashboard
+              </app-dropdown-item>
+              <app-dropdown-divider></app-dropdown-divider>
+              @if (permissions.canAccessRoute('canAccessUserManagement')) {
+                <app-dropdown-item (clicked)="goToUsers()">
+                  <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
+                  İstifadəçilər
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessRatingColumns')) {
+                <app-dropdown-item (clicked)="goToRatingColumns()">
+                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+                  Reytinq sütunları
+                </app-dropdown-item>
+              }
+              @if (permissions.isAdmin()) {
+                <app-dropdown-divider></app-dropdown-divider>
+              }
+              @if (permissions.isAdmin()) {
+                <app-dropdown-item (clicked)="goToAdminPanel()">
+                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+                  Köhnə admin paneli
+                </app-dropdown-item>
+              }
+            </div>
+          </app-dropdown>
+        }
 
         <!-- Login/Logout Button -->
         <button
           type="button"
           class="inline-flex items-center space-x-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
           (click)="logInOut()"
-        >
+          >
           <lucide-icon [img]="isAuthorized() ? LogOut : LogIn" class="h-4 w-4"></lucide-icon>
           <span class="hidden sm:block">{{ isAuthorized() ? 'Sistemdən çıxış' : 'Sistemə giriş' }}</span>
         </button>
@@ -123,5 +134,5 @@
   </nav>
 </header>
 <main class="min-h-screen bg-gray-50" [class.dark]="darkMode">
-    <router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 </main>

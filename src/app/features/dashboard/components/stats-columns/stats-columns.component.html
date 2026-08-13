@@ -1,357 +1,364 @@
 <div class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-6xl mx-auto">
-        <!-- Breadcrumbs -->
-        <div class="flex items-center space-x-2 mb-6">
-            <button
-                class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
-                (click)="router.navigate(['/'])">
-                <lucide-icon [img]="Home" class="w-4 h-4"></lucide-icon>
-                <span>Baş səhifə</span>
-            </button>
-        </div>
-
-        <!-- Header -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Reytinq sütunları</h1>
-                    <p class="text-gray-600">Reytinq cədvəllərində göstəriləcək sütunları seçin</p>
-                </div>
-                <div class="flex space-x-3">
-                    <button
-                        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
-                        (click)="resetColumns()">
-                        <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
-                        <span>Sıfırla</span>
-                    </button>
-                    <button
-                        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors shadow-sm"
-                        (click)="saveColumnSettings()">
-                        <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
-                        <span>Yadda saxla</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Custom Tabs -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-            <!-- Tab Headers -->
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                    <button
-                        [class]="activeTab === 0 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 0">
-                        İnkişaf edən şagirdlər
-                    </button>
-                    <button
-                        [class]="activeTab === 1 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 1">
-                        Ayın şagirdləri
-                    </button>
-                    <button
-                        [class]="activeTab === 2 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 2">
-                        İlin şagirdləri
-                    </button>
-                    <button
-                        [class]="activeTab === 3 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 3">
-                        İlin müəllimləri
-                    </button>
-                    <button
-                        [class]="activeTab === 4 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 4">
-                        İlin məktəbləri
-                    </button>
-                    <button
-                        [class]="activeTab === 5 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 5">
-                        İlin rayonları
-                    </button>
-                    <button
-                        [class]="activeTab === 6 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="activeTab = 6">
-                        İlin regional idarələri
-                    </button>
-                </nav>
-            </div>
-
-            <!-- Tab Content -->
-            <div class="p-6">
-                <!-- Developing Students Tab -->
-                <div *ngIf="activeTab === 0"
-                     cdkDropList
-                     (cdkDropListDropped)="dropDevelopingStudent($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of developingStudentColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Month Students Tab -->
-                <div *ngIf="activeTab === 1"
-                     cdkDropList
-                     (cdkDropListDropped)="dropMonthStudent($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of monthStudentColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- All Students Tab -->
-                <div *ngIf="activeTab === 2"
-                     cdkDropList
-                     (cdkDropListDropped)="dropStudent($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of studentColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Teachers Tab -->
-                <div *ngIf="activeTab === 3"
-                     cdkDropList
-                     (cdkDropListDropped)="dropTeacher($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of teacherColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Schools Tab -->
-                <div *ngIf="activeTab === 4"
-                     cdkDropList
-                     (cdkDropListDropped)="dropSchool($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of schoolColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Districts Tab -->
-                <div *ngIf="activeTab === 5"
-                     cdkDropList
-                     (cdkDropListDropped)="dropDistrict($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of districtColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Regions Tab -->
-                <div *ngIf="activeTab === 6"
-                     cdkDropList
-                     (cdkDropListDropped)="dropRegion($event)"
-                     class="space-y-2">
-                    <div
-                        *ngFor="let column of regionColumnOptions; let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <!-- Drag Handle -->
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon
-                                [img]="GripVertical"
-                                class="w-5 h-5 text-gray-400">
-                            </lucide-icon>
-                        </div>
-
-                        <!-- Order Number -->
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
-                            {{ i + 1 }}
-                        </div>
-
-                        <!-- Checkbox -->
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3">
-                            </lucide-icon>
-                            <span
-                                [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
-                                class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="max-w-6xl mx-auto">
+    <!-- Breadcrumbs -->
+    <div class="flex items-center space-x-2 mb-6">
+      <button
+        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+        (click)="router.navigate(['/'])">
+        <lucide-icon [img]="Home" class="w-4 h-4"></lucide-icon>
+        <span>Baş səhifə</span>
+      </button>
     </div>
+
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Reytinq sütunları</h1>
+          <p class="text-gray-600">Reytinq cədvəllərində göstəriləcək sütunları seçin</p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+            (click)="resetColumns()">
+            <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
+            <span>Sıfırla</span>
+          </button>
+          <button
+            class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors shadow-sm"
+            (click)="saveColumnSettings()">
+            <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+            <span>Yadda saxla</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Tabs -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+      <!-- Tab Headers -->
+      <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+          <button
+            [class]="activeTab === 0 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 0">
+            İnkişaf edən şagirdlər
+          </button>
+          <button
+            [class]="activeTab === 1 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 1">
+            Ayın şagirdləri
+          </button>
+          <button
+            [class]="activeTab === 2 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 2">
+            İlin şagirdləri
+          </button>
+          <button
+            [class]="activeTab === 3 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 3">
+            İlin müəllimləri
+          </button>
+          <button
+            [class]="activeTab === 4 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 4">
+            İlin məktəbləri
+          </button>
+          <button
+            [class]="activeTab === 5 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 5">
+            İlin rayonları
+          </button>
+          <button
+            [class]="activeTab === 6 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+            (click)="activeTab = 6">
+            İlin regional idarələri
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="p-6">
+        <!-- Developing Students Tab -->
+        @if (activeTab === 0) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropDevelopingStudent($event)"
+            class="space-y-2">
+            @for (column of developingStudentColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Month Students Tab -->
+        @if (activeTab === 1) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropMonthStudent($event)"
+            class="space-y-2">
+            @for (column of monthStudentColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- All Students Tab -->
+        @if (activeTab === 2) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropStudent($event)"
+            class="space-y-2">
+            @for (column of studentColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Teachers Tab -->
+        @if (activeTab === 3) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropTeacher($event)"
+            class="space-y-2">
+            @for (column of teacherColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Schools Tab -->
+        @if (activeTab === 4) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropSchool($event)"
+            class="space-y-2">
+            @for (column of schoolColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Districts Tab -->
+        @if (activeTab === 5) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropDistrict($event)"
+            class="space-y-2">
+            @for (column of districtColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Regions Tab -->
+        @if (activeTab === 6) {
+          <div
+            cdkDropList
+            (cdkDropListDropped)="dropRegion($event)"
+            class="space-y-2">
+            @for (column of regionColumnOptions; track column; let i = $index) {
+              <div
+                cdkDrag
+                class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+                <!-- Drag Handle -->
+                <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                  <lucide-icon
+                    [img]="GripVertical"
+                    class="w-5 h-5 text-gray-400">
+                  </lucide-icon>
+                </div>
+                <!-- Order Number -->
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3">
+                  {{ i + 1 }}
+                </div>
+                <!-- Checkbox -->
+                <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                  <lucide-icon
+                    [img]="column.selected ? CheckSquare : Square"
+                    [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                    class="w-5 h-5 mr-3">
+                  </lucide-icon>
+                  <span
+                    [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-700'"
+                    class="text-sm">
+                    {{ column.label }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 </div>

@@ -7,7 +7,7 @@ import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Exam } from '../../../../core/models/exam.model';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 
@@ -21,14 +21,13 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
     templateUrl: './stats-filters.component.html',
     styleUrls: ['./stats-filters.component.scss'],
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        RouterModule,
-        FormsModule,
-        LucideAngularModule,
-        SelectComponent,
-        InputComponent
-    ]
+    ReactiveFormsModule,
+    RouterModule,
+    FormsModule,
+    LucideAngularModule,
+    SelectComponent,
+    InputComponent
+]
 })
 export class StatsFiltersComponent implements OnInit, OnChanges {
     // Icons

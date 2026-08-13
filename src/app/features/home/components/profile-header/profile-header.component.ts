@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Observable } from 'rxjs';
 import { LucideAngularModule, Camera } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -19,7 +19,7 @@ const UPLOADABLE_ROLES = ['teacher', 'schoolDirector', 'districtRepresenter', 'r
 
 @Component({
     selector: 'app-profile-header',
-    imports: [CommonModule, LucideAngularModule, ImageCropModalComponent],
+    imports: [LucideAngularModule, ImageCropModalComponent],
     templateUrl: './profile-header.component.html',
     styleUrl: './profile-header.component.scss'
 })

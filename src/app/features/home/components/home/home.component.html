@@ -3,166 +3,190 @@
   <!-- <div class="container mx-auto px-4 py-8"> -->
   <!-- Централизованный контейнер -->
   <div class="max-w-7xl mx-auto px-4 py-12">
-    <div class="text-center mb-12" *ngIf="!hasProfileHeader">
-      <!-- <img src="assets/isim.png" alt="Logo" class="mx-auto mb-6 w-64 h-auto"> -->
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">İSİM</h1>
-      <p class="text-xl text-gray-600">İbtidai Siniflərin İnkişaf Metodikası</p>
-    </div>
+    @if (!hasProfileHeader) {
+      <div class="text-center mb-12">
+        <!-- <img src="assets/isim.png" alt="Logo" class="mx-auto mb-6 w-64 h-auto"> -->
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">İSİM</h1>
+        <p class="text-xl text-gray-600">İbtidai Siniflərin İnkişaf Metodikası</p>
+      </div>
+    }
 
-    <app-profile-header *ngIf="hasProfileHeader"></app-profile-header>
+    @if (hasProfileHeader) {
+      <app-profile-header></app-profile-header>
+    }
 
     <!-- Navigation Cards -->
     <div class="max-w-4xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Regions Card -->
-        <div *ngIf="permissions.canShowUI('showRegionsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/regions">
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 transition-colors duration-300">
-              <lucide-icon [img]="Landmark" class="w-8 h-8 text-indigo-600"></lucide-icon>
+        @if (permissions.canShowUI('showRegionsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/regions">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 transition-colors duration-300">
+                <lucide-icon [img]="Landmark" class="w-8 h-8 text-indigo-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                Regional Təhsil İdarələri
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
-              Regional Təhsil İdarələri
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Districts Card -->
-        <div *ngIf="permissions.canShowUI('showDistrictsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/districts">
-          <div class="absolute inset-0 bg-gradient-to-br from-primary-500 to-primary-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-primary-100 rounded-xl flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-300">
-              <lucide-icon [img]="Building2" class="w-8 h-8 text-primary-600"></lucide-icon>
+        @if (permissions.canShowUI('showDistrictsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/districts">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary-500 to-primary-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-primary-100 rounded-xl flex items-center justify-center group-hover:bg-primary-200 transition-colors duration-300">
+                <lucide-icon [img]="Building2" class="w-8 h-8 text-primary-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
+                Rayonlar / şəhərlər
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
-              Rayonlar / şəhərlər
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Schools Card -->
-        <div *ngIf="permissions.canShowUI('showSchoolsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/schools">
-          <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors duration-300">
-              <lucide-icon [img]="GraduationCap" class="w-8 h-8 text-emerald-600"></lucide-icon>
+        @if (permissions.canShowUI('showSchoolsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/schools">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-emerald-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-emerald-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-200 transition-colors duration-300">
+                <lucide-icon [img]="GraduationCap" class="w-8 h-8 text-emerald-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors duration-300">
+                Məktəblər
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors duration-300">
-              Məktəblər
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Teachers Card -->
-        <div *ngIf="permissions.canShowUI('showTeachersSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/teachers">
-          <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-300">
-              <lucide-icon [img]="UserCheck" class="w-8 h-8 text-purple-600"></lucide-icon>
+        @if (permissions.canShowUI('showTeachersSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/teachers">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-300">
+                <lucide-icon [img]="UserCheck" class="w-8 h-8 text-purple-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
+                Müəllimlər
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
-              Müəllimlər
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Students Card -->
-        <div *ngIf="permissions.canShowUI('showStudentsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/students">
-          <div class="absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-xl flex items-center justify-center group-hover:bg-orange-200 transition-colors duration-300">
-              <lucide-icon [img]="Users" class="w-8 h-8 text-orange-600"></lucide-icon>
+        @if (permissions.canShowUI('showStudentsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/students">
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-xl flex items-center justify-center group-hover:bg-orange-200 transition-colors duration-300">
+                <lucide-icon [img]="Users" class="w-8 h-8 text-orange-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors duration-300">
+                Şagirdlər
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors duration-300">
-              Şagirdlər
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Exams Card -->
-        <div *ngIf="permissions.canShowUI('showExamsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/exams">
-          <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-xl flex items-center justify-center group-hover:bg-red-200 transition-colors duration-300">
-              <lucide-icon [img]="FileText" class="w-8 h-8 text-red-600"></lucide-icon>
+        @if (permissions.canShowUI('showExamsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/exams">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-red-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-xl flex items-center justify-center group-hover:bg-red-200 transition-colors duration-300">
+                <lucide-icon [img]="FileText" class="w-8 h-8 text-red-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-red-600 transition-colors duration-300">
+                İmtahanlar
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-red-600 transition-colors duration-300">
-              İmtahanlar
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Exam Results Card -->
-        <div *ngIf="permissions.canShowUI('showExamsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/exam-results">
-          <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-cyan-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-cyan-100 rounded-xl flex items-center justify-center group-hover:bg-cyan-200 transition-colors duration-300">
-              <lucide-icon [img]="ClipboardList" class="w-8 h-8 text-cyan-600"></lucide-icon>
+        @if (permissions.canShowUI('showExamsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/exam-results">
+            <div class="absolute inset-0 bg-gradient-to-br from-cyan-500 to-cyan-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-cyan-100 rounded-xl flex items-center justify-center group-hover:bg-cyan-200 transition-colors duration-300">
+                <lucide-icon [img]="ClipboardList" class="w-8 h-8 text-cyan-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors duration-300">
+                İmtahan nəticələri
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-cyan-600 transition-colors duration-300">
-              İmtahan nəticələri
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Booklets Card -->
-        <div *ngIf="permissions.canShowUI('showBookletsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/booklets">
-          <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-amber-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors duration-300">
-              <lucide-icon [img]="BookOpen" class="w-8 h-8 text-amber-600"></lucide-icon>
+        @if (permissions.canShowUI('showBookletsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/booklets">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-amber-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors duration-300">
+                <lucide-icon [img]="BookOpen" class="w-8 h-8 text-amber-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-amber-600 transition-colors duration-300">
+                Kitabçalar
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-amber-600 transition-colors duration-300">
-              Kitabçalar
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Stats Card -->
-        <div *ngIf="permissions.canShowUI('showStatsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/stats">
-          <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 transition-colors duration-300">
-              <lucide-icon [img]="BarChart3" class="w-8 h-8 text-indigo-600"></lucide-icon>
+        @if (permissions.canShowUI('showStatsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/stats">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-xl flex items-center justify-center group-hover:bg-indigo-200 transition-colors duration-300">
+                <lucide-icon [img]="BarChart3" class="w-8 h-8 text-indigo-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                Reytinqlər
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
-              Reytinqlər
-            </h3>
           </div>
-        </div>
+        }
 
         <!-- Statistics Card -->
-        <div *ngIf="permissions.canShowUI('showStatsSection')"
-             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
-             routerLink="/statistics">
-          <div class="absolute inset-0 bg-gradient-to-br from-teal-500 to-teal-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-          <div class="p-8 text-center relative">
-            <div class="w-16 h-16 mx-auto mb-4 bg-teal-100 rounded-xl flex items-center justify-center group-hover:bg-teal-200 transition-colors duration-300">
-              <lucide-icon [img]="TrendingUp" class="w-8 h-8 text-teal-600"></lucide-icon>
+        @if (permissions.canShowUI('showStatsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/statistics">
+            <div class="absolute inset-0 bg-gradient-to-br from-teal-500 to-teal-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-teal-100 rounded-xl flex items-center justify-center group-hover:bg-teal-200 transition-colors duration-300">
+                <lucide-icon [img]="TrendingUp" class="w-8 h-8 text-teal-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-teal-600 transition-colors duration-300">
+                Statistika
+              </h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-teal-600 transition-colors duration-300">
-              Statistika
-            </h3>
           </div>
-        </div>
+        }
       </div>
     </div>
   </div>

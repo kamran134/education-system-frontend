@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, forwardRef, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { LucideAngularModule, ChevronDown, X } from 'lucide-angular';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ConnectedPosition } from '@angular/cdk/overlay';
@@ -13,7 +13,7 @@ export interface SelectOption {
 
 @Component({
     selector: 'app-select',
-    imports: [CommonModule, FormsModule, LucideAngularModule, OverlayModule],
+    imports: [FormsModule, LucideAngularModule, OverlayModule],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -24,78 +24,92 @@ export interface SelectOption {
     template: `
     <div class="relative" #selectContainer>
       <!-- Label -->
-      <label *ngIf="label" [for]="id" class="block text-sm font-medium text-gray-700 mb-1">
-        {{ label }}
-        <span *ngIf="required" class="text-red-500 ml-1">*</span>
-      </label>
-
+      @if (label) {
+        <label [for]="id" class="block text-sm font-medium text-gray-700 mb-1">
+          {{ label }}
+          @if (required) {
+            <span class="text-red-500 ml-1">*</span>
+          }
+        </label>
+      }
+    
       <!-- Select Container -->
       <div class="relative">
         <!-- Single trigger element, always rendered — keeps the cdkOverlayOrigin identity
-             stable across change-detection passes. Single/multi content swaps inside it. -->
+        stable across change-detection passes. Single/multi content swaps inside it. -->
         <div #selectTrigger="cdkOverlayOrigin"
-             cdkOverlayOrigin
-             class="relative cursor-pointer min-h-[40px]"
-             (click)="toggleDropdown()"
-             [class.ring-2]="isOpen"
-             [class.ring-primary-500]="isOpen"
-             [class.border-primary-500]="isOpen"
-             [class.border-gray-300]="!isOpen && !error"
-             [class.border-red-300]="error"
-             class="block w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none transition-colors"
-        >
+          cdkOverlayOrigin
+          class="relative cursor-pointer min-h-[40px]"
+          (click)="toggleDropdown()"
+          [class.ring-2]="isOpen"
+          [class.ring-primary-500]="isOpen"
+          [class.border-primary-500]="isOpen"
+          [class.border-gray-300]="!isOpen && !error"
+          [class.border-red-300]="error"
+          class="block w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none transition-colors"
+          >
           <!-- Single Select -->
-          <div *ngIf="!multiple" class="flex items-center justify-between">
-            <span class="block truncate" [class.text-gray-500]="!selectedOption">
-              {{ selectedOption?.label || placeholder || 'Seçin...' }}
-            </span>
-            <lucide-icon
-              [img]="ChevronDown"
-              class="h-4 w-4 text-gray-400 transition-transform duration-200"
-              [class.rotate-180]="isOpen"
-            ></lucide-icon>
-          </div>
-
-          <!-- Multi Select -->
-          <div *ngIf="multiple" class="flex items-center justify-between min-h-[24px]">
-            <!-- Selected Options -->
-            <div class="flex flex-wrap gap-1" *ngIf="selectedOptions.length > 0; else emptyState">
-              <span *ngFor="let option of selectedOptions; trackBy: trackByValue"
-                    class="inline-flex items-center rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-800">
-                {{ option.label }}
-                <button
-                  type="button"
-                  class="ml-1 inline-flex h-3 w-3 flex-shrink-0 items-center justify-center rounded-full text-primary-400 hover:bg-primary-200 hover:text-primary-500"
-                  (click)="removeOption($event, option.value)"
-                >
-                  <lucide-icon [img]="X" class="h-2 w-2"></lucide-icon>
-                </button>
+          @if (!multiple) {
+            <div class="flex items-center justify-between">
+              <span class="block truncate" [class.text-gray-500]="!selectedOption">
+                {{ selectedOption?.label || placeholder || 'Seçin...' }}
               </span>
+              <lucide-icon
+                [img]="ChevronDown"
+                class="h-4 w-4 text-gray-400 transition-transform duration-200"
+                [class.rotate-180]="isOpen"
+              ></lucide-icon>
             </div>
-            <ng-template #emptyState>
-              <span class="text-gray-500">{{ placeholder || 'Seçin...' }}</span>
-            </ng-template>
-
-            <lucide-icon
-              [img]="ChevronDown"
-              class="h-4 w-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ml-2"
-              [class.rotate-180]="isOpen"
-            ></lucide-icon>
-          </div>
+          }
+    
+          <!-- Multi Select -->
+          @if (multiple) {
+            <div class="flex items-center justify-between min-h-[24px]">
+              <!-- Selected Options -->
+              @if (selectedOptions.length > 0) {
+                <div class="flex flex-wrap gap-1">
+                  @for (option of selectedOptions; track trackByValue($index, option)) {
+                    <span
+                      class="inline-flex items-center rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-800">
+                      {{ option.label }}
+                      <button
+                        type="button"
+                        class="ml-1 inline-flex h-3 w-3 flex-shrink-0 items-center justify-center rounded-full text-primary-400 hover:bg-primary-200 hover:text-primary-500"
+                        (click)="removeOption($event, option.value)"
+                        >
+                        <lucide-icon [img]="X" class="h-2 w-2"></lucide-icon>
+                      </button>
+                    </span>
+                  }
+                </div>
+              } @else {
+                <span class="text-gray-500">{{ placeholder || 'Seçin...' }}</span>
+              }
+              <lucide-icon
+                [img]="ChevronDown"
+                class="h-4 w-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ml-2"
+                [class.rotate-180]="isOpen"
+              ></lucide-icon>
+            </div>
+          }
         </div>
       </div>
-
+    
       <!-- Error Message -->
-      <p *ngIf="error && errorMessage" class="mt-1 text-sm text-red-600">
-        {{ errorMessage }}
-      </p>
-
+      @if (error && errorMessage) {
+        <p class="mt-1 text-sm text-red-600">
+          {{ errorMessage }}
+        </p>
+      }
+    
       <!-- Help Text -->
-      <p *ngIf="helpText && !error" class="mt-1 text-sm text-gray-500">
-        {{ helpText }}
-      </p>
+      @if (helpText && !error) {
+        <p class="mt-1 text-sm text-gray-500">
+          {{ helpText }}
+        </p>
+      }
     </div>
-
+    
     <!-- CDK Overlay Dropdown -->
     <ng-template
       cdkConnectedOverlay
@@ -106,40 +120,48 @@ export interface SelectOption {
       (backdropClick)="closeDropdown()"
       [cdkConnectedOverlayPositions]="overlayPositions"
       [cdkConnectedOverlayMinWidth]="triggerWidth"
-    >
+      >
       <div class="rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-auto mt-1">
-        <div *ngIf="searchable" class="px-3 py-2 border-b border-gray-100">
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            placeholder="Axtarış..."
-            class="w-full text-sm border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
-            (click)="$event.stopPropagation()"
-          />
-        </div>
-        
-        <div *ngIf="filteredOptions.length === 0" class="px-3 py-2 text-sm text-gray-500">
-          Nəticə tapılmadı
-        </div>
-        
-        <div *ngFor="let option of filteredOptions; trackBy: trackByValue"
-             class="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 transition-colors"
-             [class.bg-primary-50]="isSelected(option.value)"
-             [class.text-primary-700]="isSelected(option.value)"
-             [class.text-gray-400]="option.disabled"
-             [class.cursor-not-allowed]="option.disabled"
-             (click)="selectOption(option)"
-        >
-          <div class="flex items-center justify-between">
-            <span>{{ option.label }}</span>
-            <div *ngIf="multiple && isSelected(option.value)" class="text-primary-600">
-              ✓
+        @if (searchable) {
+          <div class="px-3 py-2 border-b border-gray-100">
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              placeholder="Axtarış..."
+              class="w-full text-sm border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
+              (click)="$event.stopPropagation()"
+              />
             </div>
-          </div>
+          }
+    
+          @if (filteredOptions.length === 0) {
+            <div class="px-3 py-2 text-sm text-gray-500">
+              Nəticə tapılmadı
+            </div>
+          }
+    
+          @for (option of filteredOptions; track trackByValue($index, option)) {
+            <div
+              class="cursor-pointer px-3 py-2 text-sm hover:bg-gray-100 transition-colors"
+              [class.bg-primary-50]="isSelected(option.value)"
+              [class.text-primary-700]="isSelected(option.value)"
+              [class.text-gray-400]="option.disabled"
+              [class.cursor-not-allowed]="option.disabled"
+              (click)="selectOption(option)"
+              >
+              <div class="flex items-center justify-between">
+                <span>{{ option.label }}</span>
+                @if (multiple && isSelected(option.value)) {
+                  <div class="text-primary-600">
+                    ✓
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
-      </div>
-    </ng-template>
-  `,
+      </ng-template>
+    `,
     styles: [`
     :host {
       display: block;

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
@@ -22,12 +22,11 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 @Component({
     selector: 'app-districts-list',
     imports: [
-        CommonModule,
-        RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent
-    ],
+    RouterModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent
+],
     templateUrl: './districts-list.component.html',
     styleUrls: ['./districts-list.component.scss']
 })

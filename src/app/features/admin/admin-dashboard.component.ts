@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../core/services/auth.service';
 import { AdminTokenStatsComponent } from '../../shared/components/admin-token-stats.component';
 import { UserSessionsComponent } from '../../shared/components/user-sessions.component';
@@ -9,12 +9,11 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 @Component({
     selector: 'app-admin-dashboard',
     imports: [
-        CommonModule,
-        LucideAngularModule,
-        ButtonComponent,
-        AdminTokenStatsComponent,
-        UserSessionsComponent
-    ],
+    LucideAngularModule,
+    ButtonComponent,
+    AdminTokenStatsComponent,
+    UserSessionsComponent
+],
     templateUrl: './admin-dashboard.component.html',
     styleUrl: './admin-dashboard.component.scss'
 })

@@ -10,136 +10,178 @@
     </p>
 
     <!-- Teachers Errors -->
-    <div *ngIf="data.type === 'teachers'">
-      <!-- Incorrect Teacher Codes -->
-      <div *ngIf="data.errors.incorrectTeacherCodes && data.errors.incorrectTeacherCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>error</mat-icon>
-          Kodları yanlış olan müəllimlər (Müəllim kodu 7 ədədli rəqəm olmalıdır)
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.incorrectTeacherCodes" class="error-item">{{ code }}</span>
-        </div>
+    @if (data.type === 'teachers') {
+      <div>
+        <!-- Incorrect Teacher Codes -->
+        @if (data.errors.incorrectTeacherCodes && data.errors.incorrectTeacherCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>error</mat-icon>
+              Kodları yanlış olan müəllimlər (Müəllim kodu 7 ədədli rəqəm olmalıdır)
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.incorrectTeacherCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Missing School Codes -->
+        @if (data.errors.missingSchoolCodes && data.errors.missingSchoolCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>school</mat-icon>
+              Bazada olmayan məktəb kodları
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.missingSchoolCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Teachers Without School Codes -->
+        @if (data.errors.teacherCodesWithoutSchoolCodes && data.errors.teacherCodesWithoutSchoolCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>info</mat-icon>
+              Faylda məktəb kodu olmayan müəllimlər
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.teacherCodesWithoutSchoolCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Existing Teacher Codes -->
+        @if (data.errors.existingTeacherCodes && data.errors.existingTeacherCodes.length > 0) {
+          <div class="error-section info">
+            <h3 class="error-title">
+              <mat-icon>check_circle</mat-icon>
+              Artıq bazada olan müəllimlər
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.existingTeacherCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
       </div>
-
-      <!-- Missing School Codes -->
-      <div *ngIf="data.errors.missingSchoolCodes && data.errors.missingSchoolCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>school</mat-icon>
-          Bazada olmayan məktəb kodları
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.missingSchoolCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-
-      <!-- Teachers Without School Codes -->
-      <div *ngIf="data.errors.teacherCodesWithoutSchoolCodes && data.errors.teacherCodesWithoutSchoolCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>info</mat-icon>
-          Faylda məktəb kodu olmayan müəllimlər
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.teacherCodesWithoutSchoolCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-
-      <!-- Existing Teacher Codes -->
-      <div *ngIf="data.errors.existingTeacherCodes && data.errors.existingTeacherCodes.length > 0" class="error-section info">
-        <h3 class="error-title">
-          <mat-icon>check_circle</mat-icon>
-          Artıq bazada olan müəllimlər
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.existingTeacherCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-    </div>
+    }
 
     <!-- Schools Errors -->
-    <div *ngIf="data.type === 'schools'">
-      <!-- Incorrect School Codes -->
-      <div *ngIf="data.errors.incorrectSchoolCodes && data.errors.incorrectSchoolCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>error</mat-icon>
-          Kodları yanlış olan məktəblər (Məktəb kodu 5 ədədli rəqəm olmalıdır)
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.incorrectSchoolCodes" class="error-item">{{ code }}</span>
-        </div>
+    @if (data.type === 'schools') {
+      <div>
+        <!-- Incorrect School Codes -->
+        @if (data.errors.incorrectSchoolCodes && data.errors.incorrectSchoolCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>error</mat-icon>
+              Kodları yanlış olan məktəblər (Məktəb kodu 5 ədədli rəqəm olmalıdır)
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.incorrectSchoolCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Missing District Codes -->
+        @if (data.errors.missingDistrictCodes && data.errors.missingDistrictCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>location_city</mat-icon>
+              Bazada olmayan rayon / şəhər kodları
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.missingDistrictCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Schools Without District Codes -->
+        @if (data.errors.schoolCodesWithoutDistrictCodes && data.errors.schoolCodesWithoutDistrictCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>info</mat-icon>
+              Faylda rayon kodu olmayan məktəblər
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.schoolCodesWithoutDistrictCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Existing School Codes -->
+        @if (data.errors.existingSchoolCodes && data.errors.existingSchoolCodes.length > 0) {
+          <div class="error-section info">
+            <h3 class="error-title">
+              <mat-icon>check_circle</mat-icon>
+              Artıq bazada olan məktəblər
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.existingSchoolCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
       </div>
-
-      <!-- Missing District Codes -->
-      <div *ngIf="data.errors.missingDistrictCodes && data.errors.missingDistrictCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>location_city</mat-icon>
-          Bazada olmayan rayon / şəhər kodları
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.missingDistrictCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-
-      <!-- Schools Without District Codes -->
-      <div *ngIf="data.errors.schoolCodesWithoutDistrictCodes && data.errors.schoolCodesWithoutDistrictCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>info</mat-icon>
-          Faylda rayon kodu olmayan məktəblər
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.schoolCodesWithoutDistrictCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-
-      <!-- Existing School Codes -->
-      <div *ngIf="data.errors.existingSchoolCodes && data.errors.existingSchoolCodes.length > 0" class="error-section info">
-        <h3 class="error-title">
-          <mat-icon>check_circle</mat-icon>
-          Artıq bazada olan məktəblər
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.existingSchoolCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-    </div>
+    }
 
     <!-- Student Results Errors -->
-    <div *ngIf="data.type === 'studentResults'">
-      <!-- Incorrect Student Codes -->
-      <div *ngIf="data.errors.incorrectStudentCodes && data.errors.incorrectStudentCodes.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>error</mat-icon>
-          Kodları yanlış olan şagirdlər (Şagird kodu 10 ədədli rəqəm olmalıdır)
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.incorrectStudentCodes" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-
-      <!-- Students Without Teacher -->
-      <div *ngIf="data.errors.studentsWithoutTeacher && data.errors.studentsWithoutTeacher.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>person_off</mat-icon>
-          Müəllimi tapılmayan şagirdlər
-        </h3>
-        <div class="error-list">
-          <span *ngFor="let code of data.errors.studentsWithoutTeacher" class="error-item">{{ code }}</span>
-        </div>
-      </div>
-
-      <!-- Students With Incorrect Results -->
-      <div *ngIf="data.errors.studentsWithIncorrectResults && data.errors.studentsWithIncorrectResults.length > 0" class="error-section">
-        <h3 class="error-title">
-          <mat-icon>calculate</mat-icon>
-          Nəticələri yanlış olan şagirdlər (Cəm səhvdir)
-        </h3>
-        <div class="error-details">
-          <div *ngFor="let student of data.errors.studentsWithIncorrectResults" class="error-detail-item">
-            <strong>{{ student.code }}:</strong> {{ student.reason }}
+    @if (data.type === 'studentResults') {
+      <div>
+        <!-- Incorrect Student Codes -->
+        @if (data.errors.incorrectStudentCodes && data.errors.incorrectStudentCodes.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>error</mat-icon>
+              Kodları yanlış olan şagirdlər (Şagird kodu 10 ədədli rəqəm olmalıdır)
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.incorrectStudentCodes; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
           </div>
-        </div>
+        }
+        <!-- Students Without Teacher -->
+        @if (data.errors.studentsWithoutTeacher && data.errors.studentsWithoutTeacher.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>person_off</mat-icon>
+              Müəllimi tapılmayan şagirdlər
+            </h3>
+            <div class="error-list">
+              @for (code of data.errors.studentsWithoutTeacher; track code) {
+                <span class="error-item">{{ code }}</span>
+              }
+            </div>
+          </div>
+        }
+        <!-- Students With Incorrect Results -->
+        @if (data.errors.studentsWithIncorrectResults && data.errors.studentsWithIncorrectResults.length > 0) {
+          <div class="error-section">
+            <h3 class="error-title">
+              <mat-icon>calculate</mat-icon>
+              Nəticələri yanlış olan şagirdlər (Cəm səhvdir)
+            </h3>
+            <div class="error-details">
+              @for (student of data.errors.studentsWithIncorrectResults; track student) {
+                <div class="error-detail-item">
+                  <strong>{{ student.code }}:</strong> {{ student.reason }}
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
-    </div>
+    }
   </mat-dialog-content>
 
   <mat-dialog-actions class="dialog-actions">

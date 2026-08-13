@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -20,7 +20,7 @@ export interface BookletEditDialogResult {
 
 @Component({
     selector: 'app-booklet-edit-dialog',
-    imports: [CommonModule, FormsModule, InputComponent, ModalComponent],
+    imports: [FormsModule, InputComponent, ModalComponent],
     templateUrl: './booklet-edit-dialog.component.html'
 })
 export class BookletEditDialogComponent implements OnInit {

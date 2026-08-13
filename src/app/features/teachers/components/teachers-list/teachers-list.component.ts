@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,14 +31,13 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 @Component({
     selector: 'app-teachers-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent,
-        SelectComponent
-    ],
+    FormsModule,
+    RouterModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent,
+    SelectComponent
+],
     templateUrl: './teachers-list.component.html',
     styleUrls: ['./teachers-list.component.scss']
 })

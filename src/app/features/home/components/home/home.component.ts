@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Building2, Landmark, GraduationCap, Users, UserCheck, FileText, TrendingUp, ClipboardList, BarChart3, BookOpen } from 'lucide-angular';
@@ -11,7 +11,7 @@ const PROFILE_ROLES = ['student', 'teacher', 'schoolDirector', 'districtRepresen
 
 @Component({
     selector: 'app-home',
-    imports: [CommonModule, RouterModule, LucideAngularModule, ProfileHeaderComponent],
+    imports: [RouterModule, LucideAngularModule, ProfileHeaderComponent],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
 })

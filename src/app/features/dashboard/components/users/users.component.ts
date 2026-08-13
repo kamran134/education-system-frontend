@@ -8,7 +8,7 @@ import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar
 import { AuthService } from '../../../../core/services/auth.service';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { LucideAngularModule, UserPlus, Edit, Trash2, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, ChevronDown } from 'lucide-angular';
@@ -17,7 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-users',
-    imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent],
+    imports: [FormsModule, LucideAngularModule, ButtonComponent],
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss'
 })

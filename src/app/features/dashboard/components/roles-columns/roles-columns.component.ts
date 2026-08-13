@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { RoleSettings, UserSettings } from '../../../../core/models/settings.model';
-import { CommonModule } from '@angular/common';
+
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
 import { LucideAngularModule, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
@@ -121,12 +121,11 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
 @Component({
     selector: 'app-roles-columns',
     imports: [
-        CommonModule,
-        LucideAngularModule,
-        CdkDropList,
-        CdkDrag,
-        CdkDragHandle
-    ],
+    LucideAngularModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle
+],
     templateUrl: './roles-columns.component.html',
     styleUrl: './roles-columns.component.scss'
 })

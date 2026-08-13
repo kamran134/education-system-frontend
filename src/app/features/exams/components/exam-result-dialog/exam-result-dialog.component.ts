@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dial
 import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-format.pipe';
 import { ExamService } from '../../services/exam.service';
 import { MatSnackBar, MatSnackBarConfig, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
+
 import { Error } from '../../../../core/models/error.model';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -12,7 +12,7 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 
 @Component({
     selector: 'app-exam-result-dialog',
-    imports: [CommonModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
+    imports: [MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
     templateUrl: './exam-result-dialog.component.html',
     styleUrls: ['./exam-result-dialog.component.scss']
 })

@@ -4,7 +4,7 @@
   size="md"
   [buttons]="modalButtons"
   (closed)="onModalClose()"
->
+  >
   <form class="space-y-6">
     <app-input
       label="E-mail"
@@ -15,46 +15,54 @@
       [required]="true"
     ></app-input>
 
-    <app-input
-      *ngIf="isNewUser()"
-      label="Şifrə"
-      placeholder="Şifrəni daxil edin (min. 6 simvol)"
-      [(ngModel)]="dataSource.password"
-      name="password"
-      [type]="showPassword ? 'text' : 'password'"
-      [required]="true"
-      [hint]="dataSource.password && dataSource.password.length > 0 && dataSource.password.length < 6 ? 'Minimum 6 simvol olmalıdır' : ''"
-      [error]="dataSource.password && dataSource.password.length > 0 && dataSource.password.length < 6 ? 'Minimum 6 simvol olmalıdır' : ''"
-    ></app-input>
-    <div *ngIf="isNewUser()" class="flex items-center gap-4 -mt-4 text-sm w-fit">
-      <div *ngIf="dataSource.password" class="flex items-center gap-2 cursor-pointer select-none text-gray-500 hover:text-gray-700"
-           (click)="showPassword = !showPassword">
-        <lucide-icon [img]="showPassword ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
-        <span>{{ showPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
+    @if (isNewUser()) {
+      <app-input
+        label="Şifrə"
+        placeholder="Şifrəni daxil edin (min. 6 simvol)"
+        [(ngModel)]="dataSource.password"
+        name="password"
+        [type]="showPassword ? 'text' : 'password'"
+        [required]="true"
+        [hint]="dataSource.password && dataSource.password.length > 0 && dataSource.password.length < 6 ? 'Minimum 6 simvol olmalıdır' : ''"
+        [error]="dataSource.password && dataSource.password.length > 0 && dataSource.password.length < 6 ? 'Minimum 6 simvol olmalıdır' : ''"
+      ></app-input>
+    }
+    @if (isNewUser()) {
+      <div class="flex items-center gap-4 -mt-4 text-sm w-fit">
+        @if (dataSource.password) {
+          <div class="flex items-center gap-2 cursor-pointer select-none text-gray-500 hover:text-gray-700"
+            (click)="showPassword = !showPassword">
+            <lucide-icon [img]="showPassword ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
+            <span>{{ showPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
+          </div>
+        }
+        <button type="button"
+          (click)="generatePassword()"
+          class="flex items-center gap-2 cursor-pointer select-none text-blue-600 hover:text-blue-800 font-medium">
+          <lucide-icon [img]="KeyRound" class="w-4 h-4"></lucide-icon>
+          <span>Şifrəni generasiya et</span>
+        </button>
       </div>
-      <button type="button"
-              (click)="generatePassword()"
-              class="flex items-center gap-2 cursor-pointer select-none text-blue-600 hover:text-blue-800 font-medium">
-        <lucide-icon [img]="KeyRound" class="w-4 h-4"></lucide-icon>
-        <span>Şifrəni generasiya et</span>
-      </button>
-    </div>
+    }
 
-    <app-input
-      *ngIf="isNewUser()"
-      label="Şifrəni təkrarlayın"
-      placeholder="Şifrəni təkrar daxil edin"
-      [(ngModel)]="repeatedPassword"
-      name="repeatedPassword"
-      [type]="showRepeatedPassword ? 'text' : 'password'"
-      [required]="true"
-      [error]="repeatedPassword && dataSource.password && repeatedPassword !== dataSource.password ? 'Şifrələr uyğun gəlmir' : ''"
-    ></app-input>
-    <div *ngIf="isNewUser() && repeatedPassword" class="flex items-center gap-2 -mt-4 cursor-pointer select-none text-sm text-gray-500 hover:text-gray-700 w-fit"
-         (click)="showRepeatedPassword = !showRepeatedPassword">
-      <lucide-icon [img]="showRepeatedPassword ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
-      <span>{{ showRepeatedPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
-    </div>
+    @if (isNewUser()) {
+      <app-input
+        label="Şifrəni təkrarlayın"
+        placeholder="Şifrəni təkrar daxil edin"
+        [(ngModel)]="repeatedPassword"
+        name="repeatedPassword"
+        [type]="showRepeatedPassword ? 'text' : 'password'"
+        [required]="true"
+        [error]="repeatedPassword && dataSource.password && repeatedPassword !== dataSource.password ? 'Şifrələr uyğun gəlmir' : ''"
+      ></app-input>
+    }
+    @if (isNewUser() && repeatedPassword) {
+      <div class="flex items-center gap-2 -mt-4 cursor-pointer select-none text-sm text-gray-500 hover:text-gray-700 w-fit"
+        (click)="showRepeatedPassword = !showRepeatedPassword">
+        <lucide-icon [img]="showRepeatedPassword ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
+        <span>{{ showRepeatedPassword ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
+      </div>
+    }
 
     <app-select
       label="Vəzifəsi"
@@ -66,119 +74,139 @@
     ></app-select>
 
     <!-- Region selection for Region Representer -->
-    <div *ngIf="needsRegionSelection" class="relative">
-      <app-input
-        label="Regional Təhsil İdarəsi"
-        placeholder="Regional idarə adını daxil edin (min. 2 hərf)"
-        [(ngModel)]="regionSearchTerm"
-        (ngModelChange)="onRegionSearchChange($event)"
-        name="regionSearch"
-        type="text"
-      ></app-input>
-
-      <!-- Inline autocomplete dropdown -->
-      <div *ngIf="regionOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-        <div
-          *ngFor="let option of regionOptions"
-          (click)="selectRegion(option)"
-          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
-        >
-          {{ option.label }}
-        </div>
+    @if (needsRegionSelection) {
+      <div class="relative">
+        <app-input
+          label="Regional Təhsil İdarəsi"
+          placeholder="Regional idarə adını daxil edin (min. 2 hərf)"
+          [(ngModel)]="regionSearchTerm"
+          (ngModelChange)="onRegionSearchChange($event)"
+          name="regionSearch"
+          type="text"
+        ></app-input>
+        <!-- Inline autocomplete dropdown -->
+        @if (regionOptions.length > 0) {
+          <div class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            @for (option of regionOptions; track option) {
+              <div
+                (click)="selectRegion(option)"
+                class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+                >
+                {{ option.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- District selection for District Representer -->
-    <div *ngIf="needsDistrictSelection" class="relative">
-      <app-input
-        label="Rayon"
-        placeholder="Rayon adını daxil edin (min. 2 hərf)"
-        [(ngModel)]="districtSearchTerm"
-        (ngModelChange)="onDistrictSearchChange($event)"
-        name="districtSearch"
-        type="text"
-      ></app-input>
-
-      <!-- Inline autocomplete dropdown -->
-      <div *ngIf="districtOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-        <div
-          *ngFor="let option of districtOptions"
-          (click)="selectDistrict(option)"
-          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
-        >
-          {{ option.label }}
-        </div>
+    @if (needsDistrictSelection) {
+      <div class="relative">
+        <app-input
+          label="Rayon"
+          placeholder="Rayon adını daxil edin (min. 2 hərf)"
+          [(ngModel)]="districtSearchTerm"
+          (ngModelChange)="onDistrictSearchChange($event)"
+          name="districtSearch"
+          type="text"
+        ></app-input>
+        <!-- Inline autocomplete dropdown -->
+        @if (districtOptions.length > 0) {
+          <div class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            @for (option of districtOptions; track option) {
+              <div
+                (click)="selectDistrict(option)"
+                class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+                >
+                {{ option.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- School selection for School Director -->
-    <div *ngIf="needsSchoolSelection" class="relative">
-      <app-input
-        label="Məktəb"
-        placeholder="Məktəb adını daxil edin (min. 2 hərf)"
-        [(ngModel)]="schoolSearchTerm"
-        (ngModelChange)="onSchoolSearchChange($event)"
-        name="schoolSearch"
-        type="text"
-      ></app-input>
-
-      <!-- Inline autocomplete dropdown -->
-      <div *ngIf="schoolOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-        <div
-          *ngFor="let option of schoolOptions"
-          (click)="selectSchool(option)"
-          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
-        >
-          {{ option.label }}
-        </div>
+    @if (needsSchoolSelection) {
+      <div class="relative">
+        <app-input
+          label="Məktəb"
+          placeholder="Məktəb adını daxil edin (min. 2 hərf)"
+          [(ngModel)]="schoolSearchTerm"
+          (ngModelChange)="onSchoolSearchChange($event)"
+          name="schoolSearch"
+          type="text"
+        ></app-input>
+        <!-- Inline autocomplete dropdown -->
+        @if (schoolOptions.length > 0) {
+          <div class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            @for (option of schoolOptions; track option) {
+              <div
+                (click)="selectSchool(option)"
+                class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+                >
+                {{ option.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- Teacher selection for Teacher -->
-    <div *ngIf="needsTeacherSelection" class="relative">
-      <app-input
-        label="Müəllim"
-        placeholder="Soyadı, adı, ata adı daxil edin (min. 2 hərf)"
-        [(ngModel)]="teacherSearchTerm"
-        (ngModelChange)="onTeacherSearchChange($event)"
-        name="teacherSearch"
-        type="text"
-      ></app-input>
-
-      <!-- Inline autocomplete dropdown -->
-      <div *ngIf="teacherOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-        <div
-          *ngFor="let option of teacherOptions"
-          (click)="selectTeacher(option)"
-          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
-        >
-          {{ option.label }}
-        </div>
+    @if (needsTeacherSelection) {
+      <div class="relative">
+        <app-input
+          label="Müəllim"
+          placeholder="Soyadı, adı, ata adı daxil edin (min. 2 hərf)"
+          [(ngModel)]="teacherSearchTerm"
+          (ngModelChange)="onTeacherSearchChange($event)"
+          name="teacherSearch"
+          type="text"
+        ></app-input>
+        <!-- Inline autocomplete dropdown -->
+        @if (teacherOptions.length > 0) {
+          <div class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            @for (option of teacherOptions; track option) {
+              <div
+                (click)="selectTeacher(option)"
+                class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+                >
+                {{ option.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- Student selection for Student -->
-    <div *ngIf="needsStudentSelection" class="relative">
-      <app-input
-        label="Şagird"
-        placeholder="Soyad, ad, ata adı daxil edin (min. 2 hərf)"
-        [(ngModel)]="studentSearchTerm"
-        (ngModelChange)="onStudentSearchChange($event)"
-        name="studentSearch"
-        type="text"
-      ></app-input>
-
-      <!-- Inline autocomplete dropdown -->
-      <div *ngIf="studentOptions.length > 0" class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-        <div
-          *ngFor="let option of studentOptions"
-          (click)="selectStudent(option)"
-          class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
-        >
-          {{ option.label }}
-        </div>
+    @if (needsStudentSelection) {
+      <div class="relative">
+        <app-input
+          label="Şagird"
+          placeholder="Soyad, ad, ata adı daxil edin (min. 2 hərf)"
+          [(ngModel)]="studentSearchTerm"
+          (ngModelChange)="onStudentSearchChange($event)"
+          name="studentSearch"
+          type="text"
+        ></app-input>
+        <!-- Inline autocomplete dropdown -->
+        @if (studentOptions.length > 0) {
+          <div class="absolute z-[100] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+            @for (option of studentOptions; track option) {
+              <div
+                (click)="selectStudent(option)"
+                class="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
+                >
+                {{ option.label }}
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- Approval Status - Radio Buttons -->
     <div class="space-y-2">
@@ -194,81 +222,84 @@
             [value]="true"
             [(ngModel)]="dataSource.isApproved"
             class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-2 focus:ring-primary-500 cursor-pointer"
-          />
-          <span class="ml-2 text-sm text-gray-700 group-hover:text-primary-600 transition-colors">
-            Təsdiq edilmiş
-          </span>
-        </label>
-        <label class="flex items-center cursor-pointer group">
-          <input
-            type="radio"
-            name="isApproved"
-            [value]="false"
-            [(ngModel)]="dataSource.isApproved"
-            class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-2 focus:ring-primary-500 cursor-pointer"
-          />
-          <span class="ml-2 text-sm text-gray-700 group-hover:text-primary-600 transition-colors">
-            Təsdiq edilməmiş
-          </span>
-        </label>
-      </div>
-    </div>
-
-    <!-- Change password section (edit mode only) -->
-    <div *ngIf="!isNewUser()" class="border border-gray-200 rounded-lg p-4 space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
-          <lucide-icon [img]="KeyRound" class="w-4 h-4"></lucide-icon>
-          <span>Parolu dəyiş</span>
+            />
+            <span class="ml-2 text-sm text-gray-700 group-hover:text-primary-600 transition-colors">
+              Təsdiq edilmiş
+            </span>
+          </label>
+          <label class="flex items-center cursor-pointer group">
+            <input
+              type="radio"
+              name="isApproved"
+              [value]="false"
+              [(ngModel)]="dataSource.isApproved"
+              class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-2 focus:ring-primary-500 cursor-pointer"
+              />
+              <span class="ml-2 text-sm text-gray-700 group-hover:text-primary-600 transition-colors">
+                Təsdiq edilməmiş
+              </span>
+            </label>
+          </div>
         </div>
-        <button type="button"
+
+        <!-- Change password section (edit mode only) -->
+        @if (!isNewUser()) {
+          <div class="border border-gray-200 rounded-lg p-4 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <lucide-icon [img]="KeyRound" class="w-4 h-4"></lucide-icon>
+                <span>Parolu dəyiş</span>
+              </div>
+              <button type="button"
                 class="text-sm text-blue-600 hover:text-blue-800 font-medium"
                 (click)="isChangingPassword = !isChangingPassword; newPasswordForEdit = ''; confirmedNewPasswordForEdit = ''">
-          {{ isChangingPassword ? 'Ləğv et' : 'Dəyişdir' }}
-        </button>
-      </div>
-
-      <ng-container *ngIf="isChangingPassword">
-        <app-input
-          label="Yeni şifrə"
-          placeholder="Yeni şifrəni daxil edin (min. 6 simvol)"
-          [(ngModel)]="newPasswordForEdit"
-          name="newPasswordForEdit"
-          [type]="showNewPasswordForEdit ? 'text' : 'password'"
-          [required]="true"
-          [error]="newPasswordForEdit && newPasswordForEdit.length > 0 && newPasswordForEdit.length < 6 ? 'Minimum 6 simvol olmalıdır' : ''"
-        ></app-input>
-        <div *ngIf="newPasswordForEdit" class="flex items-center gap-2 -mt-2 cursor-pointer select-none text-sm text-gray-500 hover:text-gray-700 w-fit"
-             (click)="showNewPasswordForEdit = !showNewPasswordForEdit">
-          <lucide-icon [img]="showNewPasswordForEdit ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
-          <span>{{ showNewPasswordForEdit ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
-        </div>
-
-        <app-input
-          label="Yeni şifrəni təkrarlayın"
-          placeholder="Yeni şifrəni təkrar daxil edin"
-          [(ngModel)]="confirmedNewPasswordForEdit"
-          name="confirmedNewPasswordForEdit"
-          [type]="showConfirmNewPasswordForEdit ? 'text' : 'password'"
-          [required]="true"
-          [error]="confirmedNewPasswordForEdit && newPasswordForEdit && confirmedNewPasswordForEdit !== newPasswordForEdit ? 'Şifrələr uyğun gəlmir' : ''"
-        ></app-input>
-        <div *ngIf="confirmedNewPasswordForEdit" class="flex items-center gap-2 -mt-2 cursor-pointer select-none text-sm text-gray-500 hover:text-gray-700 w-fit"
-             (click)="showConfirmNewPasswordForEdit = !showConfirmNewPasswordForEdit">
-          <lucide-icon [img]="showConfirmNewPasswordForEdit ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
-          <span>{{ showConfirmNewPasswordForEdit ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
-        </div>
-
-        <button type="button"
+                {{ isChangingPassword ? 'Ləğv et' : 'Dəyişdir' }}
+              </button>
+            </div>
+            @if (isChangingPassword) {
+              <app-input
+                label="Yeni şifrə"
+                placeholder="Yeni şifrəni daxil edin (min. 6 simvol)"
+                [(ngModel)]="newPasswordForEdit"
+                name="newPasswordForEdit"
+                [type]="showNewPasswordForEdit ? 'text' : 'password'"
+                [required]="true"
+                [error]="newPasswordForEdit && newPasswordForEdit.length > 0 && newPasswordForEdit.length < 6 ? 'Minimum 6 simvol olmalıdır' : ''"
+              ></app-input>
+              @if (newPasswordForEdit) {
+                <div class="flex items-center gap-2 -mt-2 cursor-pointer select-none text-sm text-gray-500 hover:text-gray-700 w-fit"
+                  (click)="showNewPasswordForEdit = !showNewPasswordForEdit">
+                  <lucide-icon [img]="showNewPasswordForEdit ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
+                  <span>{{ showNewPasswordForEdit ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
+                </div>
+              }
+              <app-input
+                label="Yeni şifrəni təkrarlayın"
+                placeholder="Yeni şifrəni təkrar daxil edin"
+                [(ngModel)]="confirmedNewPasswordForEdit"
+                name="confirmedNewPasswordForEdit"
+                [type]="showConfirmNewPasswordForEdit ? 'text' : 'password'"
+                [required]="true"
+                [error]="confirmedNewPasswordForEdit && newPasswordForEdit && confirmedNewPasswordForEdit !== newPasswordForEdit ? 'Şifrələr uyğun gəlmir' : ''"
+              ></app-input>
+              @if (confirmedNewPasswordForEdit) {
+                <div class="flex items-center gap-2 -mt-2 cursor-pointer select-none text-sm text-gray-500 hover:text-gray-700 w-fit"
+                  (click)="showConfirmNewPasswordForEdit = !showConfirmNewPasswordForEdit">
+                  <lucide-icon [img]="showConfirmNewPasswordForEdit ? EyeOff : Eye" class="w-4 h-4"></lucide-icon>
+                  <span>{{ showConfirmNewPasswordForEdit ? 'Şifrəni gizlət' : 'Şifrəni göstər' }}</span>
+                </div>
+              }
+              <button type="button"
                 [disabled]="!isPasswordChangeFormValid || isPasswordChanging"
                 (click)="onChangePassword()"
                 class="w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors"
                 [ngClass]="isPasswordChangeFormValid && !isPasswordChanging
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
-          {{ isPasswordChanging ? 'Yüklənir...' : 'Parolu dəyişdir' }}
-        </button>
-      </ng-container>
-    </div>
-  </form>
-</app-modal>
+                {{ isPasswordChanging ? 'Yüklənir...' : 'Parolu dəyişdir' }}
+              </button>
+            }
+          </div>
+        }
+      </form>
+    </app-modal>

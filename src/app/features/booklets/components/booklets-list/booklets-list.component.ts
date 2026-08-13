@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -41,12 +41,11 @@ import { BookletEditDialogComponent, BookletEditDialogResult } from '../booklet-
 @Component({
     selector: 'app-booklets-list',
     imports: [
-        CommonModule,
-        FormsModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent
-    ],
+    FormsModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent
+],
     templateUrl: './booklets-list.component.html',
     styleUrls: ['./booklets-list.component.scss']
 })

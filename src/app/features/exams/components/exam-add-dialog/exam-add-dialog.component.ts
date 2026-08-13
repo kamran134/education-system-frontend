@@ -1,18 +1,17 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { InputComponent } from '../../../../shared/components/ui/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 
 @Component({
     selector: 'app-exam-add-dialog',
     imports: [
-        CommonModule,
-        FormsModule,
-        InputComponent,
-        ModalComponent
-    ],
+    FormsModule,
+    InputComponent,
+    ModalComponent
+],
     templateUrl: './exam-add-dialog.component.html',
     styleUrl: './exam-add-dialog.component.scss'
 })

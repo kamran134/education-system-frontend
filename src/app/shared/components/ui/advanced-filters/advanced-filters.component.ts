@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Filter, RotateCcw, Search } from 'lucide-angular';
 import { SelectComponent, SelectOption } from '../form-controls/select/select.component';
@@ -21,12 +21,11 @@ export interface FilterField {
 @Component({
     selector: 'app-advanced-filters',
     imports: [
-        CommonModule,
-        FormsModule,
-        LucideAngularModule,
-        SelectComponent,
-        InputComponent
-    ],
+    FormsModule,
+    LucideAngularModule,
+    SelectComponent,
+    InputComponent
+],
     template: `
     <div class="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
       <!-- Filter Header -->
@@ -34,100 +33,108 @@ export interface FilterField {
         <div class="flex items-center space-x-2">
           <lucide-icon [img]="Filter" class="h-4 w-4 text-gray-600"></lucide-icon>
           <h3 class="text-sm font-medium text-gray-900">Filtrlər</h3>
-          <span *ngIf="activeFilterCount > 0" 
-                class="inline-flex items-center rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800">
-            {{ activeFilterCount }}
-          </span>
+          @if (activeFilterCount > 0) {
+            <span
+              class="inline-flex items-center rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800">
+              {{ activeFilterCount }}
+            </span>
+          }
         </div>
-
+    
         <!-- Reset Filters -->
-        <button
-          *ngIf="activeFilterCount > 0"
-          type="button"
-          (click)="resetFilters()"
-          class="inline-flex items-center space-x-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          <lucide-icon [img]="RotateCcw" class="h-3 w-3"></lucide-icon>
-          <span>Təmizlə</span>
-        </button>
-      </div>
-
-      <!-- Filter Controls -->
-      <div class="grid grid-cols-1 gap-4" [class]="gridClasses">
-        <div *ngFor="let filter of filters; trackBy: trackByKey" [class]="getFilterWidth(filter)">
-          
-          <!-- Select Filter -->
-          <app-select
-            *ngIf="filter.type === 'select'"
-            [label]="filter.label"
-            [placeholder]="filter.placeholder || ''"
-            [options]="getFilterOptions(filter)"
-            [searchable]="filter.searchable || false"
-            [clearable]="filter.clearable !== false"
-            [ngModel]="filterValues[filter.key]"
-            (selectionChange)="onFilterChange(filter.key, $event)"
-          ></app-select>
-
-          <!-- Multi-Select Filter -->
-          <app-select
-            *ngIf="filter.type === 'multi-select'"
-            [label]="filter.label"
-            [placeholder]="filter.placeholder || ''"
-            [options]="getFilterOptions(filter)"
-            [multiple]="true"
-            [searchable]="filter.searchable !== false"
-            [clearable]="filter.clearable !== false"
-            [ngModel]="filterValues[filter.key] || []"
-            (selectionChange)="onFilterChange(filter.key, $event)"
-          ></app-select>
-
-          <!-- Text/Search Filter -->
-          <app-input
-            *ngIf="filter.type === 'text' || filter.type === 'search'"
-            [label]="filter.label"
-            [placeholder]="filter.placeholder || 'Axtarış...'"
-            [type]="filter.type === 'search' ? 'search' : 'text'"
-            [leftIcon]="filter.type === 'search' ? Search : null"
-            [clearable]="filter.clearable !== false"
-            [ngModel]="filterValues[filter.key]"
-            (valueChange)="onFilterChange(filter.key, $event)"
-            (enterPressed)="onSearchEnter(filter.key)"
-          ></app-input>
-
-          <!-- Number Filter -->
-          <app-input
-            *ngIf="filter.type === 'number'"
-            [label]="filter.label"
-            [placeholder]="filter.placeholder || ''"
-            type="number"
-            [clearable]="filter.clearable !== false"
-            [ngModel]="filterValues[filter.key]"
-            (valueChange)="onFilterChange(filter.key, $event)"
-          ></app-input>
-
-        </div>
-      </div>
-
-      <!-- Active Filters Summary -->
-      <div *ngIf="activeFilterCount > 0" class="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
-        <span class="text-xs font-medium text-gray-500">Aktiv filtrlər:</span>
-        <div *ngFor="let activeFilter of getActiveFilters()" 
-             class="inline-flex items-center rounded-full bg-primary-50 border border-primary-200 px-2 py-1 text-xs">
-          <span class="text-primary-700">
-            <span class="font-medium">{{ activeFilter.label }}:</span>
-            <span class="ml-1">{{ activeFilter.displayValue }}</span>
-          </span>
+        @if (activeFilterCount > 0) {
           <button
             type="button"
-            class="ml-2 inline-flex h-3 w-3 items-center justify-center rounded-full text-primary-400 hover:text-primary-600 hover:bg-primary-100"
-            (click)="clearFilter(activeFilter.key)"
-          >
-            ×
+            (click)="resetFilters()"
+            class="inline-flex items-center space-x-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+            <lucide-icon [img]="RotateCcw" class="h-3 w-3"></lucide-icon>
+            <span>Təmizlə</span>
           </button>
-        </div>
+        }
       </div>
+    
+      <!-- Filter Controls -->
+      <div class="grid grid-cols-1 gap-4" [class]="gridClasses">
+        @for (filter of filters; track trackByKey($index, filter)) {
+          <div [class]="getFilterWidth(filter)">
+            <!-- Select Filter -->
+            @if (filter.type === 'select') {
+              <app-select
+                [label]="filter.label"
+                [placeholder]="filter.placeholder || ''"
+                [options]="getFilterOptions(filter)"
+                [searchable]="filter.searchable || false"
+                [clearable]="filter.clearable !== false"
+                [ngModel]="filterValues[filter.key]"
+                (selectionChange)="onFilterChange(filter.key, $event)"
+              ></app-select>
+            }
+            <!-- Multi-Select Filter -->
+            @if (filter.type === 'multi-select') {
+              <app-select
+                [label]="filter.label"
+                [placeholder]="filter.placeholder || ''"
+                [options]="getFilterOptions(filter)"
+                [multiple]="true"
+                [searchable]="filter.searchable !== false"
+                [clearable]="filter.clearable !== false"
+                [ngModel]="filterValues[filter.key] || []"
+                (selectionChange)="onFilterChange(filter.key, $event)"
+              ></app-select>
+            }
+            <!-- Text/Search Filter -->
+            @if (filter.type === 'text' || filter.type === 'search') {
+              <app-input
+                [label]="filter.label"
+                [placeholder]="filter.placeholder || 'Axtarış...'"
+                [type]="filter.type === 'search' ? 'search' : 'text'"
+                [leftIcon]="filter.type === 'search' ? Search : null"
+                [clearable]="filter.clearable !== false"
+                [ngModel]="filterValues[filter.key]"
+                (valueChange)="onFilterChange(filter.key, $event)"
+                (enterPressed)="onSearchEnter(filter.key)"
+              ></app-input>
+            }
+            <!-- Number Filter -->
+            @if (filter.type === 'number') {
+              <app-input
+                [label]="filter.label"
+                [placeholder]="filter.placeholder || ''"
+                type="number"
+                [clearable]="filter.clearable !== false"
+                [ngModel]="filterValues[filter.key]"
+                (valueChange)="onFilterChange(filter.key, $event)"
+              ></app-input>
+            }
+          </div>
+        }
+      </div>
+    
+      <!-- Active Filters Summary -->
+      @if (activeFilterCount > 0) {
+        <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
+          <span class="text-xs font-medium text-gray-500">Aktiv filtrlər:</span>
+          @for (activeFilter of getActiveFilters(); track activeFilter) {
+            <div
+              class="inline-flex items-center rounded-full bg-primary-50 border border-primary-200 px-2 py-1 text-xs">
+              <span class="text-primary-700">
+                <span class="font-medium">{{ activeFilter.label }}:</span>
+                <span class="ml-1">{{ activeFilter.displayValue }}</span>
+              </span>
+              <button
+                type="button"
+                class="ml-2 inline-flex h-3 w-3 items-center justify-center rounded-full text-primary-400 hover:text-primary-600 hover:bg-primary-100"
+                (click)="clearFilter(activeFilter.key)"
+                >
+                ×
+              </button>
+            </div>
+          }
+        </div>
+      }
     </div>
-  `,
+    `,
     styles: [`
     :host {
       display: block;

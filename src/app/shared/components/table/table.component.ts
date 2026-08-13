@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
     selector: 'app-table',
-    imports: [CommonModule, MatButtonModule, MatTableModule, MatIconModule, MatPaginatorModule],
+    imports: [MatButtonModule, MatTableModule, MatIconModule, MatPaginatorModule],
     templateUrl: './table.component.html',
     styleUrl: './table.component.scss'
 })

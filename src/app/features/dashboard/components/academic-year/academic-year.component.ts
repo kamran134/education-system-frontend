@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatDialog } from '@angular/material/dialog';
 import { LucideAngularModule, GraduationCap, Loader, CheckCircle, AlertTriangle } from 'lucide-angular';
 import { AcademicYearService, GradePromotionPreview } from '../../services/academic-year.service';
@@ -8,7 +8,7 @@ import { SnackBarService } from '../../../commonComponents/services/snack-bar.se
 
 @Component({
     selector: 'app-academic-year',
-    imports: [CommonModule, LucideAngularModule],
+    imports: [LucideAngularModule],
     templateUrl: './academic-year.component.html',
     styleUrl: './academic-year.component.scss'
 })

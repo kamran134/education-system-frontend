@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ElementRef, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-dropdown',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div class="relative inline-block text-left">
       <!-- Trigger Button -->
@@ -13,23 +13,24 @@ import { CommonModule } from '@angular/common';
         (click)="toggleDropdown()"
         [attr.aria-expanded]="isOpen"
         aria-haspopup="true"
-      >
+        >
         <ng-content select="[slot=trigger]"></ng-content>
       </button>
-
+    
       <!-- Dropdown Menu -->
-      <div
-        *ngIf="isOpen"
-        [class]="menuClasses"
-        role="menu"
-        aria-orientation="vertical"
-      >
-        <div class="py-1" role="none">
-          <ng-content select="[slot=content]"></ng-content>
+      @if (isOpen) {
+        <div
+          [class]="menuClasses"
+          role="menu"
+          aria-orientation="vertical"
+          >
+          <div class="py-1" role="none">
+            <ng-content select="[slot=content]"></ng-content>
+          </div>
         </div>
-      </div>
+      }
     </div>
-  `,
+    `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DropdownComponent {
@@ -70,7 +71,7 @@ export class DropdownComponent {
 
 @Component({
     selector: 'app-dropdown-item',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <button
       type="button"

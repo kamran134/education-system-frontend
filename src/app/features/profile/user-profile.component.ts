@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,175 +17,191 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
 @Component({
     selector: 'app-user-profile',
     imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        MatCardModule,
-        MatButtonModule,
-        MatIconModule,
-        MatTabsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSnackBarModule,
-        MatProgressSpinnerModule,
-        UserSessionsComponent
-    ],
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    UserSessionsComponent
+],
     template: `
         <div class="profile-container">
-            <mat-card class="profile-header">
-                <mat-card-header>
-                    <div mat-card-avatar class="profile-avatar">
-                        <mat-icon>person</mat-icon>
-                    </div>
-                    <mat-card-title>İstifadəçi Profili</mat-card-title>
-                    <mat-card-subtitle *ngIf="userInfo">
-                        {{userInfo.email}} • {{getRoleDisplayName(userInfo.role)}}
-                    </mat-card-subtitle>
-                </mat-card-header>
-            </mat-card>
-
-            <mat-tab-group class="profile-tabs">
-                <!-- Основная информация -->
-                <mat-tab>
-                    <ng-template mat-tab-label>
-                        <mat-icon>person</mat-icon>
-                        Şəxsi məlumatlar
-                    </ng-template>
-
-                    <div class="tab-content">
-                        <mat-card>
-                            <mat-card-header>
-                                <mat-card-title>Hesab məlumatları</mat-card-title>
-                            </mat-card-header>
-
-                            <mat-card-content>
-                                <div class="profile-info" *ngIf="userInfo && !editMode">
-                                    <div class="info-row">
-                                        <mat-icon>email</mat-icon>
-                                        <span class="label">E-mail:</span>
-                                        <span class="value">{{userInfo.email}}</span>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <mat-icon>admin_panel_settings</mat-icon>
-                                        <span class="label">Rol:</span>
-                                        <span class="value">{{getRoleDisplayName(userInfo.role)}}</span>
-                                    </div>
-
-                                    <div class="info-row">
-                                        <mat-icon>verified</mat-icon>
-                                        <span class="label">Status:</span>
-                                        <span class="value" [class.approved]="userInfo.isApproved" [class.pending]="!userInfo.isApproved">
-                                            {{userInfo.isApproved ? 'Təsdiqlənib' : 'Təsdiq gözlənilir'}}
-                                        </span>
-                                    </div>
-
-                                    <div class="info-row" *ngIf="userInfo.lastLoginAt">
-                                        <mat-icon>schedule</mat-icon>
-                                        <span class="label">Son giriş:</span>
-                                        <span class="value">{{formatDate(userInfo.lastLoginAt)}}</span>
-                                    </div>
-                                </div>
-
-                                <!-- Форма редактирования пароля -->
-                                <form [formGroup]="passwordForm" *ngIf="editMode" class="password-form">
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Cari şifrə</mat-label>
-                                        <input matInput type="password" formControlName="currentPassword">
-                                        <mat-icon matSuffix>lock</mat-icon>
-                                        <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
-                                            Cari şifrə tələb olunur
-                                        </mat-error>
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Yeni şifrə</mat-label>
-                                        <input matInput type="password" formControlName="newPassword">
-                                        <mat-icon matSuffix>lock_reset</mat-icon>
-                                        <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
-                                            Yeni şifrə tələb olunur
-                                        </mat-error>
-                                        <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
-                                            Şifrə minimum 6 simvol olmalıdır
-                                        </mat-error>
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Yeni şifrəni təsdiq et</mat-label>
-                                        <input matInput type="password" formControlName="confirmPassword">
-                                        <mat-icon matSuffix>lock_reset</mat-icon>
-                                        <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
-                                            Şifrə təsdiqi tələb olunur
-                                        </mat-error>
-                                        <mat-error *ngIf="passwordForm.hasError('passwordMismatch')">
-                                            Şifrələr uyğun gəlmir
-                                        </mat-error>
-                                    </mat-form-field>
-                                </form>
-
-                                <div class="loading" *ngIf="loading">
-                                    <mat-spinner diameter="30"></mat-spinner>
-                                    <span>Yüklənir...</span>
-                                </div>
-                            </mat-card-content>
-
-                            <mat-card-actions>
-                                <button mat-button (click)="refreshProfile()" [disabled]="loading || editMode">
-                                    <mat-icon>refresh</mat-icon>
-                                    Yenilə
-                                </button>
-
-                                <button mat-raised-button
-                                        color="primary"
-                                        (click)="toggleEditMode()"
-                                        [disabled]="loading">
-                                    <mat-icon>{{editMode ? 'cancel' : 'edit'}}</mat-icon>
-                                    {{editMode ? 'Ləğv et' : 'Şifrəni dəyiş'}}
-                                </button>
-
-                                <button mat-raised-button
-                                        color="accent"
-                                        (click)="changePassword()"
-                                        [disabled]="!passwordForm.valid || loading"
-                                        *ngIf="editMode">
-                                    <mat-icon>save</mat-icon>
-                                    Yadda saxla
-                                </button>
-                            </mat-card-actions>
-                        </mat-card>
-                    </div>
-                </mat-tab>
-
-                <!-- Управление сессиями -->
-                <mat-tab>
-                    <ng-template mat-tab-label>
-                        <mat-icon>devices</mat-icon>
-                        Sessiyalar
-                    </ng-template>
-
-                    <div class="tab-content">
-                        <app-user-sessions></app-user-sessions>
-
-                        <mat-card class="security-tips">
-                            <mat-card-header>
-                                <mat-card-title>
-                                    <mat-icon>security</mat-icon>
-                                    Təhlükəsizlik məsləhətləri
-                                </mat-card-title>
-                            </mat-card-header>
-                            <mat-card-content>
-                                <ul>
-                                    <li>Şifrəni mütəmadi olaraq dəyişin</li>
-                                    <li>Naməlum cihazlardan giriş etməyin</li>
-                                    <li>İşdən sonra hesabdan çıxın</li>
-                                    <li>Sessiyaları mütəmadi yoxlayın</li>
-                                </ul>
-                            </mat-card-content>
-                        </mat-card>
-                    </div>
-                </mat-tab>
-            </mat-tab-group>
+          <mat-card class="profile-header">
+            <mat-card-header>
+              <div mat-card-avatar class="profile-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <mat-card-title>İstifadəçi Profili</mat-card-title>
+              @if (userInfo) {
+                <mat-card-subtitle>
+                  {{userInfo.email}} • {{getRoleDisplayName(userInfo.role)}}
+                </mat-card-subtitle>
+              }
+            </mat-card-header>
+          </mat-card>
+        
+          <mat-tab-group class="profile-tabs">
+            <!-- Основная информация -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>person</mat-icon>
+                Şəxsi məlumatlar
+              </ng-template>
+        
+              <div class="tab-content">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title>Hesab məlumatları</mat-card-title>
+                  </mat-card-header>
+        
+                  <mat-card-content>
+                    @if (userInfo && !editMode) {
+                      <div class="profile-info">
+                        <div class="info-row">
+                          <mat-icon>email</mat-icon>
+                          <span class="label">E-mail:</span>
+                          <span class="value">{{userInfo.email}}</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>admin_panel_settings</mat-icon>
+                          <span class="label">Rol:</span>
+                          <span class="value">{{getRoleDisplayName(userInfo.role)}}</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>verified</mat-icon>
+                          <span class="label">Status:</span>
+                          <span class="value" [class.approved]="userInfo.isApproved" [class.pending]="!userInfo.isApproved">
+                            {{userInfo.isApproved ? 'Təsdiqlənib' : 'Təsdiq gözlənilir'}}
+                          </span>
+                        </div>
+                        @if (userInfo.lastLoginAt) {
+                          <div class="info-row">
+                            <mat-icon>schedule</mat-icon>
+                            <span class="label">Son giriş:</span>
+                            <span class="value">{{formatDate(userInfo.lastLoginAt)}}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+        
+                    <!-- Форма редактирования пароля -->
+                    @if (editMode) {
+                      <form [formGroup]="passwordForm" class="password-form">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Cari şifrə</mat-label>
+                          <input matInput type="password" formControlName="currentPassword">
+                          <mat-icon matSuffix>lock</mat-icon>
+                          @if (passwordForm.get('currentPassword')?.hasError('required')) {
+                            <mat-error>
+                              Cari şifrə tələb olunur
+                            </mat-error>
+                          }
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                          <mat-label>Yeni şifrə</mat-label>
+                          <input matInput type="password" formControlName="newPassword">
+                          <mat-icon matSuffix>lock_reset</mat-icon>
+                          @if (passwordForm.get('newPassword')?.hasError('required')) {
+                            <mat-error>
+                              Yeni şifrə tələb olunur
+                            </mat-error>
+                          }
+                          @if (passwordForm.get('newPassword')?.hasError('minlength')) {
+                            <mat-error>
+                              Şifrə minimum 6 simvol olmalıdır
+                            </mat-error>
+                          }
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                          <mat-label>Yeni şifrəni təsdiq et</mat-label>
+                          <input matInput type="password" formControlName="confirmPassword">
+                          <mat-icon matSuffix>lock_reset</mat-icon>
+                          @if (passwordForm.get('confirmPassword')?.hasError('required')) {
+                            <mat-error>
+                              Şifrə təsdiqi tələb olunur
+                            </mat-error>
+                          }
+                          @if (passwordForm.hasError('passwordMismatch')) {
+                            <mat-error>
+                              Şifrələr uyğun gəlmir
+                            </mat-error>
+                          }
+                        </mat-form-field>
+                      </form>
+                    }
+        
+                    @if (loading) {
+                      <div class="loading">
+                        <mat-spinner diameter="30"></mat-spinner>
+                        <span>Yüklənir...</span>
+                      </div>
+                    }
+                  </mat-card-content>
+        
+                  <mat-card-actions>
+                    <button mat-button (click)="refreshProfile()" [disabled]="loading || editMode">
+                      <mat-icon>refresh</mat-icon>
+                      Yenilə
+                    </button>
+        
+                    <button mat-raised-button
+                      color="primary"
+                      (click)="toggleEditMode()"
+                      [disabled]="loading">
+                      <mat-icon>{{editMode ? 'cancel' : 'edit'}}</mat-icon>
+                      {{editMode ? 'Ləğv et' : 'Şifrəni dəyiş'}}
+                    </button>
+        
+                    @if (editMode) {
+                      <button mat-raised-button
+                        color="accent"
+                        (click)="changePassword()"
+                        [disabled]="!passwordForm.valid || loading"
+                        >
+                        <mat-icon>save</mat-icon>
+                        Yadda saxla
+                      </button>
+                    }
+                  </mat-card-actions>
+                </mat-card>
+              </div>
+            </mat-tab>
+        
+            <!-- Управление сессиями -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon>devices</mat-icon>
+                Sessiyalar
+              </ng-template>
+        
+              <div class="tab-content">
+                <app-user-sessions></app-user-sessions>
+        
+                <mat-card class="security-tips">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <mat-icon>security</mat-icon>
+                      Təhlükəsizlik məsləhətləri
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <ul>
+                      <li>Şifrəni mütəmadi olaraq dəyişin</li>
+                      <li>Naməlum cihazlardan giriş etməyin</li>
+                      <li>İşdən sonra hesabdan çıxın</li>
+                      <li>Sessiyaları mütəmadi yoxlayın</li>
+                    </ul>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
         </div>
-    `,
+        `,
     styles: [`
         .profile-container {
             max-width: 800px;

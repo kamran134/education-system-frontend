@@ -1,23 +1,25 @@
 <div class="register-container">
-    <h2>Qeydiyyat</h2>
-    <form [formGroup]="registerForm" (ngSubmit)="submit()">
-        <div>
-            <label>Email</label>
-            <input type="email" formControlName="email" required />
-        </div>
-    
-        <div>
-            <label>Şifrə</label>
-            <input type="password" formControlName="password" required />
-        </div>
-    
-        <div>
-            <label>Şifrənin təsdiqi</label>
-            <input type="password" formControlName="confirmPassword" required />
-        </div>
-    
-        <button type="submit" [disabled]="registerForm.invalid">Qeydiyyatdan keç</button>
-    
-        <p *ngIf="errorMessage()">{{ errorMessage() }}</p>
-    </form>
+  <h2>Qeydiyyat</h2>
+  <form [formGroup]="registerForm" (ngSubmit)="submit()">
+    <div>
+      <label>Email</label>
+      <input type="email" formControlName="email" required />
+    </div>
+
+    <div>
+      <label>Şifrə</label>
+      <input type="password" formControlName="password" required />
+    </div>
+
+    <div>
+      <label>Şifrənin təsdiqi</label>
+      <input type="password" formControlName="confirmPassword" required />
+    </div>
+
+    <button type="submit" [disabled]="registerForm.invalid">Qeydiyyatdan keç</button>
+
+    @if (errorMessage()) {
+      <p>{{ errorMessage() }}</p>
+    }
+  </form>
 </div>

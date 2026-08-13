@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
@@ -21,13 +21,12 @@ interface Column {
 @Component({
     selector: 'app-stats-columns',
     imports: [
-        FormsModule,
-        CommonModule,
-        LucideAngularModule,
-        CdkDropList,
-        CdkDrag,
-        CdkDragHandle
-    ],
+    FormsModule,
+    LucideAngularModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle
+],
     templateUrl: './stats-columns.component.html',
     styleUrl: './stats-columns.component.scss'
 })

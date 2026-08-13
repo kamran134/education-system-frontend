@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { CommonModule } from '@angular/common';
+
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,15 +14,14 @@ import { TeacherService } from '../../../teachers/services/teacher.service';
 @Component({
     selector: 'app-teachers-year-tab',
     imports: [
-        CommonModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatButtonModule,
-        MatIconModule,
-        LucideAngularModule,
-        RoundNumberPipe
-    ],
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    LucideAngularModule,
+    RoundNumberPipe
+],
     templateUrl: './teachers-year-tab.component.html',
     styleUrl: './teachers-year-tab.component.scss'
 })

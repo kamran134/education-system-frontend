@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { District } from '../../../../core/models/district.model';
@@ -12,12 +12,11 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
 @Component({
     selector: 'app-district-editing-dialog',
     imports: [
-        CommonModule,
-        FormsModule,
-        InputComponent,
-        ModalComponent,
-        SelectComponent
-    ],
+    FormsModule,
+    InputComponent,
+    ModalComponent,
+    SelectComponent
+],
     templateUrl: './district-editing-dialog.component.html',
     styleUrl: './district-editing-dialog.component.scss'
 })

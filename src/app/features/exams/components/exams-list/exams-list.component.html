@@ -13,7 +13,7 @@
       <!-- Filter Header -->
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-sm font-medium text-gray-900">Filtrlər</h3>
-        <button 
+        <button
           type="button"
           (click)="toggleFilters()"
           class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
@@ -21,94 +21,107 @@
           <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
         </button>
       </div>
-      
+
       <!-- Collapsible Filters -->
-      <div *ngIf="filtersExpanded" class="space-y-4">
-        <!-- First Row: Search & Year -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Search Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Axtarış</label>
-            <input 
-              type="text" 
-              [value]="searchString" 
-              (input)="onFilterChange({search: $any($event.target).value})"
-              placeholder="İmtahan adı və ya kodu ilə axtarış..."
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-            <p class="text-xs text-gray-500 mt-1">
-              İmtahan adı və ya kodunu daxil edin.
-            </p>
+      @if (filtersExpanded) {
+        <div class="space-y-4">
+          <!-- First Row: Search & Year -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Search Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Axtarış</label>
+              <input
+                type="text"
+                [value]="searchString"
+                (input)="onFilterChange({search: $any($event.target).value})"
+                placeholder="İmtahan adı və ya kodu ilə axtarış..."
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                <p class="text-xs text-gray-500 mt-1">
+                  İmtahan adı və ya kodunu daxil edin.
+                </p>
+              </div>
+              <!-- Year Filter -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
+                <select
+                  [(ngModel)]="selectedYear"
+                  (change)="onFilterChange({year: selectedYear})"
+                  class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                  <option [value]="null">Bütün illər</option>
+                  @for (year of availableYears; track year) {
+                    <option [value]="year">
+                      {{ year }}
+                    </option>
+                  }
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                  İmtahan ilini seçin.
+                </p>
+              </div>
+            </div>
+            <!-- Second Row: Month (centered) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Month Filter -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ay</label>
+                <select
+                  [(ngModel)]="selectedMonth"
+                  (change)="onFilterChange({month: selectedMonth})"
+                  class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                  <option [value]="null">Bütün aylar</option>
+                  @for (month of availableMonths; track month) {
+                    <option [value]="month.value">
+                      {{ month.label }}
+                    </option>
+                  }
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                  İmtahan ayını seçin.
+                </p>
+              </div>
+              <!-- Empty space for symmetry -->
+              <div></div>
+            </div>
           </div>
+        }
 
-          <!-- Year Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">İl</label>
-            <select 
-              [(ngModel)]="selectedYear"
-              (change)="onFilterChange({year: selectedYear})"
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-              <option [value]="null">Bütün illər</option>
-              <option *ngFor="let year of availableYears" [value]="year">
-                {{ year }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">
-              İmtahan ilini seçin.
-            </p>
+        <!-- Always visible summary when collapsed -->
+        @if (!filtersExpanded) {
+          <div class="text-sm text-gray-600">
+            @if (searchString) {
+              <span>axtarış: "{{ searchString }}", </span>
+            }
+            @if (selectedYear) {
+              <span>il: {{ selectedYear }}, </span>
+            }
+            @if (selectedMonth) {
+              <span>ay: {{ getMonthName(selectedMonth) }}, </span>
+            }
+            @if (!searchString && !selectedYear && !selectedMonth) {
+              <span>
+                Filtrlər tətbiq edilməyib
+              </span>
+            }
           </div>
-        </div>
-
-        <!-- Second Row: Month (centered) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Month Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ay</label>
-            <select 
-              [(ngModel)]="selectedMonth"
-              (change)="onFilterChange({month: selectedMonth})"
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-              <option [value]="null">Bütün aylar</option>
-              <option *ngFor="let month of availableMonths" [value]="month.value">
-                {{ month.label }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">
-              İmtahan ayını seçin.
-            </p>
-          </div>
-
-          <!-- Empty space for symmetry -->
-          <div></div>
-        </div>
-      </div>
-      
-      <!-- Always visible summary when collapsed -->
-      <div *ngIf="!filtersExpanded" class="text-sm text-gray-600">
-        <span *ngIf="searchString">axtarış: "{{ searchString }}", </span>
-        <span *ngIf="selectedYear">il: {{ selectedYear }}, </span>
-        <span *ngIf="selectedMonth">ay: {{ getMonthName(selectedMonth) }}, </span>
-        <span *ngIf="!searchString && !selectedYear && !selectedMonth">
-          Filtrlər tətbiq edilməyib
-        </span>
+        }
       </div>
     </div>
-  </div>
 
-  <!-- Main Content -->
-  <div slot="content" class="flex flex-col h-full">
-    <app-data-table
-      [data]="exams"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      [totalCount]="totalCount"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [sortBy]="sortColumn"
-      [sortDirection]="sortDirection"
-      (actionClicked)="onTableAction($event)"
-      (pageChanged)="onPageChange($event)"
-      (sortChanged)="onSortChange($event)"
-      class="flex-1">
-    </app-data-table>
-  </div>
-</app-list-layout>
+    <!-- Main Content -->
+    <div slot="content" class="flex flex-col h-full">
+      <app-data-table
+        [data]="exams"
+        [columns]="tableColumns"
+        [actions]="tableActions"
+        [totalCount]="totalCount"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [sortBy]="sortColumn"
+        [sortDirection]="sortDirection"
+        (actionClicked)="onTableAction($event)"
+        (pageChanged)="onPageChange($event)"
+        (sortChanged)="onSortChange($event)"
+        class="flex-1">
+      </app-data-table>
+    </div>
+  </app-list-layout>

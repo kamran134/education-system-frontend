@@ -1,12 +1,12 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
     selector: 'app-button',
-    imports: [CommonModule],
+    imports: [],
     template: `
     <button 
       [class]="buttonClasses" 

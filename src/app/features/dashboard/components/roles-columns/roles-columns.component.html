@@ -1,113 +1,118 @@
 <div class="min-h-screen bg-gray-50 p-6">
-    <div class="max-w-4xl mx-auto">
+  <div class="max-w-4xl mx-auto">
 
-        <!-- Header -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Rollar üzrə sütunlar</h1>
-                    <p class="text-gray-600">Hər rol və bölmə üçün cədvəldə görünəcək sütunları seçin</p>
-                </div>
-                <div class="flex space-x-3">
-                    <button
-                        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
-                        (click)="resetCurrentTab()">
-                        <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
-                        <span>Sıfırla</span>
-                    </button>
-                    <button
-                        class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors shadow-sm"
-                        (click)="saveSettings()">
-                        <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
-                        <span>Yadda saxla</span>
-                    </button>
-                </div>
-            </div>
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Rollar üzrə sütunlar</h1>
+          <p class="text-gray-600">Hər rol və bölmə üçün cədvəldə görünəcək sütunları seçin</p>
         </div>
+        <div class="flex space-x-3">
+          <button
+            class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+            (click)="resetCurrentTab()">
+            <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
+            <span>Sıfırla</span>
+          </button>
+          <button
+            class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors shadow-sm"
+            (click)="saveSettings()">
+            <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+            <span>Yadda saxla</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
-        <!-- Role tabs + content -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+    <!-- Role tabs + content -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
 
-            <!-- Role tabs -->
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-6 px-6 overflow-x-auto" aria-label="Roles">
-                    <button
-                        *ngFor="let role of roles"
+      <!-- Role tabs -->
+      <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-6 px-6 overflow-x-auto" aria-label="Roles">
+          @for (role of roles; track role) {
+            <button
                         [class]="activeRoleKey === role.key
                             ? 'border-primary-500 text-primary-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-                        (click)="setActiveRole(role.key)">
-                        {{ role.label }}
-                    </button>
-                </nav>
-            </div>
+              class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+              (click)="setActiveRole(role.key)">
+              {{ role.label }}
+            </button>
+          }
+        </nav>
+      </div>
 
-            <div class="p-6">
+      <div class="p-6">
 
-                <!-- Inner tab pills -->
-                <div class="flex flex-wrap gap-2 mb-6">
-                    <button
-                        *ngFor="let tab of getTabsForRole(activeRoleKey)"
+        <!-- Inner tab pills -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          @for (tab of getTabsForRole(activeRoleKey); track tab) {
+            <button
                         [class]="activeTabKey[activeRoleKey] === tab.key
                             ? 'bg-primary-50 text-primary-700 border-primary-300 font-medium'
                             : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-800'"
-                        class="px-3 py-1.5 rounded-full text-xs border transition-colors"
-                        (click)="setActiveTab(tab.key)">
-                        {{ tab.label }}
-                    </button>
-                </div>
-
-                <!-- Select all + count -->
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center cursor-pointer select-none" (click)="toggleSelectAll()">
-                        <lucide-icon
-                            [img]="isAllSelected() ? CheckSquare : Square"
-                            [class]="isAllSelected() ? 'text-primary-600' : isPartiallySelected() ? 'text-primary-400' : 'text-gray-400'"
-                            class="w-5 h-5 mr-2">
-                        </lucide-icon>
-                        <span class="text-sm font-medium text-gray-700">Hamısını seç</span>
-                    </div>
-                    <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {{ getSelectedCount() }} / {{ getTotalCount() }} seçilib
-                    </span>
-                </div>
-
-                <!-- Column list (single drag-drop list, data-driven) -->
-                <div
-                    cdkDropList
-                    (cdkDropListDropped)="onDrop($event)"
-                    class="space-y-2">
-                    <div
-                        *ngFor="let column of getCurrentColumns(); let i = index"
-                        cdkDrag
-                        class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
-                        <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                            <lucide-icon [img]="GripVertical" class="w-5 h-5 text-gray-400"></lucide-icon>
-                        </div>
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3 flex-shrink-0">
-                            {{ i + 1 }}
-                        </div>
-                        <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
-                            <lucide-icon
-                                [img]="column.selected ? CheckSquare : Square"
-                                [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
-                                class="w-5 h-5 mr-3 flex-shrink-0">
-                            </lucide-icon>
-                            <span [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-500'" class="text-sm">
-                                {{ column.label }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Empty state -->
-                    <div *ngIf="getCurrentColumns().length === 0" class="text-center py-8 text-gray-400 text-sm">
-                        Bu bölmə üçün sütun tapılmadı
-                    </div>
-                </div>
-
-            </div>
+              class="px-3 py-1.5 rounded-full text-xs border transition-colors"
+              (click)="setActiveTab(tab.key)">
+              {{ tab.label }}
+            </button>
+          }
         </div>
 
+        <!-- Select all + count -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center cursor-pointer select-none" (click)="toggleSelectAll()">
+            <lucide-icon
+              [img]="isAllSelected() ? CheckSquare : Square"
+              [class]="isAllSelected() ? 'text-primary-600' : isPartiallySelected() ? 'text-primary-400' : 'text-gray-400'"
+              class="w-5 h-5 mr-2">
+            </lucide-icon>
+            <span class="text-sm font-medium text-gray-700">Hamısını seç</span>
+          </div>
+          <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            {{ getSelectedCount() }} / {{ getTotalCount() }} seçilib
+          </span>
+        </div>
+
+        <!-- Column list (single drag-drop list, data-driven) -->
+        <div
+          cdkDropList
+          (cdkDropListDropped)="onDrop($event)"
+          class="space-y-2">
+          @for (column of getCurrentColumns(); track column; let i = $index) {
+            <div
+              cdkDrag
+              class="flex items-center p-4 rounded-lg border border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm transition-all group">
+              <div cdkDragHandle class="mr-3 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+                <lucide-icon [img]="GripVertical" class="w-5 h-5 text-gray-400"></lucide-icon>
+              </div>
+              <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mr-3 flex-shrink-0">
+                {{ i + 1 }}
+              </div>
+              <div class="flex items-center flex-1 cursor-pointer" (click)="column.selected = !column.selected">
+                <lucide-icon
+                  [img]="column.selected ? CheckSquare : Square"
+                  [class]="column.selected ? 'text-primary-600' : 'text-gray-400'"
+                  class="w-5 h-5 mr-3 flex-shrink-0">
+                </lucide-icon>
+                <span [class]="column.selected ? 'text-gray-900 font-medium' : 'text-gray-500'" class="text-sm">
+                  {{ column.label }}
+                </span>
+              </div>
+            </div>
+          }
+
+          <!-- Empty state -->
+          @if (getCurrentColumns().length === 0) {
+            <div class="text-center py-8 text-gray-400 text-sm">
+              Bu bölmə üçün sütun tapılmadı
+            </div>
+          }
+        </div>
+
+      </div>
     </div>
+
+  </div>
 </div>

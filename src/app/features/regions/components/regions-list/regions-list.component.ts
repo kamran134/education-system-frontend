@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Region, RegionResponse } from '../../../../core/models/region.model';
@@ -21,12 +21,11 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 @Component({
     selector: 'app-regions-list',
     imports: [
-        CommonModule,
-        RouterModule,
-        LucideAngularModule,
-        ListLayoutComponent,
-        DataTableComponent
-    ],
+    RouterModule,
+    LucideAngularModule,
+    ListLayoutComponent,
+    DataTableComponent
+],
     templateUrl: './regions-list.component.html',
     styleUrls: ['./regions-list.component.scss']
 })

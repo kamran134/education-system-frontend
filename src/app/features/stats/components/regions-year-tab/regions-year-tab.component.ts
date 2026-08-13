@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Region } from '../../../../core/models/region.model';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { CommonModule } from '@angular/common';
+
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,15 +12,14 @@ import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 @Component({
     selector: 'app-regions-year-tab',
     imports: [
-        CommonModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatButtonModule,
-        MatIconModule,
-        ButtonComponent,
-        RoundNumberPipe
-    ],
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatButtonModule,
+    MatIconModule,
+    ButtonComponent,
+    RoundNumberPipe
+],
     templateUrl: './regions-year-tab.component.html',
     styleUrl: './regions-year-tab.component.scss'
 })

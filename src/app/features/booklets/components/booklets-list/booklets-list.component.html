@@ -23,48 +23,59 @@
       </div>
 
       <!-- Collapsible Filters -->
-      <div *ngIf="filtersExpanded" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-          <!-- Exam Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">İmtahan</label>
-            <select
-              [(ngModel)]="selectedExamId"
-              (change)="onExamChange()"
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-              <option [value]="null">Bütün imtahanlar</option>
-              <option *ngFor="let exam of exams" [value]="exam.id">
-                {{ exam.name }} ({{ exam.code }})
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Defolt olaraq sonuncu imtahan seçilir.</p>
+      @if (filtersExpanded) {
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Exam Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">İmtahan</label>
+              <select
+                [(ngModel)]="selectedExamId"
+                (change)="onExamChange()"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                <option [value]="null">Bütün imtahanlar</option>
+                @for (exam of exams; track exam) {
+                  <option [value]="exam.id">
+                    {{ exam.name }} ({{ exam.code }})
+                  </option>
+                }
+              </select>
+              <p class="text-xs text-gray-500 mt-1">Defolt olaraq sonuncu imtahan seçilir.</p>
+            </div>
+            <!-- District Filter -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Rayon</label>
+              <select
+                [(ngModel)]="selectedDistrictId"
+                (change)="onDistrictChange()"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                <option [value]="null">Bütün rayonlar</option>
+                @for (district of districts; track district) {
+                  <option [value]="district.id">
+                    {{ district.name }}
+                  </option>
+                }
+              </select>
+              <p class="text-xs text-gray-500 mt-1">Rayona görə filtrləyin.</p>
+            </div>
           </div>
-
-          <!-- District Filter -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Rayon</label>
-            <select
-              [(ngModel)]="selectedDistrictId"
-              (change)="onDistrictChange()"
-              class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-              <option [value]="null">Bütün rayonlar</option>
-              <option *ngFor="let district of districts" [value]="district.id">
-                {{ district.name }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Rayona görə filtrləyin.</p>
-          </div>
-
         </div>
-      </div>
+      }
 
       <!-- Summary when collapsed -->
-      <div *ngIf="!filtersExpanded" class="text-sm text-gray-600">
-        <span *ngIf="selectedExamId">imtahan seçildi, </span>
-        <span *ngIf="selectedDistrictId">rayon seçildi</span>
-        <span *ngIf="!selectedExamId && !selectedDistrictId">Filtrlər tətbiq edilməyib</span>
-      </div>
+      @if (!filtersExpanded) {
+        <div class="text-sm text-gray-600">
+          @if (selectedExamId) {
+            <span>imtahan seçildi, </span>
+          }
+          @if (selectedDistrictId) {
+            <span>rayon seçildi</span>
+          }
+          @if (!selectedExamId && !selectedDistrictId) {
+            <span>Filtrlər tətbiq edilməyib</span>
+          }
+        </div>
+      }
     </div>
   </div>
 

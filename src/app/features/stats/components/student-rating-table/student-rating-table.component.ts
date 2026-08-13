@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,13 +11,12 @@ import { MatTableModule } from '@angular/material/table';
     templateUrl: './student-rating-table.component.html',
     styleUrls: ['../stats-main/stats.component.scss', './student-rating-table.component.scss'],
     imports: [
-        MatCardModule,
-        MatTableModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSortModule,
-        CommonModule
-    ]
+    MatCardModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSortModule
+]
 })
 export class StudentRatingTableComponent {
     @Input() title: string = "";

@@ -1,226 +1,262 @@
 <div class="main-container p-6 space-y-6">
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="flex justify-center items-center py-8">
-        <lucide-icon [img]="Loader" class="animate-spin text-blue-500" size="24"></lucide-icon>
-        <span class="ml-2 text-gray-600">Məlumatlar yüklənir...</span>
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex justify-center items-center py-8">
+      <lucide-icon [img]="Loader" class="animate-spin text-blue-500" size="24"></lucide-icon>
+      <span class="ml-2 text-gray-600">Məlumatlar yüklənir...</span>
     </div>
+  }
 
-    <!-- Content -->
-    <div *ngIf="!isLoading && student">
-        <!-- Student Header Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <div class="flex items-center justify-between">
-                <!-- Avatar and Name Section -->
-                <div class="flex items-center space-x-4">
-                    <!-- Avatar -->
-                    <div class="relative avatar-container"
-                         (mouseenter)="onAvatarHover(true)"
-                         (mouseleave)="onAvatarHover(false)">
-                        <!-- Avatar Image or Placeholder (3:4 aspect ratio) -->
-                        <div class="w-36 h-48 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-100">
-                            <img *ngIf="avatarUrl"
-                                 [src]="avatarUrl"
-                                 alt="Şagirdin şəkli"
-                                 class="w-full h-full object-cover">
-                            <div *ngIf="!avatarUrl"
-                                 class="w-full h-full flex items-center justify-center">
-                                <lucide-icon [img]="User" class="w-16 h-16 text-gray-400"></lucide-icon>
-                            </div>
-                        </div>
-
-                        <!-- Edit/Delete Overlay (only for admins) -->
-                        <div *ngIf="isAvatarHovered && canEditAvatar"
-                             class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center space-x-2">
-                            <button (click)="openAvatarUpload()"
-                                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                    title="Avatar yüklə">
-                                <lucide-icon [img]="Edit2" class="w-5 h-5 text-gray-700"></lucide-icon>
-                            </button>
-                            <button *ngIf="avatarUrl"
-                                    (click)="deleteAvatar()"
-                                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                                    title="Şəkli sil">
-                                <lucide-icon [img]="Trash2" class="w-5 h-5 text-red-600"></lucide-icon>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Student Info -->
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900">
-                            {{ student.lastName }} {{ student.firstName }} {{ student.middleName }}
-                        </h1>
-                        <p class="text-gray-600 mt-1">İş nömrəsi: {{ student.code }}</p>
-                    </div>
+  <!-- Content -->
+  @if (!isLoading && student) {
+    <div>
+      <!-- Student Header Card -->
+      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div class="flex items-center justify-between">
+          <!-- Avatar and Name Section -->
+          <div class="flex items-center space-x-4">
+            <!-- Avatar -->
+            <div class="relative avatar-container"
+              (mouseenter)="onAvatarHover(true)"
+              (mouseleave)="onAvatarHover(false)">
+              <!-- Avatar Image or Placeholder (3:4 aspect ratio) -->
+              <div class="w-36 h-48 rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-100">
+                @if (avatarUrl) {
+                  <img
+                    [src]="avatarUrl"
+                    alt="Şagirdin şəkli"
+                    class="w-full h-full object-cover">
+                }
+                @if (!avatarUrl) {
+                  <div
+                    class="w-full h-full flex items-center justify-center">
+                    <lucide-icon [img]="User" class="w-16 h-16 text-gray-400"></lucide-icon>
+                  </div>
+                }
+              </div>
+              <!-- Edit/Delete Overlay (only for admins) -->
+              @if (isAvatarHovered && canEditAvatar) {
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center space-x-2">
+                  <button (click)="openAvatarUpload()"
+                    class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                    title="Avatar yüklə">
+                    <lucide-icon [img]="Edit2" class="w-5 h-5 text-gray-700"></lucide-icon>
+                  </button>
+                  @if (avatarUrl) {
+                    <button
+                      (click)="deleteAvatar()"
+                      class="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                      title="Şəkli sil">
+                      <lucide-icon [img]="Trash2" class="w-5 h-5 text-red-600"></lucide-icon>
+                    </button>
+                  }
                 </div>
-
-                <!-- Back Button -->
-                <app-button
-                    variant="outline"
-                    (clicked)="goBack()">
-                    <div class="flex items-center space-x-2">
-                        <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
-                        <span>Geri</span>
-                    </div>
-                </app-button>
+              }
             </div>
+            <!-- Student Info -->
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">
+                {{ student.lastName }} {{ student.firstName }} {{ student.middleName }}
+              </h1>
+              <p class="text-gray-600 mt-1">İş nömrəsi: {{ student.code }}</p>
+            </div>
+          </div>
+          <!-- Back Button -->
+          <app-button
+            variant="outline"
+            (clicked)="goBack()">
+            <div class="flex items-center space-x-2">
+              <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+              <span>Geri</span>
+            </div>
+          </app-button>
         </div>
-
-        <!-- Student Information Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Şagird haqqında məlumat</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-3">
-                    <div>
-                        <span class="font-medium text-gray-700">Sinfi:</span>
-                        <span class="ml-2 text-gray-900">{{ student.grade }}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-700">Müəllimi:</span>
-                        <span class="ml-2 text-gray-900">{{ student.teacher?.fullname }}</span>
-                    </div>
-                </div>
-                <div class="space-y-3">
-                    <div>
-                        <span class="font-medium text-gray-700">Məktəbi:</span>
-                        <span class="ml-2 text-gray-900">{{ student.school?.name }}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-700">Rayonu / şəhəri:</span>
-                        <span class="ml-2 text-gray-900">{{ student.district?.name }}</span>
-                    </div>
-                </div>
+      </div>
+      <!-- Student Information Card -->
+      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Şagird haqqında məlumat</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <div>
+              <span class="font-medium text-gray-700">Sinfi:</span>
+              <span class="ml-2 text-gray-900">{{ student.grade }}</span>
             </div>
+            <div>
+              <span class="font-medium text-gray-700">Müəllimi:</span>
+              <span class="ml-2 text-gray-900">{{ student.teacher?.fullname }}</span>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <span class="font-medium text-gray-700">Məktəbi:</span>
+              <span class="ml-2 text-gray-900">{{ student.school?.name }}</span>
+            </div>
+            <div>
+              <span class="font-medium text-gray-700">Rayonu / şəhəri:</span>
+              <span class="ml-2 text-gray-900">{{ student.district?.name }}</span>
+            </div>
+          </div>
         </div>
-
-        <!-- Exam Results Card -->
-        <div class="bg-white rounded-lg shadow-md border border-gray-200">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-gray-900">İmtahan nəticələri</h2>
-                    <app-button
-                        variant="primary"
-                        (clicked)="exportToExcel()">
-                        <div class="flex items-center space-x-2">
-                            <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
-                            <span>Excel-ə eksport et</span>
-                        </div>
-                    </app-button>
-                </div>
+      </div>
+      <!-- Exam Results Card -->
+      <div class="bg-white rounded-lg shadow-md border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">İmtahan nəticələri</h2>
+            <app-button
+              variant="primary"
+              (clicked)="exportToExcel()">
+              <div class="flex items-center space-x-2">
+                <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
+                <span>Excel-ə eksport et</span>
+              </div>
+            </app-button>
+          </div>
+        </div>
+        <div class="p-6">
+          @if (currentResults.length === 0 && previousResults.length === 0) {
+            <div class="text-center py-8">
+              <p class="text-gray-500">İmtahan nəticələri tapılmadı</p>
             </div>
-
-            <div class="p-6">
-                <div *ngIf="currentResults.length === 0 && previousResults.length === 0" class="text-center py-8">
-                    <p class="text-gray-500">İmtahan nəticələri tapılmadı</p>
-                </div>
-
-                <!-- Current year results -->
-                <div *ngIf="currentResults.length > 0" class="overflow-x-auto">
-                    <table class="w-full border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50">
-                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
-                                    Fənlər üzrə ballar
-                                    <span *ngIf="student.grade >= 5" class="text-xs text-gray-500">(Sual sayı)</span>
-                                </th>
-                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan üzrə uğuru</th>
-                                <th class="px-4 py-3 border-b border-gray-200"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let result of currentResults; trackBy: trackByResultId" class="hover:bg-gray-50 transition-colors group">
-                                <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                    {{ result.exam?.date | date: 'dd.MM.YYYY' }}
-                                </td>
-                                <td class="px-4 py-3 text-sm border-b border-gray-100">
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full"
+          }
+          <!-- Current year results -->
+          @if (currentResults.length > 0) {
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                      Fənlər üzrə ballar
+                      @if (student.grade >= 5) {
+                        <span class="text-xs text-gray-500">(Sual sayı)</span>
+                      }
+                    </th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan üzrə uğuru</th>
+                    <th class="px-4 py-3 border-b border-gray-200"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (result of currentResults; track trackByResultId($index, result)) {
+                    <tr class="hover:bg-gray-50 transition-colors group">
+                      <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                        {{ result.exam?.date | date: 'dd.MM.YYYY' }}
+                      </td>
+                      <td class="px-4 py-3 text-sm border-b border-gray-100">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full"
                                           [ngClass]="{
                                             'bg-green-100 text-green-800': result.level === 'Yüksək',
                                             'bg-yellow-100 text-yellow-800': result.level === 'Orta',
                                             'bg-red-100 text-red-800': result.level === 'Aşağı',
                                             'bg-gray-100 text-gray-800': !result.level || (result.level !== 'Yüksək' && result.level !== 'Orta' && result.level !== 'Aşağı')
                                           }">
-                                        {{ result.level || 'Müəyyən edilməyib' }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
-                                    {{ result.totalScore }}
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                    <div class="space-y-1">
-                                        <div *ngIf="result.disciplines?.az !== undefined">
-                                            Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.az" class="text-xs text-gray-500"> ({{ result.questionCounts?.az }})</span>
-                                        </div>
-                                        <div *ngIf="result.disciplines?.math !== undefined">
-                                            Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.math" class="text-xs text-gray-500"> ({{ result.questionCounts?.math }})</span>
-                                        </div>
-                                        <div *ngIf="result.disciplines?.lifeKnowledge !== undefined">
-                                            Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.lifeKnowledge" class="text-xs text-gray-500"> ({{ result.questionCounts?.lifeKnowledge }})</span>
-                                        </div>
-                                        <div *ngIf="result.disciplines?.logic !== undefined">
-                                            Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.logic" class="text-xs text-gray-500"> ({{ result.questionCounts?.logic }})</span>
-                                        </div>
-                                        <div *ngIf="result.disciplines?.english !== undefined">
-                                            İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
-                                            <span *ngIf="student.grade >= 5 && result.questionCounts?.english" class="text-xs text-gray-500"> ({{ result.questionCounts?.english }})</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                    {{ formatStudentAchievements(result) || '' }}
-                                </td>
-                                <td class="px-4 py-3 border-b border-gray-100 text-right">
-                                    <button
-                                        *ngIf="canEditResults"
-                                        (click)="onEditResult(result)"
-                                        class="p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        title="Redaktə et / Sil">
-                                        <lucide-icon [img]="Edit2" class="w-4 h-4"></lucide-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Previous year results toggle -->
-                <div *ngIf="previousResults.length > 0" class="mt-6">
-                    <button
-                        (click)="showPreviousResults = !showPreviousResults"
-                        class="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-                        <lucide-icon
-                            [img]="showPreviousResults ? ChevronUp : ChevronDown"
-                            class="w-4 h-4">
-                        </lucide-icon>
-                        {{ showPreviousResults ? 'Əvvəlki illərin nəticələrini gizlət' : 'Əvvəlki illərin nəticələrini göstər' }}
-                        <span class="text-gray-400 font-normal">({{ previousResults.length }})</span>
-                    </button>
-
-                    <div *ngIf="showPreviousResults" class="mt-3 overflow-x-auto">
-                        <table class="w-full border-collapse">
-                            <thead>
-                                <tr class="bg-blue-50">
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
-                                    <th *ngIf="previousResults[0]?.status" class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let result of previousResults; trackBy: trackByResultId" class="hover:bg-blue-50 transition-colors">
-                                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                        {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.YYYY') : '—' }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm border-b border-gray-100">
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full"
+                          {{ result.level || 'Müəyyən edilməyib' }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                        {{ result.totalScore }}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                        <div class="space-y-1">
+                          @if (result.disciplines?.az !== undefined) {
+                            <div>
+                              Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
+                              @if (student.grade >= 5 && result.questionCounts?.az) {
+                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.az }})</span>
+                              }
+                            </div>
+                          }
+                          @if (result.disciplines?.math !== undefined) {
+                            <div>
+                              Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
+                              @if (student.grade >= 5 && result.questionCounts?.math) {
+                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.math }})</span>
+                              }
+                            </div>
+                          }
+                          @if (result.disciplines?.lifeKnowledge !== undefined) {
+                            <div>
+                              Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
+                              @if (student.grade >= 5 && result.questionCounts?.lifeKnowledge) {
+                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.lifeKnowledge }})</span>
+                              }
+                            </div>
+                          }
+                          @if (result.disciplines?.logic !== undefined) {
+                            <div>
+                              Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
+                              @if (student.grade >= 5 && result.questionCounts?.logic) {
+                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.logic }})</span>
+                              }
+                            </div>
+                          }
+                          @if (result.disciplines?.english !== undefined) {
+                            <div>
+                              İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
+                              @if (student.grade >= 5 && result.questionCounts?.english) {
+                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.english }})</span>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                        {{ formatStudentAchievements(result) || '' }}
+                      </td>
+                      <td class="px-4 py-3 border-b border-gray-100 text-right">
+                        @if (canEditResults) {
+                          <button
+                            (click)="onEditResult(result)"
+                            class="p-1.5 rounded hover:bg-gray-200 transition-colors text-gray-500 hover:text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Redaktə et / Sil">
+                            <lucide-icon [img]="Edit2" class="w-4 h-4"></lucide-icon>
+                          </button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+          <!-- Previous year results toggle -->
+          @if (previousResults.length > 0) {
+            <div class="mt-6">
+              <button
+                (click)="showPreviousResults = !showPreviousResults"
+                class="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                <lucide-icon
+                  [img]="showPreviousResults ? ChevronUp : ChevronDown"
+                  class="w-4 h-4">
+                </lucide-icon>
+                {{ showPreviousResults ? 'Əvvəlki illərin nəticələrini gizlət' : 'Əvvəlki illərin nəticələrini göstər' }}
+                <span class="text-gray-400 font-normal">({{ previousResults.length }})</span>
+              </button>
+              @if (showPreviousResults) {
+                <div class="mt-3 overflow-x-auto">
+                  <table class="w-full border-collapse">
+                    <thead>
+                      <tr class="bg-blue-50">
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
+                        @if (previousResults[0]?.status) {
+                          <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Status</th>
+                        }
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (result of previousResults; track trackByResultId($index, result)) {
+                        <tr class="hover:bg-blue-50 transition-colors">
+                          <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                            {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.YYYY') : '—' }}
+                          </td>
+                          <td class="px-4 py-3 text-sm border-b border-gray-100">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full"
                                               [ngClass]="{
                                                 'bg-green-100 text-green-800': result.level === 'A',
                                                 'bg-blue-100 text-blue-800': result.level === 'B',
@@ -229,55 +265,71 @@
                                                 'bg-red-100 text-red-800': result.level === 'E',
                                                 'bg-gray-100 text-gray-800': !result.level
                                               }">
-                                            {{ result.level || 'Müəyyən edilməyib' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
-                                        {{ result.totalScore }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                        <div class="space-y-1">
-                                            <div *ngIf="result.disciplines?.az !== undefined">
-                                                Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
-                                            </div>
-                                            <div *ngIf="result.disciplines?.math !== undefined">
-                                                Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
-                                            </div>
-                                            <div *ngIf="result.disciplines?.lifeKnowledge !== undefined">
-                                                Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
-                                            </div>
-                                            <div *ngIf="result.disciplines?.logic !== undefined">
-                                                Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
-                                            </div>
-                                            <div *ngIf="result.disciplines?.english !== undefined">
-                                                İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td *ngIf="previousResults[0]?.status" class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                                        {{ result.status || '—' }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                              {{ result.level || 'Müəyyən edilməyib' }}
+                            </span>
+                          </td>
+                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                            {{ result.totalScore }}
+                          </td>
+                          <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                            <div class="space-y-1">
+                              @if (result.disciplines?.az !== undefined) {
+                                <div>
+                                  Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
+                                </div>
+                              }
+                              @if (result.disciplines?.math !== undefined) {
+                                <div>
+                                  Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
+                                </div>
+                              }
+                              @if (result.disciplines?.lifeKnowledge !== undefined) {
+                                <div>
+                                  Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
+                                </div>
+                              }
+                              @if (result.disciplines?.logic !== undefined) {
+                                <div>
+                                  Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
+                                </div>
+                              }
+                              @if (result.disciplines?.english !== undefined) {
+                                <div>
+                                  İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
+                                </div>
+                              }
+                            </div>
+                          </td>
+                          @if (previousResults[0]?.status) {
+                            <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                              {{ result.status || '—' }}
+                            </td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
                 </div>
+              }
             </div>
+          }
         </div>
+      </div>
     </div>
+  }
 
-    <!-- Hidden File Input -->
-    <input #fileInput
-           type="file"
-           accept="image/jpeg,image/jpg,image/png"
-           (change)="onFileSelected($event)"
-           style="display: none" />
+  <!-- Hidden File Input -->
+  <input #fileInput
+    type="file"
+    accept="image/jpeg,image/jpg,image/png"
+    (change)="onFileSelected($event)"
+    style="display: none" />
 
     <!-- Image Crop Modal -->
     <app-image-crop-modal
-        [isOpen]="isCropModalOpen"
-        [imageChangedEvent]="imageChangedEvent"
-        (close)="closeCropModal()"
-        (save)="onAvatarSave($event)">
+      [isOpen]="isCropModalOpen"
+      [imageChangedEvent]="imageChangedEvent"
+      (close)="closeCropModal()"
+      (save)="onAvatarSave($event)">
     </app-image-crop-modal>
-</div>
+  </div>

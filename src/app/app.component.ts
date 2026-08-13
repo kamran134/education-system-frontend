@@ -1,7 +1,7 @@
 import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -18,20 +18,19 @@ import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } fr
 @Component({
     selector: 'app-root',
     imports: [
-        RouterOutlet,
-        RouterModule,
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSlideToggleModule,
-        MatToolbarModule,
-        MatMenuModule,
-        MatDividerModule,
-        LucideAngularModule,
-        DropdownComponent,
-        DropdownItemComponent,
-        DropdownDividerComponent
-    ],
+    RouterOutlet,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    MatToolbarModule,
+    MatMenuModule,
+    MatDividerModule,
+    LucideAngularModule,
+    DropdownComponent,
+    DropdownItemComponent,
+    DropdownDividerComponent
+],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
     animations: [

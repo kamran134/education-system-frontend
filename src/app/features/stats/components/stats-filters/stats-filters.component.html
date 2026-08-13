@@ -1,140 +1,160 @@
 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-    <!-- Filter Header -->
-    <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-            <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
-            Filtrlər
-        </h3>
-        <button
-            type="button"
-            (click)="toggleFilters()"
-            class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
-            <span>{{ filtersExpanded ? 'Gizlət' : 'Göstər' }}</span>
-            <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
-        </button>
-    </div>
+  <!-- Filter Header -->
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+      <lucide-icon [img]="Filter" class="w-5 h-5 mr-2 text-gray-500"></lucide-icon>
+      Filtrlər
+    </h3>
+    <button
+      type="button"
+      (click)="toggleFilters()"
+      class="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900 focus:outline-none">
+      <span>{{ filtersExpanded ? 'Gizlət' : 'Göstər' }}</span>
+      <lucide-icon [img]="filtersExpanded ? ChevronUp : ChevronDown" class="h-4 w-4"></lucide-icon>
+    </button>
+  </div>
 
-    <!-- Filters Grid -->
-    <div [class]="filtersExpanded ? 'block' : 'hidden'">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <!-- Month Filter -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
-                <app-select
-                    label="Ay seçin"
-                    [formControl]="monthControl"
-                    [options]="monthOptions">
-                </app-select>
-            </div>
-
-            <!-- Year Filter (monthly tabs) -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
-                <app-select
-                    label="İl seçin"
-                    [formControl]="yearControl"
-                    [options]="yearOptions">
-                </app-select>
-            </div>
-
-            <!-- Academic Year Filter (İlin... tabs) -->
-            <div *ngIf="['allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'].includes(selectedTab)">
-                <app-select
-                    label="Tədris ili"
-                    [formControl]="academicYearControl"
-                    [options]="academicYearOptions">
-                </app-select>
-            </div>
-
-            <!-- Regions Filter -->
-            <div *ngIf="selectedTab !== 'allRegions'">
-                <app-select
-                    label="Regional Təhsil İdarələri"
-                    [multiple]="true"
-                    [(ngModel)]="selectedRegionIds"
-                    [options]="regionOptions"
-                    [disabled]="disableRegionFilter"
-                    (ngModelChange)="onRegionSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Districts Filter -->
-            <div *ngIf="selectedTab !== 'allDistricts'">
-                <app-select
-                    label="Rayonlar / şəhərlər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedDistrictIds"
-                    [options]="districtOptions"
-                    [disabled]="disableDistrictFilter"
-                    (ngModelChange)="onDistrictSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Schools Filter -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents', 'allTeachers'].includes(selectedTab)">
-                <app-select
-                    label="Məktəblər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedSchoolIds"
-                    [options]="schoolOptions"
-                    [disabled]="disableSchoolFilter"
-                    (ngModelChange)="onSchoolSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Teachers Filter -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
-                <app-select
-                    label="Müəllimlər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedTeacherIds"
-                    [options]="teacherOptions"
-                    [disabled]="disableTeacherFilter"
-                    (ngModelChange)="onTeacherSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Grades Filter -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
-                <app-select
-                    label="Siniflər"
-                    [multiple]="true"
-                    [(ngModel)]="selectedGrades"
-                    [options]="gradeOptionsForSelect"
-                    (ngModelChange)="onGradeSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Levels Filter -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)">
-                <app-select
-                    label="Pillə"
-                    [multiple]="true"
-                    [(ngModel)]="selectedLevels"
-                    [options]="levelOptions"
-                    (ngModelChange)="onLevelSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Exams Filter -->
-            <div *ngIf="['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)">
-                <app-select
-                    label="İmtahanlar"
-                    [multiple]="true"
-                    [(ngModel)]="selectedExamIds"
-                    [options]="examOptions"
-                    (ngModelChange)="onExamSelectChanged($event)">
-                </app-select>
-            </div>
-
-            <!-- Search Filter -->
-            <div>
-                <app-input
-                    label="Kod üzrə axtarış"
-                    placeholder="Kod daxil edin..."
-                    [leftIcon]="Search"
-                    [(ngModel)]="searchString"
-                    (ngModelChange)="onSearchChange()">
-                </app-input>
-            </div>
+  <!-- Filters Grid -->
+  <div [class]="filtersExpanded ? 'block' : 'hidden'">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Month Filter -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Ay seçin"
+            [formControl]="monthControl"
+            [options]="monthOptions">
+          </app-select>
         </div>
+      }
+
+      <!-- Year Filter (monthly tabs) -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="İl seçin"
+            [formControl]="yearControl"
+            [options]="yearOptions">
+          </app-select>
+        </div>
+      }
+
+      <!-- Academic Year Filter (İlin... tabs) -->
+      @if (['allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Tədris ili"
+            [formControl]="academicYearControl"
+            [options]="academicYearOptions">
+          </app-select>
+        </div>
+      }
+
+      <!-- Regions Filter -->
+      @if (selectedTab !== 'allRegions') {
+        <div>
+          <app-select
+            label="Regional Təhsil İdarələri"
+            [multiple]="true"
+            [(ngModel)]="selectedRegionIds"
+            [options]="regionOptions"
+            [disabled]="disableRegionFilter"
+            (ngModelChange)="onRegionSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Districts Filter -->
+      @if (selectedTab !== 'allDistricts') {
+        <div>
+          <app-select
+            label="Rayonlar / şəhərlər"
+            [multiple]="true"
+            [(ngModel)]="selectedDistrictIds"
+            [options]="districtOptions"
+            [disabled]="disableDistrictFilter"
+            (ngModelChange)="onDistrictSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Schools Filter -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents', 'allTeachers'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Məktəblər"
+            [multiple]="true"
+            [(ngModel)]="selectedSchoolIds"
+            [options]="schoolOptions"
+            [disabled]="disableSchoolFilter"
+            (ngModelChange)="onSchoolSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Teachers Filter -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Müəllimlər"
+            [multiple]="true"
+            [(ngModel)]="selectedTeacherIds"
+            [options]="teacherOptions"
+            [disabled]="disableTeacherFilter"
+            (ngModelChange)="onTeacherSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Grades Filter -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Siniflər"
+            [multiple]="true"
+            [(ngModel)]="selectedGrades"
+            [options]="gradeOptionsForSelect"
+            (ngModelChange)="onGradeSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Levels Filter -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Pillə"
+            [multiple]="true"
+            [(ngModel)]="selectedLevels"
+            [options]="levelOptions"
+            (ngModelChange)="onLevelSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Exams Filter -->
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="İmtahanlar"
+            [multiple]="true"
+            [(ngModel)]="selectedExamIds"
+            [options]="examOptions"
+            (ngModelChange)="onExamSelectChanged($event)">
+          </app-select>
+        </div>
+      }
+
+      <!-- Search Filter -->
+      <div>
+        <app-input
+          label="Kod üzrə axtarış"
+          placeholder="Kod daxil edin..."
+          [leftIcon]="Search"
+          [(ngModel)]="searchString"
+          (ngModelChange)="onSearchChange()">
+        </app-input>
+      </div>
     </div>
+  </div>
 </div>
