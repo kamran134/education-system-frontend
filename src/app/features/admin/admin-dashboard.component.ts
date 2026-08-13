@@ -8,7 +8,6 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 
 @Component({
     selector: 'app-admin-dashboard',
-    standalone: true,
     imports: [
         CommonModule,
         LucideAngularModule,

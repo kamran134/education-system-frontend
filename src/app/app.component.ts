@@ -17,7 +17,6 @@ import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } fr
 
 @Component({
     selector: 'app-root',
-    standalone: true,
     imports: [
         RouterOutlet,
         RouterModule,

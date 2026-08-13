@@ -14,7 +14,6 @@ interface DistrictData {
 
 @Component({
     selector: 'app-district-add-dialog',
-    standalone: true,
     imports: [CommonModule, InputComponent, FormsModule, ModalComponent],
     templateUrl: './district-add-dialog.component.html',
     styleUrl: './district-add-dialog.component.scss'

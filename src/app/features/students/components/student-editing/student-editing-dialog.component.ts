@@ -19,7 +19,6 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-student-editing',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

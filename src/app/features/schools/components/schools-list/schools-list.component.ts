@@ -26,7 +26,6 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 
 @Component({
     selector: 'app-schools-list',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

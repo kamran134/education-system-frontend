@@ -21,7 +21,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 
 @Component({
     selector: 'app-student-details',
-    standalone: true,
     imports: [
         CommonModule,
         RouterModule,

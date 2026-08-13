@@ -16,7 +16,6 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-school-editing-dialog',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

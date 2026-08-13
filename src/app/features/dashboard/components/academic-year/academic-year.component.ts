@@ -8,7 +8,6 @@ import { SnackBarService } from '../../../commonComponents/services/snack-bar.se
 
 @Component({
     selector: 'app-academic-year',
-    standalone: true,
     imports: [CommonModule, LucideAngularModule],
     templateUrl: './academic-year.component.html',
     styleUrl: './academic-year.component.scss'

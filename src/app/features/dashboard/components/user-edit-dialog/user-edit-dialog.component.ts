@@ -26,7 +26,6 @@ import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
     selector: 'app-user-edit-dialog',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

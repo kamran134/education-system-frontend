@@ -13,10 +13,9 @@ export interface ModalButton {
 }
 
 @Component({
-  selector: 'app-modal',
-  standalone: true,
-  imports: [CommonModule, LucideAngularModule, ButtonComponent],
-  template: `
+    selector: 'app-modal',
+    imports: [CommonModule, LucideAngularModule, ButtonComponent],
+    template: `
     <!-- Backdrop -->
     <div
       class="fixed inset-0 z-50 bg-black bg-opacity-50 transition-opacity"
@@ -78,27 +77,27 @@ export interface ModalButton {
       </div>
     </div>
   `,
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('150ms ease-out', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('150ms ease-in', style({ opacity: 0 }))
-      ])
-    ]),
-    trigger('slideInOut', [
-      transition(':enter', [
-        style({ transform: 'scale(0.9)', opacity: 0 }),
-        animate('150ms ease-out', style({ transform: 'scale(1)', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('150ms ease-in', style({ transform: 'scale(0.9)', opacity: 0 }))
-      ])
-    ])
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    animations: [
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('150ms ease-out', style({ opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('150ms ease-in', style({ opacity: 0 }))
+            ])
+        ]),
+        trigger('slideInOut', [
+            transition(':enter', [
+                style({ transform: 'scale(0.9)', opacity: 0 }),
+                animate('150ms ease-out', style({ transform: 'scale(1)', opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('150ms ease-in', style({ transform: 'scale(0.9)', opacity: 0 }))
+            ])
+        ])
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModalComponent implements OnInit {
   @Input() title = '';

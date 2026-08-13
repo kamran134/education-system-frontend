@@ -5,10 +5,9 @@ export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'dan
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
-  selector: 'app-button',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-button',
+    imports: [CommonModule],
+    template: `
     <button 
       [class]="buttonClasses" 
       [disabled]="disabled"
@@ -17,7 +16,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       <ng-content></ng-content>
     </button>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ButtonComponent {
   @Input() variant: ButtonVariant = 'primary';

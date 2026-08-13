@@ -17,7 +17,6 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-users',
-    standalone: true,
     imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent],
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss'

@@ -20,7 +20,6 @@ interface Column {
 
 @Component({
     selector: 'app-stats-columns',
-    standalone: true,
     imports: [
         FormsModule,
         CommonModule,

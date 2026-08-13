@@ -20,9 +20,8 @@ export interface BookletEditDialogResult {
 
 @Component({
     selector: 'app-booklet-edit-dialog',
-    standalone: true,
     imports: [CommonModule, FormsModule, InputComponent, ModalComponent],
-    templateUrl: './booklet-edit-dialog.component.html',
+    templateUrl: './booklet-edit-dialog.component.html'
 })
 export class BookletEditDialogComponent implements OnInit {
     name: string;

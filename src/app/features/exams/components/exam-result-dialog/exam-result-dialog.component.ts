@@ -12,10 +12,9 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 
 @Component({
     selector: 'app-exam-result-dialog',
-    standalone: true,
     imports: [CommonModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
     templateUrl: './exam-result-dialog.component.html',
-    styleUrls: ['./exam-result-dialog.component.scss'],
+    styleUrls: ['./exam-result-dialog.component.scss']
 })
 export class ExamResultDialogComponent implements OnInit {
     file: File | null = null;

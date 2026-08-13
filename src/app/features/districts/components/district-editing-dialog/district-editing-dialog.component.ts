@@ -11,7 +11,6 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
 
 @Component({
     selector: 'app-district-editing-dialog',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

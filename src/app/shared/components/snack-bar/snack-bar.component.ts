@@ -5,7 +5,6 @@ import { SNACK_BAR_DEFAULT_CONFIG } from '../../constants/snack-bar.config';
 
 @Component({
     selector: 'app-snack-bar',
-    standalone: true,
     imports: [MatSnackBarModule, CommonModule],
     templateUrl: './snack-bar.component.html',
     styleUrl: './snack-bar.component.scss'

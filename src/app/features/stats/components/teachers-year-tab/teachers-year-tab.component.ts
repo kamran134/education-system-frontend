@@ -13,7 +13,6 @@ import { TeacherService } from '../../../teachers/services/teacher.service';
 
 @Component({
     selector: 'app-teachers-year-tab',
-    standalone: true,
     imports: [
         CommonModule,
         MatTableModule,

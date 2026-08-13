@@ -3,17 +3,16 @@ import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
-  selector: 'app-input',
-  standalone: true,
-  imports: [CommonModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputComponent),
-      multi: true
-    }
-  ],
-  template: `
+    selector: 'app-input',
+    imports: [CommonModule],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputComponent),
+            multi: true
+        }
+    ],
+    template: `
     <div class="input-wrapper space-y-2">
       <label *ngIf="label" [for]="inputId" class="block text-sm font-medium text-gray-700">
         {{ label }}
@@ -41,8 +40,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
       <p *ngIf="hint && !error" class="text-sm text-gray-500">{{ hint }}</p>
     </div>
   `,
-  styleUrl: './input.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrl: './input.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent implements ControlValueAccessor {
   @Input() label = '';

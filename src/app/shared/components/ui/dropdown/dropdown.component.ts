@@ -2,10 +2,9 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, Elemen
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-dropdown',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-dropdown',
+    imports: [CommonModule],
+    template: `
     <div class="relative inline-block text-left">
       <!-- Trigger Button -->
       <button
@@ -31,7 +30,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DropdownComponent {
   @Input() position: 'left' | 'right' = 'right';
@@ -70,10 +69,9 @@ export class DropdownComponent {
 }
 
 @Component({
-  selector: 'app-dropdown-item',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-dropdown-item',
+    imports: [CommonModule],
+    template: `
     <button
       type="button"
       class="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
@@ -83,7 +81,7 @@ export class DropdownComponent {
       <ng-content></ng-content>
     </button>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DropdownItemComponent {
   @Output() clicked = new EventEmitter<Event>();

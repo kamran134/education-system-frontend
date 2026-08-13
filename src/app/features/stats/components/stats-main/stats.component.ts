@@ -52,23 +52,22 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 
 @Component({
     selector: 'app-stats',
-    standalone: true,
     imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    LucideAngularModule,
-    ButtonComponent,
-    StatsFiltersComponent,
-    DevelopingStudentsTabComponent,
-    MonthStudentsTabComponent,
-    RepublicMonthStudentsTabComponent,
-    StudentsYearTabComponent,
-    TeachersYearTabComponent,
-    SchoolsYearTabComponent,
-    DistrictsYearTabComponent,
-    RegionsYearTabComponent
-],
+        CommonModule,
+        ReactiveFormsModule,
+        RouterModule,
+        LucideAngularModule,
+        ButtonComponent,
+        StatsFiltersComponent,
+        DevelopingStudentsTabComponent,
+        MonthStudentsTabComponent,
+        RepublicMonthStudentsTabComponent,
+        StudentsYearTabComponent,
+        TeachersYearTabComponent,
+        SchoolsYearTabComponent,
+        DistrictsYearTabComponent,
+        RegionsYearTabComponent
+    ],
     providers: [MonthNamePipe, MomentDateFormatPipe],
     templateUrl: './stats.component.html',
     styleUrl: './stats.component.scss'

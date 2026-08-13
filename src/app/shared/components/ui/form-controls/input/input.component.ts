@@ -4,17 +4,16 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
 
 @Component({
-  selector: 'app-input',
-  standalone: true,
-  imports: [CommonModule, LucideAngularModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputComponent),
-      multi: true
-    }
-  ],
-  template: `
+    selector: 'app-input',
+    imports: [CommonModule, LucideAngularModule],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputComponent),
+            multi: true
+        }
+    ],
+    template: `
     <div class="space-y-1">
       <!-- Label -->
       <label *ngIf="label" [for]="id" class="block text-sm font-medium text-gray-700">
@@ -97,7 +96,7 @@ import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
     }

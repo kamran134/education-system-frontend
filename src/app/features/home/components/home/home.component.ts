@@ -11,7 +11,6 @@ const PROFILE_ROLES = ['student', 'teacher', 'schoolDirector', 'districtRepresen
 
 @Component({
     selector: 'app-home',
-    standalone: true,
     imports: [CommonModule, RouterModule, LucideAngularModule, ProfileHeaderComponent],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'

@@ -7,7 +7,6 @@ import { PermissionsService } from '../../../../core/services/permissions.servic
 
 @Component({
     selector: 'app-admin-layout',
-    standalone: true,
     imports: [
         CommonModule,
         RouterModule,

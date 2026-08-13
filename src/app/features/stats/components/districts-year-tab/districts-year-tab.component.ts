@@ -13,7 +13,6 @@ import { DistrictService } from '../../../districts/services/district.service';
 
 @Component({
     selector: 'app-districts-year-tab',
-    standalone: true,
     imports: [
         CommonModule,
         MatTableModule,

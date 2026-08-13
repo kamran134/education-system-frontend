@@ -20,7 +20,6 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 
 @Component({
     selector: 'app-regions-list',
-    standalone: true,
     imports: [
         CommonModule,
         RouterModule,

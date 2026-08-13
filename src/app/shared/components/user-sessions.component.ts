@@ -9,7 +9,6 @@ import { ButtonComponent } from './ui/button/button.component';
 
 @Component({
     selector: 'app-user-sessions',
-    standalone: true,
     imports: [
         CommonModule,
         LucideAngularModule,

@@ -21,12 +21,11 @@ export interface BackButton {
 }
 
 @Component({
-  selector: 'app-list-layout',
-  standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent, CardComponent],
-  templateUrl: './list-layout.component.html',
-  styleUrls: ['./list-layout.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-list-layout',
+    imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent, CardComponent],
+    templateUrl: './list-layout.component.html',
+    styleUrls: ['./list-layout.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListLayoutComponent {
   @Input() title = '';

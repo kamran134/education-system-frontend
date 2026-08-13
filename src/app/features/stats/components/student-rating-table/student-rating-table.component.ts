@@ -17,8 +17,7 @@ import { MatTableModule } from '@angular/material/table';
         MatIconModule,
         MatSortModule,
         CommonModule
-    ],
-    standalone: true
+    ]
 })
 export class StudentRatingTableComponent {
     @Input() title: string = "";

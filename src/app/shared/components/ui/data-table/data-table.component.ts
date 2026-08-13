@@ -34,10 +34,9 @@ export interface PageSizeOption {
 }
 
 @Component({
-  selector: 'app-data-table',
-  standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, CardComponent],
-  template: `
+    selector: 'app-data-table',
+    imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, CardComponent],
+    template: `
     <app-card class="overflow-hidden">
       <!-- Table: make the table area vertically scrollable so horizontal scrollbar stays visible -->
       <div class="overflow-auto" style="max-height: calc(100vh - 260px);">
@@ -227,7 +226,7 @@ export interface PageSizeOption {
       </div>
     </app-card>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent {
   @Input() data: any[] = [];

@@ -11,7 +11,6 @@ import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 
 @Component({
     selector: 'app-regions-year-tab',
-    standalone: true,
     imports: [
         CommonModule,
         MatTableModule,

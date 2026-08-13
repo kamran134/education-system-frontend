@@ -14,7 +14,6 @@ import { StatsService } from '../../services/stats.service';
 
 @Component({
     selector: 'app-students-year-tab',
-    standalone: true,
     imports: [
         CommonModule,
         MatTableModule,

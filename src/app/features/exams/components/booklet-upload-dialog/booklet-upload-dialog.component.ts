@@ -15,10 +15,9 @@ export interface BookletUploadDialogData {
 
 @Component({
     selector: 'app-booklet-upload-dialog',
-    standalone: true,
     imports: [CommonModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
     templateUrl: './booklet-upload-dialog.component.html',
-    styleUrls: ['./booklet-upload-dialog.component.scss'],
+    styleUrls: ['./booklet-upload-dialog.component.scss']
 })
 export class BookletUploadDialogComponent {
     file: File | null = null;

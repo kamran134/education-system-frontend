@@ -30,7 +30,6 @@ import { SelectComponent, SelectOption } from '../../../shared/components/ui/for
 
 @Component({
     selector: 'app-exam-results',
-    standalone: true,
     imports: [
         CommonModule,
         RouterModule,

@@ -21,7 +21,6 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
 
 @Component({
     selector: 'app-districts-list',
-    standalone: true,
     imports: [
         CommonModule,
         RouterModule,

@@ -24,11 +24,10 @@ export interface FileUploadErrorsData {
 }
 
 @Component({
-  selector: 'app-file-upload-errors-dialog',
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  templateUrl: './file-upload-errors-dialog.component.html',
-  styleUrls: ['./file-upload-errors-dialog.component.scss']
+    selector: 'app-file-upload-errors-dialog',
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+    templateUrl: './file-upload-errors-dialog.component.html',
+    styleUrls: ['./file-upload-errors-dialog.component.scss']
 })
 export class FileUploadErrorsDialogComponent {
   constructor(

@@ -13,7 +13,6 @@ interface UploadResult {
 
 @Component({
     selector: 'app-bulk-avatar-upload-modal',
-    standalone: true,
     imports: [CommonModule, ModalComponent],
     template: `
         <app-modal

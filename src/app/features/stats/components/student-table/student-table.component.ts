@@ -5,7 +5,6 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 @Component({
     selector: 'app-student-table',
-    standalone: true,
     imports: [MatTableModule, MatSortModule, MatPaginatorModule],
     templateUrl: './student-table.component.html',
     styleUrl: './student-table.component.scss'

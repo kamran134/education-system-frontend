@@ -13,7 +13,6 @@ import { SchoolService } from '../../../schools/services/school.service';
 
 @Component({
     selector: 'app-schools-year-tab',
-    standalone: true,
     imports: [
         CommonModule,
         MatTableModule,

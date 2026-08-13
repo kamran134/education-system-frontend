@@ -12,17 +12,16 @@ export interface SelectOption {
 }
 
 @Component({
-  selector: 'app-select',
-  standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, OverlayModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SelectComponent),
-      multi: true
-    }
-  ],
-  template: `
+    selector: 'app-select',
+    imports: [CommonModule, FormsModule, LucideAngularModule, OverlayModule],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => SelectComponent),
+            multi: true
+        }
+    ],
+    template: `
     <div class="relative" #selectContainer>
       <!-- Label -->
       <label *ngIf="label" [for]="id" class="block text-sm font-medium text-gray-700 mb-1">
@@ -141,7 +140,7 @@ export interface SelectOption {
       </div>
     </ng-template>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
     }

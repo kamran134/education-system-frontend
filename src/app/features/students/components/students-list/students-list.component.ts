@@ -37,7 +37,6 @@ import { BulkAvatarUploadModalComponent } from '../../../../shared/components/mo
 
 @Component({
     selector: 'app-students-list',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

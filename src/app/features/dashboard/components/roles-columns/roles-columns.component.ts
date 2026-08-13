@@ -120,7 +120,6 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
 
 @Component({
     selector: 'app-roles-columns',
-    standalone: true,
     imports: [
         CommonModule,
         LucideAngularModule,

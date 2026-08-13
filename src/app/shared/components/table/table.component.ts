@@ -7,11 +7,10 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-table',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatTableModule, MatIconModule, MatPaginatorModule],
-  templateUrl: './table.component.html',
-  styleUrl: './table.component.scss'
+    selector: 'app-table',
+    imports: [CommonModule, MatButtonModule, MatTableModule, MatIconModule, MatPaginatorModule],
+    templateUrl: './table.component.html',
+    styleUrl: './table.component.scss'
 })
 export class TableComponent<T> implements OnInit, OnChanges {
     @Input() data: T[] = [];

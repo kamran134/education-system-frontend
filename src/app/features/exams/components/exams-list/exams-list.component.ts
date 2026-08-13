@@ -30,7 +30,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 
 @Component({
     selector: 'app-exams-list',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

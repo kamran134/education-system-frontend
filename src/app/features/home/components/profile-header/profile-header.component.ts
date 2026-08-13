@@ -19,7 +19,6 @@ const UPLOADABLE_ROLES = ['teacher', 'schoolDirector', 'districtRepresenter', 'r
 
 @Component({
     selector: 'app-profile-header',
-    standalone: true,
     imports: [CommonModule, LucideAngularModule, ImageCropModalComponent],
     templateUrl: './profile-header.component.html',
     styleUrl: './profile-header.component.scss'

@@ -14,7 +14,6 @@ interface DisciplineTab {
 
 @Component({
     selector: 'app-booklet-detail',
-    standalone: true,
     imports: [CommonModule, LucideAngularModule],
     templateUrl: './booklet-detail.component.html',
     styleUrls: ['./booklet-detail.component.scss']

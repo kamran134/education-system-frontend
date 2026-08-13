@@ -16,7 +16,6 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
 
 @Component({
     selector: 'app-user-profile',
-    standalone: true,
     imports: [
         CommonModule,
         ReactiveFormsModule,

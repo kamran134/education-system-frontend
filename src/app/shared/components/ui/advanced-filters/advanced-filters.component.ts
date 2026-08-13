@@ -19,16 +19,15 @@ export interface FilterField {
 }
 
 @Component({
-  selector: 'app-advanced-filters',
-  standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    LucideAngularModule, 
-    SelectComponent, 
-    InputComponent
-  ],
-  template: `
+    selector: 'app-advanced-filters',
+    imports: [
+        CommonModule,
+        FormsModule,
+        LucideAngularModule,
+        SelectComponent,
+        InputComponent
+    ],
+    template: `
     <div class="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
       <!-- Filter Header -->
       <div class="flex items-center justify-between">
@@ -129,7 +128,7 @@ export interface FilterField {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     :host {
       display: block;
     }

@@ -30,7 +30,6 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 
 @Component({
     selector: 'app-teachers-list',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

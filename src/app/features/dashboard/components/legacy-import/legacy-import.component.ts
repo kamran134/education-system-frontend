@@ -21,7 +21,6 @@ interface SectionState {
 
 @Component({
     selector: 'app-legacy-import',
-    standalone: true,
     imports: [
         CommonModule,
         LucideAngularModule

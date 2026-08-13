@@ -20,7 +20,6 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
     selector: 'app-stats-filters',
     templateUrl: './stats-filters.component.html',
     styleUrls: ['./stats-filters.component.scss'],
-    standalone: true,
     imports: [
         CommonModule,
         ReactiveFormsModule,
@@ -29,7 +28,7 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
         LucideAngularModule,
         SelectComponent,
         InputComponent
-    ],
+    ]
 })
 export class StatsFiltersComponent implements OnInit, OnChanges {
     // Icons

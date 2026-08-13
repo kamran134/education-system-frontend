@@ -2,15 +2,14 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-card',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-card',
+    imports: [CommonModule],
+    template: `
     <div [class]="cardClasses">
       <ng-content></ng-content>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardComponent {
   @Input() padding: 'none' | 'sm' | 'md' | 'lg' = 'md';
@@ -50,40 +49,37 @@ export class CardComponent {
 }
 
 @Component({
-  selector: 'app-card-header',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-card-header',
+    imports: [CommonModule],
+    template: `
     <div class="flex items-center justify-between mb-4">
       <ng-content></ng-content>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardHeaderComponent {}
 
 @Component({
-  selector: 'app-card-title',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-card-title',
+    imports: [CommonModule],
+    template: `
     <h3 class="text-lg font-semibold text-gray-900">
       <ng-content></ng-content>
     </h3>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardTitleComponent {}
 
 @Component({
-  selector: 'app-card-content',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-card-content',
+    imports: [CommonModule],
+    template: `
     <div class="text-gray-600">
       <ng-content></ng-content>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardContentComponent {}

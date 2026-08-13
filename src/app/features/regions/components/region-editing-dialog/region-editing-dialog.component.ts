@@ -8,7 +8,6 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 
 @Component({
     selector: 'app-region-editing-dialog',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

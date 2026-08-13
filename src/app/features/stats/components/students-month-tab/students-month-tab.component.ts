@@ -6,11 +6,10 @@ import { StudentRatingTableComponent } from '../student-rating-table/student-rat
 import { Sort } from '@angular/material/sort';
 
 @Component({
-  selector: 'app-students-month-tab',
-  standalone: true,
-  imports: [CommonModule, StudentRatingTableComponent],
-  templateUrl: './students-month-tab.component.html',
-  styleUrl: './students-month-tab.component.scss'
+    selector: 'app-students-month-tab',
+    imports: [CommonModule, StudentRatingTableComponent],
+    templateUrl: './students-month-tab.component.html',
+    styleUrl: './students-month-tab.component.scss'
 })
 export class StudentsMonthTabComponent {
     @Input() stats!: Stats;

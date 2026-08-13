@@ -40,7 +40,6 @@ import { BookletEditDialogComponent, BookletEditDialogResult } from '../booklet-
 
 @Component({
     selector: 'app-booklets-list',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

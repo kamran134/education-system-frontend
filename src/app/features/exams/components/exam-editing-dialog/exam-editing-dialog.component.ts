@@ -8,7 +8,6 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 
 @Component({
     selector: 'app-exam-editing',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,

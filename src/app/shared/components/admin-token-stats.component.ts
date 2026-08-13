@@ -8,7 +8,6 @@ import { ButtonComponent } from './ui/button/button.component';
 
 @Component({
     selector: 'app-admin-token-stats',
-    standalone: true,
     imports: [
         CommonModule,
         LucideAngularModule,

@@ -4,10 +4,9 @@ import { ImageCroppedEvent, ImageCropperComponent, LoadedImage } from 'ngx-image
 import { ModalComponent } from '../../ui/modal/modal.component';
 
 @Component({
-  selector: 'app-image-crop-modal',
-  standalone: true,
-  imports: [CommonModule, ImageCropperComponent, ModalComponent],
-  template: `
+    selector: 'app-image-crop-modal',
+    imports: [CommonModule, ImageCropperComponent, ModalComponent],
+    template: `
     <app-modal 
       *ngIf="isOpen"
       [title]="'Şəkli kəs'"
@@ -46,7 +45,7 @@ import { ModalComponent } from '../../ui/modal/modal.component';
       </div>
     </app-modal>
   `,
-  styles: [`
+    styles: [`
     .crop-container {
       max-height: 500px;
       overflow: hidden;

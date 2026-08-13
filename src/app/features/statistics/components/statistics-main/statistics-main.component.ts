@@ -14,7 +14,6 @@ import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
     selector: 'app-statistics-main',
-    standalone: true,
     imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule],
     templateUrl: './statistics-main.component.html',
     styleUrl: './statistics-main.component.scss'
