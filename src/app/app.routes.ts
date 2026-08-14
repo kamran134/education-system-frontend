@@ -9,6 +9,8 @@ import { StatsComponent } from './features/stats/components/stats-main/stats.com
 import { StatisticsMainComponent } from './features/statistics/components/statistics-main/statistics-main.component';
 import { StudentsListComponent } from './features/students/components/students-list/students-list.component';
 import { StudentDetailsComponent } from './features/students/components/student-details/student-details.component';
+import { SchoolProfileComponent } from './features/schools/components/school-profile/school-profile.component';
+import { TeacherProfileComponent } from './features/teachers/components/teacher-profile/teacher-profile.component';
 import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
 import { BookletsListComponent } from './features/booklets/components/booklets-list/booklets-list.component';
 import { BookletDetailComponent } from './features/booklets/components/booklet-detail/booklet-detail.component';
@@ -26,8 +28,14 @@ export const routes: Routes = [
     { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
     { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
     { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
+    // Профиль школы/учителя — не gated ролевым canAccessSchools/canAccessTeachers: schoolDirector
+    // и teacher должны видеть/редактировать СВОЙ профиль, даже если у них canAccessSchools/
+    // canAccessTeachers=false (те флаги про доступ к чужим спискам, не про свою же запись).
+    // Владение проверяется в самом компоненте (canEdit) и на бэкенде (canManageOwnEntity).
+    { path: 'schools/:id/profile', component: SchoolProfileComponent, canActivate: [authGuard] },
     { path: 'teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers')] },
     { path: 'teachers/:id/students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers')] },
+    { path: 'teachers/:id/profile', component: TeacherProfileComponent, canActivate: [authGuard] },
     { path: 'students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
     { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
     { path: 'exams', component: ExamsListComponent, canActivate: [authGuard, roleGuard('canAccessExams')] },

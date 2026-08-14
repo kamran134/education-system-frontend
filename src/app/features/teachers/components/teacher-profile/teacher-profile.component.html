@@ -1,0 +1,75 @@
+<div class="main-container p-6 space-y-6">
+  @if (isLoading) {
+    <div class="flex justify-center items-center py-8">
+      <lucide-icon [img]="Loader" class="animate-spin text-blue-500" size="24"></lucide-icon>
+      <span class="ml-2 text-gray-600">Məlumatlar yüklənir...</span>
+    </div>
+  }
+
+  @if (!isLoading && teacher) {
+    <div>
+      <!-- Header Card -->
+      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
+              @if (teacher.avatarUrl) {
+                <img [src]="teacher.avatarUrl" alt="Müəllimin şəkli" class="w-full h-full object-cover">
+              } @else {
+                <lucide-icon [img]="User" class="w-8 h-8 text-gray-400"></lucide-icon>
+              }
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">{{ teacher.fullname }}</h1>
+              <p class="text-gray-600 mt-1">Müəllimin kodu: {{ teacher.code }}</p>
+              <p class="text-gray-600">{{ teacher.school?.name }} — {{ teacher.district?.name }}</p>
+            </div>
+          </div>
+          <app-button variant="outline" (clicked)="goBack()">
+            <div class="flex items-center space-x-2">
+              <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+              <span>Geri</span>
+            </div>
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Biography Card -->
+      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900">Bioqrafiya</h2>
+          @if (canEdit && !isEditing) {
+            <button (click)="startEdit()" class="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm">
+              <lucide-icon [img]="Edit2" class="w-4 h-4"></lucide-icon>
+              Redaktə et
+            </button>
+          }
+        </div>
+
+        @if (!isEditing) {
+          @if (teacher.biography) {
+            <p class="text-gray-800 whitespace-pre-line">{{ teacher.biography }}</p>
+          } @else {
+            <p class="text-gray-400 italic">Bioqrafiya hələ doldurulmayıb</p>
+          }
+        }
+
+        @if (isEditing) {
+          <app-input
+            [(ngModel)]="editedBiography"
+            name="biography"
+            [multiline]="true"
+            [rows]="6"
+            placeholder="Müəllim haqqında qısa məlumat"
+          ></app-input>
+          <div class="flex gap-2 mt-4">
+            <app-button variant="primary" [disabled]="isSaving" (clicked)="save()">
+              {{ isSaving ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
+            </app-button>
+            <app-button variant="outline" [disabled]="isSaving" (clicked)="cancelEdit()">Ləğv et</app-button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -83,6 +83,12 @@ export class SchoolService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    updateSchoolProfile(schoolId: string | number, data: { description: string | null; history: string | null }): Observable<School> {
+        const url: string = `${this.configService.getApiUrl()}/schools/${schoolId}/profile`;
+        return this.http.patch<ApiResponse<School>>(url, data, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
     deleteSchool(schoolId: string | number): Observable<any> {
         const url: string = `${this.configService.getApiUrl()}/schools/${schoolId}`;
         return this.http.delete<ApiResponse<any>>(url, { withCredentials: true })

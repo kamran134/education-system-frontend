@@ -23,17 +23,31 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         </label>
       }
       <div class="relative">
-        <input
-          [id]="inputId"
-          [type]="type"
-          [placeholder]="placeholder"
-          [disabled]="disabled"
-          [class]="inputClasses"
-          [value]="value"
-          (input)="onInput($event)"
-          (blur)="onBlur()"
-          (focus)="onFocus()"
-          />
+        @if (multiline) {
+          <textarea
+            [id]="inputId"
+            [placeholder]="placeholder"
+            [disabled]="disabled"
+            [class]="inputClasses"
+            [rows]="rows"
+            [value]="value"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+            (focus)="onFocus()"
+          ></textarea>
+        } @else {
+          <input
+            [id]="inputId"
+            [type]="type"
+            [placeholder]="placeholder"
+            [disabled]="disabled"
+            [class]="inputClasses"
+            [value]="value"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+            (focus)="onFocus()"
+            />
+        }
           @if (error) {
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
@@ -62,6 +76,8 @@ export class InputComponent implements ControlValueAccessor {
   @Input() error = '';
   @Input() hint = '';
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() multiline = false;
+  @Input() rows = 3;
 
   @Output() valueChange = new EventEmitter<string>();
   @Output() focused = new EventEmitter<void>();

@@ -68,5 +68,23 @@
         name="active"
         [required]="true"
       ></app-select>
+
+      <app-input
+        label="Təsvir"
+        placeholder="Məktəb haqqında qısa məlumat"
+        [(ngModel)]="data.school.description"
+        name="description"
+        [multiline]="true"
+        [rows]="3"
+      ></app-input>
+
+      <app-input
+        label="Tarix"
+        placeholder="Məktəbin tarixi"
+        [(ngModel)]="data.school.history"
+        name="history"
+        [multiline]="true"
+        [rows]="4"
+      ></app-input>
     </form>
   </app-modal>

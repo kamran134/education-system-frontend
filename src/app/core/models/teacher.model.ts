@@ -13,6 +13,7 @@ export interface TeacherApiResponse extends ApiResponse<{ data: Teacher[], total
 export interface Teacher {
     id: number;
     fullname: string;
+    biography?: string | null;
     code: number;
     school: School;
     district: District;
@@ -33,6 +34,7 @@ export interface Teacher {
 
 export interface TeacherForCreation {
     fullname: string;
+    biography?: string | null;
     code: number;
     school?: School;
     district?: District;

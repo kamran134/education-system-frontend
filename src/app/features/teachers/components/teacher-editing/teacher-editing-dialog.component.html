@@ -78,5 +78,14 @@
         name="active"
         [required]="true"
       ></app-select>
+
+      <app-input
+        label="Bioqrafiya"
+        placeholder="Müəllim haqqında qısa məlumat"
+        [(ngModel)]="data.teacher.biography"
+        name="biography"
+        [multiline]="true"
+        [rows]="4"
+      ></app-input>
     </form>
   </app-modal>

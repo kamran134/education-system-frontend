@@ -134,6 +134,8 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
                 code: 0,
                 name: '',
                 address: '',
+                description: '',
+                history: '',
                 studentCount: 0,
                 active: true,
             } as SchoolForCreation

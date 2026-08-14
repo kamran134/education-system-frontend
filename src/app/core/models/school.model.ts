@@ -13,6 +13,8 @@ export interface School {
     id: number;
     name: string;
     address: string;
+    description?: string | null;
+    history?: string | null;
     code: number;
     districtCode: number;
     district: District;
@@ -35,6 +37,8 @@ export interface School {
 export interface SchoolForCreation {
     name: string;
     address: string;
+    description?: string | null;
+    history?: string | null;
     code: number;
     districtCode?: number;
     district?: District;
