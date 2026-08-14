@@ -9,23 +9,12 @@
 @import './light-mode.scss';
 @import './dark-mode.scss';
 @import './dark-mode-utilities.scss';
-/* Importing Bootstrap SCSS file. */
-//@import 'bootstrap/scss/bootstrap';
 
 html, body { height: 100%; }
 body {
     margin: 0;
     font-family: Roboto, "Helvetica Neue", sans-serif;
     color: $backgroundColor;
-
-    .mdc-list-item {
-        &__primary-text {
-            display: flex;
-            > mat-icon {
-                margin-right: 10px;
-            }
-        }
-    }
 
     .container {
         margin: 0 12px;
@@ -77,10 +66,6 @@ table {
     display: flex;
     flex-wrap: wrap;
 
-    > mat-form-field {
-        margin-right: $smallMargin;
-    }
-
     &__dates {
         width: 300px;
     }
@@ -123,10 +108,6 @@ table {
     margin-left: 20px;
 }
 
-mat-form-field {
-    width: 100%;
-}
-
 .detele-button {
     background-color: rgb(228, 73, 73) !important;
 }
@@ -149,11 +130,6 @@ mat-form-field {
 
 .clickable-row:hover {
     background-color: rgba(0, 0, 0, 0.04);
-}
-
-.mat-edit-button {
-    background-color: rgb(231, 107, 19) !important;
-    margin-right: 15px;
 }
 
 .action-buttons {

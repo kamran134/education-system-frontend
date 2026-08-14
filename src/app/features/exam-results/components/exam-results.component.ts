@@ -4,7 +4,7 @@ import { Subject, debounceTime, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import { ExamResultsService } from '../services/exam-results.service';
 import { ExamResult } from '../../../core/models/examResult.model';
 import { District } from '../../../core/models/district.model';
@@ -25,7 +25,7 @@ import { ResultEditingDialogComponent } from '../../students/components/result-e
 // UI Components
 import { LucideAngularModule, Search, Download, Filter, X, Edit2 } from 'lucide-angular';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
-import { InputComponent } from '../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../shared/components/ui/form-controls/input/input.component';
 import { SelectComponent, SelectOption } from '../../../shared/components/ui/form-controls/select/select.component';
 
 @Component({
@@ -114,7 +114,7 @@ export class ExamResultsComponent implements OnInit {
         private schoolService: SchoolService,
         private teacherService: TeacherService,
         private examService: ExamService,
-        private dialog: MatDialog,
+        private dialog: Dialog,
         private authService: AuthService,
         private excelService: ExcelService
     ) {}
@@ -420,12 +420,12 @@ export class ExamResultsComponent implements OnInit {
     }
 
     onEditResult(result: ExamResult): void {
-        const dialogRef = this.dialog.open(ResultEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ResultEditingDialogComponent, {
             width: '900px',
             disableClose: false,
             data: { result, canDelete: this.canDeleteExamResults }
         });
-        dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
+        dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
             if (response?.action === 'save' && response.data) {
                 this.updateResult(result.id, response.data);
             } else if (response?.action === 'delete') {

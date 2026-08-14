@@ -35,25 +35,40 @@ import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
         }
     
         <!-- Input Field -->
-        <input
-          [id]="id"
-          [type]="inputType"
-          [value]="value || ''"
-          [placeholder]="placeholder"
-          [disabled]="disabled"
-          [readonly]="readonly"
-          [min]="min"
-          [max]="max"
-          [step]="step"
-          [attr.maxlength]="maxLength"
-          [autocomplete]="autocomplete"
-          (input)="onInput($event)"
-          (blur)="onBlur()"
-          (focus)="onFocus()"
-          (keydown.enter)="onEnterPress()"
-          [class]="inputClasses"
-          />
-    
+        @if (multiline) {
+          <textarea
+            [id]="id"
+            [rows]="rows"
+            [placeholder]="placeholder"
+            [disabled]="disabled"
+            [readonly]="readonly"
+            [attr.maxlength]="maxLength"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+            (focus)="onFocus()"
+            [class]="inputClasses"
+            >{{ value || '' }}</textarea>
+        } @else {
+          <input
+            [id]="id"
+            [type]="inputType"
+            [value]="value || ''"
+            [placeholder]="placeholder"
+            [disabled]="disabled"
+            [readonly]="readonly"
+            [min]="min"
+            [max]="max"
+            [step]="step"
+            [attr.maxlength]="maxLength"
+            [autocomplete]="autocomplete"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+            (focus)="onFocus()"
+            (keydown.enter)="onEnterPress()"
+            [class]="inputClasses"
+            />
+        }
+
           <!-- Right Icon / Actions -->
           <div class="absolute inset-y-0 right-0 flex items-center">
             <!-- Clear Button -->
@@ -66,9 +81,9 @@ import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
                 <lucide-icon [img]="X" class="h-4 w-4"></lucide-icon>
               </button>
             }
-    
+
             <!-- Password Toggle -->
-            @if (type === 'password') {
+            @if (type === 'password' && showPasswordToggle) {
               <button
                 type="button"
                 class="px-3 text-gray-400 hover:text-gray-600"
@@ -77,7 +92,7 @@ import { LucideAngularModule, Search, X, Eye, EyeOff } from 'lucide-angular';
                 <lucide-icon [img]="showPassword ? EyeOff : Eye" class="h-4 w-4"></lucide-icon>
               </button>
             }
-    
+
             <!-- Right Icon -->
             @if (rightIcon && type !== 'password') {
               <div class="px-3 pointer-events-none">
@@ -135,6 +150,11 @@ export class InputComponent implements ControlValueAccessor {
   @Input() clearable: boolean = false;
   @Input() showCharacterCount: boolean = false;
   @Input() autocomplete: string = '';
+  @Input() showPasswordToggle: boolean = true;
+
+  // Textarea
+  @Input() multiline: boolean = false;
+  @Input() rows: number = 3;
 
   // Number/Range specific
   @Input() min: number | null = null;

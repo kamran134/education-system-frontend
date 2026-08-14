@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ExamResult } from '../../../../core/models/examResult.model';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -45,8 +45,8 @@ export class ResultEditingDialogComponent {
     ];
 
     constructor(
-        public dialogRef: MatDialogRef<ResultEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { result: ExamResult, canDelete?: boolean },
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: any } | undefined>,
+        @Inject(DIALOG_DATA) public data: { result: ExamResult, canDelete?: boolean },
         private authService: AuthService
     ) {
         // Create a copy of the result for editing

@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Teacher, TeacherForCreation } from '../../../../core/models/teacher.model';
 import { FormsModule } from '@angular/forms';
 import { SchoolService } from '../../../schools/services/school.service';
@@ -10,7 +10,7 @@ import { School } from '../../../../core/models/school.model';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { Subject, takeUntil } from 'rxjs';
@@ -35,8 +35,8 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
     
     constructor(
-        public dialogRef: MatDialogRef<TeacherEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { teacher: Teacher | TeacherForCreation, isEditing: boolean, canDelete?: boolean },
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: Teacher | TeacherForCreation } | undefined>,
+        @Inject(DIALOG_DATA) public data: { teacher: Teacher | TeacherForCreation, isEditing: boolean, canDelete?: boolean },
         private districtService: DistrictService,
         private schoolService: SchoolService
     ) { }

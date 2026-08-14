@@ -1,69 +1,65 @@
-<div class="upload-errors-dialog">
-  <h2 mat-dialog-title class="dialog-title">
-    <mat-icon class="warning-icon">warning</mat-icon>
-    <span>Yükləmə zamanı xətalar</span>
-  </h2>
-
-  <mat-dialog-content class="dialog-content">
-    <p class="info-text">
+<app-modal
+  title="Yükləmə zamanı xətalar"
+  size="lg"
+  [buttons]="modalButtons"
+  (closed)="onClose()"
+  >
+  <div class="space-y-6">
+    <p class="rounded-lg border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-950 px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
       Aşağıdakı məlumatlar yüklənə bilmədi. Zəhmət olmasa yoxlayın və düzəliş edin.
     </p>
 
     <!-- Teachers Errors -->
     @if (data.type === 'teachers') {
-      <div>
-        <!-- Incorrect Teacher Codes -->
+      <div class="space-y-6">
         @if (data.errors.incorrectTeacherCodes && data.errors.incorrectTeacherCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>error</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="XCircle" class="h-5 w-5 text-red-500"></lucide-icon>
               Kodları yanlış olan müəllimlər (Müəllim kodu 7 ədədli rəqəm olmalıdır)
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.incorrectTeacherCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Missing School Codes -->
         @if (data.errors.missingSchoolCodes && data.errors.missingSchoolCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>school</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="School" class="h-5 w-5 text-red-500"></lucide-icon>
               Bazada olmayan məktəb kodları
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.missingSchoolCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Teachers Without School Codes -->
         @if (data.errors.teacherCodesWithoutSchoolCodes && data.errors.teacherCodesWithoutSchoolCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>info</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="Info" class="h-5 w-5 text-red-500"></lucide-icon>
               Faylda məktəb kodu olmayan müəllimlər
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.teacherCodesWithoutSchoolCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Existing Teacher Codes -->
         @if (data.errors.existingTeacherCodes && data.errors.existingTeacherCodes.length > 0) {
-          <div class="error-section info">
-            <h3 class="error-title">
-              <mat-icon>check_circle</mat-icon>
+          <div class="rounded-lg border-l-4 border-green-500 bg-green-50 dark:bg-green-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-green-800 dark:text-green-200">
+              <lucide-icon [img]="CheckCircle" class="h-5 w-5 text-green-600"></lucide-icon>
               Artıq bazada olan müəllimlər
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.existingTeacherCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-green-500 bg-green-100 dark:bg-green-900 px-3 py-1 text-xs font-medium text-green-800 dark:text-green-200">{{ code }}</span>
               }
             </div>
           </div>
@@ -73,59 +69,55 @@
 
     <!-- Schools Errors -->
     @if (data.type === 'schools') {
-      <div>
-        <!-- Incorrect School Codes -->
+      <div class="space-y-6">
         @if (data.errors.incorrectSchoolCodes && data.errors.incorrectSchoolCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>error</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="XCircle" class="h-5 w-5 text-red-500"></lucide-icon>
               Kodları yanlış olan məktəblər (Məktəb kodu 5 ədədli rəqəm olmalıdır)
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.incorrectSchoolCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Missing District Codes -->
         @if (data.errors.missingDistrictCodes && data.errors.missingDistrictCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>location_city</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="Building2" class="h-5 w-5 text-red-500"></lucide-icon>
               Bazada olmayan rayon / şəhər kodları
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.missingDistrictCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Schools Without District Codes -->
         @if (data.errors.schoolCodesWithoutDistrictCodes && data.errors.schoolCodesWithoutDistrictCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>info</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="Info" class="h-5 w-5 text-red-500"></lucide-icon>
               Faylda rayon kodu olmayan məktəblər
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.schoolCodesWithoutDistrictCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Existing School Codes -->
         @if (data.errors.existingSchoolCodes && data.errors.existingSchoolCodes.length > 0) {
-          <div class="error-section info">
-            <h3 class="error-title">
-              <mat-icon>check_circle</mat-icon>
+          <div class="rounded-lg border-l-4 border-green-500 bg-green-50 dark:bg-green-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-green-800 dark:text-green-200">
+              <lucide-icon [img]="CheckCircle" class="h-5 w-5 text-green-600"></lucide-icon>
               Artıq bazada olan məktəblər
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.existingSchoolCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-green-500 bg-green-100 dark:bg-green-900 px-3 py-1 text-xs font-medium text-green-800 dark:text-green-200">{{ code }}</span>
               }
             </div>
           </div>
@@ -135,46 +127,43 @@
 
     <!-- Student Results Errors -->
     @if (data.type === 'studentResults') {
-      <div>
-        <!-- Incorrect Student Codes -->
+      <div class="space-y-6">
         @if (data.errors.incorrectStudentCodes && data.errors.incorrectStudentCodes.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>error</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="XCircle" class="h-5 w-5 text-red-500"></lucide-icon>
               Kodları yanlış olan şagirdlər (Şagird kodu 10 ədədli rəqəm olmalıdır)
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.incorrectStudentCodes; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Students Without Teacher -->
         @if (data.errors.studentsWithoutTeacher && data.errors.studentsWithoutTeacher.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>person_off</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="UserX" class="h-5 w-5 text-red-500"></lucide-icon>
               Müəllimi tapılmayan şagirdlər
             </h3>
-            <div class="error-list">
+            <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.studentsWithoutTeacher; track code) {
-                <span class="error-item">{{ code }}</span>
+                <span class="rounded-full border border-red-500 bg-red-100 dark:bg-red-900 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">{{ code }}</span>
               }
             </div>
           </div>
         }
-        <!-- Students With Incorrect Results -->
         @if (data.errors.studentsWithIncorrectResults && data.errors.studentsWithIncorrectResults.length > 0) {
-          <div class="error-section">
-            <h3 class="error-title">
-              <mat-icon>calculate</mat-icon>
+          <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
+              <lucide-icon [img]="Calculator" class="h-5 w-5 text-red-500"></lucide-icon>
               Nəticələri yanlış olan şagirdlər (Cəm səhvdir)
             </h3>
-            <div class="error-details">
+            <div class="mt-3 space-y-2">
               @for (student of data.errors.studentsWithIncorrectResults; track student) {
-                <div class="error-detail-item">
-                  <strong>{{ student.code }}:</strong> {{ student.reason }}
+                <div class="rounded bg-red-100 dark:bg-red-900 px-3 py-2 text-sm text-gray-700 dark:text-gray-200">
+                  <strong class="font-semibold text-red-800 dark:text-red-200">{{ student.code }}:</strong> {{ student.reason }}
                 </div>
               }
             </div>
@@ -182,12 +171,5 @@
         }
       </div>
     }
-  </mat-dialog-content>
-
-  <mat-dialog-actions class="dialog-actions">
-    <button mat-raised-button color="primary" (click)="onClose()">
-      <mat-icon>check</mat-icon>
-      OK
-    </button>
-  </mat-dialog-actions>
-</div>
+  </div>
+</app-modal>

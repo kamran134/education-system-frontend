@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 
 @Component({
@@ -18,8 +18,8 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 export class ExamAddDialogComponent {
     
     constructor(
-        public dialogRef: MatDialogRef<ExamAddDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { name: string; code: string, date: any }
+        public dialogRef: DialogRef<{ name: string; code: string, date: any } | undefined>,
+        @Inject(DIALOG_DATA) public data: { name: string; code: string, date: any }
     ) {
         // Преобразуем date в строку для input type="date"
         if (this.data.date && this.data.date instanceof Date) {

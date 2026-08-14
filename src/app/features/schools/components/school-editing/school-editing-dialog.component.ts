@@ -1,7 +1,7 @@
 
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { District } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../services/school.service';
@@ -9,7 +9,7 @@ import { School, SchoolForCreation } from '../../../../core/models/school.model'
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { Subject, takeUntil } from 'rxjs';
@@ -32,8 +32,8 @@ export class SchoolEditingDialogComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     constructor(
-        public dialogRef: MatDialogRef<SchoolEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { school: School | SchoolForCreation, isEditing: boolean, canDelete?: boolean },
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: School | SchoolForCreation } | undefined>,
+        @Inject(DIALOG_DATA) public data: { school: School | SchoolForCreation, isEditing: boolean, canDelete?: boolean },
         private districtService: DistrictService
     ) {}
 

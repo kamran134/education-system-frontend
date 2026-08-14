@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { User, UserResponse, UserEdit } from '../../../../core/models/user.model';
 import { DashboardService } from '../../services/dashboard.service';
 import { UserEditDialogComponent } from '../user-edit-dialog/user-edit-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
+import { Dialog } from '@angular/cdk/dialog';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { Router } from '@angular/router';
@@ -24,7 +23,6 @@ import { Subject, takeUntil } from 'rxjs';
 export class UsersComponent implements OnInit, OnDestroy {
     dataSource: User[] = [];
     totalCount: number = 0;
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     authorizedUserRole: string | null = null;
 
     // Pagination
@@ -69,8 +67,8 @@ export class UsersComponent implements OnInit, OnDestroy {
 
     constructor(
         private dashboardService: DashboardService,
-        private dialog: MatDialog,
-        private snackBar: MatSnackBar,
+        private dialog: Dialog,
+        private toastService: ToastService,
         private authService: AuthService,
         private router: Router,
         private excelService: ExcelService
@@ -179,7 +177,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
 
     onUserCreate(): void {
-        const dialogRef = this.dialog.open(UserEditDialogComponent, {
+        const dialogRef = this.dialog.open<any>(UserEditDialogComponent, {
             width: '1000px',
             data: {
                 email: '',
@@ -191,16 +189,16 @@ export class UsersComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed()
+        dialogRef.closed
             .pipe(takeUntil(this.destroy$))
-            .subscribe((result: UserEdit) => {
+            .subscribe((result: UserEdit | undefined) => {
                 if (result) {
                     this.dashboardService.createUser(result)
                         .pipe(takeUntil(this.destroy$))
                         .subscribe({
                             next: () => {
                                 this.loadUsers();
-                                this.snackBar.open('Yeni istifadəçi yaradıldı', 'Bağla', this.matSnackConfig);
+                                this.toastService.show('Yeni istifadəçi yaradıldı', 'success');
                                 if (result.password) {
                                     this.excelService.exportUserCredentials({
                                         email: result.email,
@@ -211,7 +209,7 @@ export class UsersComponent implements OnInit, OnDestroy {
                             },
                             error: (error) => {
                                 console.error(error);
-                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                                this.toastService.show(error.error.message, 'error');
                             }
                         });
                 }
@@ -226,23 +224,23 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
 
     onUserDelete(user: User): void {
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'İstifadəçini silmək istədiyinizdən əminsiniz mi?' }
         });
 
-        confirmRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((confirmed: boolean) => {
+        confirmRef.closed.pipe(takeUntil(this.destroy$)).subscribe((confirmed: boolean | undefined) => {
             if (confirmed && this.authService.isAdminOrSuperAdmin()) {
                 this.dashboardService.deleteUser(user.id)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe({
                         next: () => {
                             this.loadUsers();
-                            this.snackBar.open('İstifadəçi silindi', 'Bağla', this.matSnackConfig);
+                            this.toastService.show('İstifadəçi silindi', 'success');
                         },
                         error: (error) => {
                             console.error(error);
-                            this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                            this.toastService.show(error.error.message, 'error');
                         }
                     });
             }
@@ -250,25 +248,25 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
 
     openEditDialog(user: User): void {
-        const dialogRef = this.dialog.open(UserEditDialogComponent, {
+        const dialogRef = this.dialog.open<any>(UserEditDialogComponent, {
             width: '1000px',
             data: user
         });
 
-        dialogRef.afterClosed()
+        dialogRef.closed
             .pipe(takeUntil(this.destroy$))
-            .subscribe((result: UserEdit) => {
+            .subscribe((result: UserEdit | undefined) => {
                 if (result) {
                     this.dashboardService.editUser(result)
                         .pipe(takeUntil(this.destroy$))
                         .subscribe({
                             next: () => {
                                 this.loadUsers();
-                                this.snackBar.open('İstifadəçi məlumatları yeniləndi', 'Bağla', this.matSnackConfig);
+                                this.toastService.show('İstifadəçi məlumatları yeniləndi', 'success');
                             },
                             error: (error) => {
                                 console.error(error);
-                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                                this.toastService.show(error.error.message, 'error');
                             }
                         });
                 }
@@ -276,14 +274,14 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
 
     openUserDetails(user: User): void {
-        const dialogRef = this.dialog.open(UserEditDialogComponent, {
+        const dialogRef = this.dialog.open<any>(UserEditDialogComponent, {
             width: '1000px',
             data: user
         });
 
-        dialogRef.afterClosed()
+        dialogRef.closed
             .pipe(takeUntil(this.destroy$))
-            .subscribe((result: UserEdit) => {
+            .subscribe((result: UserEdit | undefined) => {
                 if (result) {
                     this.dashboardService.editUser(result)
                         .pipe(takeUntil(this.destroy$))
@@ -293,7 +291,7 @@ export class UsersComponent implements OnInit, OnDestroy {
                             },
                             error: (error) => {
                                 console.error(error);
-                                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                                this.toastService.show(error.error.message, 'error');
                             }
                         });
                 }

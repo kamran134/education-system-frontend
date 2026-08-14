@@ -2,34 +2,23 @@ import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
-import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
-import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
+import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 
 @Component({
     selector: 'app-root',
     imports: [
     RouterOutlet,
     RouterModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    MatToolbarModule,
-    MatMenuModule,
-    MatDividerModule,
     LucideAngularModule,
     DropdownComponent,
     DropdownItemComponent,
-    DropdownDividerComponent
+    DropdownDividerComponent,
+    ToastContainerComponent
 ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
@@ -63,16 +52,11 @@ export class AppComponent implements OnInit {
     readonly Shield = Shield;
 
     constructor(
-        private matIconRegistry: MatIconRegistry,
-        private domSanitizer: DomSanitizer,
         private authService: AuthService,
         private router: Router,
         public permissions: PermissionsService,
         @Inject(PLATFORM_ID) private platformId: Object
-    ) {
-        this.matIconRegistry.addSvgIcon('dark_mode', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/dark_mode.svg'));
-        this.matIconRegistry.addSvgIcon('light_mode', this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/light_mode.svg'));
-    }
+    ) {}
 
     ngOnInit(): void {
         if (isPlatformBrowser(this.platformId)) {

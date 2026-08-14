@@ -4,11 +4,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../services/district.service';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import { DistrictEditingDialogComponent } from '../district-editing-dialog/district-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
@@ -74,15 +73,12 @@ export class DistrictsListComponent implements OnInit {
     readonly Plus = Plus;
     readonly RefreshCw = RefreshCw;
 
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
-
     isUpdatingStats = false;
     onUpdateDistrictsStats(): void {
         runStatsUpdate(this.districtService.updateDistrictsStats(), {
             setUpdating: v => { this.isUpdatingStats = v; },
             onSuccess: () => this.loadDistricts(),
-            snackBar: this.snackBar,
-            config: this.matSnackConfig,
+            toastService: this.toastService,
             onToggle: () => this.setupActionButtons()
         });
     }
@@ -90,10 +86,10 @@ export class DistrictsListComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     constructor(
-        private dialog: MatDialog,
+        private dialog: Dialog,
         private authService: AuthService,
         private districtService: DistrictService,
-        private snackBar: MatSnackBar,
+        private toastService: ToastService,
         private router: Router,
         private route: ActivatedRoute
     ) {}
@@ -157,7 +153,7 @@ export class DistrictsListComponent implements OnInit {
     }
 
     openAddDistrictDialog(): void {
-        const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(DistrictEditingDialogComponent, {
           width: '400px',
           data: {
             district: { name: '', code: '', studentCount: 0, regionId: this.regionId ? parseInt(this.regionId, 10) : null },
@@ -166,7 +162,7 @@ export class DistrictsListComponent implements OnInit {
           },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.closed.subscribe((result) => {
             if (result?.action === 'save') {
                 this.isLoading = true;
                 this.districtService.addDistrict(result.data).subscribe({
@@ -176,11 +172,11 @@ export class DistrictsListComponent implements OnInit {
                         this.districts = [newDistrict, ...this.districts];
                         this.totalCount++;
                         this.isLoading = false;
-                        this.snackBar.open(response.message || 'Rayon / şəhər uğurla yaradıldı', 'OK', this.matSnackConfig);
+                        this.toastService.show(response.message || 'Rayon / şəhər uğurla yaradıldı', 'success');
                     },
                     error: (error) => {
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -234,7 +230,7 @@ export class DistrictsListComponent implements OnInit {
     }
 
     onDistrictEdit(district: District): void {
-        const dialogRef = this.dialog.open(DistrictEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(DistrictEditingDialogComponent, {
             width: '400px',
             data: {
                 district: {
@@ -249,7 +245,7 @@ export class DistrictsListComponent implements OnInit {
             },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.closed.subscribe((result) => {
             if (result?.action === 'delete') {
                 // Обработка удаления
                 this.handleDistrictDelete(district);
@@ -269,11 +265,11 @@ export class DistrictsListComponent implements OnInit {
                             ];
                         }
                         this.isLoading = false;
-                        this.snackBar.open(response.message || 'Rayon / şəhər uğurla yeniləndi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show(response.message || 'Rayon / şəhər uğurla yeniləndi', 'success');
                     },
                     error: (error: any) => {
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -281,12 +277,12 @@ export class DistrictsListComponent implements OnInit {
     }
 
     private handleDistrictDelete(district: District): void {
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'Rayonu / şəhəri silmək istədiyinizdən əminsiniz mi?' }
         });
 
-        confirmRef.afterClosed().subscribe((result: boolean) => {
+        confirmRef.closed.subscribe((result: boolean) => {
             if (result) {
                 this.isLoading = true;
                 this.districtService.deleteDistrict(district.id).subscribe({
@@ -295,12 +291,12 @@ export class DistrictsListComponent implements OnInit {
                         this.districts = this.districts.filter(d => d.id !== district.id);
                         this.totalCount--;
                         this.isLoading = false;
-                        this.snackBar.open('Rayon / şəhər uğurla silindi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Rayon / şəhər uğurla silindi', 'success');
                     },
                     error: (error) => {
                         console.error(error);
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }

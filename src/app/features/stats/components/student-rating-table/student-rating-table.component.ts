@@ -1,22 +1,11 @@
-
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { LucideAngularModule, Download, User } from 'lucide-angular';
 
 @Component({
     selector: 'app-student-rating-table',
     templateUrl: './student-rating-table.component.html',
-    styleUrls: ['../stats-main/stats.component.scss', './student-rating-table.component.scss'],
-    imports: [
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSortModule
-]
+    imports: [ButtonComponent, LucideAngularModule]
 })
 export class StudentRatingTableComponent {
     @Input() title: string = "";
@@ -25,14 +14,15 @@ export class StudentRatingTableComponent {
     @Input() tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' = 'developingStudents';
     @Input() isLoading: boolean = false;
 
-    @Output() sortChanged: EventEmitter<Sort> = new EventEmitter<Sort>();
+    @Output() sortChanged = new EventEmitter<{ column: string; direction: 'asc' | 'desc' }>();
     @Output() rowClicked: EventEmitter<string> = new EventEmitter<string>();
     @Output() excelExport: EventEmitter<string> = new EventEmitter<string>();
 
-    // Computed columns with row number and avatar at the beginning
-    get displayedColumns(): string[] {
-        return ['rowNum', 'avatar', ...this.columns];
-    }
+    readonly Download = Download;
+    readonly User = User;
+
+    sortBy = '';
+    sortDirection: 'asc' | 'desc' = 'asc';
 
     // Column definitions with labels and sort keys
     columnDefinitions = new Map<string, {label: string, sortKey: string}>([
@@ -59,6 +49,32 @@ export class StudentRatingTableComponent {
                 key: col,
                 ...this.columnDefinitions.get(col)!
             }));
+    }
+
+    getCellValue(result: any, key: string): string {
+        switch (key) {
+            case 'level': return result.level || '-';
+            case 'code': return result.studentData.code;
+            case 'lastName': return result.studentData.lastName;
+            case 'firstName': return result.studentData.firstName;
+            case 'middleName': return result.studentData.middleName;
+            case 'totalScore': return result.totalScore;
+            case 'grade': return result.studentData.grade;
+            case 'teacher': return (result.studentData.teacher || '').fullname;
+            case 'school': return (result.studentData.school || '').name;
+            case 'district': return (result.studentData.district || '').name;
+            case 'averageScore': return (result.studentData || '').averageScore;
+            case 'place': return result.place;
+            case 'score': return result.score;
+            default: return '';
+        }
+    }
+
+    onSort(key: string): void {
+        const direction = this.sortBy === key && this.sortDirection === 'asc' ? 'desc' : 'asc';
+        this.sortBy = key;
+        this.sortDirection = direction;
+        this.sortChanged.emit({ column: key, direction });
     }
 
     onRowClick(studentId: string): void {

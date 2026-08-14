@@ -37,40 +37,10 @@
                     align-items: center;
                     gap: 6px;
                     position: relative;
-                    
-                    mat-icon {
-                        width: 20px;
-                        height: 20px;
-                        font-size: 20px;
-                    }
-
-                    // Стиль для dropdown кнопок
-                    &[ng-reflect-menu-trigger-for] {
-                        padding-right: 8px;
-                        
-                        mat-icon:last-child {
-                            font-size: 16px;
-                            width: 16px;
-                            height: 16px;
-                            opacity: 0.7;
-                        }
-                    }
                 }
             }
         }
     }
-
-    .mat-toolbar {
-        .dark-mode {
-            background-color: #333 !important;
-            color: #fff !important;
-        }
-    }
-}
-
-.mat-black {
-    background-color: #1f1f1f !important;
-    color: #fff !important;
 }
 
 .main-container {
@@ -90,12 +60,6 @@
                 gap: 4px;
                 padding: 8px 12px;
                 font-size: 0.9em;
-                
-                mat-icon {
-                    width: 18px;
-                    height: 18px;
-                    font-size: 18px;
-                }
             }
         }
     }
@@ -114,17 +78,4 @@
             }
         }
     }
-}
-
-mat-icon {
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-}
-
-.mat-internal-form-field {
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }

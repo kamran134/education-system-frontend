@@ -3,7 +3,6 @@ import { Stats } from '../../../../core/models/stats.model';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { StudentRatingTableComponent } from '../student-rating-table/student-rating-table.component';
-import { Sort } from '@angular/material/sort';
 
 @Component({
     selector: 'app-developing-students-tab',
@@ -17,7 +16,7 @@ export class DevelopingStudentsTabComponent {
     @Input() isLoading: boolean = false;
     @Input() developingLabel$!: Observable<string>;
 
-    @Output() sortChanged = new EventEmitter<Sort>();
+    @Output() sortChanged = new EventEmitter<{ column: string; direction: 'asc' | 'desc' }>();
     @Output() excelExport = new EventEmitter<string>();
     @Output() rowClicked = new EventEmitter<string>();
 }

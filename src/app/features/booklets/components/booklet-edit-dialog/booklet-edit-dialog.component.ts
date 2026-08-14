@@ -1,11 +1,11 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Booklet, BookletDistrict } from '../../../../core/models/booklet.model';
 import { District } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 
 export interface BookletEditDialogData {
@@ -29,8 +29,8 @@ export class BookletEditDialogComponent implements OnInit {
     districts: District[] = [];
 
     constructor(
-        public dialogRef: MatDialogRef<BookletEditDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: BookletEditDialogData,
+        public dialogRef: DialogRef<BookletEditDialogResult | null>,
+        @Inject(DIALOG_DATA) public data: BookletEditDialogData,
         private districtService: DistrictService
     ) {
         this.name = data.booklet.name ?? '';

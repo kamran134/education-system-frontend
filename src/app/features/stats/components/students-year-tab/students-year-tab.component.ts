@@ -1,34 +1,20 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { LucideAngularModule, RefreshCw } from 'lucide-angular';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { DataTableComponent, TableColumn, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { Student } from '../../../../core/models/student.model';
-import { StudentService } from '../../../students/services/student.service';
-import { StatsService } from '../../services/stats.service';
+import { LucideAngularModule, ArrowLeft, Download } from 'lucide-angular';
+
+const PLACE_FORMATTER = (v: number) => (v > 0 ? String(v) : '—');
+const FILTER_PLACE_FORMATTER = (v: number) => (v > 0 ? String(v) : '—');
+const COUNT_FORMATTER = (v: number) => String(v || 0);
 
 @Component({
     selector: 'app-students-year-tab',
-    imports: [
-        CommonModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatButtonModule,
-        MatIconModule,
-        LucideAngularModule,
-        RoundNumberPipe
-    ],
-    templateUrl: './students-year-tab.component.html',
-    styleUrl: './students-year-tab.component.scss'
+    imports: [ButtonComponent, DataTableComponent, LucideAngularModule],
+    templateUrl: './students-year-tab.component.html'
 })
-export class StudentsYearTabComponent implements OnChanges {
-    readonly String = String;
+export class StudentsYearTabComponent {
     @Input() students: Student[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;
@@ -36,35 +22,47 @@ export class StudentsYearTabComponent implements OnChanges {
     @Input() pageIndex: number = 0;
     @Input() isLoading: boolean = false;
     @Input() canGoBack: boolean = false;
-  
-    @Output() sortChanged = new EventEmitter<Sort>();
-    @Output() pageChanged = new EventEmitter<PageEvent>();
+
+    @Output() sortChanged = new EventEmitter<{ column: string; direction: 'asc' | 'desc' }>();
+    @Output() pageChanged = new EventEmitter<PaginationEvent>();
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
     @Output() backClicked = new EventEmitter<void>();
 
-    dataSource = new MatTableDataSource<Student>([]);
-    
-    private studentService = inject(StudentService);
-    private statsService = inject(StatsService);
-    isUpdating = false;
-    RefreshCw = RefreshCw;
+    readonly String = String;
+    readonly ArrowLeft = ArrowLeft;
+    readonly Download = Download;
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['students']) {
-            this.dataSource.data = Array.isArray(this.students) ? this.students : [];
-        }
+    private readonly roundPipe = new RoundNumberPipe();
+
+    private readonly allColumns: TableColumn[] = [
+        { key: 'place', label: 'Respublika üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
+        { key: 'districtPlace', label: 'Rayon/şəhər üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
+        { key: 'code', label: 'Şagirdin kodu', sortable: true },
+        { key: 'lastName', label: 'Soyadı', sortable: true },
+        { key: 'firstName', label: 'Adı', sortable: true },
+        { key: 'middleName', label: 'Atasının adı', sortable: true },
+        { key: 'grade', label: 'Sinfi', sortable: true },
+        { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'teacher.fullname', formatter: (v) => v || 'Müəllim tapılmadı' },
+        { key: 'school', label: 'Məktəbi', sortable: true, field: 'school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
+        { key: 'district', label: 'Rayonu / şəhəri', sortable: true, field: 'district.name', formatter: (v) => v || 'Rayon / şəhər tapılmadı' },
+        // No rounding here — matches the original, unlike averageScore below.
+        { key: 'score', label: 'Reytinq xalı', sortable: true, formatter: COUNT_FORMATTER },
+        { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },
+        { key: 'participationCount', label: 'İştirak sayı', sortable: true, formatter: COUNT_FORMATTER }
+    ];
+
+    get columns(): TableColumn[] {
+        return this.allColumns.filter(c => this.displayedColumns.includes(c.key));
     }
 
-    updateStudentsStats(): void {
-        this.isUpdating = true;
-        this.statsService.updateStats().subscribe({
-            next: () => {
-                this.isUpdating = false;
-            },
-            error: () => {
-                this.isUpdating = false;
-            }
-        });
+    sortBy = '';
+    sortDirection: 'asc' | 'desc' = 'asc';
+
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortBy = event.column;
+        this.sortDirection = event.direction;
+        this.sortChanged.emit(event);
     }
 }

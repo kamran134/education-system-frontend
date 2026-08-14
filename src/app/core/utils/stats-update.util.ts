@@ -1,11 +1,10 @@
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
+import { ToastService } from '../../shared/components/ui/toast/toast.service';
 
 export interface StatsUpdateOptions {
     setUpdating: (isUpdating: boolean) => void;
     onSuccess: () => void;
-    snackBar: MatSnackBar;
-    config: MatSnackBarConfig;
+    toastService: ToastService;
     /** Optional callback fired after each state toggle (e.g. to refresh action buttons). */
     onToggle?: () => void;
 }
@@ -25,7 +24,7 @@ export function runStatsUpdate(
         next: () => {
             options.setUpdating(false);
             options.onToggle?.();
-            options.snackBar.open('Statistika uğurla yeniləndi', 'OK', options.config);
+            options.toastService.show('Statistika uğurla yeniləndi', 'success');
             options.onSuccess();
         },
         error: (err: unknown) => {
@@ -34,7 +33,7 @@ export function runStatsUpdate(
             const message =
                 (err as { error?: { message?: string } })?.error?.message ||
                 'Xəta baş verdi';
-            options.snackBar.open(message, 'Bağla', options.config);
+            options.toastService.show(message, 'error');
         }
     });
 }

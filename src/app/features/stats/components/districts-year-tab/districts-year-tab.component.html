@@ -1,102 +1,37 @@
 <div>
-  <!-- Back button and Update button -->
   <div class="mb-4 flex justify-between items-center">
     @if (canGoBack) {
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="backClicked.emit()">
-        <mat-icon>arrow_back</mat-icon>
-        Geri
-      </button>
+      <app-button variant="primary" (clicked)="backClicked.emit()">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="ArrowLeft" class="h-4 w-4"></lucide-icon>
+          <span>Geri</span>
+        </div>
+      </app-button>
     }
-    <div [class]="canGoBack ? '' : 'w-full flex justify-end'">
-      <!-- <app-button
-      variant="secondary"
-      (clicked)="updateDistrictsStats()"
-      [disabled]="isUpdating">
-      <div class="flex items-center space-x-2">
-        <lucide-icon [img]="RefreshCw" [class]="isUpdating ? 'animate-spin' : ''" class="w-4 h-4"></lucide-icon>
-        <span>{{isUpdating ? 'Yenilənir...' : 'Rayon / şəhərlərin reytinqini yenilə'}}</span>
-      </div>
-    </app-button> -->
   </div>
-</div>
 
-<table mat-table [dataSource]="isLoading ? [] : districts" class="mat-elevation-z8" matSort #districtSort (matSortChange)="sortChanged.emit($event)">
-  @if (displayedColumns.includes('place')) {
-    <ng-container matColumnDef="place">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Respublika üzrə yer </th>
-      <td mat-cell *matCellDef="let result">
-        {{ result.place ? result.place : '—' }}
-      </td>
-    </ng-container>
+  <app-data-table
+    [data]="isLoading ? [] : districts"
+    [columns]="columns"
+    ariaLabel="Rayonlar / şəhərlər cədvəli"
+    [totalCount]="totalCount"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [sortBy]="sortBy"
+    [sortDirection]="sortDirection"
+    (sortChanged)="onSortChange($event)"
+    (pageChanged)="pageChanged.emit($event)"
+    (rowClicked)="rowClicked.emit(String($event.id))"
+    ></app-data-table>
+
+  @if (!isLoading && districts.length > 0) {
+    <div class="mt-4">
+      <app-button variant="outline" (clicked)="exportClicked.emit()">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="Download" class="h-4 w-4"></lucide-icon>
+          <span>Excel-ə eksport et</span>
+        </div>
+      </app-button>
+    </div>
   }
-
-  @if (displayedColumns.includes('filterPlace')) {
-    <ng-container matColumnDef="filterPlace">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Filtr üzrə yer </th>
-      <td mat-cell *matCellDef="let result">
-        {{ result.filterPlace > 0 ? result.filterPlace : '—' }}
-      </td>
-    </ng-container>
-  }
-
-  @if (displayedColumns.includes('code')) {
-    <ng-container matColumnDef="code">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Rayon / şəhər kodu </th>
-      <td mat-cell *matCellDef="let result"> {{ result.code }} </td>
-    </ng-container>
-  }
-
-  @if (displayedColumns.includes('name')) {
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Adı </th>
-      <td mat-cell *matCellDef="let result"> {{ result.name }} </td>
-    </ng-container>
-  }
-
-  @if (displayedColumns.includes('studentCount')) {
-    <ng-container matColumnDef="studentCount">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Şagird sayı </th>
-      <td mat-cell *matCellDef="let result"> {{ result.studentCount || 0 }} </td>
-    </ng-container>
-  }
-
-  @if (displayedColumns.includes('score')) {
-    <ng-container matColumnDef="score">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Reytinq xalı </th>
-      <td mat-cell *matCellDef="let result"> {{ (result.score || 0) | roundNumber }} </td>
-    </ng-container>
-  }
-
-  @if (displayedColumns.includes('averageScore')) {
-    <ng-container matColumnDef="averageScore">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Orta reytinq xalı </th>
-      <td mat-cell *matCellDef="let result"> {{ (result.averageScore || 0) | roundNumber }} </td>
-    </ng-container>
-  }
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="cursor-pointer hover:bg-gray-50" (click)="rowClicked.emit(String(row.id))"></tr>
-</table>
-
-@if (!isLoading && districts.length > 0) {
-  <div>
-    <mat-paginator
-      [length]="totalCount"
-      [pageIndex]="pageIndex"
-      [showFirstLastButtons]="true"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="[100, 500, 1000, 10000]"
-      (page)="pageChanged.emit($event)"
-      />
-  </div>
-}
-
-@if (!isLoading && districts.length > 0) {
-  <div>
-    <button mat-raised-button (click)="exportClicked.emit()"><mat-icon>file_download</mat-icon> Excel-ə eksport et</button>
-  </div>
-}
 </div>

@@ -9,7 +9,7 @@ import { School } from '../../../../core/models/school.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 
 @Component({
     selector: 'app-school-profile',

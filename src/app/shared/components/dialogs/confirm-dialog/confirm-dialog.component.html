@@ -1,8 +1,8 @@
-<h2 mat-dialog-title>{{ title }}</h2>
-<mat-dialog-content>
-    {{ text }}
-</mat-dialog-content>
-<mat-dialog-actions>
-    <button mat-button (click)="onNoClick()">{{ cancelText }}</button>
-    <button mat-button color="warn" (click)="onYesClick()" cdkFocusInitial>{{ confirmText }}</button>
-</mat-dialog-actions>
+<app-modal
+  [title]="title"
+  size="sm"
+  [buttons]="modalButtons"
+  (closed)="onNoClick()"
+  >
+  <p class="text-sm text-gray-700 whitespace-pre-line">{{ text }}</p>
+</app-modal>

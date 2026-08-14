@@ -1,7 +1,7 @@
 
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { Student, StudentForCreation } from '../../../../core/models/student.model';
@@ -12,7 +12,7 @@ import { TeacherService } from '../../../teachers/services/teacher.service';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { Subject, takeUntil } from 'rxjs';
@@ -41,8 +41,8 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     constructor(
-        public dialogRef: MatDialogRef<StudentEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { student: Student | StudentForCreation, isEditing: boolean, canDelete?: boolean },
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: Student | StudentForCreation } | undefined>,
+        @Inject(DIALOG_DATA) public data: { student: Student | StudentForCreation, isEditing: boolean, canDelete?: boolean },
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService

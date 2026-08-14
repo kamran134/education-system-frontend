@@ -1,11 +1,11 @@
 import { Component, Inject, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { District } from '../../../../core/models/district.model';
 import { Region } from '../../../../core/models/region.model';
 import { RegionService } from '../../../regions/services/region.service';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 
@@ -24,8 +24,8 @@ export class DistrictEditingDialogComponent implements OnInit {
     regionOptions: SelectOption[] = [];
 
     constructor(
-        public dialogRef: MatDialogRef<DistrictEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { district: District, isEditing: boolean, canDelete?: boolean },
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: District } | undefined>,
+        @Inject(DIALOG_DATA) public data: { district: District, isEditing: boolean, canDelete?: boolean },
         private regionService: RegionService
     ) {}
 

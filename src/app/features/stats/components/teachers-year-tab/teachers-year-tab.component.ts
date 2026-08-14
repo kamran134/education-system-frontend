@@ -1,32 +1,20 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Teacher } from '../../../../core/models/teacher.model';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { LucideAngularModule, RefreshCw } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { DataTableComponent, TableColumn, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
-import { TeacherService } from '../../../teachers/services/teacher.service';
+import { LucideAngularModule, ArrowLeft, Download } from 'lucide-angular';
+
+const PLACE_FORMATTER = (v: number) => (v ? String(v) : '—');
+const FILTER_PLACE_FORMATTER = (v: number) => (v > 0 ? String(v) : '—');
+const COUNT_FORMATTER = (v: number) => String(v || 0);
 
 @Component({
     selector: 'app-teachers-year-tab',
-    imports: [
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatButtonModule,
-    MatIconModule,
-    LucideAngularModule,
-    RoundNumberPipe
-],
-    templateUrl: './teachers-year-tab.component.html',
-    styleUrl: './teachers-year-tab.component.scss'
+    imports: [ButtonComponent, DataTableComponent, LucideAngularModule],
+    templateUrl: './teachers-year-tab.component.html'
 })
 export class TeachersYearTabComponent {
-    readonly String = String;
     @Input() teachers: Teacher[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;
@@ -35,25 +23,42 @@ export class TeachersYearTabComponent {
     @Input() isLoading: boolean = false;
     @Input() canGoBack: boolean = false;
 
-    @Output() sortChanged = new EventEmitter<Sort>();
-    @Output() pageChanged = new EventEmitter<PageEvent>();
+    @Output() sortChanged = new EventEmitter<{ column: string; direction: 'asc' | 'desc' }>();
+    @Output() pageChanged = new EventEmitter<PaginationEvent>();
     @Output() exportClicked = new EventEmitter<void>();
     @Output() rowClicked = new EventEmitter<string>();
     @Output() backClicked = new EventEmitter<void>();
 
-    private teacherService = inject(TeacherService);
-    isUpdating = false;
-    RefreshCw = RefreshCw;
+    readonly String = String;
+    readonly ArrowLeft = ArrowLeft;
+    readonly Download = Download;
 
-    updateTeachersStats(): void {
-        this.isUpdating = true;
-        this.teacherService.updateTeachersStats().subscribe({
-            next: () => {
-                this.isUpdating = false;
-            },
-            error: () => {
-                this.isUpdating = false;
-            }
-        });
+    private readonly roundPipe = new RoundNumberPipe();
+
+    private readonly allColumns: TableColumn[] = [
+        { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
+        { key: 'place', label: 'Respublika üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
+        { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
+        { key: 'code', label: 'Müəllimin kodu', sortable: true },
+        // Persisted user column key is 'fullName', but the model field is 'fullname'.
+        { key: 'fullName', label: 'Soyadı, adı, ata adı', sortable: true, field: 'fullname' },
+        { key: 'score', label: 'Reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },
+        { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },
+        { key: 'school', label: 'Məktəbi', sortable: true, field: 'school.name' },
+        { key: 'district', label: 'Rayonu / şəhəri', sortable: true, field: 'district.name' },
+        { key: 'studentCount', label: 'Şagird sayı', sortable: true, formatter: COUNT_FORMATTER }
+    ];
+
+    get columns(): TableColumn[] {
+        return this.allColumns.filter(c => this.displayedColumns.includes(c.key));
+    }
+
+    sortBy = '';
+    sortDirection: 'asc' | 'desc' = 'asc';
+
+    onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
+        this.sortBy = event.column;
+        this.sortDirection = event.direction;
+        this.sortChanged.emit(event);
     }
 }

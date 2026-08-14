@@ -10,7 +10,7 @@ import { ExcelService } from '../../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2, User, Trash2, ChevronDown, ChevronUp } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { MatDialog } from '@angular/material/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import { ResultEditingDialogComponent } from '../result-editing/result-editing-dialog.component';
 import { ExamResult } from '../../../../core/models/examResult.model';
 import { ImageCropModalComponent } from '../../../../shared/components/modals/image-crop-modal/image-crop-modal.component';
@@ -92,7 +92,7 @@ export class StudentDetailsComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private excelService: ExcelService,
-        private dialog: MatDialog,
+        private dialog: Dialog,
         private authService: AuthService,
         private snackBarService: SnackBarService,
         private configService: ConfigService
@@ -180,7 +180,7 @@ export class StudentDetailsComponent implements OnInit {
      * Opens the edit dialog for a student result
      */
     onEditResult(result: ExamResult): void {
-        const dialogRef = this.dialog.open(ResultEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ResultEditingDialogComponent, {
             width: '900px',
             disableClose: false,
             data: {
@@ -189,7 +189,7 @@ export class StudentDetailsComponent implements OnInit {
             }
         });
 
-        dialogRef.afterClosed().subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
+        dialogRef.closed.subscribe((response: { action: string, data?: Partial<ExamResult> } | undefined) => {
             if (response?.action === 'save' && response.data) {
                 this.updateResult(result.id, response.data);
             } else if (response?.action === 'delete') {
@@ -309,7 +309,7 @@ export class StudentDetailsComponent implements OnInit {
     deleteAvatar(): void {
         if (!this.student || !this.canEditAvatar) return;
 
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '400px',
             data: {
                 title: 'Silinməyə razılıq',
@@ -317,7 +317,7 @@ export class StudentDetailsComponent implements OnInit {
             }
         });
 
-        confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+        confirmRef.closed.subscribe((confirmed: boolean) => {
             if (confirmed) {
                 this.studentService.deleteAvatar(this.student!.id).subscribe({
                     next: () => {

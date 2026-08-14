@@ -12,6 +12,10 @@ export interface TableColumn {
   type?: 'text' | 'number' | 'date' | 'boolean' | 'custom';
   width?: string;
   align?: 'left' | 'center' | 'right';
+  /** Data path to read the value from, if it differs from `key` (e.g. key used for sort/displayedColumns matching, field for the actual model property). Defaults to `key`. */
+  field?: string;
+  /** Transforms the raw value (after `field`/`key` lookup) into the display string. */
+  formatter?: (value: any, row: any) => any;
 }
 
 export interface TableAction {
@@ -88,7 +92,7 @@ export interface PageSizeOption {
                           <!-- Text -->
                           @case ('text') {
                             <span class="text-sm text-gray-900">
-                              {{ getValue(item, column.key) }}
+                              {{ getFormattedValue(item, column) }}
                             </span>
                           }
                           <!-- Number -->
@@ -119,7 +123,7 @@ export interface PageSizeOption {
                           <!-- Default -->
                           @default {
                             <span class="text-sm text-gray-900">
-                              {{ getValue(item, column.key) }}
+                              {{ getFormattedValue(item, column) }}
                             </span>
                           }
                         }
@@ -299,6 +303,11 @@ export class DataTableComponent {
 
   getValue(item: any, key: string): any {
     return key.split('.').reduce((obj, prop) => obj?.[prop], item);
+  }
+
+  getFormattedValue(item: any, column: TableColumn): any {
+    const raw = this.getValue(item, column.field ?? column.key);
+    return column.formatter ? column.formatter(raw, item) : raw;
   }
 
   shouldShowAction(action: TableAction, item: any): boolean {

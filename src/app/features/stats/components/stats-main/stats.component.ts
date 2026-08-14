@@ -1,8 +1,7 @@
-import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatsService } from '../../services/stats.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { Error } from '../../../../core/models/error.model';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
@@ -12,7 +11,6 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
 import { Exam, ExamResponse } from '../../../../core/models/exam.model';
 import { ExamService } from '../../../exams/services/exam.service';
-import { Sort } from '@angular/material/sort';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
@@ -25,9 +23,7 @@ import { RegionService } from '../../../regions/services/region.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Student } from '../../../../core/models/student.model';
 import { StudentService } from '../../../students/services/student.service';
-import { PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
+import { PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { StatsFiltersComponent } from "../stats-filters/stats-filters.component";
 import { StatsPagination } from '../../../../core/models/pagination.model';
 import * as XLSX from 'xlsx';
@@ -73,18 +69,12 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
     styleUrl: './stats.component.scss'
 })
 export class StatsComponent implements OnInit, OnDestroy {
-    @ViewChild('teacherSort') teacherSort!: MatSort;
-    @ViewChild('schoolSort') schoolSort!: MatSort;
-    @ViewChild('studentSort') studentSort!: MatSort;
-    @ViewChild('districtSort') districtSort!: MatSort;
-
     // Icons
     readonly Home = Home;
     readonly RefreshCw = RefreshCw;
     readonly Loader = Loader;
     readonly AlertCircle = AlertCircle;
 
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     isloading: boolean = false;
     isUpdating: boolean = false;
     isUpdatingAll: boolean = false;
@@ -172,10 +162,6 @@ export class StatsComponent implements OnInit, OnDestroy {
     exams: Exam[] = [];
     errorMessage: string = '';
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    studentsDataSource = new MatTableDataSource(this.stats.students);
-    teachersDataSource = new MatTableDataSource(this.stats.teachers);
-    schoolsDataSource = new MatTableDataSource(this.stats.schools);
-    districtsDataSource = new MatTableDataSource(this.districts);
     darkMode: boolean = false;
     searchString: string = '';
     sortDirection: 'asc' | 'desc' | '' = 'desc';
@@ -212,7 +198,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         private excelService: ExcelService,
         private router: Router,
         private route: ActivatedRoute,
-        private snackBar: MatSnackBar,
+        private toastService: ToastService,
         private monthNamePipe: MonthNamePipe,
         private dashboardService: DashboardService,
         public permissions: PermissionsService
@@ -528,7 +514,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
         const monthPart = this.selectedMonth.split('-')[1];
         if (monthPart === '0' && this.selectedExamIds.length === 0) {
-            this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
+            this.toastService.show('Ay və ya imtahan seçilməyib', 'error');
             return;
         }
 
@@ -557,7 +543,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             error: (error: any) => {
                 this.isloading = false;
                 if (error.status !== 404) {
-                    this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error?.message || 'Xəta baş verdi', 'error');
                 }
             }
         });
@@ -568,7 +554,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
         const monthPart = this.selectedMonth.split('-')[1];
         if (monthPart === '0' && this.selectedExamIds.length === 0) {
-            this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
+            this.toastService.show('Ay və ya imtahan seçilməyib', 'error');
             return;
         }
 
@@ -597,7 +583,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             error: (error: any) => {
                 this.isloading = false;
                 if (error.status !== 404) {
-                    this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error?.message || 'Xəta baş verdi', 'error');
                 }
             }
         });
@@ -608,7 +594,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
         const monthPart = this.selectedMonth.split('-')[1];
         if (monthPart === '0' && this.selectedExamIds.length === 0) {
-            this.snackBar.open('Ay və ya imtahan seçilməyib', 'Bağla', this.matSnackConfig);
+            this.toastService.show('Ay və ya imtahan seçilməyib', 'error');
             return;
         }
 
@@ -637,7 +623,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             error: (error: any) => {
                 this.isloading = false;
                 if (error.status !== 404) {
-                    this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error?.message || 'Xəta baş verdi', 'error');
                 }
             }
         });
@@ -683,7 +669,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             },
             error: (error: Error) => {
                 this.isloading = false;
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
             }
         });
     }
@@ -697,7 +683,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
         if (!this.selectedExams) {
             this.isloading = false;
-            this.snackBar.open('İmtahan seçilməyib', 'Bağla', this.matSnackConfig);
+            this.toastService.show('İmtahan seçilməyib', 'error');
             return;
         }
         this.statsService.getStatsByExam(this.selectedExams).subscribe({
@@ -707,7 +693,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             },
             error: (error: Error) => {
                 this.isloading = false;
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
             }
         });
     }
@@ -735,11 +721,10 @@ export class StatsComponent implements OnInit, OnDestroy {
                     ...this.stats, teachers: statsData.data || []
                 };
                 this.totalCounts.allTeachersTotalCount = statsData.totalCount || 0;
-                this.teachersDataSource.data = this.stats.teachers || [];
             },
             error: (error: Error) => {
                 this.isloading = false;
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
             }
         });
     }
@@ -765,11 +750,10 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const statsData = ResponseHandlerUtil.extractPaginatedData<School>(response);
                 this.stats = { ...this.stats, schools: statsData.data || [] };
                 this.totalCounts.allSchoolsTotalCount = statsData.totalCount || 0;
-                this.schoolsDataSource.data = this.stats.schools || [];
             },
             error: (error: Error) => {
                 this.isloading = false;
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
             }
         });
     }
@@ -791,10 +775,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const statsData = ResponseHandlerUtil.extractPaginatedData<District>(response);
                 this.stats = { ...this.stats, districts: statsData.data || [] };
                 this.totalCounts.allDistrictsTotalCount = statsData.totalCount || 0;
-                this.districtsDataSource.data = this.stats.districts || [];
             },
             error: (error: Error) => {
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
             }
         });
     }
@@ -818,7 +801,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             },
             error: (error: Error) => {
                 this.isloading = false;
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
             }
         });
     }
@@ -859,7 +842,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                     this.teachers = [];
-                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error.message, 'error');
                 }
             });
 
@@ -882,7 +865,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                     this.schools = [];
-                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error.message, 'error');
                 }
             });
 
@@ -903,7 +886,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                     this.districts = [];
-                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error.message, 'error');
                 }
             });
     }
@@ -916,7 +899,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error: Error) => {
                     this.regions = [];
-                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error.message, 'error');
                 }
             });
     }
@@ -930,7 +913,7 @@ export class StatsComponent implements OnInit, OnDestroy {
                 },
                 error: (error: any) => {
                     this.exams = [];
-                    this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                    this.toastService.show(error.error.message, 'error');
                 }
             });
     }
@@ -943,32 +926,28 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.statsService.updateStats().subscribe({
             next: (response) => {
                 this.isUpdating = false;
-                this.snackBar.open('Statistika yeniləndi', 'OK', this.matSnackConfig);
+                this.toastService.show('Statistika yeniləndi', 'success');
             },
             error: (error: Error) => {
                 this.isUpdating = false;
-                this.snackBar.open(`${error.error.message}`, 'Bağla', this.matSnackConfig);
+                this.toastService.show(`${error.error.message}`, 'error');
             }
         });
     }
 
     updateAllStats(): void {
         this.isUpdatingAll = true;
-        this.snackBar.open('Bütün tədris ili üçün statistika yenilənir. Bu bir neçə dəqiqə çəkə bilər...', 'OK', {
-            duration: 10000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top'
-        });
+        this.toastService.show('Bütün tədris ili üçün statistika yenilənir. Bu bir neçə dəqiqə çəkə bilər...', 'info', 10000);
 
         this.statsService.updateAllStats().subscribe({
             next: (response) => {
                 this.isUpdatingAll = false;
-                this.snackBar.open('Bütün tədris ili üçün statistika uğurla yeniləndi!', 'OK', this.matSnackConfig);
+                this.toastService.show('Bütün tədris ili üçün statistika uğurla yeniləndi!', 'success');
                 this.loadMonthStudentsStats();
             },
             error: (error: Error) => {
                 this.isUpdatingAll = false;
-                this.snackBar.open(`Xəta: ${error.error.message}`, 'Bağla', this.matSnackConfig);
+                this.toastService.show(`Xəta: ${error.error.message}`, 'error');
             }
         });
     }
@@ -1193,7 +1172,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.router.navigate(['/students', studentId], { queryParams });
     }
 
-    onPageChange(event: PageEvent): void {
+    onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.isloading = true;
 
@@ -1211,61 +1190,29 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    onSortChange(sortState: Sort): void {
+    onSortChange(sortState: { column: string; direction: 'asc' | 'desc' }): void {
         this.pageIndex = 0; // Сбрасываем страницу
 
         this.sortDirection = sortState.direction;
-        this.sortActive = sortState.active;
-        if (sortState.direction) {
-            if (this.isStudentMonthTab()) {
-                this.loadMonthStudentsStats();
-                // if (this.stats.developingStudents && this.stats.developingStudents.length > 0) {
-                //     const key = this.sortActive as keyof Student;
-                //     console.log('Sorting developingStudents by key:', key, 'Direction:', this.sortDirection);
-                //     this.stats.developingStudents = this.stats.developingStudents.sort((a, b) => {
-                //         if (a.studentData && b.studentData) {
-                //             if (this.sortDirection === 'asc') {
-                //                 return a.studentData[key]! > b.studentData[key]! ? 1 : -1;
-                //             } else if (this.sortDirection === 'desc') {
-                //                 return a.studentData[key]! < b.studentData[key]! ? 1 : -1;
-                //             }
-                //         }
-                //     return 0;
-                //     });
-                // }
-            }
-            else if (this.selectedTab === 'allStudents') {
-                this.loadAllStudentsStats();
-            }
-            else if (this.selectedTab === 'allTeachers') {
+        this.sortActive = sortState.column;
 
-                this.loadTeachersStats();
-            }
-            else if (this.selectedTab === 'allSchools') {
-                this.loadSchoolsStats();
-            }
-            else if (this.selectedTab === 'allDistricts') {
-                this.loadDistrictsStats();
-            }
-            else if (this.selectedTab === 'allRegions') {
-                this.loadRegionsStats();
-            }
-        } else {
-            if (this.selectedTab === 'allStudents') {
-                this.loadAllStudentsStats();
-            }
-            else if (this.selectedTab === 'allTeachers') {
-                this.loadTeachersStats();
-            }
-            else if (this.selectedTab === 'allSchools') {
-                this.loadSchoolsStats();
-            }
-            else if (this.selectedTab === 'allDistricts') {
-                this.loadDistrictsStats();
-            }
-            else if (this.selectedTab === 'allRegions') {
-                this.loadRegionsStats();
-            }
+        if (this.isStudentMonthTab()) {
+            this.loadMonthStudentsStats();
+        }
+        else if (this.selectedTab === 'allStudents') {
+            this.loadAllStudentsStats();
+        }
+        else if (this.selectedTab === 'allTeachers') {
+            this.loadTeachersStats();
+        }
+        else if (this.selectedTab === 'allSchools') {
+            this.loadSchoolsStats();
+        }
+        else if (this.selectedTab === 'allDistricts') {
+            this.loadDistrictsStats();
+        }
+        else if (this.selectedTab === 'allRegions') {
+            this.loadRegionsStats();
         }
     }
 

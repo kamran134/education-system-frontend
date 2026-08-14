@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { UserEdit } from '../../../../core/models/user.model';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { DistrictService } from '../../../districts/services/district.service';
@@ -40,7 +39,6 @@ import { DashboardService } from '../../services/dashboard.service';
 export class UserEditDialogComponent implements OnInit, OnDestroy {
     repeatedPassword: string = '';
     emailPattern: string = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     // Password visibility
     showPassword = false;
@@ -84,10 +82,10 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
 
     constructor(
-        public dialogRef: MatDialogRef<UserEditDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public dataSource: UserEdit,
+        public dialogRef: DialogRef<UserEdit | undefined>,
+        @Inject(DIALOG_DATA) public dataSource: UserEdit,
         private authService: AuthService,
-        private matSnackBar: MatSnackBar,
+        private toastService: ToastService,
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService,
@@ -549,9 +547,9 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
     onChangePassword(): void {
         if (!this.isPasswordChangeFormValid) {
             if (this.newPasswordForEdit.length < 6) {
-                this.matSnackBar.open('Şifrə ən az 6 simvol olmalıdır!', '', this.matSnackConfig);
+                this.toastService.show('Şifrə ən az 6 simvol olmalıdır!', 'error');
             } else {
-                this.matSnackBar.open('Şifrələr uyğun gəlmir!', '', this.matSnackConfig);
+                this.toastService.show('Şifrələr uyğun gəlmir!', 'error');
             }
             return;
         }
@@ -561,14 +559,14 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: () => {
-                    this.matSnackBar.open('Şifrə uğurla dəyişdirildi', '', this.matSnackConfig);
+                    this.toastService.show('Şifrə uğurla dəyişdirildi', 'success');
                     this.isChangingPassword = false;
                     this.newPasswordForEdit = '';
                     this.confirmedNewPasswordForEdit = '';
                     this.isPasswordChanging = false;
                 },
                 error: (error) => {
-                    this.matSnackBar.open(error.message || 'Şifrə dəyişdirilmədi', '', this.matSnackConfig);
+                    this.toastService.show(error.message || 'Şifrə dəyişdirilmədi', 'error');
                     this.isPasswordChanging = false;
                 }
             });
@@ -596,55 +594,55 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         if (this.isNewUser()) {
             // Create new user logic
             if (!this.dataSource.email || !this.dataSource.password) {
-                this.matSnackBar.open('Email və şifrə mütləqdir!', '', this.matSnackConfig);
+                this.toastService.show('Email və şifrə mütləqdir!', 'error');
                 return;
             }
             if (this.dataSource.password.length < 6) {
-                this.matSnackBar.open('Şifrə ən az 6 simvol olmalıdır!', '', this.matSnackConfig);
+                this.toastService.show('Şifrə ən az 6 simvol olmalıdır!', 'error');
                 return;
             }
             if (this.dataSource.password !== this.repeatedPassword) {
-                this.matSnackBar.open('Şifrələr uyğun gəlmir!', '', this.matSnackConfig);
+                this.toastService.show('Şifrələr uyğun gəlmir!', 'error');
                 return;
             }
             if (!this.dataSource.role) {
-                this.matSnackBar.open('Rol seçilməlidir!', '', this.matSnackConfig);
+                this.toastService.show('Rol seçilməlidir!', 'error');
                 return;
             }
         }
 
         if (this.dataSource.email && !new RegExp(this.emailPattern).test(this.dataSource.email)) {
-            this.matSnackBar.open('Email formatı düzgün deyil!', '', this.matSnackConfig);
+            this.toastService.show('Email formatı düzgün deyil!', 'error');
             return;
         }
         if (!this.dataSource.email) {
-            this.matSnackBar.open('Email mütləqdir!', '', this.matSnackConfig);
+            this.toastService.show('Email mütləqdir!', 'error');
             return;
         }
 
         // Validate role-specific fields
         if (this.needsRegionSelection && !this.dataSource.regionId) {
-            this.matSnackBar.open('Regional idarə nümayəndəsi üçün regional idarə seçilməlidir!', '', this.matSnackConfig);
+            this.toastService.show('Regional idarə nümayəndəsi üçün regional idarə seçilməlidir!', 'error');
             return;
         }
 
         if (this.needsDistrictSelection && !this.dataSource.districtId) {
-            this.matSnackBar.open('Rayon nümayəndəsi üçün rayon seçilməlidir!', '', this.matSnackConfig);
+            this.toastService.show('Rayon nümayəndəsi üçün rayon seçilməlidir!', 'error');
             return;
         }
 
         if (this.needsSchoolSelection && !this.dataSource.schoolId) {
-            this.matSnackBar.open('Məktəb direktoru üçün məktəb seçilməlidir!', '', this.matSnackConfig);
+            this.toastService.show('Məktəb direktoru üçün məktəb seçilməlidir!', 'error');
             return;
         }
 
         if (this.needsTeacherSelection && !this.dataSource.teacherId) {
-            this.matSnackBar.open('Müəllim üçün müəllim profili seçilməlidir!', '', this.matSnackConfig);
+            this.toastService.show('Müəllim üçün müəllim profili seçilməlidir!', 'error');
             return;
         }
 
         if (this.needsStudentSelection && !this.dataSource.studentId) {
-            this.matSnackBar.open('Şagird üçün şagird profili seçilməlidir!', '', this.matSnackConfig);
+            this.toastService.show('Şagird üçün şagird profili seçilməlidir!', 'error');
             return;
         }
 

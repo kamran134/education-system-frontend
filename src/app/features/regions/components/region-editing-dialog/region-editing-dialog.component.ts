@@ -1,9 +1,9 @@
 import { Component, Inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Region } from '../../../../core/models/region.model';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 
 @Component({
@@ -18,8 +18,8 @@ import { ModalComponent, ModalButton } from '../../../../shared/components/ui/mo
 })
 export class RegionEditingDialogComponent {
     constructor(
-        public dialogRef: MatDialogRef<RegionEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { region: Partial<Region>, isEditing: boolean, canDelete?: boolean }
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: Partial<Region> } | undefined>,
+        @Inject(DIALOG_DATA) public data: { region: Partial<Region>, isEditing: boolean, canDelete?: boolean }
     ) {}
 
     get modalTitle(): string {

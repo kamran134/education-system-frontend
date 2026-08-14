@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
-import { MatDialog } from '@angular/material/dialog';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
+import { Dialog } from '@angular/cdk/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -128,13 +127,11 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     readonly ChevronUp = ChevronUp;
     readonly BookOpen = BookOpen;
 
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
-
     constructor(
         private examService: ExamService,
         private authService: AuthService,
-        private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private dialog: Dialog,
+        private toastService: ToastService
     ) {}
 
     ngOnInit(): void {
@@ -307,12 +304,12 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     }
 
     openAddExamDialog(): void {
-        const dialogRef = this.dialog.open(ExamAddDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ExamAddDialogComponent, {
             width: '600px',
             data: { name: '', code: '', date: '' }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result) {
                 // Форматируем дату как строку YYYY-MM-DD чтобы избежать смещения timezone
                 if (result.date instanceof Date) {
@@ -323,11 +320,11 @@ export class ExamsListComponent implements OnInit, OnDestroy {
                 }
                 this.examService.addExam(result).subscribe({
                     next: () => {
-                        this.snackBar.open('İmtahan uğurla əlavə edildi', 'OK', this.matSnackConfig);
+                        this.toastService.show('İmtahan uğurla əlavə edildi', 'success');
                         this.loadExams();
                     },
                     error: (err: any) => {
-                        this.snackBar.open('İmtahan əlavə edilməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('İmtahan əlavə edilməsində xəta baş verdi', 'error');
                     }
                 });
             }
@@ -335,25 +332,25 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     }
 
     openExamDetails(exam: Exam): void {
-        const dialogRef = this.dialog.open(ExamResultDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ExamResultDialogComponent, {
             width: '1200px',
             data: { exam: exam }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             // Handle any results from the dialog if needed
         });
     }
 
     openBookletUploadDialog(exam: Exam): void {
-        this.dialog.open(BookletUploadDialogComponent, {
+        this.dialog.open<any>(BookletUploadDialogComponent, {
             width: '700px',
             data: { exam },
         });
     }
 
     onEditExam(exam: Exam): void {
-        const dialogRef = this.dialog.open(ExamEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ExamEditingDialogComponent, {
             width: '600px',
             disableClose: false,
             data: {
@@ -363,15 +360,15 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result?.action === 'save') {
                 this.examService.updateExam(exam.id, result.data).subscribe({
                     next: () => {
-                        this.snackBar.open('İmtahan uğurla redaktə edildi', 'OK', this.matSnackConfig);
+                        this.toastService.show('İmtahan uğurla redaktə edildi', 'success');
                         this.loadExams();
                     },
                     error: (err: any) => {
-                        this.snackBar.open('İmtahan redaktə edilməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('İmtahan redaktə edilməsində xəta baş verdi', 'error');
                     }
                 });
             } else if (result?.action === 'delete') {
@@ -381,7 +378,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     }
 
     onExamDelete(exam: Exam): void {
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '400px',
             data: {
                 title: 'İmtahanı sil',
@@ -389,15 +386,15 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result) {
                 this.examService.deleteExam(exam.id).subscribe({
                     next: () => {
-                        this.snackBar.open('İmtahan uğurla silindi', 'OK', this.matSnackConfig);
+                        this.toastService.show('İmtahan uğurla silindi', 'success');
                         this.loadExams();
                     },
                     error: (err: any) => {
-                        this.snackBar.open('İmtahan silinməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('İmtahan silinməsində xəta baş verdi', 'error');
                     }
                 });
             }
@@ -405,7 +402,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     }
 
     onAllExamsDelete(): void {
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '400px',
             data: {
                 title: 'Bütün imtahanları sil',
@@ -413,15 +410,15 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result) {
                 this.examService.deleteAllExams().subscribe({
                     next: () => {
-                        this.snackBar.open('Bütün imtahanlar uğurla silindi', 'OK', this.matSnackConfig);
+                        this.toastService.show('Bütün imtahanlar uğurla silindi', 'success');
                         this.loadExams();
                     },
                     error: (err: any) => {
-                        this.snackBar.open('İmtahanlar silinməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('İmtahanlar silinməsində xəta baş verdi', 'error');
                     }
                 });
             }

@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { LucideAngularModule, Upload, Save } from 'lucide-angular';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -26,17 +26,11 @@ export class BookletUploadDialogComponent {
     readonly Upload = Upload;
     readonly Save = Save;
 
-    private readonly snackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-    };
-
     constructor(
-        public dialogRef: MatDialogRef<BookletUploadDialogComponent>,
+        public dialogRef: DialogRef<{ success: boolean, result: any } | undefined>,
         private bookletService: BookletService,
-        private snackBar: MatSnackBar,
-        @Inject(MAT_DIALOG_DATA) public data: BookletUploadDialogData
+        private toastService: ToastService,
+        @Inject(DIALOG_DATA) public data: BookletUploadDialogData
     ) {}
 
     get modalButtons(): ModalButton[] {
@@ -73,16 +67,16 @@ export class BookletUploadDialogComponent {
                 if (result.errors && result.errors.length > 0) {
                     const errorList = result.errors.slice(0, 5).join('\n');
                     const more = result.errors.length > 5 ? `\n+${result.errors.length - 5} xəta daha...` : '';
-                    this.snackBar.open(`Xəbərdarlıq:\n${errorList}${more}`, 'Bağla', this.snackConfig);
+                    this.toastService.show(`Xəbərdarlıq:\n${errorList}${more}`, 'warning');
                 } else {
-                    this.snackBar.open('Kitabça cavabları uğurla yükləndi!', 'OK', this.snackConfig);
+                    this.toastService.show('Kitabça cavabları uğurla yükləndi!', 'success');
                 }
                 this.dialogRef.close({ success: true, result });
             },
             error: (error: any) => {
                 this.isUploading = false;
                 const msg = error?.error?.message ?? 'Fayl yüklənərkən xəta baş verdi!';
-                this.snackBar.open(msg, 'Bağla', this.snackConfig);
+                this.toastService.show(msg, 'error');
             },
         });
     }

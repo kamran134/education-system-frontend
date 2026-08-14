@@ -1,8 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef, Dialog } from '@angular/cdk/dialog';
 import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-format.pipe';
 import { ExamService } from '../../services/exam.service';
-import { MatSnackBar, MatSnackBarConfig, MatSnackBarHorizontalPosition, MatSnackBarVerticalPosition } from '@angular/material/snack-bar';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 
 import { Error } from '../../../../core/models/error.model';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
@@ -18,24 +18,17 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
 })
 export class ExamResultDialogComponent implements OnInit {
     file: File | null = null;
-    horizontalPosition: MatSnackBarHorizontalPosition = 'center';
-    verticalPosition: MatSnackBarVerticalPosition = 'top';
-    matSnackConfig: MatSnackBarConfig = {
-        duration: 5000,
-        horizontalPosition: this.horizontalPosition,
-        verticalPosition: this.verticalPosition
-    }
 
     readonly Upload = Upload;
     readonly Save = Save;
     readonly Trash2 = Trash2;
 
     constructor(
-        public dialogRef: MatDialogRef<ExamResultDialogComponent>,
+        public dialogRef: DialogRef<{ hasErrors: boolean } | undefined>,
         private examService: ExamService,
-        private snackBar: MatSnackBar,
-        private dialog: MatDialog,
-        @Inject(MAT_DIALOG_DATA) public data: any) {}
+        private toastService: ToastService,
+        private dialog: Dialog,
+        @Inject(DIALOG_DATA) public data: any) {}
 
     get modalButtons(): ModalButton[] {
         return [
@@ -83,7 +76,7 @@ export class ExamResultDialogComponent implements OnInit {
                             errors: validationErrors
                         };
 
-                        const errorsDialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
+                        const errorsDialogRef = this.dialog.open<any>(FileUploadErrorsDialogComponent, {
                             width: '700px',
                             maxWidth: '90vw',
                             data: dialogData,
@@ -91,21 +84,21 @@ export class ExamResultDialogComponent implements OnInit {
                         });
 
                         // Close main dialog only after errors dialog is closed
-                        errorsDialogRef.afterClosed().subscribe(() => {
+                        errorsDialogRef.closed.subscribe(() => {
                             this.dialogRef.close({ hasErrors: true });
                         });
                     } else if (!response.processedData || response.processedData.length === 0) {
                         // No errors but nothing was saved either
-                        this.snackBar.open('Yüklənəcək etibarlı məlumat tapılmadı. Faylı yoxlayın.', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Yüklənəcək etibarlı məlumat tapılmadı. Faylı yoxlayın.', 'warning');
                         this.dialogRef.close({ hasErrors: true });
                     } else {
                         // No errors, show success message with count and close immediately
-                        this.snackBar.open(`${response.processedData.length} şagirdin nəticəsi uğurla yükləndi`, 'OK', this.matSnackConfig);
+                        this.toastService.show(`${response.processedData.length} şagirdin nəticəsi uğurla yükləndi`, 'success');
                         this.dialogRef.close({ hasErrors: false });
                     }
                 },
                 error: (error: Error) => {
-                    this.snackBar.open(`Fayl yüklənərkən xəta baş verdi!\n${error.error.message}`, 'Bağla', this.matSnackConfig);
+                    this.toastService.show(`Fayl yüklənərkən xəta baş verdi!\n${error.error.message}`, 'error');
                 }
             });
         }
@@ -115,10 +108,10 @@ export class ExamResultDialogComponent implements OnInit {
         event.preventDefault();
         this.examService.deleteResults(this.data.exam.id).subscribe({
             next: (response) => {
-                this.snackBar.open(response.message || 'Nəticələr uğurla silindi', 'OK', this.matSnackConfig)
+                this.toastService.show(response.message || 'Nəticələr uğurla silindi', 'success')
             },
             error: (error: Error) => {
-                this.snackBar.open(`Nəticələr silinərkən xəta baş verdi!\n${error.error.message}`, 'Bağla', this.matSnackConfig);
+                this.toastService.show(`Nəticələr silinərkən xəta baş verdi!\n${error.error.message}`, 'error');
             }
         });
     }

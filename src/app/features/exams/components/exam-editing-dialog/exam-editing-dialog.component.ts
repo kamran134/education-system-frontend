@@ -1,9 +1,9 @@
 
 import { Component, Inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Exam } from '../../../../core/models/exam.model';
-import { InputComponent } from '../../../../shared/components/ui/input/input.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 
 @Component({
@@ -20,8 +20,8 @@ export class ExamEditingDialogComponent {
     editedExam: any;
 
     constructor(
-        public dialogRef: MatDialogRef<ExamEditingDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: { exam: Exam, isEditing: boolean, canDelete?: boolean }
+        public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: any } | undefined>,
+        @Inject(DIALOG_DATA) public data: { exam: Exam, isEditing: boolean, canDelete?: boolean }
     ) {
         // Преобразуем date в строку для отображения
         this.editedExam = { ...this.data.exam };

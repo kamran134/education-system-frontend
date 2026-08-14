@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
-import { MatDialog } from '@angular/material/dialog';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
+import { Dialog } from '@angular/cdk/dialog';
 import { Subject, takeUntil } from 'rxjs';
 
 // Core models and services
@@ -132,16 +131,14 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
 
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
-
     constructor(
         private authService: AuthService,
         private studentService: StudentService,
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private teacherService: TeacherService,
-        private dialog: MatDialog,
-        private snackBar: MatSnackBar,
+        private dialog: Dialog,
+        private toastService: ToastService,
         private router: Router,
         private route: ActivatedRoute
     ) {}
@@ -412,11 +409,11 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             if (file) {
                 this.studentService.uploadFile(file).subscribe({
                     next: (response: any) => {
-                        this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'OK', this.matSnackConfig);
+                        this.toastService.show(response.message || 'Fayl uğurla yükləndi', 'success');
                         this.loadStudents();
                     },
                     error: (err: any) => {
-                        this.snackBar.open(`Fayl yüklənməsində xəta!\n${err.message}`, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(`Fayl yüklənməsində xəta!\n${err.message}`, 'error');
                     }
                 });
             }
@@ -522,7 +519,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
 
     onStudentCreate(): void {
-        const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(StudentEditingDialogComponent, {
             width: '1000px',
             data: {
                 student: null,
@@ -531,7 +528,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result?.action === 'save') {
                 this.isLoading = true;
                 this.studentService.createStudent(result.data).subscribe({
@@ -540,11 +537,11 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                         // Добавляем нового ученика в начало массива
                         this.students = [newStudent, ...this.students];
                         this.isLoading = false;
-                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Şagird uğurla əlavə edildi', 'OK', this.matSnackConfig);
+                        this.toastService.show(ResponseHandlerUtil.extractMessage(response) || 'Şagird uğurla əlavə edildi', 'success');
                     },
                     error: (err: any) => {
                         this.isLoading = false;
-                        this.snackBar.open('Şagird əlavə edilməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Şagird əlavə edilməsində xəta baş verdi', 'error');
                     }
                 });
             }
@@ -552,7 +549,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     }
 
     onStudentUpdate(student: Student): void {
-        const dialogRef = this.dialog.open(StudentEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(StudentEditingDialogComponent, {
             width: '1000px',
             data: {
                 student,
@@ -561,7 +558,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result?.action === 'delete') {
                 // Обработка удаления
                 this.handleStudentDelete(student.id);
@@ -581,11 +578,11 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                             ];
                         }
                         this.isLoading = false;
-                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Şagird uğurla yeniləndi', 'OK', this.matSnackConfig);
+                        this.toastService.show(ResponseHandlerUtil.extractMessage(response) || 'Şagird uğurla yeniləndi', 'success');
                     },
                     error: (err: any) => {
                         this.isLoading = false;
-                        this.snackBar.open('Şagird yenilənməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Şagird yenilənməsində xəta baş verdi', 'error');
                     }
                 });
             }
@@ -593,7 +590,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     }
 
     private handleStudentDelete(studentId: string | number): void {
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '400px',
             data: {
                 title: 'Şagirdi sil',
@@ -601,7 +598,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe(result => {
+        dialogRef.closed.subscribe(result => {
             if (result) {
                 this.isLoading = true;
                 this.studentService.deleteStudent(studentId).subscribe({
@@ -610,11 +607,11 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                         this.students = this.students.filter(s => !IdUtil.equals(s.id, studentId));
                         this.totalCount--;
                         this.isLoading = false;
-                        this.snackBar.open('Şagird uğurla silindi', 'OK', this.matSnackConfig);
+                        this.toastService.show('Şagird uğurla silindi', 'success');
                     },
                     error: (err: any) => {
                         this.isLoading = false;
-                        this.snackBar.open('Şagird silinməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Şagird silinməsində xəta baş verdi', 'error');
                     }
                 });
             }
@@ -635,7 +632,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     }
 
     onAllStudentsDelete(): void {
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '400px',
             data: {
                 title: 'Silinməyə razılıq',
@@ -643,17 +640,17 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        confirmRef.afterClosed().subscribe((result: boolean) => {
+        confirmRef.closed.subscribe((result: boolean) => {
             if (result) {
                 const studentIds = this.students.map(s => s.id).join(",");
                 this.studentService.deleteStudents(studentIds).subscribe({
                     next: (response) => {
                         this.loadStudents();
-                        this.snackBar.open('Şagirdlər uğurla silindi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Şagirdlər uğurla silindi', 'success');
                     },
                     error: (error) => {
                         console.error(error);
-                        this.snackBar.open(error?.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error?.error?.message || 'Xəta baş verdi', 'error');
                     }
                 });
             }
@@ -716,12 +713,12 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         this.isLoading = true;
         this.studentService.repairStudents().subscribe({
             next: (response: any) => {
-                this.snackBar.open(response.message || 'Qüsurlar uğurla düzəldildi', 'OK', this.matSnackConfig);
+                this.toastService.show(response.message || 'Qüsurlar uğurla düzəldildi', 'success');
                 this.isLoading = false;
                 this.loadStudents();
             },
             error: (error: any) => {
-                this.snackBar.open(error.error?.message || 'Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error?.message || 'Xəta baş verdi', 'error');
                 this.isLoading = false;
             }
         });

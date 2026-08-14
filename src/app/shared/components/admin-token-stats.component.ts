@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from './ui/toast/toast.service';
 
 import { AuthService } from '../../core/services/auth.service';
 import { TokenStatistics } from '../../core/models/auth.models';
@@ -128,7 +128,7 @@ export class AdminTokenStatsComponent implements OnInit {
 
     constructor(
         private authService: AuthService,
-        private snackBar: MatSnackBar
+        private toastService: ToastService
     ) {}
 
     ngOnInit(): void {
@@ -171,16 +171,16 @@ export class AdminTokenStatsComponent implements OnInit {
             next: (response) => {
                 this.loading = false;
                 if (response.success) {
-                    this.snackBar.open('Köhnə tokenlər uğurla təmizləndi', 'Bağla', { duration: 3000 });
+                    this.toastService.show('Köhnə tokenlər uğurla təmizləndi', 'success', 3000);
                     // Обновляем статистику после очистки
                     this.loadStats();
                 } else {
-                    this.snackBar.open(response.message || 'Təmizləmə xətası', 'Bağla', { duration: 5000 });
+                    this.toastService.show(response.message || 'Təmizləmə xətası', 'error');
                 }
             },
             error: (error) => {
                 this.loading = false;
-                this.snackBar.open('Serverlə əlaqə xətası', 'Bağla', { duration: 5000 });
+                this.toastService.show('Serverlə əlaqə xətası', 'error');
                 console.error('Token cleanup error:', error);
             }
         });

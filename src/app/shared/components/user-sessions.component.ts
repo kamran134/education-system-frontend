@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from './ui/toast/toast.service';
 
 import { AuthService } from '../../core/services/auth.service';
 import { ActiveSessionsInfo } from '../../core/models/auth.models';
@@ -111,7 +111,7 @@ export class UserSessionsComponent implements OnInit {
 
     constructor(
         private authService: AuthService,
-        private snackBar: MatSnackBar
+        private toastService: ToastService
     ) {}
 
     ngOnInit(): void {
@@ -154,15 +154,15 @@ export class UserSessionsComponent implements OnInit {
             next: (response) => {
                 this.loading = false;
                 if (response.success) {
-                    this.snackBar.open('Bütün cihazlardan uğurla çıxıldı', 'Bağla', { duration: 3000 });
+                    this.toastService.show('Bütün cihazlardan uğurla çıxıldı', 'success', 3000);
                     // AuthService уже перенаправит на страницу логина
                 } else {
-                    this.snackBar.open(response.message || 'Xəta baş verdi', 'Bağla', { duration: 5000 });
+                    this.toastService.show(response.message || 'Xəta baş verdi', 'error');
                 }
             },
             error: (error) => {
                 this.loading = false;
-                this.snackBar.open('Serverlə əlaqə xətası', 'Bağla', { duration: 5000 });
+                this.toastService.show('Serverlə əlaqə xətası', 'error');
                 console.error('Logout all devices error:', error);
             }
         });

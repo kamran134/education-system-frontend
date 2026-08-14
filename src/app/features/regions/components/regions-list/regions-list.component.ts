@@ -4,11 +4,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Region, RegionResponse } from '../../../../core/models/region.model';
 import { RegionService } from '../../services/region.service';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import { RegionEditingDialogComponent } from '../region-editing-dialog/region-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
@@ -62,15 +61,14 @@ export class RegionsListComponent implements OnInit {
     actionButtons: ActionButton[] = [];
 
     readonly Plus = Plus;
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
 
     private destroyRef = inject(DestroyRef);
 
     constructor(
-        private dialog: MatDialog,
+        private dialog: Dialog,
         private authService: AuthService,
         private regionService: RegionService,
-        private snackBar: MatSnackBar,
+        private toastService: ToastService,
         private router: Router,
         private route: ActivatedRoute
     ) {}
@@ -108,7 +106,7 @@ export class RegionsListComponent implements OnInit {
     }
 
     openAddRegionDialog(): void {
-        const dialogRef = this.dialog.open(RegionEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(RegionEditingDialogComponent, {
           width: '400px',
           data: {
             region: { name: '', code: '' },
@@ -117,7 +115,7 @@ export class RegionsListComponent implements OnInit {
           },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.closed.subscribe((result) => {
             if (result?.action === 'save') {
                 this.isLoading = true;
                 this.regionService.addRegion(result.data).subscribe({
@@ -126,11 +124,11 @@ export class RegionsListComponent implements OnInit {
                         this.regions = [newRegion, ...this.regions];
                         this.totalCount++;
                         this.isLoading = false;
-                        this.snackBar.open(response.message || 'Regional Təhsil İdarəsi uğurla yaradıldı', 'OK', this.matSnackConfig);
+                        this.toastService.show(response.message || 'Regional Təhsil İdarəsi uğurla yaradıldı', 'success');
                     },
                     error: (error) => {
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -183,7 +181,7 @@ export class RegionsListComponent implements OnInit {
     }
 
     onRegionEdit(region: Region): void {
-        const dialogRef = this.dialog.open(RegionEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(RegionEditingDialogComponent, {
             width: '400px',
             data: {
                 region: {
@@ -196,7 +194,7 @@ export class RegionsListComponent implements OnInit {
             },
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.closed.subscribe((result) => {
             if (result?.action === 'delete') {
                 this.handleRegionDelete(region);
             } else if (result?.action === 'save') {
@@ -213,11 +211,11 @@ export class RegionsListComponent implements OnInit {
                             ];
                         }
                         this.isLoading = false;
-                        this.snackBar.open(response.message || 'Regional Təhsil İdarəsi uğurla yeniləndi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show(response.message || 'Regional Təhsil İdarəsi uğurla yeniləndi', 'success');
                     },
                     error: (error: any) => {
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -225,7 +223,7 @@ export class RegionsListComponent implements OnInit {
     }
 
     private handleRegionDelete(region: Region): void {
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             data: {
                 title: 'Silinməyə razılıq',
@@ -233,7 +231,7 @@ export class RegionsListComponent implements OnInit {
             }
         });
 
-        confirmRef.afterClosed().subscribe((result: boolean) => {
+        confirmRef.closed.subscribe((result: boolean) => {
             if (result) {
                 this.isLoading = true;
                 this.regionService.deleteRegion(region.id).subscribe({
@@ -241,12 +239,12 @@ export class RegionsListComponent implements OnInit {
                         this.regions = this.regions.filter(r => r.id !== region.id);
                         this.totalCount--;
                         this.isLoading = false;
-                        this.snackBar.open('Regional Təhsil İdarəsi uğurla silindi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show('Regional Təhsil İdarəsi uğurla silindi', 'success');
                     },
                     error: (error) => {
                         console.error(error);
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }

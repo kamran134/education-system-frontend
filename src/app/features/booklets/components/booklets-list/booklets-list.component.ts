@@ -3,8 +3,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { Dialog } from '@angular/cdk/dialog';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 
 import { Booklet, BookletDistrict, BookletExam } from '../../../../core/models/booklet.model';
 import { District } from '../../../../core/models/district.model';
@@ -87,11 +87,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    readonly snackConfig: MatSnackBarConfig = {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-    };
+    private readonly toastDurationMs = 4000;
 
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -132,8 +128,8 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         private examService: ExamService,
         private districtService: DistrictService,
         private authService: AuthService,
-        private dialog: MatDialog,
-        private snackBar: MatSnackBar
+        private dialog: Dialog,
+        private toastService: ToastService
     ) {}
 
     ngOnInit(): void {
@@ -259,23 +255,23 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     }
 
     private openEditDialog(booklet: Booklet): void {
-        const dialogRef = this.dialog.open(BookletEditDialogComponent, {
+        const dialogRef = this.dialog.open<any>(BookletEditDialogComponent, {
             width: '550px',
             data: { booklet, canDelete: this.authService.canDeleteBooklets() }
         });
 
-        dialogRef.afterClosed().subscribe((result: BookletEditDialogResult | null) => {
+        dialogRef.closed.subscribe((result: BookletEditDialogResult | null | undefined) => {
             if (!result) return;
             if (result.action === 'save' && result.data) {
                 this.bookletService.updateBooklet(booklet.id, result.data)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe({
                         next: () => {
-                            this.snackBar.open('Kitabça uğurla redaktə edildi', 'OK', this.snackConfig);
+                            this.toastService.show('Kitabça uğurla redaktə edildi', 'success', this.toastDurationMs);
                             this.loadBooklets();
                         },
                         error: () => {
-                            this.snackBar.open('Redaktə zamanı xəta baş verdi', 'Bağla', this.snackConfig);
+                            this.toastService.show('Redaktə zamanı xəta baş verdi', 'error', this.toastDurationMs);
                         }
                     });
             } else if (result.action === 'delete') {
@@ -285,7 +281,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     }
 
     private openDeleteConfirm(booklet: Booklet): void {
-        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        const dialogRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '420px',
             data: {
                 title: 'Kitabçanı sil',
@@ -293,17 +289,17 @@ export class BookletsListComponent implements OnInit, OnDestroy {
             }
         });
 
-        dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+        dialogRef.closed.subscribe((confirmed: boolean | undefined) => {
             if (!confirmed) return;
             this.bookletService.deleteBooklet(booklet.id)
                 .pipe(takeUntil(this.destroy$))
                 .subscribe({
                     next: () => {
-                        this.snackBar.open('Kitabça uğurla silindi', 'OK', this.snackConfig);
+                        this.toastService.show('Kitabça uğurla silindi', 'success', this.toastDurationMs);
                         this.loadBooklets();
                     },
                     error: () => {
-                        this.snackBar.open('Silmə zamanı xəta baş verdi', 'Bağla', this.snackConfig);
+                        this.toastService.show('Silmə zamanı xəta baş verdi', 'error', this.toastDurationMs);
                     }
                 });
         });

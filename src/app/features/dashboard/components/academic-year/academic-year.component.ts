@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { MatDialog } from '@angular/material/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import { LucideAngularModule, GraduationCap, Loader, CheckCircle, AlertTriangle } from 'lucide-angular';
 import { AcademicYearService, GradePromotionPreview } from '../../services/academic-year.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -25,7 +25,7 @@ export class AcademicYearComponent implements OnInit {
 
     constructor(
         private academicYearService: AcademicYearService,
-        private dialog: MatDialog,
+        private dialog: Dialog,
         private snackBarService: SnackBarService
     ) { }
 
@@ -55,7 +55,7 @@ export class AcademicYearComponent implements OnInit {
     openConfirm(): void {
         if (!this.canPromote || !this.preview) return;
 
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '450px',
             data: {
                 title: 'Sinifləri yüksəlt',
@@ -64,7 +64,7 @@ export class AcademicYearComponent implements OnInit {
             }
         });
 
-        confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+        confirmRef.closed.subscribe((confirmed: boolean | undefined) => {
             if (confirmed) {
                 this.executePromotion();
             }

@@ -5,14 +5,13 @@ import { TeacherService } from '../../services/teacher.service';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
-import { MatDialog } from '@angular/material/dialog';
+import { Dialog } from '@angular/cdk/dialog';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
@@ -24,7 +23,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { FilterField } from '../../../../shared/components/ui/advanced-filters/advanced-filters.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 
@@ -49,14 +47,12 @@ export class TeachersListComponent implements OnInit {
     hasError = false;
     errorMessage = '';
     schoolId: string | null = null;
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
     isUpdatingStats = false;
     onUpdateTeachersStats(): void {
         runStatsUpdate(this.teacherService.updateTeachersStats(), {
             setUpdating: v => { this.isUpdatingStats = v; },
             onSuccess: () => this.loadTeachers(),
-            snackBar: this.snackBar,
-            config: this.matSnackConfig
+            toastService: this.toastService
         });
     }
     selectedDistrictIds: string[] = [];
@@ -76,9 +72,6 @@ export class TeachersListComponent implements OnInit {
     // Sorting
     sortColumn = 'fullname';
     sortDirection: 'asc' | 'desc' = 'asc';
-
-    // Filters
-    filterConfig: FilterField[] = [];
 
     // Table configuration
     tableColumns: TableColumn[] = [
@@ -117,8 +110,8 @@ export class TeachersListComponent implements OnInit {
         private districtService: DistrictService,
         private schoolService: SchoolService,
         private authService: AuthService,
-        private snackBar: MatSnackBar,
-        private dialog: MatDialog,
+        private toastService: ToastService,
+        private dialog: Dialog,
         private route: ActivatedRoute,
         private router: Router
     ) {}
@@ -163,8 +156,6 @@ export class TeachersListComponent implements OnInit {
 
             this.loadTeachers();
         });
-
-        this.setupFilters();
     }
 
     isAdminOrSuperAdmin(): boolean {
@@ -221,32 +212,6 @@ export class TeachersListComponent implements OnInit {
                 showOnHover: true
             });
         }
-    }
-
-    private setupFilters(): void {
-        this.filterConfig = [
-            {
-                key: 'districts',
-                label: 'Rayonlar / şəhərlər',
-                type: 'multi-select',
-                options: this.districts.map(d => ({ value: d.id, label: d.name })),
-                placeholder: 'Rayonları seçin...',
-                searchable: true,
-                clearable: true,
-                width: 'md'
-            },
-            {
-                key: 'schools',
-                label: 'Məktəblər',
-                type: 'multi-select',
-                options: this.schools.map(s => ({ value: s.id, label: s.name })),
-                placeholder: 'Məktəbləri seçin...',
-                searchable: true,
-                clearable: true,
-                width: 'md',
-                dependsOn: 'districts'
-            }
-        ];
     }
 
     onDistrictChange(selectedDistricts: string[]): void {
@@ -461,24 +426,24 @@ export class TeachersListComponent implements OnInit {
         this.teacherService.repairTeachers().subscribe({
             next: (response) => {
                 this.repairingResults = response;
-                this.snackBar.open(response.message || '', 'OK', this.matSnackConfig);
+                this.toastService.show(response.message || '', 'success');
                 this.isLoading = false;
             },
             error: (error) => {
                 console.error(error);
-                this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                this.toastService.show(error.error.message, 'error');
                 this.isLoading = false;
             }
         });
     }
 
     onAllTeachersDelete(): void {
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'Bütün müəllimləri silmək istədiyinizdən əminsiniz mi?' }
         });
 
-        confirmRef.afterClosed().subscribe((result: boolean) => {
+        confirmRef.closed.subscribe((result: boolean) => {
             if (result) {
                 const teacherIds = this.teachers.map(s => s.id).join(",");
                 this.teacherService.deleteTeachers(teacherIds).subscribe({
@@ -494,7 +459,7 @@ export class TeachersListComponent implements OnInit {
     }
 
     onTeacherCreate(): void {
-        const dialogRef = this.dialog.open(TeacherEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(TeacherEditingDialogComponent, {
             width: '1000px',
             data: {
                 teacher: null,
@@ -503,7 +468,7 @@ export class TeachersListComponent implements OnInit {
             }
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.closed.subscribe((result) => {
             if (result?.action === 'save') {
                 this.isLoading = true;
                 this.teacherService.createTeacher(result.data).subscribe({
@@ -513,12 +478,12 @@ export class TeachersListComponent implements OnInit {
                         this.teachers = [newTeacher, ...this.teachers];
                         this.totalCount++;
                         this.isLoading = false;
-                        this.snackBar.open(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yaradıldı', 'Bağla', this.matSnackConfig);
+                        this.toastService.show(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yaradıldı', 'success');
                     },
                     error: (error) => {
                         console.error(error);
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -526,7 +491,7 @@ export class TeachersListComponent implements OnInit {
     }
 
     onTeacherUpdate(teacher: Teacher): void {
-        const dialogRef = this.dialog.open(TeacherEditingDialogComponent, {
+        const dialogRef = this.dialog.open<any>(TeacherEditingDialogComponent, {
             width: '1000px',
             data: {
                 teacher,
@@ -535,7 +500,7 @@ export class TeachersListComponent implements OnInit {
             }
         });
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.closed.subscribe((result) => {
             if (result?.action === 'delete') {
                 // Обработка удаления
                 this.handleTeacherDelete(teacher.id);
@@ -559,12 +524,12 @@ export class TeachersListComponent implements OnInit {
                         const cascadeMessage = updatedTeacher.cascadedStudentsCount
                             ? ` (${updatedTeacher.cascadedStudentsCount} şagirdin kodu avtomatik yeniləndi)`
                             : '';
-                        this.snackBar.open(baseMessage + cascadeMessage, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(baseMessage + cascadeMessage, 'success');
                     },
                     error: (error) => {
                         console.error(error);
                         this.isLoading = false;
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -572,21 +537,21 @@ export class TeachersListComponent implements OnInit {
     }
 
     private handleTeacherDelete(studentId: string | number): void {
-        const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             data: { title: 'Silinməyə razılıq', text: 'Müəllimi silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nMüəllim silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
         });
 
-        confirmRef.afterClosed().subscribe((result: boolean) => {
+        confirmRef.closed.subscribe((result: boolean) => {
             if (result) {
                 this.teacherService.deleteTeacher(studentId).subscribe({
                     next: (response) => {
                         this.teachers = this.teachers.filter(s => !IdUtil.equals(s.id, studentId));
-                        this.snackBar.open(response.message || 'Müəllim uğurla silindi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show(response.message || 'Müəllim uğurla silindi', 'success');
                     },
                     error: (error) => {
                         console.error(error);
-                        this.snackBar.open(error.error.message, 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error.message, 'error');
                     }
                 });
             }
@@ -621,7 +586,7 @@ export class TeachersListComponent implements OnInit {
                                 errors: validationErrors
                             };
 
-                            const dialogRef = this.dialog.open(FileUploadErrorsDialogComponent, {
+                            const dialogRef = this.dialog.open<any>(FileUploadErrorsDialogComponent, {
                                 width: '700px',
                                 maxWidth: '90vw',
                                 data: dialogData,
@@ -629,18 +594,18 @@ export class TeachersListComponent implements OnInit {
                             });
 
                             // Refresh table only after dialog is closed
-                            dialogRef.afterClosed().subscribe(() => {
+                            dialogRef.closed.subscribe(() => {
                                 this.loadTeachers();
                             });
                         } else {
                             // No errors, show success message and refresh immediately
-                            this.snackBar.open(response.message || 'Fayl uğurla yükləndi', 'Bağla', this.matSnackConfig);
+                            this.toastService.show(response.message || 'Fayl uğurla yükləndi', 'success');
                             this.loadTeachers();
                         }
                     },
                     error: (error) => {
                         console.error(error);
-                        this.snackBar.open(error.error?.message || 'Fayl yüklənməsində xəta baş verdi', 'Bağla', this.matSnackConfig);
+                        this.toastService.show(error.error?.message || 'Fayl yüklənməsində xəta baş verdi', 'error');
                     }
                 });
             }

@@ -1,39 +1,4 @@
-.statistics-action {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.loader {
-    width: 10px !important;
-    height: 10px !important;
-}
-
 .stats-container {
     display: flex;
     flex-direction: column;
-}
-
-.student-card {
-    padding: 16px 0;
-    max-width: 100%;
-}
-
-.mat-table {
-    width: 100%;
-}
-
-th.mat-header-cell,
-td.mat-cell {
-    text-align: left;
-    padding: 12px;
-}
-
-.mat-header-cell {
-    font-weight: bold;
-    background: #f5f5f5;
-}
-
-mat-card-title {
-    margin: 20px;
 }

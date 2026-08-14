@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { RoleSettings, UserSettings } from '../../../../core/models/settings.model';
 
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SNACK_BAR_DEFAULT_CONFIG } from '../../../../shared/constants/snack-bar.config';
+import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { LucideAngularModule, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -136,8 +135,6 @@ export class RolesColumnsComponent implements OnInit {
     readonly Square = Square;
     readonly GripVertical = GripVertical;
 
-    readonly matSnackConfig = SNACK_BAR_DEFAULT_CONFIG;
-
     readonly roles: RoleDef[] = [
         { key: 'moderator', label: 'Moderator' },
         { key: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
@@ -173,7 +170,7 @@ export class RolesColumnsComponent implements OnInit {
 
     constructor(
         private dashboardService: DashboardService,
-        private snackBar: MatSnackBar,
+        private toastService: ToastService,
         public router: Router
     ) {}
 
@@ -275,11 +272,11 @@ export class RolesColumnsComponent implements OnInit {
 
         this.dashboardService.saveGlobalColumns({ roleSettings } as any).subscribe({
             next: () => {
-                this.snackBar.open('Parametrlər uğurla yadda saxlanıldı', 'Bağla', this.matSnackConfig);
+                this.toastService.show('Parametrlər uğurla yadda saxlanıldı', 'success');
             },
             error: (error) => {
                 console.error('Error saving role column settings:', error);
-                this.snackBar.open('Xəta baş verdi', 'Bağla', this.matSnackConfig);
+                this.toastService.show('Xəta baş verdi', 'error');
             }
         });
     }
