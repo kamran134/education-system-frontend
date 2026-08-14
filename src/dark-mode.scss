@@ -236,6 +236,39 @@ body {
             color: $white !important;
         }
 
+        .mat-mdc-card {
+            background-color: #1f1f1f !important;
+            color: $white !important;
+
+            .mat-mdc-card-subtitle {
+                color: $darkWhite !important;
+            }
+        }
+
+        // ── Profil səhifəsi (/profile) ─────────────────────────────────────────
+        .profile-container {
+            .profile-tabs {
+                background: #1f1f1f;
+            }
+
+            .info-row mat-icon,
+            .info-row .label,
+            .loading,
+            .security-tips li {
+                color: $darkWhite !important;
+            }
+        }
+
+        .mat-mdc-tab-header,
+        .mat-mdc-tab-body-wrapper,
+        .mat-mdc-tab-body-content {
+            background-color: #1f1f1f !important;
+        }
+
+        .mat-mdc-tab-header {
+            border-bottom-color: #383737 !important;
+        }
+
         .mat-mdc-dialog-surface {
             background-color: #1f1f1f !important;
             color: $white !important;
