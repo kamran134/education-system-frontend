@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, PLATFORM_ID, inject } from '@angular/cor
 import { isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 import { LandingService, PublicSummary } from './services/landing.service';
 
 /** Показывается сразу, пока не пришёл живой ответ /api/public/summary (см. landing.service.ts). */
@@ -22,12 +23,21 @@ const SUMMARY_FALLBACK: PublicSummary = {
 })
 export class LandingComponent implements OnInit {
     private landingService = inject(LandingService);
+    private authService = inject(AuthService);
     private title = inject(Title);
     private meta = inject(Meta);
     private destroyRef = inject(DestroyRef);
     private platformId = inject(PLATFORM_ID);
 
     summary: PublicSummary = SUMMARY_FALLBACK;
+
+    // На сервере при пререндере всегда false (аноним) — три "Sistemə giriş" ведут на /login,
+    // тот же вид, что и раньше. В браузере, если пользователь уже авторизован (зашёл сюда по
+    // клику на лого, единственный путь для него — см. app.component.ts), кнопки переключаются
+    // на "Sistemə keç" → /panel: незачем гнать его обратно на форму входа, он уже внутри.
+    get isAuthorized(): boolean {
+        return this.authService.isAuthorized;
+    }
 
     // Лендинг открыт для всех, включая авторизованных: это единственный способ для них
     // попасть сюда — по клику на лого (см. app.component.html). Никакого отскока на /panel —
