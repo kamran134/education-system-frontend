@@ -65,6 +65,12 @@ export class AppComponent implements OnInit {
             .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
             .subscribe((event) => {
                 this.isLandingRoute = event.urlAfterRedirects === '/';
+                // Лендинг темонезависим (см. LANDING_TASK.md): без этого пересчёта переход
+                // на / внутри SPA (клик по лого) сохранял бы .dark-mode на body/html с
+                // предыдущей страницы — класс не снимается сам по себе при смене маршрута.
+                if (isPlatformBrowser(this.platformId)) {
+                    this.setMode();
+                }
             });
     }
 
@@ -111,7 +117,13 @@ export class AppComponent implements OnInit {
     }
 
     setMode(): void {
-        if (this.darkMode) {
+        // Лендинг ('/') всегда светлый, независимо от сохранённой темы — публичная витрина
+        // держит фиксированный бренд-вид, тумблер темы на ней физически недоступен (шапка
+        // скрыта). darkMode при этом не сбрасываем: вернувшись в панель, пользователь должен
+        // получить свою тему обратно, а не потерять выбор из-за визита на /.
+        const applyDark = this.darkMode && !this.isLandingRoute;
+
+        if (applyDark) {
             document.body.classList.add('dark-mode');
             document.documentElement.classList.add('dark-mode');
 
@@ -122,7 +134,7 @@ export class AppComponent implements OnInit {
 
         const tables = document.querySelectorAll('.table');
         tables.forEach(table => {
-            if (this.darkMode) {
+            if (applyDark) {
                 table.classList.add('dark-mode');
             } else {
                 table.classList.remove('dark-mode');
