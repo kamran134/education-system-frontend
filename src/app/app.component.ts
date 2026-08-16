@@ -60,11 +60,11 @@ export class AppComponent implements OnInit {
         public permissions: PermissionsService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
-        this.isLandingRoute = this.router.url === '/';
+        this.isLandingRoute = this.isLandingUrl(this.router.url);
         this.router.events
             .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
             .subscribe((event) => {
-                this.isLandingRoute = event.urlAfterRedirects === '/';
+                this.isLandingRoute = this.isLandingUrl(event.urlAfterRedirects);
                 // Лендинг темонезависим (см. LANDING_TASK.md): без этого пересчёта переход
                 // на / внутри SPA (клик по лого) сохранял бы .dark-mode на body/html с
                 // предыдущей страницы — класс не снимается сам по себе при смене маршрута.
@@ -104,6 +104,19 @@ export class AppComponent implements OnInit {
 
     isAuthorized(): boolean {
         return this.authService.getToken() !== null;
+    }
+
+    /**
+     * Сравнение только по пути, без query/fragment. Якорь "Metodika ilə tanış ol" на
+     * лендинге — обычный <a href="#metodika">, не routerLink, но Router всё равно ловит
+     * смену фрагмента через hashchange и гоняет полный цикл навигации: urlAfterRedirects
+     * при этом становится строкой "/#metodika", а не "/". Без обрезки фрагмента строгое
+     * сравнение ложно проваливалось, isLandingRoute сбрасывался в false прямо на лендинге,
+     * и вылезала глобальная шапка поверх собственной шапки лендинга + возвращалась тёмная
+     * тема (см. setMode()).
+     */
+    private isLandingUrl(url: string): boolean {
+        return url.split('#')[0].split('?')[0] === '/';
     }
 
     darkModeToogleChanged(): void {
