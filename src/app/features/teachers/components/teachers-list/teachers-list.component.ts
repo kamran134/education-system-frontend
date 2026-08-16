@@ -321,7 +321,7 @@ export class TeachersListComponent implements OnInit {
                 this.router.navigate(['/schools'], { queryParams });
             } else {
                 // Otherwise, go to home page
-                this.router.navigate(['/']);
+                this.router.navigate(['/panel']);
             }
         });
     }

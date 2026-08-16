@@ -107,6 +107,6 @@ export class SchoolProfileComponent implements OnInit {
     }
 
     goBack(): void {
-        this.router.navigate(['/']);
+        this.router.navigate(['/panel']);
     }
 }

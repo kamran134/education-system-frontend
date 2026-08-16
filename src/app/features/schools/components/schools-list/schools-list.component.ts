@@ -324,7 +324,7 @@ onFilterChange(filters: Record<string, any>): void {
                 this.router.navigate(['/districts'], { queryParams });
             } else {
                 // Otherwise, go to home page
-                this.router.navigate(['/']);
+                this.router.navigate(['/panel']);
             }
         });
     }

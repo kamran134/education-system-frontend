@@ -1,6 +1,7 @@
 import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { filter } from 'rxjs';
 
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
@@ -35,6 +36,8 @@ export class AppComponent implements OnInit {
     darkMode: boolean = false;
     animationState: string = 'default';
     userId: string | null = null;
+    // Лендинг ('/') рисует свою шапку — глобальная на нём скрыта.
+    isLandingRoute: boolean = false;
 
     // Lucide Icons
     readonly User = User;
@@ -56,7 +59,14 @@ export class AppComponent implements OnInit {
         private router: Router,
         public permissions: PermissionsService,
         @Inject(PLATFORM_ID) private platformId: Object
-    ) {}
+    ) {
+        this.isLandingRoute = this.router.url === '/';
+        this.router.events
+            .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+            .subscribe((event) => {
+                this.isLandingRoute = event.urlAfterRedirects === '/';
+            });
+    }
 
     ngOnInit(): void {
         if (isPlatformBrowser(this.platformId)) {
@@ -142,7 +152,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessAdminPanel')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/admin/dashboard']);
@@ -154,7 +164,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessUserManagement')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/admin/users']);
@@ -166,7 +176,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessRatingColumns')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/admin/rating-columns']);
@@ -178,7 +188,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessStats')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/stats']);
@@ -190,7 +200,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessStatistics')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/statistics']);
@@ -202,7 +212,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessDistricts')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/districts']);
@@ -214,7 +224,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessSchools')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/schools']);
@@ -226,7 +236,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessTeachers')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/teachers']);
@@ -238,7 +248,7 @@ export class AppComponent implements OnInit {
             return;
         }
         if (!this.permissions.canAccessRoute('canAccessStudents')) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/panel']);
             return;
         }
         this.router.navigate(['/students']);

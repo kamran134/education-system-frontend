@@ -1,0 +1,67 @@
+// Только то, что через Tailwind arbitrary values вышло бы нечитаемым (см. LANDING_TASK.md §4):
+// многоточечные градиенты фона/текста и медиа-зависимый псевдоэлемент.
+
+.notebook-grid {
+    background-image:
+        linear-gradient(rgba(44, 56, 143, .10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(44, 56, 143, .10) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+
+.hard-shadow {
+    box-shadow: 9px 9px 0 rgba(28, 35, 64, .10);
+}
+
+// «Маркерное» подчёркивание — градиент по фону текста, не text-decoration (§4.2).
+.marker {
+    background-image: linear-gradient(transparent 64%, rgba(19, 166, 78, .42) 64%, rgba(19, 166, 78, .42) 94%, transparent 94%);
+    padding: 0 3px;
+}
+
+// Кнопки-«наклейки» (§4.2, §4.7): жёсткая тень без размытия, свой цвет под каждый фон.
+.hero-cta {
+    box-shadow: 0 4px 0 #8E0C11;
+}
+
+.final-cta {
+    box-shadow: 0 4px 0 #0A7A38;
+}
+
+// Пунктирный «рельс», соединяющий кружки шагов процесса (§4.5). Только на одной строке
+// из 4 колонок (md+) — при переносе на 2x2 линия резала бы карточки по диагонали.
+.process-rail {
+    @media (min-width: 768px) {
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 13px;
+            right: 13px;
+            top: 13px;
+            height: 3px;
+            background-image: repeating-linear-gradient(90deg, #13A64E 0 12px, transparent 12px 20px);
+        }
+    }
+}
+
+// Тонкий разделитель между призывом и подвалом внутри одного тёмного блока (§4.7) —
+// не бордер во всю ширину секции, а линия с теми же боковыми отступами, что и контент.
+.footer-divider {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        top: 0;
+        height: 1px;
+        background: rgba(241, 241, 242, .14);
+
+        @media (min-width: 768px) {
+            left: 40px;
+            right: 40px;
+        }
+    }
+}

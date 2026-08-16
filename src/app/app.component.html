@@ -1,9 +1,10 @@
+@if (!isLandingRoute) {
 <header class="bg-white border-b border-gray-200 shadow-sm">
   <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
       <!-- Logo -->
       <div class="flex items-center cursor-pointer" routerLink="/">
-        <img src="assets/isim.png" alt="Logo" class="h-10 w-auto" />
+        <img src="assets/isim-tiles.png" alt="İSİM" class="h-10 w-auto" />
       </div>
 
       <!-- Right side navigation -->
@@ -133,7 +134,8 @@
     </div>
   </nav>
 </header>
-<main class="min-h-screen bg-gray-50" [class.dark]="darkMode">
+}
+<main class="min-h-screen" [class.bg-gray-50]="!isLandingRoute" [class.dark]="!isLandingRoute && darkMode">
   <router-outlet></router-outlet>
 </main>
 <app-toast-container></app-toast-container>

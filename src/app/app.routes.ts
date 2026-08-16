@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { LandingComponent } from './features/landing/landing.component';
 import { HomeComponent } from './features/home/components/home/home.component';
 import { DistrictsListComponent } from './features/districts/components/districts-list/districts-list.component';
 import { RegionsListComponent } from './features/regions/components/regions-list/regions-list.component';
@@ -21,7 +22,10 @@ import { LoginComponent } from './features/auth/components/login/login.component
 import { RegisterComponent } from './features/auth/register/register/register.component';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent, canActivate: [authGuard] },
+    // Публичный лендинг, без гварда — витрина продукта. Прежний HomeComponent (сетка ярлыков
+    // по разделам под RBAC) переехал на /panel, это рабочий экран для авторизованных.
+    { path: '', component: LandingComponent },
+    { path: 'panel', component: HomeComponent, canActivate: [authGuard] },
     { path: 'regions', component: RegionsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
     { path: 'regions/:id/districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },

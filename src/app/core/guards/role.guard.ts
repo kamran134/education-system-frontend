@@ -20,7 +20,7 @@ export const roleGuard = (routeKey: keyof RolePermissions['routes']): CanActivat
         const canAccess = permissionsService.canAccessRoute(routeKey);
 
         if (!canAccess) {
-            router.navigate(['/']);
+            router.navigate(['/panel']);
             return false;
         }
 

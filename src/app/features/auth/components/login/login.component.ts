@@ -29,9 +29,10 @@ export class LoginComponent {
         this.authService.login(this.loginForm.getRawValue()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (response) => {
                 if (response.success) {
-                    // Токен уже сохранен в сервисе, очищаем ошибку и редиректим на главную
+                    // Токен уже сохранен в сервисе, очищаем ошибку и редиректим на панель.
+                    // '/' теперь публичный лендинг, рабочий экран — '/panel'.
                     this.errorMessage.set(null);
-                    this.router.navigate(['/']);
+                    this.router.navigate(['/panel']);
                 } else {
                     this.errorMessage.set(response.message || 'Girişdə xəta');
                 }

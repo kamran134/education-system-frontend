@@ -394,7 +394,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/teachers'], { queryParams });
             } else {
                 // Otherwise, go to home page
-                this.router.navigate(['/']);
+                this.router.navigate(['/panel']);
             }
         });
     }

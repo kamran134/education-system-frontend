@@ -30,10 +30,30 @@ module.exports = {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
-        }
+        },
+        // Извлечено пиксельной выборкой из src/assets/isim.png. Каждый цвет закреплён за
+        // словом названия (İbtidai/Siniflərin/İnkişaf/Metodikası) — используется только на
+        // публичном лендинге, primary/secondary выше держат внутреннюю панель и не трогаются.
+        // *Ink — затемнённые пары для текста/кнопок: исходные red (4.46:1) и green (3.19:1)
+        // не проходят контраст с белым, заливка плиток — только исходными, ≥24px жирным.
+        brand: {
+          red: '#EB2229',
+          redInk: '#C81119',
+          blue: '#2C388F',
+          blueInk: '#232C73',
+          green: '#13A64E',
+          greenInk: '#0A7A38',
+          magenta: '#DA218E',
+          magentaInk: '#A6106B',
+          ink: '#1C2340',
+          off: '#F1F1F2',
+        },
       },
       fontFamily: {
         'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
+        // Только для features/landing — Inter выше остаётся шрифтом внутренней панели.
+        'landing': ['"Trebuchet MS"', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        'landing-serif': ['"Iowan Old Style"', '"Palatino Linotype"', 'Palatino', 'Georgia', 'serif'],
       },
     },
   },

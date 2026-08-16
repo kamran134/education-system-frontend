@@ -1,0 +1,201 @@
+<div class="font-landing text-brand-ink">
+
+  <!-- ===== Шапка ===== -->
+  <header class="h-[74px] flex items-center justify-between px-6 md:px-10 bg-[#FBFBFA] border-b-2 border-brand-ink">
+    <img src="assets/isim-tiles.png" alt="İSİM" width="480" height="120" class="h-[42px] w-auto" />
+    <a routerLink="/login"
+       class="inline-flex items-center rounded-full bg-brand-redInk px-[22px] py-[10px] text-sm font-bold text-brand-off hover:opacity-90 transition-opacity">
+      Sistemə giriş
+    </a>
+  </header>
+
+  <!-- ===== Герой ===== -->
+  <section class="notebook-grid">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-16 grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-12 items-center">
+
+      <div>
+        <span class="inline-block rounded-full bg-[#FAE3F1] text-brand-magentaInk text-xs font-bold px-[14px] py-[6px] mb-5">
+          1–4-cü siniflər üçün
+        </span>
+
+        <h1 class="text-balance text-[42px] md:text-[50px] leading-[1.02] tracking-[-0.03em] font-bold mb-[18px] max-w-[13ch]">
+          Balaca addımlar. <span class="marker">Böyük nəticələr.</span>
+        </h1>
+
+        <p class="text-[16.5px] leading-[1.62] text-[#454C6B] max-w-[44ch] mb-7">
+          İSİM hər şagirdin biliyini aylıq imtahanlarla ölçür, müəllimə isə hansı mövzunun axsadığını dəqiq göstərir.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <a routerLink="/login"
+             class="hero-cta inline-flex items-center rounded-full bg-brand-redInk px-[30px] py-[14px] text-[14.5px] font-bold text-brand-off hover:opacity-90 transition-opacity">
+            Sistemə giriş
+          </a>
+          <a href="#metodika"
+             class="inline-flex items-center rounded-full border-2 border-brand-ink px-[26px] py-[12px] text-[14.5px] font-bold text-brand-ink hover:bg-brand-ink hover:text-brand-off transition-colors">
+            Metodika ilə tanış ol
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <div class="hard-shadow bg-white border-2 border-brand-ink rounded-[18px] px-6 py-[22px]">
+          <h4 class="flex items-center justify-between text-[13.5px] font-bold text-[#4C525B] mb-4">
+            <span>3-cü sinif · Oktyabr imtahanı</span>
+            <span class="font-semibold text-[#8A90A8]">yoxlanıldı</span>
+          </h4>
+
+          <div class="flex items-center gap-3 py-[11px] border-b border-dashed border-[#D9DBE4] text-[14.5px] font-semibold">
+            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-red text-brand-off flex items-center justify-center text-[13px] font-extrabold">✓</span>
+            <span>Riyaziyyat</span>
+            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">24 / 25</span>
+          </div>
+          <div class="flex items-center gap-3 py-[11px] border-b border-dashed border-[#D9DBE4] text-[14.5px] font-semibold">
+            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-blue text-brand-off flex items-center justify-center text-[13px] font-extrabold">✓</span>
+            <span>Azərbaycan dili</span>
+            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">23 / 25</span>
+          </div>
+          <div class="flex items-center gap-3 py-[11px] border-b border-dashed border-[#D9DBE4] text-[14.5px] font-semibold">
+            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-green text-brand-off flex items-center justify-center text-[13px] font-extrabold">✓</span>
+            <span>Həyat bilgisi</span>
+            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">25 / 25</span>
+          </div>
+          <div class="flex items-center gap-3 py-[11px] text-[14.5px] font-semibold">
+            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-magenta text-brand-off flex items-center justify-center text-[13px] font-extrabold">!</span>
+            <span>İnformatika</span>
+            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">18 / 25</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== Полоса цифр ===== -->
+  <section class="bg-brand-blue">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-[34px] grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div>
+        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.regions) }}</b>
+        <span class="text-[12.5px] text-[#B7BEE4]">Regional Təhsil İdarəsi</span>
+      </div>
+      <div>
+        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.schools) }}</b>
+        <span class="text-[12.5px] text-[#B7BEE4]">Məktəb</span>
+      </div>
+      <div>
+        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.teachers) }}</b>
+        <span class="text-[12.5px] text-[#B7BEE4]">Müəllim</span>
+      </div>
+      <div>
+        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.students) }}</b>
+        <span class="text-[12.5px] text-[#B7BEE4]">Şagird</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Раздел-хребет ===== -->
+  <section id="metodika" class="bg-[#FBFBFA] scroll-mt-6">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-16">
+      <h3 class="text-balance text-[26px] md:text-[30px] font-bold tracking-[-0.03em] mb-2">Adımızda hər hərfin öz mənası var</h3>
+      <p class="text-[15.5px] text-[#454C6B] max-w-[56ch] mb-9">İSİM dörd sözdən ibarətdir — və platforma da eyni dörd işi görür.</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div>
+          <div class="aspect-square w-full max-w-[132px] rounded-[22px] bg-brand-red text-brand-off flex items-center justify-center text-[64px] font-extrabold mb-3">İ</div>
+          <span class="font-landing-serif inline-block rounded-full bg-brand-red text-brand-off text-[13px] font-semibold px-[15px] py-[5px] mb-3">İbtidai</span>
+          <h5 class="text-[17px] font-bold tracking-[-0.012em] mb-[7px]">1–4-cü siniflər</h5>
+          <p class="text-sm leading-[1.55] text-[#454C6B]">Sistem yalnız ibtidai siniflərlə işləyir. Metodika bu yaş üçün qurulub.</p>
+        </div>
+        <div>
+          <div class="aspect-square w-full max-w-[132px] rounded-[22px] bg-brand-blue text-brand-off flex items-center justify-center text-[64px] font-extrabold mb-3">S</div>
+          <span class="font-landing-serif inline-block rounded-full bg-brand-blue text-brand-off text-[13px] font-semibold px-[15px] py-[5px] mb-3">Siniflərin</span>
+          <h5 class="text-[17px] font-bold tracking-[-0.012em] mb-[7px]">Sinif, məktəb, rayon</h5>
+          <p class="text-sm leading-[1.55] text-[#454C6B]">Hər şagird öz sinfinə, sinif məktəbə, məktəb rayona və RTİ-yə bağlıdır.</p>
+        </div>
+        <div>
+          <div class="aspect-square w-full max-w-[132px] rounded-[22px] bg-brand-green text-brand-off flex items-center justify-center text-[64px] font-extrabold mb-3">İ</div>
+          <span class="font-landing-serif inline-block rounded-full bg-brand-green text-brand-off text-[13px] font-semibold px-[15px] py-[5px] mb-3">İnkişaf</span>
+          <h5 class="text-[17px] font-bold tracking-[-0.012em] mb-[7px]">Aydan aya dinamika</h5>
+          <p class="text-sm leading-[1.55] text-[#454C6B]">Bir imtahanın balı yox, ay-ay artım ölçülür. Zəif mövzu dərhal görünür.</p>
+        </div>
+        <div>
+          <div class="aspect-square w-full max-w-[132px] rounded-[22px] bg-brand-magenta text-brand-off flex items-center justify-center text-[64px] font-extrabold mb-3">M</div>
+          <span class="font-landing-serif inline-block rounded-full bg-brand-magenta text-brand-off text-[13px] font-semibold px-[15px] py-[5px] mb-3">Metodikası</span>
+          <h5 class="text-[17px] font-bold tracking-[-0.012em] mb-[7px]">Vahid qaydalar</h5>
+          <p class="text-sm leading-[1.55] text-[#454C6B]">Bütün respublika üzrə eyni imtahan, eyni hesablama, eyni reytinq düsturu.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Necə işləyir ===== -->
+  <section class="bg-[#F4F5F8]">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-16">
+      <h3 class="text-[26px] font-bold tracking-[-0.025em] mb-8">Necə işləyir</h3>
+
+      <div class="process-rail grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-0">
+        <div class="pr-6">
+          <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">1</div>
+          <b class="block text-base mb-[6px]">Aylıq imtahan</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Hər ay bütün respublika üzrə eyni imtahan keçirilir.</p>
+        </div>
+        <div class="pr-6">
+          <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">2</div>
+          <b class="block text-base mb-[6px]">Nəticələr</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Cavablar sistemə yüklənir və avtomatik yoxlanılır.</p>
+        </div>
+        <div class="pr-6">
+          <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">3</div>
+          <b class="block text-base mb-[6px]">Reytinq</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Şagird, müəllim, məktəb və rayon reytinqi hesablanır.</p>
+        </div>
+        <div class="pr-6">
+          <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">4</div>
+          <b class="block text-base mb-[6px]">İnkişaf</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Dinamika aydan aya izlənir, zəif mövzular aşkarlanır.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Roller ===== -->
+  <section class="bg-[#FBFBFA]">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-16 grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
+        <span class="inline-block rounded-full bg-brand-red text-brand-off text-[12.5px] font-bold px-[14px] py-[5px] mb-4">Şagird</span>
+        <b class="block text-lg tracking-[-0.015em] mb-[9px]">Öz nəticəsini görür</b>
+        <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">Sinif və məktəb üzrə yerini bilir, hansı mövzunu təkrarlamalı olduğunu görür.</p>
+      </div>
+      <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
+        <span class="inline-block rounded-full bg-brand-blue text-brand-off text-[12.5px] font-bold px-[14px] py-[5px] mb-4">Müəllim</span>
+        <b class="block text-lg tracking-[-0.015em] mb-[9px]">Sinfi bir cədvəldə</b>
+        <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">Zəif mövzular, hər şagirdin dinamikası. İmtahan nəticələri əl ilə hesablanmır.</p>
+      </div>
+      <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
+        <span class="inline-block rounded-full bg-brand-magenta text-brand-off text-[12.5px] font-bold px-[14px] py-[5px] mb-4">Məktəb və RTİ</span>
+        <b class="block text-lg tracking-[-0.015em] mb-[9px]">Reytinq və hesabat</b>
+        <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">Sinif, müəllim, məktəb və rayon kəsimində reytinq, il ərzində dinamika ilə birlikdə.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Финальный призыв + подвал — один сплошной тёмный блок ===== -->
+  <footer class="bg-brand-ink">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 pt-14 pb-11 flex flex-wrap items-center justify-between gap-8">
+      <div>
+        <h3 class="text-[30px] font-bold tracking-[-0.03em] text-white mb-2 max-w-[18ch]">Sisteminizə daxil olun</h3>
+        <p class="text-[15px] leading-[1.6] text-[#A8AEC8] max-w-[44ch]">Məktəb rəhbərləri, müəllimlər və rayon nümayəndələri üçün giriş.</p>
+      </div>
+      <a routerLink="/login"
+         class="final-cta inline-flex items-center rounded-full bg-brand-green px-[34px] py-[15px] text-[15px] font-bold text-white hover:opacity-90 transition-opacity">
+        Sistemə giriş
+      </a>
+    </div>
+
+    <div class="footer-divider max-w-7xl mx-auto px-6 md:px-10 pt-[26px] pb-[30px] flex flex-wrap items-center justify-between gap-6">
+      <img src="assets/isim-lockup.png" alt="İSİM — İbtidai Siniflərin İnkişaf Metodikası" width="720" height="233" class="h-[60px] w-auto" />
+      <span class="text-[13px] text-[#8C93B0]">© 2026 İSİM · Bütün hüquqlar qorunur</span>
+    </div>
+  </footer>
+
+</div>
