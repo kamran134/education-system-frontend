@@ -34,6 +34,25 @@
         Şəkli dəyiş
       </app-button>
 
+      @if (copySourceOptions.length > 0) {
+        <div class="flex items-center gap-1.5">
+          <app-select
+            class="w-56"
+            placeholder="Başqa şablondan köçür"
+            [options]="copySourceOptions"
+            [(ngModel)]="copySourceId"
+            name="copySourceId">
+          </app-select>
+          <app-button
+            variant="outline"
+            size="sm"
+            [disabled]="copySourceId === null || isCopyingLayout"
+            (clicked)="copyLayoutFromSource()">
+            Köçür
+          </app-button>
+        </div>
+      }
+
       <app-button variant="ghost" size="sm" (clicked)="resetToDefaultLayout()">
         <lucide-icon [img]="RotateCcw" class="w-4 h-4 mr-1.5"></lucide-icon>
         Standart yerləşdirmə

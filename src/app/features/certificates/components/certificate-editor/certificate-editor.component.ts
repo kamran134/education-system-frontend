@@ -151,6 +151,13 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
     private resizeObserver: ResizeObserver | null = null;
     private drag: DragState | null = null;
 
+    // Копирование раскладки с другого шаблона той же награды (CERTIFICATE_LAYOUT_REUSE_TASK.md).
+    // Новые шаблоны наследуют раскладку автоматически при создании — это для случая
+    // "докрутил один шаблон, раскатать на остальные" / "испортил, верни как у другого".
+    copySources: CertificateTemplate[] = [];
+    copySourceId: number | null = null;
+    isCopyingLayout = false;
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -166,11 +173,25 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
                 this.template = template;
                 this.fields = template.fields.map((f) => ({ ...f }));
                 this.isLoading = false;
+                this.loadCopySources(template);
             },
             error: () => {
                 this.toast.show('Şablon tapılmadı', 'error');
                 this.router.navigate(['/admin/certificates']);
             },
+        });
+    }
+
+    private loadCopySources(current: CertificateTemplate): void {
+        this.certificateService.listTemplates().subscribe({
+            next: (templates) => {
+                // Только та же награда (другая вёрстка/картинка у других наград не подходит)
+                // и только уже настроенные шаблоны — копировать пустоту незачем.
+                this.copySources = templates.filter(
+                    (t) => t.id !== current.id && t.awardCode === current.awardCode && t.fields.length > 0
+                );
+            },
+            error: () => (this.copySources = []),
         });
     }
 
@@ -258,6 +279,40 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         const field = newField(this.newFieldType, Math.max(0, cx), Math.max(0, cy));
         this.fields.push(field);
         this.selectedFieldId = field.id;
+    }
+
+    get copySourceOptions(): SelectOption[] {
+        return this.copySources.map((t) => ({ value: t.id, label: t.name }));
+    }
+
+    copyLayoutFromSource(): void {
+        if (!this.template || this.copySourceId === null) return;
+        const source = this.copySources.find((t) => t.id === this.copySourceId);
+        if (!source) return;
+
+        const proceed = confirm(`Bütün sahələr "${source.name}" şablonundan köçürüləcək. Davam edilsin?`);
+        if (!proceed) return;
+
+        this.isCopyingLayout = true;
+        this.certificateService.layoutFromTemplate(this.template.id, source.id).subscribe({
+            next: (fields) => {
+                this.isCopyingLayout = false;
+                this.fields = fields;
+                this.selectedFieldId = null;
+                const sizeMismatch =
+                    source.imageWidth !== this.template!.imageWidth || source.imageHeight !== this.template!.imageHeight;
+                this.toast.show(
+                    sizeMismatch
+                        ? 'Sahələr köçürüldü — şablonların ölçüləri fərqlidir, yerləşdirmə miqyaslandı, yoxlayın'
+                        : 'Sahələr seçilmiş şablondan köçürüldü',
+                    sizeMismatch ? 'warning' : 'success'
+                );
+            },
+            error: () => {
+                this.isCopyingLayout = false;
+                this.toast.show('Sahələr köçürülmədi', 'error');
+            },
+        });
     }
 
     resetToDefaultLayout(): void {

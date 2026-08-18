@@ -38,6 +38,13 @@ export class CertificateService {
             .pipe(map((r) => ResponseHandlerUtil.extractData<CertificateField[]>(r)));
     }
 
+    // Раскладка sourceId, отмасштабированная под размеры id — не сохраняет, только считает.
+    layoutFromTemplate(id: number, sourceId: number): Observable<CertificateField[]> {
+        return this.http
+            .get<ApiResponse<CertificateField[]>>(`${this.baseUrl}/templates/${id}/layout-from/${sourceId}`)
+            .pipe(map((r) => ResponseHandlerUtil.extractData<CertificateField[]>(r)));
+    }
+
     getTemplate(id: number): Observable<CertificateTemplate> {
         return this.http
             .get<ApiResponse<CertificateTemplate>>(`${this.baseUrl}/templates/${id}`)
