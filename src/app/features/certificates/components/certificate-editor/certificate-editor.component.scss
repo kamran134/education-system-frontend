@@ -1,0 +1,33 @@
+// Те же 5 начертаний, что рендерер бэкенда встраивает в PDF (education-system-back/assets/fonts).
+// Без них холст показывает системный шрифт — расхождение с реальным PDF будет заметно
+// сильнее двух пикселей, которые допускает §6.2 плана.
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/assets/fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/assets/fonts/Montserrat-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/assets/fonts/Montserrat-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Noto Serif';
+    src: url('/assets/fonts/NotoSerif-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Noto Serif';
+    src: url('/assets/fonts/NotoSerif-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+}

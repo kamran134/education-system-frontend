@@ -31,6 +31,9 @@ export interface RolePermissions {
         canAccessStudents: boolean;            // /students
         canAccessExams: boolean;               // /exams
         canAccessBooklets: boolean;            // /booklets
+        canAccessCertificates: boolean;        // /admin/certificates — только конструктор шаблонов;
+                                                // само скачивание сертификата ученику RBAC не гейтит,
+                                                // зеркалит доступ к /students/:id (см. CERTIFICATES_TASK.md §7)
     };
 
     // CRUD операции
@@ -112,6 +115,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     superadmin: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: true,
             canAccessUserManagement: true,
             canAccessRatingColumns: true,
             canAccessProfile: true,
@@ -194,6 +198,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     admin: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: true,
             canAccessUserManagement: true,
             canAccessRatingColumns: true,
             canAccessProfile: true,
@@ -276,6 +281,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     moderator: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfile: true,
@@ -358,6 +364,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     districtRepresenter: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfile: true,
@@ -441,6 +448,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     schoolDirector: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfile: true,
@@ -524,6 +532,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     teacher: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfile: true,
@@ -607,6 +616,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     student: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfile: true,
@@ -691,6 +701,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     regionRepresenter: {
         routes: {
             canAccessAdminPanel: true,
+            canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfile: true,
@@ -844,6 +855,7 @@ export class RbacService {
         if (permissions.routes.canAccessAdminPanel) routes.push('/admin');
         if (permissions.routes.canAccessUserManagement) routes.push('/admin/users');
         if (permissions.routes.canAccessRatingColumns) routes.push('/admin/rating-columns');
+        if (permissions.routes.canAccessCertificates) routes.push('/admin/certificates');
 
         return routes;
     }

@@ -143,7 +143,7 @@
                   @for (result of currentResults; track trackByResultId($index, result)) {
                     <tr class="hover:bg-gray-50 transition-colors group">
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                        {{ result.exam?.date | date: 'dd.MM.YYYY' }}
+                        {{ result.exam?.date | date: 'dd.MM.yyyy' }}
                       </td>
                       <td class="px-4 py-3 text-sm border-b border-gray-100">
                         <span class="px-2 py-1 text-xs font-medium rounded-full"
@@ -204,7 +204,22 @@
                         </div>
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                        {{ formatStudentAchievements(result) || '' }}
+                        <div class="space-y-1">
+                          <div>{{ formatStudentAchievements(result) || '' }}</div>
+                          @if (canDownloadCertificate(result.id)) {
+                            <button
+                              (click)="downloadCertificate(result.id)"
+                              [disabled]="downloadingResultId === result.id"
+                              class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-800 disabled:opacity-50 transition-colors">
+                              @if (downloadingResultId === result.id) {
+                                <lucide-icon [img]="Loader" class="w-3.5 h-3.5 animate-spin"></lucide-icon>
+                              } @else {
+                                <lucide-icon [img]="Download" class="w-3.5 h-3.5"></lucide-icon>
+                              }
+                              Sertifikatı yüklə
+                            </button>
+                          }
+                        </div>
                       </td>
                       <td class="px-4 py-3 border-b border-gray-100 text-right">
                         @if (canEditResults) {
@@ -253,7 +268,7 @@
                       @for (result of previousResults; track trackByResultId($index, result)) {
                         <tr class="hover:bg-blue-50 transition-colors">
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                            {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.YYYY') : '—' }}
+                            {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.yyyy') : '—' }}
                           </td>
                           <td class="px-4 py-3 text-sm border-b border-gray-100">
                             <span class="px-2 py-1 text-xs font-medium rounded-full"
@@ -302,7 +317,22 @@
                           </td>
                           @if (previousResults[0]?.status) {
                             <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                              {{ result.status || '—' }}
+                              <div class="space-y-1">
+                                <div>{{ result.status || '—' }}</div>
+                                @if (canDownloadCertificate(result.id)) {
+                                  <button
+                                    (click)="downloadCertificate(result.id)"
+                                    [disabled]="downloadingResultId === result.id"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-800 disabled:opacity-50 transition-colors">
+                                    @if (downloadingResultId === result.id) {
+                                      <lucide-icon [img]="Loader" class="w-3.5 h-3.5 animate-spin"></lucide-icon>
+                                    } @else {
+                                      <lucide-icon [img]="Download" class="w-3.5 h-3.5"></lucide-icon>
+                                    }
+                                    Sertifikatı yüklə
+                                  </button>
+                                }
+                              </div>
                             </td>
                           }
                         </tr>

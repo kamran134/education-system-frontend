@@ -1,0 +1,98 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+  <header class="h-[74px] flex items-center px-6 md:px-10 bg-white border-b border-gray-200">
+    <a routerLink="/">
+      <img src="assets/isim-tiles.png" alt="İSİM" width="480" height="120" class="h-[38px] w-auto" />
+    </a>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-lg">
+      <h1 class="text-xl font-semibold text-gray-900 text-center mb-6">Sertifikatın yoxlanılması</h1>
+
+      @if (state === 'loading') {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center text-gray-500">
+          Yoxlanılır...
+        </div>
+      }
+
+      @if (state === 'valid' && data) {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="bg-green-50 px-6 py-5 flex items-center gap-3 border-b border-green-100">
+            <lucide-icon [img]="CheckCircle2" class="w-8 h-8 text-green-600 flex-shrink-0"></lucide-icon>
+            <div>
+              <div class="text-green-800 font-semibold">Sertifikat həqiqidir</div>
+              <div class="text-green-700 text-sm">{{ serial }}</div>
+            </div>
+          </div>
+          <dl class="divide-y divide-gray-100">
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Şagird</dt>
+              <dd class="text-sm font-medium text-gray-900 text-right">{{ data.studentFullName }}</dd>
+            </div>
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Sinif</dt>
+              <dd class="text-sm font-medium text-gray-900">{{ data.grade }}</dd>
+            </div>
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Məktəb</dt>
+              <dd class="text-sm font-medium text-gray-900 text-right">{{ data.schoolName }}</dd>
+            </div>
+            @if (data.districtName) {
+              <div class="px-6 py-3 flex justify-between gap-4">
+                <dt class="text-sm text-gray-500">Rayon / şəhər</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right">{{ data.districtName }}</dd>
+              </div>
+            }
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Layihə müəllimi</dt>
+              <dd class="text-sm font-medium text-gray-900 text-right">{{ data.teacherFullName }}</dd>
+            </div>
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Ay</dt>
+              <dd class="text-sm font-medium text-gray-900">{{ monthName(data.month) }}</dd>
+            </div>
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Pillə</dt>
+              <dd class="text-sm font-medium text-gray-900">{{ data.level }}</dd>
+            </div>
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">İmtahan tarixi</dt>
+              <dd class="text-sm font-medium text-gray-900">{{ data.examDate | date: 'dd.MM.yyyy' }}</dd>
+            </div>
+            <div class="px-6 py-3 flex justify-between gap-4">
+              <dt class="text-sm text-gray-500">Verilmə tarixi</dt>
+              <dd class="text-sm font-medium text-gray-900">{{ issuedAt | date: 'dd.MM.yyyy' }}</dd>
+            </div>
+          </dl>
+        </div>
+      }
+
+      @if (state === 'revoked') {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="bg-red-50 px-6 py-5 flex items-center gap-3 border-b border-red-100">
+            <lucide-icon [img]="XCircle" class="w-8 h-8 text-red-600 flex-shrink-0"></lucide-icon>
+            <div>
+              <div class="text-red-800 font-semibold">Sertifikat ləğv edilib</div>
+              @if (serial) {
+                <div class="text-red-700 text-sm">{{ serial }}</div>
+              }
+            </div>
+          </div>
+          @if (revokedAt) {
+            <div class="px-6 py-4 text-sm text-gray-600">
+              Ləğv tarixi: {{ revokedAt | date: 'dd.MM.yyyy' }}
+            </div>
+          }
+        </div>
+      }
+
+      @if (state === 'not-found') {
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
+          <lucide-icon [img]="HelpCircle" class="w-10 h-10 text-gray-400 mx-auto mb-3"></lucide-icon>
+          <div class="text-gray-700 font-medium">Sertifikat tapılmadı</div>
+          <p class="text-sm text-gray-500 mt-1">Keçid düzgün deyil və ya sertifikat mövcud deyil.</p>
+        </div>
+      }
+    </div>
+  </main>
+</div>

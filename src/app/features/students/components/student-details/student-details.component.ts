@@ -18,6 +18,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
+import { CertificateService } from '../../../certificates/services/certificate.service';
+import { CertificateAvailability } from '../../../../core/models/certificate.model';
 
 @Component({
     selector: 'app-student-details',
@@ -50,6 +52,11 @@ export class StudentDetailsComponent implements OnInit {
 
     // Previous results toggle
     showPreviousResults = false;
+
+    // Sertifikat yükləmə — CERTIFICATES_TASK.md §9. Giriş = /students/:id-ə giriş,
+    // ayrıca RBAC gate yoxdur (baxın certificate.model.ts).
+    certificateAvailability: Record<number, CertificateAvailability> = {};
+    downloadingResultId: number | null = null;
 
     private get currentAcademicYearStart(): Date {
         const now = new Date();
@@ -95,7 +102,8 @@ export class StudentDetailsComponent implements OnInit {
         private dialog: Dialog,
         private authService: AuthService,
         private snackBarService: SnackBarService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private certificateService: CertificateService
     ) { }
 
     ngOnInit(): void {
@@ -120,12 +128,55 @@ export class StudentDetailsComponent implements OnInit {
             next: (response) => {
                 this.student = ResponseHandlerUtil.extractData<StudentWithResult>(response);
                 this.isLoading = false;
+                if (this.student) this.loadCertificateAvailability(this.student.id);
             },
             error: (error: Error) => {
                 console.error('Şagirdin alınmasında xəta!', error.error);
                 this.student = null;
                 this.isLoading = false;
             }
+        });
+    }
+
+    private loadCertificateAvailability(studentId: number): void {
+        this.certificateService.availabilityForStudent(studentId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (availability) => (this.certificateAvailability = availability),
+            // Sertifikat mövcudluğu ikinci dərəcəli məlumatdır — xəta olsa da səhifə işləməyə davam edir,
+            // sadəcə "Sertifikatı yüklə" düymələri görünmür.
+            error: () => (this.certificateAvailability = {}),
+        });
+    }
+
+    canDownloadCertificate(resultId: number): boolean {
+        return !!this.certificateAvailability[resultId]?.available;
+    }
+
+    downloadCertificate(resultId: number): void {
+        if (this.downloadingResultId) return;
+        this.downloadingResultId = resultId;
+        this.certificateService.downloadForResult(resultId).subscribe({
+            next: (blob) => {
+                this.downloadingResultId = null;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sertifikat-${resultId}.pdf`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            error: (err) => {
+                this.downloadingResultId = null;
+                const status = err?.status;
+                const message =
+                    status === 409
+                        ? 'Bu pillə üçün sertifikat şablonu hələ yüklənməyib'
+                        : status === 410
+                          ? 'Bu sertifikat ləğv edilib'
+                          : status === 404
+                            ? 'Bu nəticə üçün sertifikat mövcud deyil'
+                            : 'Sertifikat yüklənərkən xəta baş verdi';
+                this.snackBarService.show(message, 'error');
+            },
         });
     }
 

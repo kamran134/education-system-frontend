@@ -15,6 +15,7 @@ import { TeacherProfileComponent } from './features/teachers/components/teacher-
 import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
 import { BookletsListComponent } from './features/booklets/components/booklets-list/booklets-list.component';
 import { BookletDetailComponent } from './features/booklets/components/booklet-detail/booklet-detail.component';
+import { CertificateVerifyComponent } from './features/certificates/components/certificate-verify/certificate-verify.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { roleGuard } from './core/guards/role.guard';
@@ -45,6 +46,8 @@ export const routes: Routes = [
     { path: 'exams', component: ExamsListComponent, canActivate: [authGuard, roleGuard('canAccessExams')] },
     { path: 'booklets', component: BookletsListComponent, canActivate: [authGuard, roleGuard('canAccessBooklets')] },
     { path: 'public/booklets/:id', component: BookletDetailComponent },
+    // Публичная проверка сертификата по QR — без гварда, намеренно (CERTIFICATES_TASK.md §10)
+    { path: 'sertifikat/:token', component: CertificateVerifyComponent },
     { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard] },
     { path: 'stats', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')] },
     { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard] },

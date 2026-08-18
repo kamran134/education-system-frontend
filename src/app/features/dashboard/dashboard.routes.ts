@@ -5,6 +5,8 @@ import { StatsColumnsComponent } from './components/stats-columns/stats-columns.
 import { LegacyImportComponent } from './components/legacy-import/legacy-import.component';
 import { RolesColumnsComponent } from './components/roles-columns/roles-columns.component';
 import { AcademicYearComponent } from './components/academic-year/academic-year.component';
+import { CertificateTemplatesListComponent } from '../certificates/components/certificate-templates-list/certificate-templates-list.component';
+import { CertificateEditorComponent } from '../certificates/components/certificate-editor/certificate-editor.component';
 import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
 
@@ -18,6 +20,8 @@ export const routes: Routes = [
             { path: 'roles', component: RolesColumnsComponent, canActivate: [adminGuard] },
             { path: 'legacy-import', component: LegacyImportComponent, canActivate: [adminGuard] },
             { path: 'academic-year', component: AcademicYearComponent, canActivate: [adminGuard] },
+            { path: 'certificates', component: CertificateTemplatesListComponent, canActivate: [adminGuard] },
+            { path: 'certificates/:id', component: CertificateEditorComponent, canActivate: [adminGuard] },
             { path: '', redirectTo: 'rating-columns', pathMatch: 'full' }
         ]
     }

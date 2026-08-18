@@ -1,0 +1,194 @@
+@if (isLoading) {
+  <div class="text-center py-12 text-gray-500">Yüklənir...</div>
+} @else if (template) {
+  <div class="flex flex-col h-full">
+    <!-- Toolbar -->
+    <div class="flex flex-wrap items-center gap-3 pb-4 mb-4 border-b border-gray-200">
+      <button
+        (click)="goBack()"
+        class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
+        <lucide-icon [img]="ArrowLeft" class="w-5 h-5"></lucide-icon>
+      </button>
+
+      <div class="mr-auto">
+        <h1 class="text-lg font-semibold text-gray-900">{{ template.name }}</h1>
+        <p class="text-xs text-gray-500">{{ template.imageWidth }}×{{ template.imageHeight }}px</p>
+      </div>
+
+      <app-input
+        placeholder="Test şagird nəticəsi ID"
+        type="number"
+        [(ngModel)]="testStudentResultId"
+        name="testStudentResultId"
+        size="sm">
+      </app-input>
+
+      <app-button variant="outline" size="sm" [disabled]="isPreviewing" (clicked)="preview()">
+        <lucide-icon [img]="Eye" class="w-4 h-4 mr-1.5"></lucide-icon>
+        Önizləmə (PDF)
+      </app-button>
+
+      <input #replaceImageInput type="file" accept="image/jpeg,image/jpg,image/png" class="hidden" (change)="onReplaceImageSelected($event)" />
+      <app-button variant="outline" size="sm" (clicked)="replaceImageInput.click()">
+        <lucide-icon [img]="ImageIcon" class="w-4 h-4 mr-1.5"></lucide-icon>
+        Şəkli dəyiş
+      </app-button>
+
+      <app-button variant="ghost" size="sm" (clicked)="resetToDefaultLayout()">
+        <lucide-icon [img]="RotateCcw" class="w-4 h-4 mr-1.5"></lucide-icon>
+        Standart yerləşdirmə
+      </app-button>
+
+      <app-button variant="primary" size="sm" [disabled]="isSaving" (clicked)="save()">
+        <lucide-icon [img]="Save" class="w-4 h-4 mr-1.5"></lucide-icon>
+        Yadda saxla
+      </app-button>
+    </div>
+
+    @if (missingRequiredTypes.length > 0) {
+      <div class="mb-4 px-3 py-2 rounded-lg bg-amber-50 text-amber-800 text-sm border border-amber-200">
+        Əlavə edilməyib: {{ missingRequiredTypes.join(', ') }}
+      </div>
+    }
+
+    <div class="flex-1 flex gap-6 min-h-0">
+      <!-- Canvas -->
+      <div class="flex-1 min-w-0 overflow-auto bg-gray-100 rounded-xl p-6">
+        <div #canvasWrapper class="relative inline-block select-none" (pointerdown)="deselect()">
+          <img
+            #canvasImage
+            [src]="imageUrl()"
+            (load)="onImageLoad()"
+            class="block max-w-full h-auto pointer-events-none"
+            alt="Şablon" />
+
+          @for (field of fields; track field.id) {
+            <div
+              [style.left]="fieldStyle(field)['left']"
+              [style.top]="fieldStyle(field)['top']"
+              [style.width]="fieldStyle(field)['width']"
+              [style.height]="fieldStyle(field)['height']"
+              class="absolute flex items-center overflow-hidden border-2 cursor-move"
+              [class.border-dashed]="selectedFieldId !== field.id"
+              [class.border-primary-500]="selectedFieldId === field.id"
+              [class.border-gray-400]="selectedFieldId !== field.id"
+              [class.bg-primary-50]="selectedFieldId === field.id"
+              [class.bg-opacity-40]="selectedFieldId === field.id"
+              (pointerdown)="startMove(field, $event)"
+              (click)="selectField(field.id, $event)">
+              @if (field.type === 'qr') {
+                <div class="w-full h-full flex items-center justify-center text-[10px] text-gray-500 bg-white bg-opacity-70">QR</div>
+              } @else {
+                <span
+                  class="w-full whitespace-nowrap overflow-hidden text-ellipsis flex"
+                  [style.fontSize]="fieldStyle(field)['fontSize']"
+                  [style.color]="fieldStyle(field)['color']"
+                  [style.fontFamily]="fieldStyle(field)['fontFamily']"
+                  [style.fontWeight]="fieldStyle(field)['fontWeight']"
+                  [style.fontStyle]="fieldStyle(field)['fontStyle']"
+                  [style.justifyContent]="fieldStyle(field)['justifyContent']"
+                  [style.lineHeight]="1">
+                  {{ previewText(field) }}
+                </span>
+              }
+
+              @if (selectedFieldId === field.id) {
+                <div
+                  class="absolute -right-1.5 -bottom-1.5 w-3 h-3 rounded-full bg-primary-600 border-2 border-white cursor-nwse-resize"
+                  (pointerdown)="startResize(field, $event)">
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Properties panel -->
+      <div class="w-80 flex-shrink-0 overflow-y-auto space-y-4">
+        <div class="flex gap-2">
+          <app-select class="flex-1" [options]="fieldTypeOptions" [(ngModel)]="newFieldType" name="newFieldType"></app-select>
+          <app-button variant="outline" size="sm" (clicked)="addField()">
+            <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon>
+          </app-button>
+        </div>
+
+        @if (selectedField; as field) {
+          <div class="border border-gray-200 rounded-xl p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-gray-900">{{ fieldLabel(field) }}</span>
+              <button (click)="removeSelected()" class="text-gray-400 hover:text-red-600 transition-colors">
+                <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+              </button>
+            </div>
+
+            @if (field.type === 'static') {
+              <app-input label="Mətn" [(ngModel)]="field.text" name="text"></app-input>
+            }
+
+            <div class="grid grid-cols-2 gap-2">
+              <app-input label="Prefiks" [(ngModel)]="field.prefix" name="prefix"></app-input>
+              <app-input label="Sufiks" [(ngModel)]="field.suffix" name="suffix"></app-input>
+            </div>
+
+            <app-select label="Şrift ailəsi" [options]="fontFamilyOptions" [(ngModel)]="field.fontFamily" name="fontFamily"></app-select>
+            <app-select label="Qalınlıq" [options]="fontWeightOptions" [(ngModel)]="field.fontWeight" name="fontWeight"></app-select>
+
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [(ngModel)]="field.italic" name="italic" class="rounded border-gray-300" />
+              Kursiv
+            </label>
+
+            <div class="grid grid-cols-2 gap-2">
+              <app-input label="Ölçü (px)" type="number" [(ngModel)]="field.fontSize" name="fontSize"></app-input>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rəng</label>
+                <input type="color" [(ngModel)]="field.color" name="color" class="w-full h-10 rounded-lg border border-gray-300" />
+              </div>
+            </div>
+
+            <app-select label="Düzləndirmə" [options]="alignOptions" [(ngModel)]="field.align" name="align"></app-select>
+            <app-select label="Çevirmə" [options]="transformOptions" [(ngModel)]="field.transform" name="transform"></app-select>
+
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [(ngModel)]="field.autoShrink" name="autoShrink" class="rounded border-gray-300" />
+              Avtomatik kiçilmə
+            </label>
+            @if (field.autoShrink) {
+              <app-input label="Min. ölçü (px)" type="number" [(ngModel)]="field.minFontSize" name="minFontSize"></app-input>
+            }
+
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                [ngModel]="!!field.mask"
+                (ngModelChange)="toggleMask($event)"
+                name="maskEnabled"
+                class="rounded border-gray-300" />
+              Fon örtüyü (mask)
+            </label>
+            @if (field.mask) {
+              <div class="grid grid-cols-2 gap-2 pl-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Rəng</label>
+                  <input type="color" [(ngModel)]="field.mask.color" name="maskColor" class="w-full h-10 rounded-lg border border-gray-300" />
+                </div>
+                <app-input label="Boşluq (px)" type="number" [(ngModel)]="field.mask.padding" name="maskPadding"></app-input>
+              </div>
+            }
+
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+              <app-input label="X" type="number" [(ngModel)]="field.x" name="x"></app-input>
+              <app-input label="Y" type="number" [(ngModel)]="field.y" name="y"></app-input>
+              <app-input label="En" type="number" [(ngModel)]="field.w" name="w"></app-input>
+              <app-input label="Hündürlük" type="number" [(ngModel)]="field.h" name="h"></app-input>
+            </div>
+          </div>
+        } @else {
+          <div class="text-sm text-gray-400 text-center py-8">
+            Xüsusiyyətlərini görmək üçün sahəni seçin
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

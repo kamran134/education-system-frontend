@@ -1,0 +1,105 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+        <lucide-icon [img]="Award" class="w-6 h-6 text-primary-600"></lucide-icon>
+        Sertifikat şablonları
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Hər pillə üçün şablon şəkli yükləyin və sahələrin yerini konstruktorda tənzimləyin.
+      </p>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="text-center py-12 text-gray-500">Yüklənir...</div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      @for (slot of slots; track slot.awardCode + slot.levelCode) {
+        <div
+          (click)="openEditor(slot)"
+          class="group cursor-pointer rounded-xl border border-gray-200 bg-white overflow-hidden hover:border-primary-400 hover:shadow-md transition-all">
+          <div class="aspect-[210/297] bg-gray-100 relative overflow-hidden">
+            @if (slot.template) {
+              <img [src]="imageUrl(slot.template)" [alt]="slot.levelLabel" class="w-full h-full object-cover" />
+              <div class="absolute top-2 right-2 flex gap-1">
+                <button
+                  (click)="confirmDelete(slot.template, $event)"
+                  class="p-1.5 rounded-lg bg-white/90 text-gray-500 hover:text-red-600 hover:bg-white shadow-sm transition-colors"
+                  title="Sil">
+                  <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
+            } @else {
+              <div class="w-full h-full flex flex-col items-center justify-center text-gray-300 group-hover:text-primary-400 transition-colors">
+                <lucide-icon [img]="ImageOff" class="w-10 h-10 mb-2"></lucide-icon>
+                <lucide-icon [img]="Plus" class="w-6 h-6"></lucide-icon>
+              </div>
+            }
+          </div>
+          <div class="p-3">
+            <div class="text-sm font-medium text-gray-900">{{ slot.levelLabel }}</div>
+            <div class="text-xs text-gray-500">{{ slot.awardLabel }}</div>
+            <div class="mt-2 text-xs font-medium" [class.text-green-600]="slot.template" [class.text-gray-400]="!slot.template">
+              {{ slot.template ? (slot.template.fields.length + ' sahə tənzimlənib') : 'Şablon yüklənməyib' }}
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (isCreateModalOpen) {
+  <app-modal
+    title="Yeni şablon"
+    [subtitle]="createAwardCode + ' — ' + createLevelCode"
+    size="sm"
+    [buttons]="createModalButtons"
+    (closed)="isCreateModalOpen = false">
+    <div class="space-y-4">
+      <app-input label="Ad" [(ngModel)]="createName" name="templateName" [required]="true"></app-input>
+
+      <app-select
+        label="Mükafat"
+        [options]="awardOptions"
+        [(ngModel)]="createAwardCode"
+        name="awardCode">
+      </app-select>
+
+      <app-select
+        label="Pillə"
+        [options]="levelOptions"
+        [(ngModel)]="createLevelCode"
+        name="levelCode">
+      </app-select>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Şəkil</label>
+        <input
+          #fileInput
+          type="file"
+          accept="image/jpeg,image/jpg,image/png"
+          (change)="onFileSelected($event)"
+          class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+        @if (selectedFile) {
+          <p class="text-xs text-gray-500 mt-1">{{ selectedFile.name }}</p>
+        }
+      </div>
+    </div>
+  </app-modal>
+}
+
+@if (deleteTarget) {
+  <app-modal
+    title="Şablonu silmək"
+    subtitle="Bu əməliyyat geri qaytarılmır"
+    size="sm"
+    [buttons]="deleteModalButtons"
+    (closed)="deleteTarget = null">
+    <p class="text-sm text-gray-700">
+      «{{ deleteTarget.name }}» şablonunu silmək istədiyinizə əminsiniz? Artıq verilmiş sertifikatlara təsir etməyəcək —
+      onlar öz nüsxələrini saxlayır.
+    </p>
+  </app-modal>
+}
