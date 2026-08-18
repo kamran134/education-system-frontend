@@ -12,6 +12,7 @@ import { StudentsListComponent } from './features/students/components/students-l
 import { StudentDetailsComponent } from './features/students/components/student-details/student-details.component';
 import { SchoolProfileComponent } from './features/schools/components/school-profile/school-profile.component';
 import { TeacherProfileComponent } from './features/teachers/components/teacher-profile/teacher-profile.component';
+import { DistrictProfileComponent } from './features/districts/components/district-profile/district-profile.component';
 import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
 import { BookletsListComponent } from './features/booklets/components/booklets-list/booklets-list.component';
 import { BookletDetailComponent } from './features/booklets/components/booklet-detail/booklet-detail.component';
@@ -31,6 +32,11 @@ export const routes: Routes = [
     { path: 'regions/:id/districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
     { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
+    // Профиль района — не gated ролевым canAccessDistricts, тот же паттерн, что у профиля
+    // школы/учителя чуть ниже: districtRepresenter должен видеть/редактировать СВОЙ профиль,
+    // даже если canAccessDistricts=false (тот флаг про доступ к чужим спискам, не про свою
+    // же запись). Владение проверяется в компоненте (canEdit) и на бэкенде (canManageOwnEntity).
+    { path: 'districts/:id/profile', component: DistrictProfileComponent, canActivate: [authGuard] },
     { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
     { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
     // Профиль школы/учителя — не gated ролевым canAccessSchools/canAccessTeachers: schoolDirector

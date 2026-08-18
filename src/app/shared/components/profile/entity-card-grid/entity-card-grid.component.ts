@@ -1,0 +1,69 @@
+import { Component, ChangeDetectionStrategy, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { LucideAngularModule, ChevronRight, Loader } from 'lucide-angular';
+import { ButtonComponent } from '../../ui/button/button.component';
+
+export interface EntityCardItem {
+    id: number;
+    name: string;
+    meta: string;
+    avatarUrl: string | null;
+    place: number | null;
+    routerLink: any[];
+}
+
+/**
+ * Drill-down сетка карточек уровнем ниже (Şagirdlər/Layihə müəllimləri/Məktəblər —
+ * PROFILES_TASK.md §5). "portrait" — 3:4 для людей (учеников/учителей), "wide" — 16:10
+ * для учреждений (школ). Первые три места получают золотой бейдж, остальные — нейтральный.
+ */
+@Component({
+    selector: 'app-entity-card-grid',
+    imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent],
+    templateUrl: './entity-card-grid.component.html',
+    styleUrl: './entity-card-grid.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class EntityCardGridComponent {
+    @Input() items: EntityCardItem[] = [];
+    @Input() layout: 'portrait' | 'wide' = 'portrait';
+    @Input() total = 0;
+    @Input() isLoading = false;
+    @Input() isLoadingMore = false;
+    @Input() moreLabel = '';
+    @Input() emptyLabel = 'Hələ heç kim yoxdur';
+
+    @Output() loadMore = new EventEmitter<void>();
+
+    readonly ChevronRight = ChevronRight;
+    readonly Loader = Loader;
+
+    get hasMore(): boolean {
+        return this.items.length < this.total;
+    }
+
+    get gridClasses(): string {
+        return this.layout === 'wide'
+            ? 'grid gap-3.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            : 'grid gap-3.5 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6';
+    }
+
+    get pictureClasses(): string {
+        return this.layout === 'wide' ? 'relative overflow-hidden aspect-[16/10]' : 'relative overflow-hidden aspect-[3/4]';
+    }
+
+    initials(name: string): string {
+        return name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((w) => w[0])
+            .join('')
+            .toUpperCase();
+    }
+
+    tone(id: number): number {
+        return id % 6;
+    }
+}

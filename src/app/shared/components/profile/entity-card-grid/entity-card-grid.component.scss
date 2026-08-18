@@ -1,0 +1,50 @@
+@use "sass:list";
+
+// Заглушки фото карточек — те же 6 тонов и та же логика выбора (по id % 6), что в
+// profile-hero.component.scss. Не вынесено в общий partial: два случая использования,
+// вынесение сейчас — преждевременная абстракция.
+$tones-light: (
+    0: (#dbeafe, #bfdbfe, #1e40af),
+    1: (#dcfce7, #bbf7d0, #166534),
+    2: (#fae8ff, #f5d0fe, #86198f),
+    3: (#ffedd5, #fed7aa, #9a3412),
+    4: (#ccfbf1, #99f6e4, #115e59),
+    5: (#e0e7ff, #c7d2fe, #3730a3),
+);
+$tones-dark: (
+    0: (#1e3a5f, #172e4d, #93c5fd),
+    1: (#14432a, #0f3520, #86efac),
+    2: (#4a1d4f, #3b163f, #f0abfc),
+    3: (#4a2a10, #3a200c, #fdba74),
+    4: (#10403c, #0c322f, #5eead4),
+    5: (#262f5c, #1d244a, #a5b4fc),
+);
+
+.avatar-ph {
+    @each $tone, $colors in $tones-light {
+        &[data-tone="#{$tone}"] {
+            background: linear-gradient(145deg, list.nth($colors, 1), list.nth($colors, 2));
+            color: list.nth($colors, 3);
+        }
+    }
+}
+
+.card-hover:hover {
+    box-shadow: 0 12px 24px -14px rgba(16, 24, 40, 0.3);
+    border-color: var(--ui-accent-line);
+}
+
+:host-context(body.dark-mode) {
+    .avatar-ph {
+        @each $tone, $colors in $tones-dark {
+            &[data-tone="#{$tone}"] {
+                background: linear-gradient(145deg, list.nth($colors, 1), list.nth($colors, 2));
+                color: list.nth($colors, 3);
+            }
+        }
+    }
+
+    .card-hover:hover {
+        box-shadow: 0 12px 24px -14px rgba(0, 0, 0, 0.7);
+    }
+}

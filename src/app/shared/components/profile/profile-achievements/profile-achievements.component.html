@@ -1,0 +1,52 @@
+<div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
+  <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)]">
+    <h2 class="flex items-center gap-2.5 text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">
+      <span class="w-6.5 h-6.5 rounded-lg flex items-center justify-center bg-[var(--ui-gold-soft)]" style="color: var(--ui-gold)">
+        <lucide-icon [img]="Award" class="w-4 h-4"></lucide-icon>
+      </span>
+      {{ title }}
+    </h2>
+    @if (canEdit && !isEditing) {
+      <button type="button" (click)="startEdit()"
+        class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+        <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+        Redaktə et
+      </button>
+    }
+  </div>
+
+  <div class="px-5 sm:px-6 py-5">
+    @if (!isEditing) {
+      @if (items.length > 0) {
+        <ul class="flex flex-col gap-3 list-none m-0 p-0">
+          @for (item of items; track $index) {
+            <li class="grid grid-cols-[auto_1fr] gap-3 items-start text-[14.5px] leading-relaxed text-[var(--ui-ink-2)]">
+              <span class="w-5.5 h-5.5 mt-0.5 rounded-md flex items-center justify-center bg-[var(--ui-gold-soft)] shrink-0" style="color: var(--ui-gold)">
+                <lucide-icon [img]="Check" class="w-3 h-3"></lucide-icon>
+              </span>
+              <span>{{ item }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-sm italic text-[var(--ui-faint)]">Uğurlar hələ doldurulmayıb</p>
+      }
+    }
+
+    @if (isEditing) {
+      <app-input
+        [(ngModel)]="editedText"
+        name="achievements"
+        [multiline]="true"
+        [rows]="5"
+        placeholder="Hər nailiyyəti yeni sətirdən yazın"
+      ></app-input>
+      <div class="flex gap-2 mt-4">
+        <app-button variant="primary" [disabled]="isSaving" (clicked)="submit()">
+          {{ isSaving ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
+        </app-button>
+        <app-button variant="outline" [disabled]="isSaving" (clicked)="cancelEdit()">Ləğv et</app-button>
+      </div>
+    }
+  </div>
+</div>

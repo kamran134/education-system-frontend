@@ -1,6 +1,7 @@
 export interface StatisticsFilter {
     districtIds?: string[];
     schoolIds?: string[];
+    teacherIds?: string[];
     grades?: number[];
     year?: number;
     month?: number;

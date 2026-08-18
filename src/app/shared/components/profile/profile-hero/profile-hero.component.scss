@@ -1,0 +1,56 @@
+@use "sass:list";
+
+// Заглушки фото/баннера — 6 тонов, выбор детерминирован от заголовка (см. placeholderTone в .ts),
+// чтобы одна и та же карточка всегда получала один и тот же цвет между перерисовками.
+$tones-light: (
+    0: (#dbeafe, #bfdbfe, #1e40af),
+    1: (#dcfce7, #bbf7d0, #166534),
+    2: (#fae8ff, #f5d0fe, #86198f),
+    3: (#ffedd5, #fed7aa, #9a3412),
+    4: (#ccfbf1, #99f6e4, #115e59),
+    5: (#e0e7ff, #c7d2fe, #3730a3),
+);
+$tones-dark: (
+    0: (#1e3a5f, #172e4d, #93c5fd),
+    1: (#14432a, #0f3520, #86efac),
+    2: (#4a1d4f, #3b163f, #f0abfc),
+    3: (#4a2a10, #3a200c, #fdba74),
+    4: (#10403c, #0c322f, #5eead4),
+    5: (#262f5c, #1d244a, #a5b4fc),
+);
+
+.avatar-ph {
+    @each $tone, $colors in $tones-light {
+        &[data-tone="#{$tone}"] {
+            background: linear-gradient(145deg, list.nth($colors, 1), list.nth($colors, 2));
+            color: list.nth($colors, 3);
+        }
+    }
+}
+
+.avatar-ph-banner {
+    @each $tone, $colors in $tones-light {
+        &[data-tone="#{$tone}"] {
+            background: linear-gradient(125deg, list.nth($colors, 3), list.nth($colors, 1) 130%);
+        }
+    }
+}
+
+:host-context(body.dark-mode) {
+    .avatar-ph {
+        @each $tone, $colors in $tones-dark {
+            &[data-tone="#{$tone}"] {
+                background: linear-gradient(145deg, list.nth($colors, 1), list.nth($colors, 2));
+                color: list.nth($colors, 3);
+            }
+        }
+    }
+
+    .avatar-ph-banner {
+        @each $tone, $colors in $tones-dark {
+            &[data-tone="#{$tone}"] {
+                background: linear-gradient(125deg, list.nth($colors, 2), list.nth($colors, 1) 130%);
+            }
+        }
+    }
+}

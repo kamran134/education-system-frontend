@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class',
+  // Приложение вешает класс "dark-mode" (не "dark") на <html>/<body> — app.component.ts
+  // setMode(). С обычным 'class' Tailwind генерирует селектор .dark, который никогда не
+  // совпадает: все dark: варианты были мертвы, тема держалась только на глобальных
+  // !important в dark-mode-utilities.scss (PROFILES_TASK.md §4.1).
+  darkMode: ['selector', '.dark-mode'],
   content: [
     "./src/**/*.{html,ts}",
   ],

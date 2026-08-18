@@ -88,7 +88,7 @@ export class TeacherService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateTeacherProfile(teacherId: string | number, data: { biography: string | null }): Observable<Teacher> {
+    updateTeacherProfile(teacherId: string | number, data: { biography?: string | null; pedagogicalStartYear?: number | null; achievements?: string | null }): Observable<Teacher> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/profile`;
         return this.http.patch<ApiResponse<Teacher>>(url, data, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));

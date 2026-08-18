@@ -4,10 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LucideAngularModule, ArrowLeft, Loader } from 'lucide-angular';
-import { SchoolService } from '../../services/school.service';
-import { TeacherService } from '../../../teachers/services/teacher.service';
+import { DistrictService } from '../../services/district.service';
+import { SchoolService } from '../../../schools/services/school.service';
+import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
-import { Teacher } from '../../../../core/models/teacher.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 import { ConfigService } from '../../../../core/services/config.service';
@@ -16,44 +16,44 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ProfileHeroComponent, ProfileHeroChip, ProfileHeroSubtitlePart, ProfileHeroRank } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
 import { ProfileFactsComponent, ProfileFact } from '../../../../shared/components/profile/profile-facts/profile-facts.component';
-import { ProfileAchievementsComponent } from '../../../../shared/components/profile/profile-achievements/profile-achievements.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 
-const TEACHERS_PAGE_SIZE = 12;
+const SCHOOLS_PAGE_SIZE = 12;
 
+/**
+ * Профиль района (PROFILES_TASK.md §7.3) — новая страница, раньше не существовала вообще
+ * (ни маршрута, ни компонента, ни эндпоинта сохранения профиля). Без блока "Uğurları" —
+ * в ТЗ заказчика для района такого поля нет, в отличие от учителя/школы.
+ */
 @Component({
-    selector: 'app-school-profile',
+    selector: 'app-district-profile',
     imports: [
         CommonModule, FormsModule, RouterModule, LucideAngularModule,
         ButtonComponent, InputComponent,
-        ProfileHeroComponent, ProfileFactsComponent, ProfileAchievementsComponent,
+        ProfileHeroComponent, ProfileFactsComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
     ],
-    templateUrl: './school-profile.component.html',
-    styleUrl: './school-profile.component.scss'
+    templateUrl: './district-profile.component.html',
+    styleUrl: './district-profile.component.scss'
 })
-export class SchoolProfileComponent implements OnInit {
-    schoolId!: string;
-    school: School | null = null;
+export class DistrictProfileComponent implements OnInit {
+    districtId!: string;
+    district: District | null = null;
     isLoading = true;
 
-    teachers: Teacher[] = [];
-    teachersTotal = 0;
-    teachersLoading = true;
-    teachersLoadingMore = false;
-    private teachersPage = 1;
+    schools: School[] = [];
+    schoolsTotal = 0;
+    schoolsLoading = true;
+    schoolsLoadingMore = false;
+    private schoolsPage = 1;
 
     editingFacts = false;
-    editedDirectorName: string | null = null;
-    editedFoundedYear: number | null = null;
+    editedEducationHeadName: string | null = null;
     isSavingFacts = false;
     factsSaveFailed = false;
-
-    isSavingAchievements = false;
-    achievementsSaveFailed = false;
 
     isUploadingAvatar = false;
 
@@ -66,7 +66,7 @@ export class SchoolProfileComponent implements OnInit {
     heroRank: ProfileHeroRank | null = null;
     facts: ProfileFact[] = [];
     ratingScopes: ProfileRatingScope[] = [];
-    teacherCards: EntityCardItem[] = [];
+    schoolCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
 
@@ -76,8 +76,8 @@ export class SchoolProfileComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     constructor(
+        private districtService: DistrictService,
         private schoolService: SchoolService,
-        private teacherService: TeacherService,
         private route: ActivatedRoute,
         private router: Router,
         private authService: AuthService,
@@ -88,73 +88,73 @@ export class SchoolProfileComponent implements OnInit {
 
     ngOnInit(): void {
         this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-            this.schoolId = params['id'];
-            this.statsFilter = { schoolIds: [this.schoolId] };
-            this.statsDetailsQueryParams = { schoolIds: this.schoolId };
-            this.loadSchool();
-            this.resetAndLoadTeachers();
+            this.districtId = params['id'];
+            this.statsFilter = { districtIds: [this.districtId] };
+            this.statsDetailsQueryParams = { districtIds: this.districtId };
+            this.loadDistrict();
+            this.resetAndLoadSchools();
         });
     }
 
-    loadSchool(): void {
+    loadDistrict(): void {
         this.isLoading = true;
-        this.schoolService.getSchoolById(this.schoolId)
+        this.districtService.getDistrictById(this.districtId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (school) => {
-                    this.school = school;
+                next: (district: District) => {
+                    this.district = district;
                     this.isLoading = false;
                     this.recomputeDerivedFields();
                 },
                 error: () => {
                     this.isLoading = false;
-                    this.snackBarService.show('Məktəb tapılmadı', 'error');
+                    this.snackBarService.show('Rayon tapılmadı', 'error');
                 }
             });
     }
 
-    private resetAndLoadTeachers(): void {
-        this.teachersPage = 1;
-        this.teachers = [];
-        this.loadTeachers();
+    private resetAndLoadSchools(): void {
+        this.schoolsPage = 1;
+        this.schools = [];
+        this.loadSchools();
     }
 
-    loadTeachers(): void {
-        this.teachersLoading = this.teachersPage === 1;
-        this.teachersLoadingMore = this.teachersPage > 1;
-        this.teacherService.getTeachers({
-            schoolIds: [this.schoolId],
+    loadSchools(): void {
+        this.schoolsLoading = this.schoolsPage === 1;
+        this.schoolsLoadingMore = this.schoolsPage > 1;
+        this.schoolService.getSchools({
+            districtIds: [this.districtId],
             sortColumn: 'score',
             sortDirection: 'desc',
-            page: this.teachersPage,
-            size: TEACHERS_PAGE_SIZE,
+            page: this.schoolsPage,
+            size: SCHOOLS_PAGE_SIZE,
         })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (response) => {
-                    this.teachers = [...this.teachers, ...response.data];
-                    this.teachersTotal = response.totalCount;
-                    this.teachersLoading = false;
-                    this.teachersLoadingMore = false;
-                    this.recomputeTeacherCards();
+                    this.schools = [...this.schools, ...response.data];
+                    this.schoolsTotal = response.totalCount;
+                    this.schoolsLoading = false;
+                    this.schoolsLoadingMore = false;
+                    this.recomputeSchoolCards();
                 },
                 error: () => {
-                    this.teachersLoading = false;
-                    this.teachersLoadingMore = false;
+                    this.schoolsLoading = false;
+                    this.schoolsLoadingMore = false;
                 }
             });
     }
 
-    onLoadMoreTeachers(): void {
-        this.teachersPage++;
-        this.loadTeachers();
+    onLoadMoreSchools(): void {
+        this.schoolsPage++;
+        this.loadSchools();
     }
 
     get canEdit(): boolean {
         const user = this.authService.getCurrentUserValue();
         if (!user) return false;
         if (user.role === 'admin' || user.role === 'superadmin') return true;
-        return user.role === 'schoolDirector' && String(user.profile?.entityId) === String(this.schoolId);
+        return user.role === 'districtRepresenter' && String(user.profile?.entityId) === String(this.districtId);
     }
 
     get canUploadPhoto(): boolean {
@@ -162,12 +162,12 @@ export class SchoolProfileComponent implements OnInit {
     }
 
     get avatarUrl(): string | null {
-        return this.configService.resolveAssetUrl(this.school?.avatarUrl);
+        return this.configService.resolveAssetUrl(this.district?.avatarUrl);
     }
 
     private recomputeDerivedFields(): void {
-        const school = this.school;
-        if (!school) {
+        const district = this.district;
+        if (!district) {
             this.heroSubtitleParts = [];
             this.heroChips = [];
             this.heroRank = null;
@@ -176,47 +176,43 @@ export class SchoolProfileComponent implements OnInit {
             return;
         }
 
-        this.heroSubtitleParts = [{ text: 'Kod ' + school.code }];
+        this.heroSubtitleParts = [{ text: 'Kod ' + district.code }];
 
         const chips: ProfileHeroChip[] = [];
-        if (school.directorName) chips.push({ label: 'Direktor', value: school.directorName });
-        if (school.foundedYear) chips.push({ label: 'Yaranma tarixi', value: String(school.foundedYear) });
-        chips.push({ label: 'Şagird sayı', value: String(school.actualStudentCount ?? 0) });
+        if (district.educationHeadName) chips.push({ label: 'Sektor müdiri', value: district.educationHeadName });
+        chips.push({ label: 'Məktəb sayı', value: String(district.schoolCount ?? 0) });
+        chips.push({ label: 'Şagird sayı', value: String(district.actualStudentCount ?? 0) });
         this.heroChips = chips;
 
-        this.heroRank = school.place != null ? { place: school.place, label: 'Respublika üzrə' } : null;
+        this.heroRank = district.place != null ? { place: district.place, label: 'Respublika üzrə' } : null;
 
         this.facts = [
-            { label: 'Məktəb direktoru', value: school.directorName ?? null },
-            { label: 'Yaranma tarixi', value: school.foundedYear ? String(school.foundedYear) : null },
-            { label: 'Şagird sayı', value: String(school.actualStudentCount ?? 0) },
-            { label: 'Layihə müəllimləri', value: String(school.teacherCount ?? 0) },
-            { label: 'Rayon üzrə yeri', value: school.districtPlace != null ? String(school.districtPlace) : null },
-            { label: 'Ünvan', value: school.address || null },
+            { label: 'Təhsil sektorunun müdiri', value: district.educationHeadName ?? null },
+            { label: 'Məktəb sayı', value: String(district.schoolCount ?? 0) },
+            { label: 'Layihə müəllimləri', value: String(district.teacherCount ?? 0) },
+            { label: 'Şagird sayı', value: String(district.actualStudentCount ?? 0) },
         ];
 
         const scopes: ProfileRatingScope[] = [];
-        if (school.place != null) scopes.push({ label: 'Respublika üzrə yeri', value: String(school.place) });
-        if (school.districtPlace != null) scopes.push({ label: 'Rayon üzrə yeri', value: String(school.districtPlace) });
-        if (school.score != null) scopes.push({ label: 'Ümumi bal', value: school.score.toFixed(1) });
-        if (school.averageScore != null) scopes.push({ label: 'Orta bal', value: school.averageScore.toFixed(1) });
+        if (district.place != null) scopes.push({ label: 'Respublika üzrə yeri', value: String(district.place) });
+        if (district.score != null) scopes.push({ label: 'Ümumi bal', value: district.score.toFixed(1) });
+        if (district.averageScore != null) scopes.push({ label: 'Orta bal', value: district.averageScore.toFixed(1) });
         this.ratingScopes = scopes;
     }
 
-    private recomputeTeacherCards(): void {
-        this.teacherCards = this.teachers.map((t) => ({
-            id: t.id,
-            name: t.fullname,
-            meta: `Kod ${t.code}${t.studentCount != null ? ' · ' + t.studentCount + ' şagird' : ''}`,
-            avatarUrl: this.configService.resolveAssetUrl(t.avatarUrl ?? null),
-            place: t.place ?? null,
-            routerLink: ['/teachers', t.id, 'profile'],
+    private recomputeSchoolCards(): void {
+        this.schoolCards = this.schools.map((s) => ({
+            id: s.id,
+            name: s.name,
+            meta: `Kod ${s.code}${s.averageScore != null ? ' · ' + s.averageScore.toFixed(1) + ' orta bal' : ''}`,
+            avatarUrl: this.configService.resolveAssetUrl(s.avatarUrl ?? null),
+            place: s.place ?? null,
+            routerLink: ['/schools', s.id, 'profile'],
         }));
     }
 
     startEditFacts(): void {
-        this.editedDirectorName = this.school?.directorName ?? null;
-        this.editedFoundedYear = this.school?.foundedYear ?? null;
+        this.editedEducationHeadName = this.district?.educationHeadName ?? null;
         this.factsSaveFailed = false;
         this.editingFacts = true;
     }
@@ -226,17 +222,14 @@ export class SchoolProfileComponent implements OnInit {
     }
 
     saveFacts(): void {
-        if (!this.school) return;
+        if (!this.district) return;
         this.isSavingFacts = true;
         this.factsSaveFailed = false;
-        this.schoolService.updateSchoolProfile(this.schoolId, {
-            directorName: this.editedDirectorName,
-            foundedYear: this.editedFoundedYear,
-        })
+        this.districtService.updateDistrictProfile(this.districtId, { educationHeadName: this.editedEducationHeadName })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (updated) => {
-                    this.school = { ...this.school, ...updated };
+                    this.district = { ...this.district, ...updated };
                     this.isSavingFacts = false;
                     this.editingFacts = false;
                     this.recomputeDerivedFields();
@@ -250,36 +243,16 @@ export class SchoolProfileComponent implements OnInit {
             });
     }
 
-    saveAchievements(text: string | null): void {
-        if (!this.school) return;
-        this.isSavingAchievements = true;
-        this.achievementsSaveFailed = false;
-        this.schoolService.updateSchoolProfile(this.schoolId, { achievements: text })
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (updated) => {
-                    this.school = { ...this.school, ...updated };
-                    this.isSavingAchievements = false;
-                    this.snackBarService.show('Profil uğurla yeniləndi', 'success');
-                },
-                error: () => {
-                    this.isSavingAchievements = false;
-                    this.achievementsSaveFailed = true;
-                    this.snackBarService.show('Profil yenilənərkən xəta baş verdi', 'error');
-                }
-            });
-    }
-
     onAvatarSelected(blob: Blob): void {
-        if (!this.school) return;
+        if (!this.district) return;
         const formData = new FormData();
         formData.append('avatar', blob, 'avatar.jpg');
         this.isUploadingAvatar = true;
-        this.schoolService.uploadAvatar(this.schoolId, formData)
+        this.districtService.uploadAvatar(this.districtId, formData)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (response) => {
-                    if (this.school) this.school = { ...this.school, avatarUrl: response.avatarUrl };
+                    if (this.district) this.district = { ...this.district, avatarUrl: response.avatarUrl };
                     this.isUploadingAvatar = false;
                     this.snackBarService.show('Şəkil uğurla yükləndi', 'success');
                 },

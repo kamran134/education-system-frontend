@@ -1,0 +1,96 @@
+<div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
+  <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)] flex-wrap">
+    <h2 class="flex items-center gap-2.5 text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">
+      <span class="w-6.5 h-6.5 rounded-lg flex items-center justify-center bg-[var(--ui-accent-soft)] text-[var(--ui-accent)]">
+        <lucide-icon [img]="BarChart3" class="w-4 h-4"></lucide-icon>
+      </span>
+      Statistika
+      @if (periodLabel) {
+        <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ periodLabel }}</span>
+      }
+    </h2>
+    @if (showDetailsLink) {
+      <a [routerLink]="['/statistics']" [queryParams]="detailsQueryParams"
+        class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+        Ətraflı statistika
+        <lucide-icon [img]="ChevronRight" class="w-3.5 h-3.5"></lucide-icon>
+      </a>
+    }
+  </div>
+
+  <div class="px-5 sm:px-6 py-5">
+    @if (isLoading) {
+      <div class="flex justify-center items-center py-8">
+        <lucide-icon [img]="Loader" class="animate-spin text-[var(--ui-accent)]" size="20"></lucide-icon>
+      </div>
+    }
+
+    @if (!isLoading && loadFailed) {
+      <p class="text-sm text-[var(--ui-faint)] italic py-4 text-center">Statistika yüklənə bilmədi</p>
+    }
+
+    @if (!isLoading && !loadFailed && stats) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div class="rounded-xl border px-4 py-3.5" style="background: var(--ui-blue-bg); border-color: var(--ui-blue-line)">
+          <span class="block text-xs text-[var(--ui-muted)] mb-1.5 leading-snug">Ümumi şagird sayı</span>
+          <span class="text-[27px] font-extrabold leading-none tabular-nums tracking-tight" style="color: var(--ui-blue)">{{ stats.totalStudents }}</span>
+        </div>
+        <div class="rounded-xl border px-4 py-3.5" style="background: var(--ui-green-bg); border-color: var(--ui-green-line)">
+          <span class="block text-xs text-[var(--ui-muted)] mb-1.5 leading-snug">Orta reytinq xalı</span>
+          <span class="text-[27px] font-extrabold leading-none tabular-nums tracking-tight" style="color: var(--ui-green)">{{ stats.averageScore | number:'1.2-2' }}</span>
+        </div>
+        <div class="rounded-xl border px-4 py-3.5" style="background: var(--ui-teal-bg); border-color: var(--ui-teal-line)">
+          <span class="block text-xs text-[var(--ui-muted)] mb-1.5 leading-snug">İnkişaf edən şagirdlər</span>
+          <span class="text-[27px] font-extrabold leading-none tabular-nums tracking-tight" style="color: var(--ui-teal)">
+            {{ stats.developingStudents.count }}<span class="text-sm font-semibold ml-1 text-[var(--ui-muted)]">{{ stats.developingStudents.percentage }}%</span>
+          </span>
+        </div>
+        <div class="rounded-xl border px-4 py-3.5" style="background: var(--ui-purple-bg); border-color: var(--ui-purple-line)">
+          <span class="block text-xs text-[var(--ui-muted)] mb-1.5 leading-snug">Ayın şagirdləri</span>
+          <span class="text-[27px] font-extrabold leading-none tabular-nums tracking-tight" style="color: var(--ui-purple)">
+            {{ stats.studentsOfMonth.count }}<span class="text-sm font-semibold ml-1 text-[var(--ui-muted)]">{{ stats.studentsOfMonth.percentage }}%</span>
+          </span>
+        </div>
+        <div class="rounded-xl border px-4 py-3.5" style="background: var(--ui-orange-bg); border-color: var(--ui-orange-line)">
+          <span class="block text-xs text-[var(--ui-muted)] mb-1.5 leading-snug">Respublika üzrə ayın şagirdləri</span>
+          <span class="text-[27px] font-extrabold leading-none tabular-nums tracking-tight" style="color: var(--ui-orange)">
+            {{ stats.republicStudentsOfMonth.count }}<span class="text-sm font-semibold ml-1 text-[var(--ui-muted)]">{{ stats.republicStudentsOfMonth.percentage }}%</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 sm:grid-cols-6 gap-2.5 mt-4">
+        <div class="text-center rounded-lg border px-2 py-2.5 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
+          <div class="text-[11px] font-bold text-[var(--ui-muted)] tracking-wide">E</div>
+          <div class="text-lg font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)]">{{ stats.levelStatistics.E.count }}</div>
+          <div class="text-[11px] text-[var(--ui-muted)] tabular-nums">{{ stats.levelStatistics.E.percentage }}%</div>
+        </div>
+        <div class="text-center rounded-lg border px-2 py-2.5 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
+          <div class="text-[11px] font-bold text-[var(--ui-muted)] tracking-wide">D</div>
+          <div class="text-lg font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)]">{{ stats.levelStatistics.D.count }}</div>
+          <div class="text-[11px] text-[var(--ui-muted)] tabular-nums">{{ stats.levelStatistics.D.percentage }}%</div>
+        </div>
+        <div class="text-center rounded-lg border px-2 py-2.5 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
+          <div class="text-[11px] font-bold text-[var(--ui-muted)] tracking-wide">C</div>
+          <div class="text-lg font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)]">{{ stats.levelStatistics.C.count }}</div>
+          <div class="text-[11px] text-[var(--ui-muted)] tabular-nums">{{ stats.levelStatistics.C.percentage }}%</div>
+        </div>
+        <div class="text-center rounded-lg border px-2 py-2.5 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
+          <div class="text-[11px] font-bold text-[var(--ui-muted)] tracking-wide">B</div>
+          <div class="text-lg font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)]">{{ stats.levelStatistics.B.count }}</div>
+          <div class="text-[11px] text-[var(--ui-muted)] tabular-nums">{{ stats.levelStatistics.B.percentage }}%</div>
+        </div>
+        <div class="text-center rounded-lg border px-2 py-2.5 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
+          <div class="text-[11px] font-bold text-[var(--ui-muted)] tracking-wide">A</div>
+          <div class="text-lg font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)]">{{ stats.levelStatistics.A.count }}</div>
+          <div class="text-[11px] text-[var(--ui-muted)] tabular-nums">{{ stats.levelStatistics.A.percentage }}%</div>
+        </div>
+        <div class="text-center rounded-lg border px-2 py-2.5 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
+          <div class="text-[11px] font-bold text-[var(--ui-muted)] tracking-wide">Lisey</div>
+          <div class="text-lg font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)]">{{ stats.levelStatistics.Lisey.count }}</div>
+          <div class="text-[11px] text-[var(--ui-muted)] tabular-nums">{{ stats.levelStatistics.Lisey.percentage }}%</div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

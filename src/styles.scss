@@ -10,6 +10,65 @@
 @import './dark-mode.scss';
 @import './dark-mode-utilities.scss';
 
+/*
+ * Токены для новых профильных компонентов (PROFILES_TASK.md §4.2). Дублируют bg-white/
+ * text-gray-900/border-gray-200 и т.п. из Tailwind по значению, но их не перебивают
+ * глобальные !important из dark-mode-utilities.scss выше — той проблемы, ради которой
+ * заведён этот файл, у CSS-переменных нет. Значения тёмной темы взяты оттуда же 1:1,
+ * чтобы новые страницы не выбивались из остальной панели.
+ */
+:root {
+  --ui-bg:        #f1f5f9;
+  --ui-surface:   #ffffff;
+  --ui-surface-2: #f8fafc;
+  --ui-surface-3: #f1f5f9;
+  --ui-line:      #e5e7eb;
+  --ui-ink:       #111827;
+  --ui-ink-2:     #374151;
+  --ui-muted:     #6b7280;
+  --ui-faint:     #9ca3af;
+
+  --ui-accent:      #2563eb;
+  --ui-accent-soft: #eff6ff;
+  --ui-accent-line: #bfdbfe;
+
+  --ui-gold:      #b45309;
+  --ui-gold-soft: #fffbeb;
+  --ui-gold-line: #fde68a;
+
+  --ui-teal:   #0f766e;  --ui-teal-bg:   #f0fdfa;  --ui-teal-line:   #99f6e4;
+  --ui-blue:   #1d4ed8;  --ui-blue-bg:   #eff6ff;  --ui-blue-line:   #bfdbfe;
+  --ui-green:  #15803d;  --ui-green-bg:  #f0fdf4;  --ui-green-line:  #bbf7d0;
+  --ui-purple: #7e22ce;  --ui-purple-bg: #faf5ff;  --ui-purple-line: #e9d5ff;
+  --ui-orange: #c2410c;  --ui-orange-bg: #fff7ed;  --ui-orange-line: #fed7aa;
+}
+
+body.dark-mode {
+  --ui-bg:        #101414;
+  --ui-surface:   #1f1f1f;
+  --ui-surface-2: #1a1a1a;
+  --ui-surface-3: #2a2a2a;
+  --ui-line:      #383737;
+  --ui-ink:       #dae5e4;
+  --ui-ink-2:     #c9d3d2;
+  --ui-muted:     #a3acac;
+  --ui-faint:     #7f8a8a;
+
+  --ui-accent:      #60a5fa;
+  --ui-accent-soft: rgba(59, 130, 246, .14);
+  --ui-accent-line: rgba(59, 130, 246, .34);
+
+  --ui-gold:      #fbbf24;
+  --ui-gold-soft: rgba(234, 179, 8, .14);
+  --ui-gold-line: rgba(234, 179, 8, .34);
+
+  --ui-teal:   #5eead4;  --ui-teal-bg:   rgba(20, 184, 166, .13);  --ui-teal-line:   rgba(20, 184, 166, .30);
+  --ui-blue:   #93c5fd;  --ui-blue-bg:   rgba(59, 130, 246, .13);  --ui-blue-line:   rgba(59, 130, 246, .30);
+  --ui-green:  #86efac;  --ui-green-bg:  rgba(34, 197, 94, .13);   --ui-green-line:  rgba(34, 197, 94, .30);
+  --ui-purple: #d8b4fe;  --ui-purple-bg: rgba(168, 85, 247, .13);  --ui-purple-line: rgba(168, 85, 247, .30);
+  --ui-orange: #fdba74;  --ui-orange-bg: rgba(249, 115, 22, .13);  --ui-orange-line: rgba(249, 115, 22, .30);
+}
+
 html, body { height: 100%; }
 body {
     margin: 0;

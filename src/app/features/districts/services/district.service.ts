@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { District, DistrictResponse } from '../../../core/models/district.model';
+import { District, DistrictResponse, DistrictProfileUpdate } from '../../../core/models/district.model';
 import { ConfigService } from '../../../core/services/config.service';
 import { ApiResponse } from '../../../core/models/response.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
@@ -68,6 +68,12 @@ export class DistrictService {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}`;
         return this.http.put<ApiResponse<any>>(url, district, { withCredentials: true })
             .pipe(map(response => response));
+    }
+
+    updateDistrictProfile(districtId: string | number, data: DistrictProfileUpdate): Observable<District> {
+        const url: string = `${this.configService.getApiUrl()}/districts/${districtId}/profile`;
+        return this.http.patch<ApiResponse<District>>(url, data, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
     deleteDistrict(districtId: string | number): Observable<any> {

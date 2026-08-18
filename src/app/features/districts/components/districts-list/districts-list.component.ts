@@ -14,7 +14,7 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Eye } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -58,6 +58,12 @@ export class DistrictsListComponent implements OnInit {
     ];
 
     tableActions: TableAction[] = [
+        {
+            key: 'profile',
+            label: 'Ətraflı',
+            icon: Eye,
+            variant: 'outline'
+        },
         {
             key: 'edit',
             label: 'Düzəliş et',
@@ -223,10 +229,17 @@ export class DistrictsListComponent implements OnInit {
 
     onTableAction(event: { action: string; item: any }): void {
         switch (event.action) {
+            case 'profile':
+                this.onDistrictProfile(event.item);
+                break;
             case 'edit':
                 this.onDistrictEdit(event.item);
                 break;
         }
+    }
+
+    onDistrictProfile(district: District): void {
+        this.router.navigate(['/districts', district.id, 'profile']);
     }
 
     onDistrictEdit(district: District): void {

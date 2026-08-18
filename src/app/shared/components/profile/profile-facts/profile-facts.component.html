@@ -1,0 +1,12 @@
+<dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden border bg-[var(--ui-line)] border-[var(--ui-line)]">
+  @for (fact of facts; track fact.label) {
+    <div class="bg-[var(--ui-surface)] px-5 py-4">
+      <dt class="text-[11px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-1">{{ fact.label }}</dt>
+      @if (fact.value) {
+        <dd class="text-[15px] font-semibold text-[var(--ui-ink)] tabular-nums">{{ fact.value }}</dd>
+      } @else {
+        <dd class="text-[15px] italic text-[var(--ui-faint)]">Doldurulmayıb</dd>
+      }
+    </div>
+  }
+</dl>

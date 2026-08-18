@@ -30,6 +30,13 @@ export interface Teacher {
     // Только в ответе updateTeacher, когда меняется code — сколько учеников этого учителя
     // автоматически перекодировано каскадом (PHASE3_PLAN.md п.4).
     cascadedStudentsCount?: number;
+    // Только в ответе findById (профильная страница, PROFILES_TASK.md §2.2) — не приходят
+    // в списках. actualStudentCount != studentCount: studentCount — сохранённый делитель
+    // среднего балла, actualStudentCount — живой count(students) для отображения.
+    actualStudentCount?: number;
+    grades?: number[];
+    pedagogicalStartYear?: number | null;
+    achievements?: string | null;
 }
 
 export interface TeacherForCreation {
@@ -40,4 +47,6 @@ export interface TeacherForCreation {
     district?: District;
     studentCount?: number;
     active?: boolean;
+    pedagogicalStartYear?: number | null;
+    achievements?: string | null;
 }

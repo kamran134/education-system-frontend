@@ -1,0 +1,50 @@
+@if (isLoading) {
+  <div class="flex justify-center items-center py-10">
+    <lucide-icon [img]="Loader" class="animate-spin text-[var(--ui-accent)]" size="22"></lucide-icon>
+  </div>
+}
+
+@if (!isLoading && items.length === 0) {
+  <p class="text-sm italic text-[var(--ui-faint)] text-center py-8">{{ emptyLabel }}</p>
+}
+
+@if (!isLoading && items.length > 0) {
+  <div [class]="gridClasses">
+    @for (item of items; track item.id) {
+      <a [routerLink]="item.routerLink"
+         class="group flex flex-col rounded-[13px] overflow-hidden border bg-[var(--ui-surface)] border-[var(--ui-line)] no-underline transition-all hover:-translate-y-0.5 card-hover">
+        <div [class]="pictureClasses">
+          @if (item.avatarUrl) {
+            <img [src]="item.avatarUrl" alt="" class="w-full h-full object-cover">
+          } @else {
+            <div class="w-full h-full flex items-center justify-center text-[28px] font-bold tracking-tight avatar-ph" [attr.data-tone]="tone(item.id)">
+              {{ initials(item.name) }}
+            </div>
+          }
+          @if (item.place) {
+            <span class="absolute top-2 left-2 min-w-[26px] h-[26px] px-2 rounded-lg flex items-center justify-center text-[13px] font-extrabold text-white tabular-nums backdrop-blur-sm"
+                  [style.background]="item.place <= 3 ? '#b45309' : 'rgba(9,14,24,.74)'">
+              {{ item.place }}
+            </span>
+          }
+        </div>
+        <div class="flex flex-col gap-1 px-3 py-3 flex-1">
+          <h4 class="text-sm font-bold leading-snug tracking-tight text-[var(--ui-ink)] text-balance m-0">{{ item.name }}</h4>
+          <p class="text-xs text-[var(--ui-muted)] tabular-nums m-0">{{ item.meta }}</p>
+          <span class="mt-auto pt-2 text-[13px] font-bold text-[var(--ui-accent)] inline-flex items-center gap-1">
+            Ətraflı
+            <lucide-icon [img]="ChevronRight" class="w-3 h-3 transition-transform group-hover:translate-x-0.5"></lucide-icon>
+          </span>
+        </div>
+      </a>
+    }
+  </div>
+
+  @if (hasMore) {
+    <div class="flex justify-center pt-4">
+      <app-button variant="outline" [disabled]="isLoadingMore" (clicked)="loadMore.emit()">
+        {{ isLoadingMore ? 'Yüklənir...' : moreLabel }}
+      </app-button>
+    </div>
+  }
+}

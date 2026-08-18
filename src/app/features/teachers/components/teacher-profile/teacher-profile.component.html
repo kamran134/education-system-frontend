@@ -1,74 +1,117 @@
-<div class="main-container p-6 space-y-6">
+<div class="main-container p-4 sm:p-6">
   @if (isLoading) {
     <div class="flex justify-center items-center py-8">
-      <lucide-icon [img]="Loader" class="animate-spin text-blue-500" size="24"></lucide-icon>
-      <span class="ml-2 text-gray-600">Məlumatlar yüklənir...</span>
+      <lucide-icon [img]="Loader" class="animate-spin text-[var(--ui-accent)]" size="24"></lucide-icon>
+      <span class="ml-2 text-[var(--ui-muted)]">Məlumatlar yüklənir...</span>
     </div>
   }
 
   @if (!isLoading && teacher) {
-    <div>
-      <!-- Header Card -->
-      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100 flex items-center justify-center">
-              @if (teacher.avatarUrl) {
-                <img [src]="teacher.avatarUrl" alt="Müəllimin şəkli" class="w-full h-full object-cover">
-              } @else {
-                <lucide-icon [img]="User" class="w-8 h-8 text-gray-400"></lucide-icon>
-              }
-            </div>
-            <div>
-              <h1 class="text-2xl font-bold text-gray-900">{{ teacher.fullname }}</h1>
-              <p class="text-gray-600 mt-1">Müəllimin kodu: {{ teacher.code }}</p>
-              <p class="text-gray-600">{{ teacher.school?.name }} — {{ teacher.district?.name }}</p>
-            </div>
+    <div class="max-w-[1060px] mx-auto flex flex-col gap-4 sm:gap-5">
+
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <nav class="flex items-center gap-2 text-sm text-[var(--ui-muted)] flex-wrap">
+          <a routerLink="/panel" class="hover:text-[var(--ui-accent)] transition-colors">Panel</a>
+          @if (teacher.district) {
+            <span class="opacity-50">/</span>
+            <a [routerLink]="['/districts', teacher.district.id, 'profile']" class="hover:text-[var(--ui-accent)] transition-colors">{{ teacher.district.name }}</a>
+          }
+          @if (teacher.school) {
+            <span class="opacity-50">/</span>
+            <a [routerLink]="['/schools', teacher.school.id, 'profile']" class="hover:text-[var(--ui-accent)] transition-colors">{{ teacher.school.name }}</a>
+          }
+          <span class="opacity-50">/</span>
+          <span class="font-semibold text-[var(--ui-ink-2)]">{{ teacher.fullname }}</span>
+        </nav>
+        <app-button variant="outline" size="sm" (clicked)="goBack()">
+          <div class="flex items-center gap-2">
+            <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+            <span>Geri</span>
           </div>
-          <app-button variant="outline" (clicked)="goBack()">
-            <div class="flex items-center space-x-2">
-              <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
-              <span>Geri</span>
-            </div>
-          </app-button>
-        </div>
+        </app-button>
       </div>
 
-      <!-- Biography Card -->
-      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-900">Bioqrafiya</h2>
-          @if (canEdit && !isEditing) {
-            <button (click)="startEdit()" class="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm">
-              <lucide-icon [img]="Edit2" class="w-4 h-4"></lucide-icon>
-              Redaktə et
-            </button>
-          }
-        </div>
+      <app-profile-hero
+        variant="portrait"
+        eyebrow="Layihə müəllimi"
+        [title]="teacher.fullname"
+        [subtitleParts]="heroSubtitleParts"
+        [chips]="heroChips"
+        [avatarUrl]="avatarUrl"
+        [rank]="heroRank"
+        [canEdit]="canEdit"
+        [canUploadPhoto]="canUploadPhoto"
+        [isUploading]="isUploadingAvatar"
+        (editClicked)="startEditFacts()"
+        (avatarSelected)="onAvatarSelected($event)"
+        (uploadRejected)="onAvatarRejected($event)">
+      </app-profile-hero>
 
-        @if (!isEditing) {
-          @if (teacher.biography) {
-            <p class="text-gray-800 whitespace-pre-line">{{ teacher.biography }}</p>
-          } @else {
-            <p class="text-gray-400 italic">Bioqrafiya hələ doldurulmayıb</p>
-          }
-        }
-
-        @if (isEditing) {
-          <app-input
-            [(ngModel)]="editedBiography"
-            name="biography"
-            [multiline]="true"
-            [rows]="6"
-            placeholder="Müəllim haqqında qısa məlumat"
-          ></app-input>
-          <div class="flex gap-2 mt-4">
-            <app-button variant="primary" [disabled]="isSaving" (clicked)="save()">
-              {{ isSaving ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
-            </app-button>
-            <app-button variant="outline" [disabled]="isSaving" (clicked)="cancelEdit()">Ləğv et</app-button>
+      <div class="flex flex-col gap-3">
+        @if (canEdit && !editingFacts) {
+          <div class="flex justify-end -mb-1">
+            <button type="button" (click)="startEditFacts()" class="text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">Profil məlumatlarını redaktə et</button>
           </div>
         }
+        <app-profile-facts [facts]="facts"></app-profile-facts>
+
+        @if (editingFacts) {
+          <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
+            <app-input
+              label="Pedaqoji stajın başlanğıc ili"
+              type="number"
+              [(ngModel)]="editedPedagogicalStartYear"
+              name="pedagogicalStartYear"
+              placeholder="məs. 2011"
+            ></app-input>
+            <div class="flex gap-2 mt-4">
+              <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
+                {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
+              </app-button>
+              <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <app-profile-achievements
+        title="Uğurları"
+        [text]="teacher.achievements ?? null"
+        [canEdit]="canEdit"
+        [isSaving]="isSavingAchievements"
+        [saveFailed]="achievementsSaveFailed"
+        (save)="saveAchievements($event)">
+      </app-profile-achievements>
+
+      <app-profile-stats-section
+        periodLabel="cari tədris ili"
+        [filter]="statsFilter"
+        [showDetailsLink]="permissions.canAccessRoute('canAccessStatistics')"
+        [detailsQueryParams]="statsDetailsQueryParams">
+      </app-profile-stats-section>
+
+      <app-profile-rating-section
+        [ratings]="teacher.ratings ?? []"
+        [scopes]="ratingScopes">
+      </app-profile-rating-section>
+
+      <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
+        <div class="flex items-center gap-2.5 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)]">
+          <h2 class="text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">Şagirdlər</h2>
+          <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ studentsTotal }} nəfər, reytinq üzrə</span>
+        </div>
+        <div class="px-5 sm:px-6 py-5">
+          <app-entity-card-grid
+            layout="portrait"
+            [items]="studentCards"
+            [total]="studentsTotal"
+            [isLoading]="studentsLoading"
+            [isLoadingMore]="studentsLoadingMore"
+            moreLabel="Daha çox göstər"
+            emptyLabel="Hələ şagird yoxdur"
+            (loadMore)="onLoadMoreStudents()">
+          </app-entity-card-grid>
+        </div>
       </div>
     </div>
   }

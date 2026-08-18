@@ -23,4 +23,15 @@ export interface District {
     filterPlace?: number | null;
     ratings?: YearRating[];
     avatarUrl?: string;
+    educationHeadName?: string | null;
+    // Только в ответе findById (профильная страница, PROFILES_TASK.md §2.2) — не приходят
+    // в списках. actualStudentCount != studentCount: studentCount — сохранённый делитель
+    // среднего балла, actualStudentCount — живой count(students) для отображения.
+    schoolCount?: number;
+    teacherCount?: number;
+    actualStudentCount?: number;
+}
+
+export interface DistrictProfileUpdate {
+    educationHeadName?: string | null;
 }

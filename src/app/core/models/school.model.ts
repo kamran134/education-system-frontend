@@ -32,6 +32,15 @@ export interface School {
     // автоматически перекодировано каскадом (PHASE3_PLAN.md п.4).
     cascadedTeachersCount?: number;
     cascadedStudentsCount?: number;
+    // Только в ответе findById (профильная страница, PROFILES_TASK.md §2.2) — не приходят
+    // в списках. actualStudentCount != studentCount: studentCount — сохранённый делитель
+    // среднего балла (у всех школ в проде = 1000 по просьбе заказчика), actualStudentCount —
+    // живой count(students) для отображения.
+    actualStudentCount?: number;
+    teacherCount?: number;
+    directorName?: string | null;
+    foundedYear?: number | null;
+    achievements?: string | null;
 }
 
 export interface SchoolForCreation {
@@ -44,4 +53,7 @@ export interface SchoolForCreation {
     district?: District;
     studentCount?: number;
     active?: boolean;
+    directorName?: string | null;
+    foundedYear?: number | null;
+    achievements?: string | null;
 }
