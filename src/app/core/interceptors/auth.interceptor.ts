@@ -39,14 +39,6 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 };
 
 function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService): Observable<HttpEvent<unknown>> {
-    // Если это запрос на обновление токена и он вернул 401, то refresh токен истек
-    if (req.url.includes('/api/auth/refresh')) {
-        isRefreshing = false;
-        refreshTokenSubject.next(null);
-        authService.logout();
-        return throwError(() => new Error('Refresh token expired'));
-    }
-
     if (!isRefreshing) {
         isRefreshing = true;
         refreshTokenSubject.next(null);

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, map, Observable, tap, catchError, switchMap, throwError, of } from 'rxjs';
+import { BehaviorSubject, map, Observable, tap, catchError, switchMap, throwError, of, timer } from 'rxjs';
 import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
 import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, RefreshResponse, UserInfo } from '../models/auth.models';
@@ -180,7 +180,10 @@ export class AuthService {
                         this.userId.next(String(response.data.user.id));
                         this.userRole.next(response.data.user.role);
 
-                        this.router.navigate(['/admin']);
+                        // Редирект после логина — забота вызывающего компонента (LoginComponent
+                        // ведёт на /panel сам). Раньше здесь тоже был router.navigate(['/admin']) —
+                        // с ним оба navigate() гонялись за одной навигацией, и итоговый маршрут
+                        // зависел от того, чей вызов роутер обработает вторым.
                     }
                 })
             );
@@ -191,6 +194,16 @@ export class AuthService {
     }
 
     refreshToken(): Observable<AuthResponse<RefreshResponse>> {
+        // Кука refreshToken общая для всех вкладок одного браузера, а бэкенд ротирует её
+        // при каждом /refresh (старая запись в user_refresh_tokens заменяется новой). Если
+        // две вкладки будят один и тот же протухший access-токен одновременно (типично —
+        // обе простояли в фоне дольше 15 минут), backend успевает обработать только первый
+        // /refresh: вторая вкладка бьёт по уже отработанной куке и получает честный 401,
+        // хотя сессия жива. tokenBeforeAttempt фиксирует, с каким access-токеном мы сюда
+        // вошли, чтобы в catchError отличить «сессия правда умерла» от «просто проиграли
+        // гонку ротации» (см. B2, AUTH_REDIRECT_FIX_TASK.md).
+        const tokenBeforeAttempt = this.getToken();
+
         return this.http.post<AuthResponse<RefreshResponse>>(`${this.configService.getAuthUrl()}/refresh`, {}, { withCredentials: true })
             .pipe(
                 tap(response => {
@@ -215,9 +228,29 @@ export class AuthService {
                     }
                 }),
                 catchError(error => {
-                    // Если refresh токен истек (401), делаем logout
                     if (error.status === 401) {
-                        this.logout();
+                        // Другая вкладка могла уже успешно обновить сессию тем же самым
+                        // refresh-токеном, пока наш запрос был в полёте — тогда localStorage
+                        // уже содержит новый access-токен, отличный от того, с которым мы
+                        // сюда вошли. Не наша сессия умерла, мы просто проиграли гонку.
+                        const immediateToken = this.getToken();
+                        if (immediateToken && immediateToken !== tokenBeforeAttempt) {
+                            return of({ success: true, data: { token: immediateToken } } as AuthResponse<RefreshResponse>);
+                        }
+
+                        // Токен ещё не появился — возможно, ответ другой вкладки просто ещё
+                        // не долетел до её localStorage. Даём короткий шанс перед тем, как
+                        // признать сессию действительно мёртвой и разлогинить.
+                        return timer(300).pipe(
+                            switchMap(() => {
+                                const delayedToken = this.getToken();
+                                if (delayedToken && delayedToken !== tokenBeforeAttempt) {
+                                    return of({ success: true, data: { token: delayedToken } } as AuthResponse<RefreshResponse>);
+                                }
+                                this.logout();
+                                return throwError(() => error);
+                            })
+                        );
                     }
                     return throwError(() => error);
                 })
@@ -332,7 +365,23 @@ export class AuthService {
         this.userId.next(null);
         this.currentUserData.next(null); // Очищаем данные пользователя
         this.authStatus.next(false);
-        this.router.navigate(['/login']);
+
+        // Публичные страницы (лендинг, /login, /register, проверка сертификата по QR,
+        // публичный буклет) не должны терять посетителя на /login из-за фонового 401 —
+        // logout() сюда попадает и из interceptor'а/refreshToken() при истёкшей сессии,
+        // не только по клику "выйти".
+        if (!this.isPublicRoute(this.router.url)) {
+            this.router.navigate(['/login']);
+        }
+    }
+
+    /** Маршруты без authGuard/adminGuard в app.routes.ts — держать в синхроне с ним вручную. */
+    private isPublicRoute(url: string): boolean {
+        const path = url.split('?')[0].split('#')[0];
+        if (path === '/' || path === '/login' || path === '/register') {
+            return true;
+        }
+        return path.startsWith('/sertifikat/') || path.startsWith('/public/booklets/');
     }
 
     /**
