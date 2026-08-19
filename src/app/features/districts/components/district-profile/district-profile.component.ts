@@ -20,6 +20,7 @@ import { ProfileStatsSectionComponent } from '../../../../shared/components/prof
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
+import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 
 const SCHOOLS_PAGE_SIZE = 12;
 
@@ -192,12 +193,15 @@ export class DistrictProfileComponent implements OnInit {
             return;
         }
 
+        const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
         if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
         // Регион — ссылкой на его профиль, если привязка есть (districts.region_id заполнен
-        // у всех с миграции 006, но regionName приходит только когда джойн отработал).
+        // у всех с миграции 006, но regionName приходит только когда джойн отработал) И
+        // текущий пользователь вправе его увидеть (см. canViewAncestorCrumb).
         if (district.regionId && district.regionName) {
-            crumbs.push({ text: district.regionName, link: ['/regions', district.regionId, 'profile'] });
+            const canViewRegion = canViewAncestorCrumb(user, 'region', district.regionId);
+            crumbs.push({ text: district.regionName, link: canViewRegion ? ['/regions', district.regionId, 'profile'] : undefined });
         }
         crumbs.push({ text: district.name });
         this.crumbs = crumbs;

@@ -22,6 +22,7 @@ import { ProfileStatsSectionComponent } from '../../../../shared/components/prof
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
+import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 
 const STUDENTS_PAGE_SIZE = 12;
 
@@ -218,10 +219,17 @@ export class TeacherProfileComponent implements OnInit {
         const grades = this.gradesLabel(teacher);
         const pedStaj = this.pedagogicalYearsLabel(teacher);
 
+        const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
         if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
-        if (teacher.district) crumbs.push({ text: teacher.district.name, link: ['/districts', teacher.district.id, 'profile'] });
-        if (teacher.school) crumbs.push({ text: teacher.school.name, link: ['/schools', teacher.school.id, 'profile'] });
+        if (teacher.district) {
+            const canViewDistrict = canViewAncestorCrumb(user, 'district', teacher.district.id);
+            crumbs.push({ text: teacher.district.name, link: canViewDistrict ? ['/districts', teacher.district.id, 'profile'] : undefined });
+        }
+        if (teacher.school) {
+            const canViewSchool = canViewAncestorCrumb(user, 'school', teacher.school.id);
+            crumbs.push({ text: teacher.school.name, link: canViewSchool ? ['/schools', teacher.school.id, 'profile'] : undefined });
+        }
         crumbs.push({ text: teacher.fullname });
         this.crumbs = crumbs;
 

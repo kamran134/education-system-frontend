@@ -21,6 +21,7 @@ import { ProfileStatsSectionComponent } from '../../../../shared/components/prof
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
+import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 
 const TEACHERS_PAGE_SIZE = 12;
 
@@ -191,9 +192,13 @@ export class SchoolProfileComponent implements OnInit {
             return;
         }
 
+        const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
         if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
-        if (school.district) crumbs.push({ text: school.district.name, link: ['/districts', school.district.id, 'profile'] });
+        if (school.district) {
+            const canViewDistrict = canViewAncestorCrumb(user, 'district', school.district.id);
+            crumbs.push({ text: school.district.name, link: canViewDistrict ? ['/districts', school.district.id, 'profile'] : undefined });
+        }
         crumbs.push({ text: school.name });
         this.crumbs = crumbs;
 
