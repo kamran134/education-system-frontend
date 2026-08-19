@@ -5,6 +5,14 @@ on:
     branches:
       - main
 
+# Не даём двум прогонам ЭТОГО репозитория деплоить одновременно (быстрый повторный push).
+# Межрепозиторную гонку с бэкендом это НЕ решает: concurrency-группы в GitHub Actions
+# ограничены одним репозиторием и не разделяются между ними. Для этого — flock на сервере,
+# см. шаг деплоя ниже.
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -29,7 +37,11 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > deploy_key
           chmod 600 deploy_key
 
+      # Тот же замок, что и в бэкендовом воркфлоу (/tmp/isim-deploy.lock) — оба гоняют
+      # `docker compose` над одним проектом ~/isim, параллельно это не безопасно. Подробности
+      # инцидента 19.08.2026 — в комментарии у аналогичного шага в репозитории бэкенда.
+      # -w 600: ждать освобождения замка до 10 минут, а не падать сразу.
       - name: Deploy frontend on server
         run: |
           ssh -i deploy_key -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
-            "cd ~/isim && docker compose pull frontend && docker compose up -d frontend"
+            "flock -w 600 /tmp/isim-deploy.lock -c 'cd ~/isim && docker compose pull frontend && docker compose up -d frontend'"
