@@ -61,6 +61,11 @@ export class SchoolProfileComponent implements OnInit {
     // teacher-profile.component.ts. Геттер, возвращающий новый объект/массив на каждый вызов,
     // триггерит ngOnChanges у app-profile-stats-section на каждом цикле change detection и
     // превращается в бесконечный цикл HTTP-запросов (поймано при ручной QA).
+    /**
+     * Крошки массивом, а не условиями в шаблоне: «Panel» скрывается на своём профиле, и
+     * разделители при любом сочетании не должны ни удваиваться, ни висеть в начале.
+     */
+    crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroChips: ProfileHeroChip[] = [];
     heroRank: ProfileHeroRank | null = null;
@@ -161,6 +166,16 @@ export class SchoolProfileComponent implements OnInit {
         return this.canEdit;
     }
 
+    /**
+     * Свой профиль как домашняя страница (PROFILE_AS_HOME_TASK.md §3): «Geri» и крошка «Panel»
+     * ведут на /panel, который переадресует обратно сюда же — кнопка-пустышка. Проверяем именно
+     * владение, а не canEdit: у админа canEdit=true, но это не его дом.
+     */
+    get isOwnHome(): boolean {
+        const user = this.authService.getCurrentUserValue();
+        return user?.role === 'schoolDirector' && String(user.profile?.entityId) === String(this.schoolId);
+    }
+
     get avatarUrl(): string | null {
         return this.configService.resolveAssetUrl(this.school?.avatarUrl);
     }
@@ -175,6 +190,12 @@ export class SchoolProfileComponent implements OnInit {
             this.ratingScopes = [];
             return;
         }
+
+        const crumbs: { text: string; link?: any[] }[] = [];
+        if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
+        if (school.district) crumbs.push({ text: school.district.name, link: ['/districts', school.district.id, 'profile'] });
+        crumbs.push({ text: school.name });
+        this.crumbs = crumbs;
 
         this.heroSubtitleParts = [{ text: 'Kod ' + school.code }];
 

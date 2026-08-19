@@ -22,4 +22,8 @@ export interface Region {
     filterPlace?: number | null;
     ratings?: YearRating[];
     avatarUrl?: string;
+    // Только в ответе findById (профильная страница, PROFILE_AS_HOME_TASK.md §4.1) — в отличие
+    // от districtCount/studentCount выше, которые приходят и в списках.
+    schoolCount?: number;
+    teacherCount?: number;
 }

@@ -61,6 +61,12 @@ export class DistrictProfileComponent implements OnInit {
     // teacher-profile.component.ts. Геттер, возвращающий новый объект/массив на каждый вызов,
     // триггерит ngOnChanges у app-profile-stats-section на каждом цикле change detection и
     // превращается в бесконечный цикл HTTP-запросов (поймано при ручной QA).
+    /**
+     * Крошки массивом, а не условиями в шаблоне: «Panel» скрывается на своём профиле, регион
+     * у района бывает не заполнен, и разделители при любом сочетании не должны ни удваиваться,
+     * ни висеть в начале.
+     */
+    crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroChips: ProfileHeroChip[] = [];
     heroRank: ProfileHeroRank | null = null;
@@ -161,6 +167,16 @@ export class DistrictProfileComponent implements OnInit {
         return this.canEdit;
     }
 
+    /**
+     * Свой профиль как домашняя страница (PROFILE_AS_HOME_TASK.md §3): «Geri» и крошка «Panel»
+     * ведут на /panel, который переадресует обратно сюда же — кнопка-пустышка. Проверяем именно
+     * владение, а не canEdit: у админа canEdit=true, но это не его дом.
+     */
+    get isOwnHome(): boolean {
+        const user = this.authService.getCurrentUserValue();
+        return user?.role === 'districtRepresenter' && String(user.profile?.entityId) === String(this.districtId);
+    }
+
     get avatarUrl(): string | null {
         return this.configService.resolveAssetUrl(this.district?.avatarUrl);
     }
@@ -175,6 +191,16 @@ export class DistrictProfileComponent implements OnInit {
             this.ratingScopes = [];
             return;
         }
+
+        const crumbs: { text: string; link?: any[] }[] = [];
+        if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
+        // Регион — ссылкой на его профиль, если привязка есть (districts.region_id заполнен
+        // у всех с миграции 006, но regionName приходит только когда джойн отработал).
+        if (district.regionId && district.regionName) {
+            crumbs.push({ text: district.regionName, link: ['/regions', district.regionId, 'profile'] });
+        }
+        crumbs.push({ text: district.name });
+        this.crumbs = crumbs;
 
         this.heroSubtitleParts = [{ text: 'Kod ' + district.code }];
 

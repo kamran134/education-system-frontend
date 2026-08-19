@@ -6,7 +6,7 @@ import { filter } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp } from 'lucide-angular';
+import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 
@@ -53,6 +53,7 @@ export class AppComponent implements OnInit {
     readonly Moon = Moon;
     readonly ChevronDown = ChevronDown;
     readonly Shield = Shield;
+    readonly ClipboardList = ClipboardList;
 
     constructor(
         private authService: AuthService,
@@ -277,6 +278,18 @@ export class AppComponent implements OnInit {
             return;
         }
         this.router.navigate(['/students']);
+    }
+
+    /**
+     * Без проверки прав, в отличие от соседей: маршрут /exam-results закрыт одним authGuard,
+     * ролевого ключа под него в RolePermissions['routes'] просто нет.
+     */
+    goToExamResults(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        this.router.navigate(['/exam-results']);
     }
 
     isAdminOrSuperAdmin(): boolean {

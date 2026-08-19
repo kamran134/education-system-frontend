@@ -27,6 +27,9 @@ export class StatisticsService {
         let params = new HttpParams();
 
         if (filters) {
+            if (filters.regionIds && filters.regionIds.length > 0) {
+                params = params.set('regionIds', filters.regionIds.join(','));
+            }
             if (filters.districtIds && filters.districtIds.length > 0) {
                 params = params.set('districtIds', filters.districtIds.join(','));
             }
@@ -57,6 +60,9 @@ export class StatisticsService {
         let params = new HttpParams();
 
         if (filters) {
+            if (filters.regionIds && filters.regionIds.length > 0) {
+                params = params.set('regionIds', filters.regionIds.join(','));
+            }
             if (filters.districtIds && filters.districtIds.length > 0) {
                 params = params.set('districtIds', filters.districtIds.join(','));
             }
@@ -87,6 +93,9 @@ export class StatisticsService {
         let params = new HttpParams();
 
         if (filters) {
+            if (filters.regionIds && filters.regionIds.length > 0) {
+                params = params.set('regionIds', filters.regionIds.join(','));
+            }
             if (filters.districtIds && filters.districtIds.length > 0) {
                 params = params.set('districtIds', filters.districtIds.join(','));
             }

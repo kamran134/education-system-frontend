@@ -1,0 +1,76 @@
+<div class="main-container p-4 sm:p-6">
+  @if (isLoading) {
+    <div class="flex justify-center items-center py-8">
+      <lucide-icon [img]="Loader" class="animate-spin text-[var(--ui-accent)]" size="24"></lucide-icon>
+      <span class="ml-2 text-[var(--ui-muted)]">Məlumatlar yüklənir...</span>
+    </div>
+  }
+
+  @if (!isLoading && region) {
+    <div class="max-w-[1060px] mx-auto flex flex-col gap-4 sm:gap-5">
+
+      @if (!isOwnHome) {
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <nav class="flex items-center gap-2 text-sm text-[var(--ui-muted)] flex-wrap">
+            <a routerLink="/panel" class="hover:text-[var(--ui-accent)] transition-colors">Panel</a>
+            <span class="opacity-50">/</span>
+            <span class="font-semibold text-[var(--ui-ink-2)]">{{ region.name }}</span>
+          </nav>
+          <app-button variant="outline" size="sm" (clicked)="goBack()">
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+              <span>Geri</span>
+            </div>
+          </app-button>
+        </div>
+      }
+
+      <app-profile-hero
+        variant="banner"
+        [title]="region.name"
+        [subtitleParts]="heroSubtitleParts"
+        [chips]="heroChips"
+        [avatarUrl]="avatarUrl"
+        [rank]="heroRank"
+        [canEdit]="false"
+        [canUploadPhoto]="canUploadPhoto"
+        [isUploading]="isUploadingAvatar"
+        (avatarSelected)="onAvatarSelected($event)"
+        (uploadRejected)="onAvatarRejected($event)">
+      </app-profile-hero>
+
+      <app-profile-facts [facts]="facts"></app-profile-facts>
+
+      <app-profile-stats-section
+        periodLabel="cari tədris ili"
+        [filter]="statsFilter"
+        [showDetailsLink]="permissions.canAccessRoute('canAccessStatistics')"
+        [detailsQueryParams]="statsDetailsQueryParams">
+      </app-profile-stats-section>
+
+      <app-profile-rating-section
+        [ratings]="region.ratings ?? []"
+        [scopes]="ratingScopes">
+      </app-profile-rating-section>
+
+      <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
+        <div class="flex items-center gap-2.5 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)]">
+          <h2 class="text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">Rayonlar / şəhərlər</h2>
+          <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ districtsTotal }}, reytinq üzrə</span>
+        </div>
+        <div class="px-5 sm:px-6 py-5">
+          <app-entity-card-grid
+            layout="wide"
+            [items]="districtCards"
+            [total]="districtsTotal"
+            [isLoading]="districtsLoading"
+            [isLoadingMore]="districtsLoadingMore"
+            moreLabel="Daha çox göstər"
+            emptyLabel="Hələ rayon yoxdur"
+            (loadMore)="onLoadMoreDistricts()">
+          </app-entity-card-grid>
+        </div>
+      </div>
+    </div>
+  }
+</div>

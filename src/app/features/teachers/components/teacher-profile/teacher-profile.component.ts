@@ -64,6 +64,12 @@ export class TeacherProfileComponent implements OnInit {
     // ngOnChanges дёргает HTTP-запрос. Геттер в biding [filter] превращался в бесконечный
     // цикл запросов (поймано при ручной QA, см. PROFILES_TASK.md §10) — отсюда это правило
     // для ВСЕХ производных полей на этой странице, не только statsFilter.
+    /**
+     * Крошки собираются массивом, а не условиями в шаблоне: «Panel» скрывается на своём
+     * профиле, район и школа у учителя nullable (в проде есть учителя без школы), и разделители
+     * при любом сочетании не должны ни удваиваться, ни висеть в начале.
+     */
+    crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroChips: ProfileHeroChip[] = [];
     heroRank: ProfileHeroRank | null = null;
@@ -169,6 +175,17 @@ export class TeacherProfileComponent implements OnInit {
         return this.canEdit;
     }
 
+    /**
+     * Свой профиль как домашняя страница (PROFILE_AS_HOME_TASK.md §3): «Geri» и крошка «Panel»
+     * ведут на /panel, который переадресует обратно сюда же — кнопка-пустышка. На чужом
+     * профиле (админ смотрит) они нужны, поэтому проверяем именно владение, а не canEdit:
+     * у админа canEdit=true, но это не его дом.
+     */
+    get isOwnHome(): boolean {
+        const user = this.authService.getCurrentUserValue();
+        return user?.role === 'teacher' && String(user.profile?.entityId) === String(this.teacherId);
+    }
+
     get avatarUrl(): string | null {
         return this.configService.resolveAssetUrl(this.teacher?.avatarUrl);
     }
@@ -200,6 +217,13 @@ export class TeacherProfileComponent implements OnInit {
 
         const grades = this.gradesLabel(teacher);
         const pedStaj = this.pedagogicalYearsLabel(teacher);
+
+        const crumbs: { text: string; link?: any[] }[] = [];
+        if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
+        if (teacher.district) crumbs.push({ text: teacher.district.name, link: ['/districts', teacher.district.id, 'profile'] });
+        if (teacher.school) crumbs.push({ text: teacher.school.name, link: ['/schools', teacher.school.id, 'profile'] });
+        crumbs.push({ text: teacher.fullname });
+        this.crumbs = crumbs;
 
         this.heroSubtitleParts = [{ text: 'Kod ' + teacher.code }];
 

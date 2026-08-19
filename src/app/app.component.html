@@ -78,6 +78,14 @@
                   Şagirdlər
                 </app-dropdown-item>
               }
+              <!-- Без ролевого условия намеренно: /exam-results закрыт одним authGuard, без
+                   roleGuard, то есть открыт всем авторизованным. До этого пункта пути к нему
+                   не было вообще ни у кого, у кого showExamsSection=false (учитель, директор,
+                   представитель района) — карточки на /panel нет, в меню не было тоже. -->
+              <app-dropdown-item (clicked)="goToExamResults()">
+                <lucide-icon [img]="ClipboardList" class="mr-3 h-4 w-4"></lucide-icon>
+                İmtahan nəticələri
+              </app-dropdown-item>
             </div>
           </app-dropdown>
         }

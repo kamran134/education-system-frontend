@@ -11,20 +11,25 @@
 
       <div class="flex items-center justify-between gap-3 flex-wrap">
         <nav class="flex items-center gap-2 text-sm text-[var(--ui-muted)] flex-wrap">
-          <a routerLink="/panel" class="hover:text-[var(--ui-accent)] transition-colors">Panel</a>
-          @if (school.district) {
-            <span class="opacity-50">/</span>
-            <a [routerLink]="['/districts', school.district.id, 'profile']" class="hover:text-[var(--ui-accent)] transition-colors">{{ school.district.name }}</a>
+          @for (crumb of crumbs; track $index) {
+            @if (!$first) {
+              <span class="opacity-50">/</span>
+            }
+            @if (crumb.link) {
+              <a [routerLink]="crumb.link" class="hover:text-[var(--ui-accent)] transition-colors">{{ crumb.text }}</a>
+            } @else {
+              <span class="font-semibold text-[var(--ui-ink-2)]">{{ crumb.text }}</span>
+            }
           }
-          <span class="opacity-50">/</span>
-          <span class="font-semibold text-[var(--ui-ink-2)]">{{ school.name }}</span>
         </nav>
-        <app-button variant="outline" size="sm" (clicked)="goBack()">
-          <div class="flex items-center gap-2">
-            <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
-            <span>Geri</span>
-          </div>
-        </app-button>
+        @if (!isOwnHome) {
+          <app-button variant="outline" size="sm" (clicked)="goBack()">
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+              <span>Geri</span>
+            </div>
+          </app-button>
+        }
       </div>
 
       <app-profile-hero

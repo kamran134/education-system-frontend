@@ -19,6 +19,14 @@ export class DistrictService {
         let url: string = `${this.configService.getApiUrl()}/districts`;
         const queryParams: string[] = [];
 
+        // page/size раньше не отправлялись — бэкенд при их отсутствии отдаёт первые 100
+        // (RequestParser.parsePagination). Добавлено ради профиля региона, где сетка районов
+        // догружается порциями, как у школ и учителей.
+        if (params.page && params.size) {
+            queryParams.push(`page=${params.page}`);
+            queryParams.push(`size=${params.size}`);
+        }
+
         if (params.regionIds && params.regionIds.length > 0) {
             queryParams.push(`regionIds=${params.regionIds}`);
         }

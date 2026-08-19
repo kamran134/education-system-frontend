@@ -1,4 +1,5 @@
 export interface StatisticsFilter {
+    regionIds?: string[];
     districtIds?: string[];
     schoolIds?: string[];
     teacherIds?: string[];

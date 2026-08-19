@@ -13,6 +13,7 @@ import { StudentDetailsComponent } from './features/students/components/student-
 import { SchoolProfileComponent } from './features/schools/components/school-profile/school-profile.component';
 import { TeacherProfileComponent } from './features/teachers/components/teacher-profile/teacher-profile.component';
 import { DistrictProfileComponent } from './features/districts/components/district-profile/district-profile.component';
+import { RegionProfileComponent } from './features/regions/components/region-profile/region-profile.component';
 import { ExamResultsComponent } from './features/exam-results/components/exam-results.component';
 import { BookletsListComponent } from './features/booklets/components/booklets-list/booklets-list.component';
 import { BookletDetailComponent } from './features/booklets/components/booklet-detail/booklet-detail.component';
@@ -30,6 +31,11 @@ export const routes: Routes = [
     { path: 'panel', component: HomeComponent, canActivate: [authGuard] },
     { path: 'regions', component: RegionsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
     { path: 'regions/:id/districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessRegions')] },
+    // Профиль РТИ — не gated ролевым canAccessRegions, тот же паттерн, что у профилей
+    // района/школы/учителя: regionRepresenter должен видеть СВОЙ профиль (это его домашняя
+    // страница, PROFILE_AS_HOME_TASK.md), даже если canAccessRegions=false — тот флаг про
+    // доступ к чужим спискам. Владение проверяется в компоненте и на бэкенде.
+    { path: 'regions/:id/profile', component: RegionProfileComponent, canActivate: [authGuard] },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
     { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
     // Профиль района — не gated ролевым canAccessDistricts, тот же паттерн, что у профиля

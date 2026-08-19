@@ -13,7 +13,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
-import { LucideAngularModule, Plus, Edit } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit, Eye } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -49,6 +49,12 @@ export class RegionsListComponent implements OnInit {
     ];
 
     tableActions: TableAction[] = [
+        {
+            key: 'profile',
+            label: 'Ətraflı',
+            icon: Eye,
+            variant: 'outline'
+        },
         {
             key: 'edit',
             label: 'Düzəliş et',
@@ -174,10 +180,17 @@ export class RegionsListComponent implements OnInit {
 
     onTableAction(event: { action: string; item: any }): void {
         switch (event.action) {
+            case 'profile':
+                this.onRegionProfile(event.item);
+                break;
             case 'edit':
                 this.onRegionEdit(event.item);
                 break;
         }
+    }
+
+    onRegionProfile(region: Region): void {
+        this.router.navigate(['/regions', region.id, 'profile']);
     }
 
     onRegionEdit(region: Region): void {
