@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 - `npm start` / `ng serve` — dev server at http://localhost:4200
-- `ng build` — production build (SSR entry: `server.ts`)
+- `ng build` — production build, client-side only (no SSR/prerender — the Dockerfile serves the `browser/` output through nginx, `server.ts` was never used in prod and has been removed; prerendering pre-baked `/login` redirect stubs into every `authGuard`-protected route, since the guard runs without a browser at build time)
 - `ng test` — Karma/Jasmine unit tests (see Testing note below before relying on these)
 - `ng generate component|service|guard ...` — scaffolding; everything in this repo is standalone (no NgModules)
 

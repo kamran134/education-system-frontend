@@ -34,12 +34,7 @@
               "src/styles.scss",
               "@angular/cdk/overlay-prebuilt.css"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
