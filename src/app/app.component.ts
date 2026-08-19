@@ -42,7 +42,6 @@ export class AppComponent implements OnInit {
     // Lucide Icons
     readonly User = User;
     readonly Settings = Settings;
-    readonly BarChart3 = BarChart3;
     readonly TrendingUp = TrendingUp;
     readonly Building2 = Building2;
     readonly GraduationCap = GraduationCap;
@@ -53,6 +52,7 @@ export class AppComponent implements OnInit {
     readonly Moon = Moon;
     readonly ChevronDown = ChevronDown;
     readonly Shield = Shield;
+    readonly BarChart3 = BarChart3;
     readonly ClipboardList = ClipboardList;
 
     constructor(
@@ -170,18 +170,6 @@ export class AppComponent implements OnInit {
             return;
         }
         this.router.navigate(['/admin']);
-    }
-
-    goToAdminDashboard(): void {
-        if (!this.isAuthorized()) {
-            this.router.navigate(['/login']);
-            return;
-        }
-        if (!this.permissions.canAccessRoute('canAccessAdminPanel')) {
-            this.router.navigate(['/panel']);
-            return;
-        }
-        this.router.navigate(['/admin/dashboard']);
     }
 
     goToUsers(): void {

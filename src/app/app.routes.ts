@@ -19,7 +19,6 @@ import { BookletsListComponent } from './features/booklets/components/booklets-l
 import { BookletDetailComponent } from './features/booklets/components/booklet-detail/booklet-detail.component';
 import { CertificateVerifyComponent } from './features/certificates/components/certificate-verify/certificate-verify.component';
 import { authGuard } from './core/guards/auth.guard';
-import { adminGuard } from './core/guards/admin.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/register/register/register.component';
@@ -65,7 +64,6 @@ export const routes: Routes = [
     { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard] },
     { path: 'profile', loadChildren: () => import('./features/profile/profile.routes').then(m => m.PROFILE_ROUTES), canActivate: [authGuard] },
     { path: 'admin', loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.routes), canActivate: [authGuard] },
-    { path: 'admin/dashboard', loadComponent: () => import('./features/admin/admin-dashboard.component').then(m => m.AdminDashboardComponent), canActivate: [adminGuard] },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: '**', redirectTo: '' }
