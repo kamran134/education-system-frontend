@@ -107,6 +107,18 @@ export class CertificateService {
         return this.http.post<ApiResponse<void>>(`${this.baseUrl}/issued/${id}/revoke`, { reason }).pipe(map(() => undefined));
     }
 
+    deleteIssued(id: number): Observable<void> {
+        return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/issued/${id}`).pipe(map(() => undefined));
+    }
+
+    // Сброс всех снапшотов конкретного шаблона — старые "İnkişaf edən şagird" версии без
+    // QR и т.п. При следующем скачивании пересоздастся из текущей раскладки шаблона.
+    deleteIssuedByTemplate(templateId: number): Observable<{ deleted: number }> {
+        return this.http
+            .delete<ApiResponse<{ deleted: number }>>(`${this.baseUrl}/templates/${templateId}/issued`)
+            .pipe(map((r) => ResponseHandlerUtil.extractData<{ deleted: number }>(r)));
+    }
+
     // ---- Скачивание — доступ как у /students/:id, без RBAC-гейта (см. certificate.model.ts) ----
 
     availabilityForStudent(studentId: number): Observable<CertificateAvailabilityMap> {

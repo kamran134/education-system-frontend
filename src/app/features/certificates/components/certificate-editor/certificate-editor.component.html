@@ -62,6 +62,16 @@
         <lucide-icon [img]="Save" class="w-4 h-4 mr-1.5"></lucide-icon>
         Yadda saxla
       </app-button>
+
+      <app-button
+        variant="ghost"
+        size="sm"
+        [disabled]="isResettingIssued"
+        (clicked)="resetIssuedCertificates()"
+        title="Bu şablon üzrə əvvəllər verilmiş sertifikatları sıfırlayır — köhnə QR/keçid etibarsız olur">
+        <lucide-icon [img]="Eraser" class="w-4 h-4 mr-1.5 text-red-500"></lucide-icon>
+        <span class="text-red-600">Verilmiş sertifikatları sıfırla</span>
+      </app-button>
     </div>
 
     @if (missingRequiredTypes.length > 0) {

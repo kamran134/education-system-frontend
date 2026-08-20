@@ -19,6 +19,7 @@ import {
     Image as ImageIcon,
     Trash2,
     RotateCcw,
+    Eraser,
 } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -168,6 +169,7 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
     readonly ImageIcon = ImageIcon;
     readonly Trash2 = Trash2;
     readonly RotateCcw = RotateCcw;
+    readonly Eraser = Eraser;
 
     readonly fieldTypeOptions: SelectOption[] = (Object.keys(FIELD_TYPE_LABELS) as CertificateFieldType[]).map((t) => ({
         value: t,
@@ -607,6 +609,37 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
             error: () => {
                 this.isSaving = false;
                 this.toast.show('Yadda saxlanarkən xəta baş verdi', 'error');
+            },
+        });
+    }
+
+    isResettingIssued = false;
+
+    // Снапшот в issued_certificates фиксируется навсегда при первом скачивании — если
+    // шаблон был неправильным (например, без QR), уже скачавшие получат ту же старую
+    // версию и после исправления. Сброс стирает снапшоты этого шаблона — следующее
+    // скачивание пересоздаст сертификат из ТЕКУЩЕЙ раскладки, но старый QR/ссылка
+    // (если они вообще были) станут невалидны — необратимо, отсюда двойное подтверждение.
+    resetIssuedCertificates(): void {
+        if (!this.template) return;
+        const proceed = confirm(
+            'Bu şablon üzrə əvvəllər verilmiş bütün sertifikatlar sıfırlanacaq. ' +
+            'Növbəti yükləmədə cari yerləşdirmə ilə yenidən yaradılacaq, köhnə QR/keçid etibarsız olacaq. Davam edilsin?'
+        );
+        if (!proceed) return;
+
+        this.isResettingIssued = true;
+        this.certificateService.deleteIssuedByTemplate(this.template.id).subscribe({
+            next: ({ deleted }) => {
+                this.isResettingIssued = false;
+                this.toast.show(
+                    deleted > 0 ? `${deleted} sertifikat sıfırlandı` : 'Sıfırlanacaq sertifikat yox idi',
+                    'success'
+                );
+            },
+            error: () => {
+                this.isResettingIssued = false;
+                this.toast.show('Sıfırlanarkən xəta baş verdi', 'error');
             },
         });
     }
