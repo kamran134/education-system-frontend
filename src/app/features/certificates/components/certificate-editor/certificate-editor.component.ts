@@ -292,6 +292,23 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         return FIELD_TYPE_LABELS[field.type];
     }
 
+    // Список добавленных полей (слоёв) в панели — на холсте несколько static-полей
+    // визуально неотличимы друг от друга ("Sabit mətn" у всех), поэтому для static
+    // показываем сам текст, обрезанный, вместо повторяющегося названия типа.
+    fieldListLabel(field: CertificateField): string {
+        if (field.type === 'static' && field.text) {
+            const plain = field.text.replace(/\*\*/g, '');
+            return plain.length > 32 ? `${plain.slice(0, 32)}…` : plain;
+        }
+        return this.fieldLabel(field);
+    }
+
+    removeField(id: string, event: Event): void {
+        event.stopPropagation();
+        this.fields = this.fields.filter((f) => f.id !== id);
+        if (this.selectedFieldId === id) this.selectedFieldId = null;
+    }
+
     fieldStyle(field: CertificateField): Record<string, string> {
         return {
             left: `${field.x * this.scale}px`,

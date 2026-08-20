@@ -149,6 +149,29 @@
           </app-button>
         </div>
 
+        <!-- Şablona əlavə edilmiş bütün sahələrin siyahısı — kətan üzərində klikləmədən
+             seçmək üçün (statik mətnlər eyni "Sabit mətn" adı ilə ayırd edilmirdi). -->
+        @if (fields.length > 0) {
+          <div class="border border-gray-200 rounded-xl divide-y divide-gray-100 max-h-56 overflow-y-auto">
+            @for (f of fields; track f.id) {
+              <div
+                (click)="selectField(f.id)"
+                class="flex items-center justify-between gap-2 px-3 py-2 text-sm cursor-pointer transition-colors"
+                [class.bg-primary-50]="selectedFieldId === f.id"
+                [class.text-primary-700]="selectedFieldId === f.id"
+                [class.hover:bg-gray-50]="selectedFieldId !== f.id">
+                <span class="truncate">{{ fieldListLabel(f) }}</span>
+                <button
+                  type="button"
+                  (click)="removeField(f.id, $event)"
+                  class="flex-shrink-0 text-gray-300 hover:text-red-600 transition-colors">
+                  <lucide-icon [img]="Trash2" class="w-3.5 h-3.5"></lucide-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
         @if (selectedField; as field) {
           <div class="border border-gray-200 rounded-xl p-4 space-y-3">
             <div class="flex items-center justify-between">
