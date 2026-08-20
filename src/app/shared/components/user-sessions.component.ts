@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from './ui/toast/toast.service';
+import { ConfirmDialogService } from './ui/confirm-dialog/confirm-dialog.service';
 
 import { AuthService } from '../../core/services/auth.service';
 import { ActiveSessionsInfo } from '../../core/models/auth.models';
@@ -111,7 +112,8 @@ export class UserSessionsComponent implements OnInit {
 
     constructor(
         private authService: AuthService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private confirmDialog: ConfirmDialogService
     ) {}
 
     ngOnInit(): void {
@@ -143,10 +145,14 @@ export class UserSessionsComponent implements OnInit {
         this.loadSessions();
     }
 
-    logoutFromAllDevices(): void {
-        if (!confirm('Bütün cihazlardan çıxmaq istədiyinizdən əminsiniz? Bu əməliyyat geri alına bilməz.')) {
-            return;
-        }
+    async logoutFromAllDevices(): Promise<void> {
+        const confirmed = await this.confirmDialog.confirm({
+            title: 'Bütün cihazlardan çıxış',
+            message: 'Bütün cihazlardan çıxmaq istədiyinizdən əminsiniz? Bu əməliyyat geri alına bilməz.',
+            confirmText: 'Bəli, çıx',
+            variant: 'danger'
+        });
+        if (!confirmed) return;
 
         this.loading = true;
 

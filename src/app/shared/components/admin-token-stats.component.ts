@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastService } from './ui/toast/toast.service';
+import { ConfirmDialogService } from './ui/confirm-dialog/confirm-dialog.service';
 
 import { AuthService } from '../../core/services/auth.service';
 import { TokenStatistics } from '../../core/models/auth.models';
@@ -128,7 +129,8 @@ export class AdminTokenStatsComponent implements OnInit {
 
     constructor(
         private authService: AuthService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private confirmDialog: ConfirmDialogService
     ) {}
 
     ngOnInit(): void {
@@ -160,10 +162,14 @@ export class AdminTokenStatsComponent implements OnInit {
         this.loadStats();
     }
 
-    forceCleanup(): void {
-        if (!confirm('Köhnə tokenləri təmizləmək istədiyinizdən əminsiniz?')) {
-            return;
-        }
+    async forceCleanup(): Promise<void> {
+        const confirmed = await this.confirmDialog.confirm({
+            title: 'Tokenlərin təmizlənməsi',
+            message: 'Köhnə tokenləri təmizləmək istədiyinizdən əminsiniz?',
+            confirmText: 'Bəli, təmizlə',
+            variant: 'danger'
+        });
+        if (!confirmed) return;
 
         this.loading = true;
         

@@ -9,6 +9,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
+import { ConfirmDialogComponent } from './shared/components/ui/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-root',
@@ -19,7 +20,8 @@ import { ToastContainerComponent } from './shared/components/ui/toast/toast-cont
     DropdownComponent,
     DropdownItemComponent,
     DropdownDividerComponent,
-    ToastContainerComponent
+    ToastContainerComponent,
+    ConfirmDialogComponent
 ],
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],

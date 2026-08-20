@@ -25,6 +25,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
+import { ConfirmDialogService } from '../../../../shared/components/ui/confirm-dialog/confirm-dialog.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { CertificateService } from '../../services/certificate.service';
 import {
@@ -222,7 +223,8 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         private router: Router,
         private certificateService: CertificateService,
         private configService: ConfigService,
-        private toast: ToastService
+        private toast: ToastService,
+        private confirmDialog: ConfirmDialogService
     ) {}
 
     ngOnInit(): void {
@@ -426,12 +428,16 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         return this.copySources.map((t) => ({ value: t.id, label: t.name }));
     }
 
-    copyLayoutFromSource(): void {
+    async copyLayoutFromSource(): Promise<void> {
         if (!this.template || this.copySourceId === null) return;
         const source = this.copySources.find((t) => t.id === this.copySourceId);
         if (!source) return;
 
-        const proceed = confirm(`Bütün sahələr "${source.name}" şablonundan köçürüləcək. Davam edilsin?`);
+        const proceed = await this.confirmDialog.confirm({
+            title: 'Yerləşdirmənin köçürülməsi',
+            message: `Bütün sahələr "${source.name}" şablonundan köçürüləcək. Davam edilsin?`,
+            confirmText: 'Bəli, köçür'
+        });
         if (!proceed) return;
 
         this.isCopyingLayout = true;
@@ -456,8 +462,12 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         });
     }
 
-    resetToDefaultLayout(): void {
-        const proceed = confirm('Bütün sahələr standart yerləşdirmə ilə əvəz olunacaq. Davam edilsin?');
+    async resetToDefaultLayout(): Promise<void> {
+        const proceed = await this.confirmDialog.confirm({
+            title: 'Standart yerləşdirməyə qaytarma',
+            message: 'Bütün sahələr standart yerləşdirmə ilə əvəz olunacaq. Davam edilsin?',
+            confirmText: 'Bəli, əvəz et'
+        });
         if (!proceed) return;
         this.certificateService.defaultLayout().subscribe({
             next: (fields) => {
@@ -591,12 +601,14 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         return REQUIRED_TYPES.filter((t) => !present.has(t)).map((t) => FIELD_TYPE_LABELS[t]);
     }
 
-    save(): void {
+    async save(): Promise<void> {
         if (!this.template) return;
         if (this.missingRequiredTypes.length > 0) {
-            const proceed = confirm(
-                `Bu sahələr əlavə edilməyib: ${this.missingRequiredTypes.join(', ')}. Yenə də yadda saxlansın?`
-            );
+            const proceed = await this.confirmDialog.confirm({
+                title: 'Sahələr çatışmır',
+                message: `Bu sahələr əlavə edilməyib: ${this.missingRequiredTypes.join(', ')}. Yenə də yadda saxlansın?`,
+                confirmText: 'Bəli, saxla'
+            });
             if (!proceed) return;
         }
         this.isSaving = true;
@@ -620,12 +632,16 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
     // версию и после исправления. Сброс стирает снапшоты этого шаблона — следующее
     // скачивание пересоздаст сертификат из ТЕКУЩЕЙ раскладки, но старый QR/ссылка
     // (если они вообще были) станут невалидны — необратимо, отсюда двойное подтверждение.
-    resetIssuedCertificates(): void {
+    async resetIssuedCertificates(): Promise<void> {
         if (!this.template) return;
-        const proceed = confirm(
-            'Bu şablon üzrə əvvəllər verilmiş bütün sertifikatlar sıfırlanacaq. ' +
-            'Növbəti yükləmədə cari yerləşdirmə ilə yenidən yaradılacaq, köhnə QR/keçid etibarsız olacaq. Davam edilsin?'
-        );
+        const proceed = await this.confirmDialog.confirm({
+            title: 'Sertifikatların sıfırlanması',
+            message:
+                'Bu şablon üzrə əvvəllər verilmiş bütün sertifikatlar sıfırlanacaq. ' +
+                'Növbəti yükləmədə cari yerləşdirmə ilə yenidən yaradılacaq, köhnə QR/keçid etibarsız olacaq. Davam edilsin?',
+            confirmText: 'Bəli, sıfırla',
+            variant: 'danger'
+        });
         if (!proceed) return;
 
         this.isResettingIssued = true;
