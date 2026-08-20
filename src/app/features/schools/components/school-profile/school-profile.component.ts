@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Loader } from 'lucide-angular';
+import { Dialog } from '@angular/cdk/dialog';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
 import { SchoolService } from '../../services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { School } from '../../../../core/models/school.model';
@@ -12,6 +13,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ProfileHeroComponent, ProfileHeroChip, ProfileHeroSubtitlePart, ProfileHeroRank } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
@@ -20,6 +22,8 @@ import { ProfileAchievementsComponent } from '../../../../shared/components/prof
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 
@@ -78,6 +82,7 @@ export class SchoolProfileComponent implements OnInit {
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
+    readonly ChevronRight = ChevronRight;
 
     private destroyRef = inject(DestroyRef);
 
@@ -89,14 +94,14 @@ export class SchoolProfileComponent implements OnInit {
         private authService: AuthService,
         public permissions: PermissionsService,
         private configService: ConfigService,
-        private snackBarService: SnackBarService
+        private snackBarService: SnackBarService,
+        private dialog: Dialog
     ) {}
 
     ngOnInit(): void {
         this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             this.schoolId = params['id'];
             this.statsFilter = { schoolIds: [this.schoolId] };
-            this.statsDetailsQueryParams = { schoolIds: this.schoolId };
             this.loadSchool();
             this.resetAndLoadTeachers();
         });
@@ -156,15 +161,17 @@ export class SchoolProfileComponent implements OnInit {
         this.loadTeachers();
     }
 
+    /** Правку данных сущности отдали только админ-ролям (PROFILES_V2_TASK.md §1): владелец
+     *  больше не редактирует себя, ему остаётся только фото. Идём через RBAC-хелпер, а не через
+     *  список ролей руками — moderator тоже должен попадать сюда, и матрица прав одна на всё
+     *  приложение (core/config/rbac.config.ts). */
     get canEdit(): boolean {
-        const user = this.authService.getCurrentUserValue();
-        if (!user) return false;
-        if (user.role === 'admin' || user.role === 'superadmin') return true;
-        return user.role === 'schoolDirector' && String(user.profile?.entityId) === String(this.schoolId);
+        return this.authService.canEditSchools();
     }
 
+    /** Фото — единственное, что владелец меняет сам. */
     get canUploadPhoto(): boolean {
-        return this.canEdit;
+        return this.canEdit || this.isOwnHome;
     }
 
     /**
@@ -202,6 +209,14 @@ export class SchoolProfileComponent implements OnInit {
         crumbs.push({ text: school.name });
         this.crumbs = crumbs;
 
+        // districtIds нужен, иначе виджет «Məktəblər» на /statistics откроется пустым и
+        // задизейбленным (он каскадный от района) — сам фильтр schoolIds при этом всё равно
+        // применится (PROFILES_V2_TASK.md §4.4).
+        this.statsDetailsQueryParams = {
+            districtIds: school.district?.id,
+            schoolIds: this.schoolId,
+        };
+
         this.heroSubtitleParts = [{ text: 'Kod ' + school.code }];
 
         const chips: ProfileHeroChip[] = [];
@@ -238,6 +253,69 @@ export class SchoolProfileComponent implements OnInit {
             place: t.place ?? null,
             routerLink: ['/teachers', t.id, 'profile'],
         }));
+    }
+
+    /**
+     * Кнопка «Redaktə et» в шапке (PROFILES_V2_TASK.md §3.2) открывает тот же диалог, что
+     * раньше открывался из строки списка schools-list.component.ts::onSchoolEdit — не
+     * переписан, только перенесён. После save перезагружаем профиль целиком (loadSchool),
+     * чтобы пересчитались recomputeDerivedFields() и все производные поля.
+     */
+    openEditDialog(): void {
+        if (!this.school) return;
+        const dialogRef = this.dialog.open<any>(SchoolEditingDialogComponent, {
+            width: '1000px',
+            data: {
+                school: this.school,
+                isEditing: true,
+                canDelete: this.authService.canDeleteSchools()
+            }
+        });
+
+        dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
+            if (result?.action === 'delete') {
+                this.handleSchoolDelete();
+            } else if (result?.action === 'save') {
+                this.schoolService.updateSchool(result.data).subscribe({
+                    next: (response) => {
+                        const updatedSchool = ResponseHandlerUtil.extractData<School>(response);
+                        const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Məktəb uğurla yeniləndi';
+                        const cascadeParts: string[] = [];
+                        if (updatedSchool.cascadedTeachersCount) cascadeParts.push(`${updatedSchool.cascadedTeachersCount} müəllimin`);
+                        if (updatedSchool.cascadedStudentsCount) cascadeParts.push(`${updatedSchool.cascadedStudentsCount} şagirdin`);
+                        const cascadeMessage = cascadeParts.length ? ` (${cascadeParts.join(' və ')} kodu avtomatik yeniləndi)` : '';
+                        this.snackBarService.show(baseMessage + cascadeMessage, 'success');
+                        this.loadSchool();
+                    },
+                    error: (error) => {
+                        this.snackBarService.show(error.error?.message ?? 'Profil yenilənərkən xəta baş verdi', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    private handleSchoolDelete(): void {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
+            width: '350px',
+            data: {
+                title: 'Silinməyə razılıq',
+                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!'
+            }
+        });
+
+        confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {
+            if (!result) return;
+            this.schoolService.deleteSchool(this.schoolId).subscribe({
+                next: () => {
+                    this.snackBarService.show('Məktəb uğurla silindi', 'success');
+                    this.router.navigate(['/schools']);
+                },
+                error: (error) => {
+                    this.snackBarService.show(error.error?.message ?? 'Silinərkən xəta baş verdi', 'error');
+                }
+            });
+        });
     }
 
     startEditFacts(): void {

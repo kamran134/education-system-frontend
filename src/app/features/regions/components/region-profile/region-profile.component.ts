@@ -2,7 +2,8 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Loader } from 'lucide-angular';
+import { Dialog } from '@angular/cdk/dialog';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
 import { RegionService } from '../../services/region.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { Region } from '../../../../core/models/region.model';
@@ -17,6 +18,8 @@ import { ProfileFactsComponent, ProfileFact } from '../../../../shared/component
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { RegionEditingDialogComponent } from '../region-editing-dialog/region-editing-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 
 const DISTRICTS_PAGE_SIZE = 12;
@@ -65,6 +68,7 @@ export class RegionProfileComponent implements OnInit {
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
+    readonly ChevronRight = ChevronRight;
 
     private destroyRef = inject(DestroyRef);
 
@@ -76,17 +80,37 @@ export class RegionProfileComponent implements OnInit {
         private authService: AuthService,
         public permissions: PermissionsService,
         private configService: ConfigService,
-        private snackBarService: SnackBarService
+        private snackBarService: SnackBarService,
+        private dialog: Dialog
     ) {}
 
     ngOnInit(): void {
         this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             this.regionId = params['id'];
             this.statsFilter = { regionIds: [this.regionId] };
-            this.statsDetailsQueryParams = { regionIds: this.regionId };
             this.loadRegion();
             this.resetAndLoadDistricts();
+            this.loadStatsDetailsQueryParams();
         });
+    }
+
+    /**
+     * /statistics (PROFILES_V2_TASK.md §4.4) не умеет фильтровать по regionIds — только по
+     * districtIds/schoolIds/teacherIds. Ссылка «Ətraflı statistika» поэтому получает не
+     * regionIds, а полный список districtIds региона (не только загруженная страница карточек
+     * districtCards — та режется DISTRICTS_PAGE_SIZE=12 и для крупного региона была бы неполной).
+     */
+    private loadStatsDetailsQueryParams(): void {
+        this.districtService.getDistrictsForFilter({ regionIds: [this.regionId] })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (districts) => {
+                    this.statsDetailsQueryParams = { districtIds: districts.map(d => d.id).join(',') };
+                },
+                error: () => {
+                    this.statsDetailsQueryParams = null;
+                }
+            });
     }
 
     loadRegion(): void {
@@ -143,15 +167,17 @@ export class RegionProfileComponent implements OnInit {
         this.loadDistricts();
     }
 
+    /** Правку данных сущности отдали только админ-ролям (PROFILES_V2_TASK.md §1): владелец
+     *  больше не редактирует себя, ему остаётся только фото. Идём через RBAC-хелпер, а не через
+     *  список ролей руками — moderator тоже должен попадать сюда, и матрица прав одна на всё
+     *  приложение (core/config/rbac.config.ts). */
     get canEdit(): boolean {
-        const user = this.authService.getCurrentUserValue();
-        if (!user) return false;
-        if (user.role === 'admin' || user.role === 'superadmin') return true;
-        return user.role === 'regionRepresenter' && String(user.profile?.entityId) === String(this.regionId);
+        return this.authService.canEditRegions();
     }
 
+    /** Фото — единственное, что владелец меняет сам. */
     get canUploadPhoto(): boolean {
-        return this.canEdit;
+        return this.canEdit || this.isOwnHome;
     }
 
     /**
@@ -165,6 +191,67 @@ export class RegionProfileComponent implements OnInit {
 
     get avatarUrl(): string | null {
         return this.configService.resolveAssetUrl(this.region?.avatarUrl);
+    }
+
+    /**
+     * Кнопка «Redaktə et» в шапке (PROFILES_V2_TASK.md §3.3) — региону раньше редактирование
+     * на профиле не было доступно вообще (`[canEdit]="false"` в шаблоне). Диалог и данные —
+     * точная копия regions-list.component.ts::onRegionEdit (код + название, больше полей у
+     * региона в ТЗ заказчика нет). После save перезагружаем профиль целиком (loadRegion).
+     */
+    openEditDialog(): void {
+        if (!this.region) return;
+        const dialogRef = this.dialog.open<any>(RegionEditingDialogComponent, {
+            width: '400px',
+            data: {
+                region: {
+                    id: this.region.id,
+                    name: this.region.name,
+                    code: this.region.code
+                },
+                isEditing: true,
+                canDelete: this.authService.canDeleteRegions()
+            },
+        });
+
+        dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
+            if (result?.action === 'delete') {
+                this.handleRegionDelete();
+            } else if (result?.action === 'save') {
+                this.regionService.updateRegion(this.regionId, result.data).subscribe({
+                    next: (response: any) => {
+                        this.snackBarService.show(response.message || 'Regional Təhsil İdarəsi uğurla yeniləndi', 'success');
+                        this.loadRegion();
+                    },
+                    error: (error: any) => {
+                        this.snackBarService.show(error.error?.message ?? 'Profil yenilənərkən xəta baş verdi', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    private handleRegionDelete(): void {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
+            width: '350px',
+            data: {
+                title: 'Silinməyə razılıq',
+                text: 'Regional Təhsil İdarəsini silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Bu idarəyə bağlı rayonlar silinmir, sadəcə idarə ilə əlaqələri kəsilir.'
+            }
+        });
+
+        confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {
+            if (!result) return;
+            this.regionService.deleteRegion(this.regionId).subscribe({
+                next: () => {
+                    this.snackBarService.show('Regional Təhsil İdarəsi uğurla silindi', 'success');
+                    this.router.navigate(['/regions']);
+                },
+                error: (error: any) => {
+                    this.snackBarService.show(error.error?.message ?? 'Silinərkən xəta baş verdi', 'error');
+                }
+            });
+        });
     }
 
     private recomputeDerivedFields(): void {

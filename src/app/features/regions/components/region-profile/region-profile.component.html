@@ -32,9 +32,10 @@
         [chips]="heroChips"
         [avatarUrl]="avatarUrl"
         [rank]="heroRank"
-        [canEdit]="false"
+        [canEdit]="canEdit"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
+        (editClicked)="openEditDialog()"
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
@@ -54,9 +55,18 @@
       </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
-        <div class="flex items-center gap-2.5 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)]">
-          <h2 class="text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">Rayonlar / şəhərlər</h2>
-          <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ districtsTotal }}, reytinq üzrə</span>
+        <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)] flex-wrap">
+          <h2 class="flex items-center gap-2.5 text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">
+            Rayonlar / şəhərlər
+            <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ districtsTotal }}, reytinq üzrə</span>
+          </h2>
+          @if (permissions.canAccessRoute('canAccessRegions')) {
+            <a [routerLink]="['/regions', regionId, 'districts']"
+              class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+              Siyahı ilə bax
+              <lucide-icon [img]="ChevronRight" class="w-3.5 h-3.5"></lucide-icon>
+            </a>
+          }
         </div>
         <div class="px-5 sm:px-6 py-5">
           <app-entity-card-grid

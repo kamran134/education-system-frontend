@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Loader } from 'lucide-angular';
+import { Dialog } from '@angular/cdk/dialog';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
 import { DistrictService } from '../../services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { District } from '../../../../core/models/district.model';
@@ -19,6 +20,8 @@ import { ProfileFactsComponent, ProfileFact } from '../../../../shared/component
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { DistrictEditingDialogComponent } from '../district-editing-dialog/district-editing-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 
@@ -79,6 +82,7 @@ export class DistrictProfileComponent implements OnInit {
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
+    readonly ChevronRight = ChevronRight;
 
     private destroyRef = inject(DestroyRef);
 
@@ -90,7 +94,8 @@ export class DistrictProfileComponent implements OnInit {
         private authService: AuthService,
         public permissions: PermissionsService,
         private configService: ConfigService,
-        private snackBarService: SnackBarService
+        private snackBarService: SnackBarService,
+        private dialog: Dialog
     ) {}
 
     ngOnInit(): void {
@@ -157,15 +162,17 @@ export class DistrictProfileComponent implements OnInit {
         this.loadSchools();
     }
 
+    /** Правку данных сущности отдали только админ-ролям (PROFILES_V2_TASK.md §1): владелец
+     *  больше не редактирует себя, ему остаётся только фото. Идём через RBAC-хелпер, а не через
+     *  список ролей руками — moderator тоже должен попадать сюда, и матрица прав одна на всё
+     *  приложение (core/config/rbac.config.ts). */
     get canEdit(): boolean {
-        const user = this.authService.getCurrentUserValue();
-        if (!user) return false;
-        if (user.role === 'admin' || user.role === 'superadmin') return true;
-        return user.role === 'districtRepresenter' && String(user.profile?.entityId) === String(this.districtId);
+        return this.authService.canEditDistricts();
     }
 
+    /** Фото — единственное, что владелец меняет сам. */
     get canUploadPhoto(): boolean {
-        return this.canEdit;
+        return this.canEdit || this.isOwnHome;
     }
 
     /**
@@ -239,6 +246,65 @@ export class DistrictProfileComponent implements OnInit {
             place: s.place ?? null,
             routerLink: ['/schools', s.id, 'profile'],
         }));
+    }
+
+    /**
+     * Кнопка «Redaktə et» в шапке (PROFILES_V2_TASK.md §3.2) открывает тот же диалог, что
+     * раньше открывался из строки списка districts-list.component.ts::onDistrictEdit — не
+     * переписан, только перенесён. После save перезагружаем профиль целиком (loadDistrict).
+     */
+    openEditDialog(): void {
+        if (!this.district) return;
+        const dialogRef = this.dialog.open<any>(DistrictEditingDialogComponent, {
+            width: '400px',
+            data: {
+                district: {
+                    id: this.district.id,
+                    name: this.district.name,
+                    code: this.district.code,
+                    studentCount: this.district.studentCount,
+                    regionId: this.district.regionId ?? null
+                },
+                isEditing: true,
+                canDelete: this.authService.canDeleteDistricts()
+            },
+        });
+
+        dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
+            if (result?.action === 'delete') {
+                this.handleDistrictDelete();
+            } else if (result?.action === 'save') {
+                this.districtService.updateDistrict(this.districtId, result.data).subscribe({
+                    next: (response: any) => {
+                        this.snackBarService.show(response.message || 'Rayon / şəhər uğurla yeniləndi', 'success');
+                        this.loadDistrict();
+                    },
+                    error: (error: any) => {
+                        this.snackBarService.show(error.error?.message ?? 'Profil yenilənərkən xəta baş verdi', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    private handleDistrictDelete(): void {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
+            width: '350px',
+            data: { title: 'Silinməyə razılıq', text: 'Rayonu / şəhəri silmək istədiyinizdən əminsiniz mi?' }
+        });
+
+        confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {
+            if (!result) return;
+            this.districtService.deleteDistrict(this.districtId).subscribe({
+                next: () => {
+                    this.snackBarService.show('Rayon / şəhər uğurla silindi', 'success');
+                    this.router.navigate(['/districts']);
+                },
+                error: (error: any) => {
+                    this.snackBarService.show(error.error?.message ?? 'Silinərkən xəta baş verdi', 'error');
+                }
+            });
+        });
     }
 
     startEditFacts(): void {

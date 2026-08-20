@@ -9,12 +9,10 @@ import { DistrictEditingDialogComponent } from '../district-editing-dialog/distr
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Eye } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Trash2 } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -57,21 +55,9 @@ export class DistrictsListComponent implements OnInit {
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
 
-    tableActions: TableAction[] = [
-        {
-            key: 'profile',
-            label: 'Ətraflı',
-            icon: Eye,
-            variant: 'outline'
-        },
-        {
-            key: 'edit',
-            label: 'Düzəliş et',
-            icon: Edit,
-            variant: 'primary',
-            condition: () => this.authService.canEditDistricts()
-        }
-    ];
+    // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), всё редактирование
+    // и удаление переехало на страницу профиля (DistrictProfileComponent::openEditDialog).
+    tableActions: TableAction[] = [];
 
     actionButtons: ActionButton[] = [];
 
@@ -227,103 +213,9 @@ export class DistrictsListComponent implements OnInit {
         this.loadDistricts();
     }
 
-    onTableAction(event: { action: string; item: any }): void {
-        switch (event.action) {
-            case 'profile':
-                this.onDistrictProfile(event.item);
-                break;
-            case 'edit':
-                this.onDistrictEdit(event.item);
-                break;
-        }
-    }
-
+    /** Единственная навигация со строки (PROFILES_V2_TASK.md §3.1) — редактирование, удаление
+     *  и просмотр школ района теперь живут на самом профиле. */
     onDistrictProfile(district: District): void {
         this.router.navigate(['/districts', district.id, 'profile']);
-    }
-
-    onDistrictEdit(district: District): void {
-        const dialogRef = this.dialog.open<any>(DistrictEditingDialogComponent, {
-            width: '400px',
-            data: {
-                district: {
-                    id: district.id,
-                    name: district.name,
-                    code: district.code,
-                    studentCount: district.studentCount,
-                    regionId: district.regionId ?? null
-                },
-                isEditing: true,
-                canDelete: this.authService.canDeleteDistricts()
-            },
-        });
-
-        dialogRef.closed.subscribe((result) => {
-            if (result?.action === 'delete') {
-                // Обработка удаления
-                this.handleDistrictDelete(district);
-            } else if (result?.action === 'save') {
-                // Обработка сохранения
-                this.isLoading = true;
-                this.districtService.updateDistrict(district.id, result.data).subscribe({
-                    next: (response: ResponseFromBackend) => {
-                        const updatedDistrict = ResponseHandlerUtil.extractData<District>(response);
-                        const index = this.districts.findIndex(d => IdUtil.equals(d.id, district.id));
-                        if (index !== -1) {
-                            // Создаем новый массив для триггера change detection
-                            this.districts = [
-                                ...this.districts.slice(0, index),
-                                updatedDistrict,
-                                ...this.districts.slice(index + 1)
-                            ];
-                        }
-                        this.isLoading = false;
-                        this.toastService.show(response.message || 'Rayon / şəhər uğurla yeniləndi', 'success');
-                    },
-                    error: (error: any) => {
-                        this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    private handleDistrictDelete(district: District): void {
-        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
-            width: '350px',
-            data: { title: 'Silinməyə razılıq', text: 'Rayonu / şəhəri silmək istədiyinizdən əminsiniz mi?' }
-        });
-
-        confirmRef.closed.subscribe((result: boolean) => {
-            if (result) {
-                this.isLoading = true;
-                this.districtService.deleteDistrict(district.id).subscribe({
-                    next: (data) => {
-                        // Удаляем район из списка без перезагрузки
-                        this.districts = this.districts.filter(d => d.id !== district.id);
-                        this.totalCount--;
-                        this.isLoading = false;
-                        this.toastService.show('Rayon / şəhər uğurla silindi', 'success');
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    onDistrictView(district: District): void {
-        // Save current state in query parameters for back navigation
-        const queryParams = {
-            districtPage: this.pageIndex,
-            districtPageSize: this.pageSize
-        };
-        this.router.navigate(['/districts', district.id, 'schools'], {
-            queryParams
-        });
     }
 }

@@ -18,10 +18,9 @@
       [pageIndex]="pageIndex"
       [sortBy]="sortColumn"
       [sortDirection]="sortDirection"
-      (actionClicked)="onTableAction($event)"
       (pageChanged)="onPageChange($event)"
       (sortChanged)="onSortChange($event)"
-      (rowClicked)="onDistrictView($event)"
+      (rowClicked)="onDistrictProfile($event)"
     ></app-data-table>
   </div>
 </app-list-layout>

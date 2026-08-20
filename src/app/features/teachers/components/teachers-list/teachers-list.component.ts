@@ -13,14 +13,13 @@ import { District, DistrictResponse } from '../../../../core/models/district.mod
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { Dialog } from '@angular/cdk/dialog';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { AuthService } from '../../../../core/services/auth.service';
 import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -82,15 +81,9 @@ export class TeachersListComponent implements OnInit {
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
 
-    tableActions: TableAction[] = [
-        {
-            key: 'edit',
-            label: 'Düzəliş et',
-            icon: Edit,
-            variant: 'primary',
-            condition: () => this.authService.canEditTeachers()
-        }
-    ];
+    // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), редактирование
+    // переехало на страницу профиля (TeacherProfileComponent::openEditDialog).
+    tableActions: TableAction[] = [];
 
     actionButtons: ActionButton[] = [];
     backButton?: BackButton;
@@ -244,49 +237,10 @@ export class TeachersListComponent implements OnInit {
         }
     }
 
-    onTableAction(event: { action: string; item: any }): void {
-        switch (event.action) {
-            case 'edit':
-                this.onTeacherUpdate(event.item);
-                break;
-        }
-    }
-
-    onTeacherView(teacher: any): void {
-        // Save current state in query parameters for back navigation
-        const queryParams: any = {
-            teacherPage: this.pageIndex,
-            teacherPageSize: this.pageSize,
-            selectedDistrictIds: this.selectedDistrictIds.join(','),
-            selectedSchoolIds: this.selectedSchoolIds.join(',')
-        };
-
-        // Preserve previous states if they exist
-        this.route.queryParams.subscribe(currentParams => {
-            if (currentParams['districtPage'] !== undefined) {
-                queryParams.districtPage = currentParams['districtPage'];
-            }
-            if (currentParams['districtPageSize'] !== undefined) {
-                queryParams.districtPageSize = currentParams['districtPageSize'];
-            }
-            if (currentParams['schoolPage'] !== undefined) {
-                queryParams.schoolPage = currentParams['schoolPage'];
-            }
-            if (currentParams['schoolPageSize'] !== undefined) {
-                queryParams.schoolPageSize = currentParams['schoolPageSize'];
-            }
-            // Preserve the chain of IDs
-            if (this.schoolId) {
-                queryParams.fromSchoolId = this.schoolId;
-            }
-            if (currentParams['fromDistrictId']) {
-                queryParams.fromDistrictId = currentParams['fromDistrictId'];
-            }
-        });
-
-        this.router.navigate(['/teachers', teacher.id, 'students'], {
-            queryParams
-        });
+    /** Единственная навигация со строки (PROFILES_V2_TASK.md §3.1) — редактирование, удаление
+     *  и просмотр учеников учителя теперь живут на самом профиле. */
+    onTeacherProfile(teacher: Teacher): void {
+        this.router.navigate(['/teachers', teacher.id, 'profile']);
     }
 
     goBack(): void {
@@ -483,74 +437,6 @@ export class TeachersListComponent implements OnInit {
                     error: (error) => {
                         console.error(error);
                         this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    onTeacherUpdate(teacher: Teacher): void {
-        const dialogRef = this.dialog.open<any>(TeacherEditingDialogComponent, {
-            width: '1000px',
-            data: {
-                teacher,
-                isEditing: true,
-                canDelete: this.authService.canDeleteTeachers()
-            }
-        });
-
-        dialogRef.closed.subscribe((result) => {
-            if (result?.action === 'delete') {
-                // Обработка удаления
-                this.handleTeacherDelete(teacher.id);
-            } else if (result?.action === 'save') {
-                // Обработка сохранения
-                this.isLoading = true;
-                this.teacherService.updateTeacher(result.data).subscribe({
-                    next: (response) => {
-                        const updatedTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
-                        const index = this.teachers.findIndex(s => IdUtil.equals(s.id, result.data.id));
-                        if (index !== -1) {
-                            // Создаем новый массив для триггера change detection
-                            this.teachers = [
-                                ...this.teachers.slice(0, index),
-                                updatedTeacher,
-                                ...this.teachers.slice(index + 1)
-                            ];
-                        }
-                        this.isLoading = false;
-                        const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi';
-                        const cascadeMessage = updatedTeacher.cascadedStudentsCount
-                            ? ` (${updatedTeacher.cascadedStudentsCount} şagirdin kodu avtomatik yeniləndi)`
-                            : '';
-                        this.toastService.show(baseMessage + cascadeMessage, 'success');
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    private handleTeacherDelete(studentId: string | number): void {
-        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
-            width: '350px',
-            data: { title: 'Silinməyə razılıq', text: 'Müəllimi silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nMüəllim silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
-        });
-
-        confirmRef.closed.subscribe((result: boolean) => {
-            if (result) {
-                this.teacherService.deleteTeacher(studentId).subscribe({
-                    next: (response) => {
-                        this.teachers = this.teachers.filter(s => !IdUtil.equals(s.id, studentId));
-                        this.toastService.show(response.message || 'Müəllim uğurla silindi', 'success');
-                    },
-                    error: (error) => {
-                        console.error(error);
                         this.toastService.show(error.error.message, 'error');
                     }
                 });

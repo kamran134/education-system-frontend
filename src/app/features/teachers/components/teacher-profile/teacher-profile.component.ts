@@ -3,7 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Loader } from 'lucide-angular';
+import { Dialog } from '@angular/cdk/dialog';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
 import { TeacherService } from '../../services/teacher.service';
 import { StudentService } from '../../../students/services/student.service';
 import { Teacher } from '../../../../core/models/teacher.model';
@@ -21,6 +22,8 @@ import { ProfileAchievementsComponent } from '../../../../shared/components/prof
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 
@@ -82,6 +85,7 @@ export class TeacherProfileComponent implements OnInit {
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
+    readonly ChevronRight = ChevronRight;
 
     private destroyRef = inject(DestroyRef);
 
@@ -93,14 +97,14 @@ export class TeacherProfileComponent implements OnInit {
         private authService: AuthService,
         public permissions: PermissionsService,
         private configService: ConfigService,
-        private snackBarService: SnackBarService
+        private snackBarService: SnackBarService,
+        private dialog: Dialog
     ) {}
 
     ngOnInit(): void {
         this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             this.teacherId = params['id'];
             this.statsFilter = { teacherIds: [this.teacherId] };
-            this.statsDetailsQueryParams = { teacherIds: this.teacherId };
             this.loadTeacher();
             this.resetAndLoadStudents();
         });
@@ -165,15 +169,17 @@ export class TeacherProfileComponent implements OnInit {
         this.loadStudents();
     }
 
+    /** Правку данных сущности отдали только админ-ролям (PROFILES_V2_TASK.md §1): владелец
+     *  больше не редактирует себя, ему остаётся только фото. Идём через RBAC-хелпер, а не через
+     *  список ролей руками — moderator тоже должен попадать сюда, и матрица прав одна на всё
+     *  приложение (core/config/rbac.config.ts). */
     get canEdit(): boolean {
-        const user = this.authService.getCurrentUserValue();
-        if (!user) return false;
-        if (user.role === 'admin' || user.role === 'superadmin') return true;
-        return user.role === 'teacher' && String(user.profile?.entityId) === String(this.teacherId);
+        return this.authService.canEditTeachers();
     }
 
+    /** Фото — единственное, что владелец меняет сам. */
     get canUploadPhoto(): boolean {
-        return this.canEdit;
+        return this.canEdit || this.isOwnHome;
     }
 
     /**
@@ -233,6 +239,16 @@ export class TeacherProfileComponent implements OnInit {
         crumbs.push({ text: teacher.fullname });
         this.crumbs = crumbs;
 
+        // /statistics умеет каскадно фильтровать школу только внутри выбранного района
+        // (statistics-main.component.ts::loadSchools) и учителя — только внутри выбранной
+        // школы (loadTeachers) — без district/schoolIds виджет «Müəllimlər» откроется пустым
+        // и задизейбленным, хотя сам фильтр по teacherIds всё равно применится (PROFILES_V2_TASK.md §4.4).
+        this.statsDetailsQueryParams = {
+            districtIds: teacher.district?.id,
+            schoolIds: teacher.school?.id,
+            teacherIds: this.teacherId,
+        };
+
         this.heroSubtitleParts = [{ text: 'Kod ' + teacher.code }];
 
         const chips: ProfileHeroChip[] = [];
@@ -266,6 +282,66 @@ export class TeacherProfileComponent implements OnInit {
             place: s.place ?? null,
             routerLink: ['/students', s.id],
         }));
+    }
+
+    /**
+     * Кнопка «Redaktə et» в шапке (PROFILES_V2_TASK.md §3.2) открывает тот же диалог, что
+     * раньше открывался из строки списка teachers-list.component.ts::onTeacherUpdate — не
+     * переписан, только перенесён: там же живёт вся логика каскада кодов и префиксов.
+     * После save перезагружаем профиль целиком (loadTeacher), а не патчим локально, чтобы
+     * пересчитались recomputeDerivedFields() и все производные поля.
+     */
+    openEditDialog(): void {
+        if (!this.teacher) return;
+        const dialogRef = this.dialog.open<any>(TeacherEditingDialogComponent, {
+            width: '1000px',
+            data: {
+                teacher: this.teacher,
+                isEditing: true,
+                canDelete: this.authService.canDeleteTeachers()
+            }
+        });
+
+        dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: any) => {
+            if (result?.action === 'delete') {
+                this.handleTeacherDelete();
+            } else if (result?.action === 'save') {
+                this.teacherService.updateTeacher(result.data).subscribe({
+                    next: (response) => {
+                        const updatedTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
+                        const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi';
+                        const cascadeMessage = updatedTeacher.cascadedStudentsCount
+                            ? ` (${updatedTeacher.cascadedStudentsCount} şagirdin kodu avtomatik yeniləndi)`
+                            : '';
+                        this.snackBarService.show(baseMessage + cascadeMessage, 'success');
+                        this.loadTeacher();
+                    },
+                    error: (error) => {
+                        this.snackBarService.show(error.error?.message ?? 'Profil yenilənərkən xəta baş verdi', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    private handleTeacherDelete(): void {
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
+            width: '350px',
+            data: { title: 'Silinməyə razılıq', text: 'Müəllimi silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nMüəllim silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
+        });
+
+        confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {
+            if (!result) return;
+            this.teacherService.deleteTeacher(this.teacherId).subscribe({
+                next: (response) => {
+                    this.snackBarService.show(response?.message || 'Müəllim uğurla silindi', 'success');
+                    this.router.navigate(['/teachers']);
+                },
+                error: (error) => {
+                    this.snackBarService.show(error.error?.message ?? 'Silinərkən xəta baş verdi', 'error');
+                }
+            });
+        });
     }
 
     startEditFacts(): void {

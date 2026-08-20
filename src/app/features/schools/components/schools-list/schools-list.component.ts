@@ -9,14 +9,13 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../../districts/services/district.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { IdUtil } from '../../../../core/utils/id.util';
 import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { Dialog } from '@angular/cdk/dialog';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -64,15 +63,9 @@ export class SchoolsListComponent implements OnInit {
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
     ];
 
-    tableActions: TableAction[] = [
-        {
-            key: 'edit',
-            label: 'Düzəliş et',
-            icon: Edit,
-            variant: 'primary',
-            condition: () => this.authService.canEditSchools()
-        }
-    ];
+    // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), редактирование
+    // переехало на страницу профиля (SchoolProfileComponent::openEditDialog).
+    tableActions: TableAction[] = [];
 
     actionButtons: ActionButton[] = [];
     backButton?: BackButton;
@@ -269,39 +262,10 @@ onFilterChange(filters: Record<string, any>): void {
         });
     }
 
-    onTableAction(event: { action: string; item: any }): void {
-        switch (event.action) {
-            case 'edit':
-                this.onSchoolEdit(event.item);
-                break;
-        }
-    }
-
-    onSchoolView(school: any): void {
-        // Save current state in query parameters for back navigation
-        const queryParams: any = {
-            schoolPage: this.pageIndex,
-            schoolPageSize: this.pageSize,
-            selectedDistrictIds: this.selectedDistrictIds.join(','),
-            fromSchoolId: school.id  // Remember which school we're viewing
-        };
-
-        // If we came from districts, preserve district state
-        this.route.queryParams.subscribe(currentParams => {
-            if (currentParams['districtPage'] !== undefined) {
-                queryParams.districtPage = currentParams['districtPage'];
-            }
-            if (currentParams['districtPageSize'] !== undefined) {
-                queryParams.districtPageSize = currentParams['districtPageSize'];
-            }
-            if (this.districtId) {
-                queryParams.fromDistrictId = this.districtId;  // Remember which district
-            }
-        });
-
-        this.router.navigate(['/schools', school.id, 'teachers'], {
-            queryParams
-        });
+    /** Единственная навигация со строки (PROFILES_V2_TASK.md §3.1) — редактирование, удаление
+     *  и просмотр учителей школы теперь живут на самом профиле. */
+    onSchoolProfile(school: School): void {
+        this.router.navigate(['/schools', school.id, 'profile']);
     }
 
     goBack(): void {
@@ -325,78 +289,6 @@ onFilterChange(filters: Record<string, any>): void {
             } else {
                 // Otherwise, go to home page
                 this.router.navigate(['/panel']);
-            }
-        });
-    }
-
-    onSchoolEdit(school: School): void {
-        const dialogRef = this.dialog.open<any>(SchoolEditingDialogComponent, {
-            width: '1000px',
-            data: {
-                school,
-                isEditing: true,
-                canDelete: this.authService.canDeleteSchools()
-            }
-        });
-
-        dialogRef.closed.subscribe((result) => {
-            if (result?.action === 'delete') {
-                // Обработка удаления
-                this.handleSchoolDelete(school);
-            } else if (result?.action === 'save') {
-                // Обработка сохранения
-                this.isLoading = true;
-                this.schoolService.updateSchool(result.data).subscribe({
-                    next: (response) => {
-                        const updatedSchool = ResponseHandlerUtil.extractData<School>(response);
-                        const index = this.schools.findIndex(s => IdUtil.equals(s.id, result.data.id));
-                        if (index !== -1) {
-                            // Создаем новый массив для триггера change detection
-                            this.schools = [
-                                ...this.schools.slice(0, index),
-                                updatedSchool,
-                                ...this.schools.slice(index + 1)
-                            ];
-                        }
-                        this.isLoading = false;
-                        const baseMessage = response.message || 'Məktəb uğurla yeniləndi';
-                        const cascadeParts: string[] = [];
-                        if (updatedSchool.cascadedTeachersCount) cascadeParts.push(`${updatedSchool.cascadedTeachersCount} müəllimin`);
-                        if (updatedSchool.cascadedStudentsCount) cascadeParts.push(`${updatedSchool.cascadedStudentsCount} şagirdin`);
-                        const cascadeMessage = cascadeParts.length ? ` (${cascadeParts.join(' və ')} kodu avtomatik yeniləndi)` : '';
-                        this.toastService.show(baseMessage + cascadeMessage, 'success');
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    private handleSchoolDelete(school: School): void {
-        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
-            width: '350px',
-            data: {
-                title: 'Silinməyə razılıq',
-                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!'
-            }
-        });
-
-        confirmRef.closed.subscribe((result: boolean) => {
-            if (result) {
-                this.schoolService.deleteSchool(school.id).subscribe({
-                    next: (data) => {
-                        this.loadSchools();
-                        this.toastService.show('Məktəb uğurla silindi', 'success');
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
             }
         });
     }

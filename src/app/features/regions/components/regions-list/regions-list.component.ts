@@ -9,11 +9,9 @@ import { RegionEditingDialogComponent } from '../region-editing-dialog/region-ed
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { FilterParams } from '../../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
-import { IdUtil } from '../../../../core/utils/id.util';
-import { LucideAngularModule, Plus, Edit, Eye } from 'lucide-angular';
+import { LucideAngularModule, Plus } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 
@@ -48,21 +46,9 @@ export class RegionsListComponent implements OnInit {
         { key: 'studentCount', label: 'Şagird sayı', sortable: false, type: 'number', align: 'center' }
     ];
 
-    tableActions: TableAction[] = [
-        {
-            key: 'profile',
-            label: 'Ətraflı',
-            icon: Eye,
-            variant: 'outline'
-        },
-        {
-            key: 'edit',
-            label: 'Düzəliş et',
-            icon: Edit,
-            variant: 'primary',
-            condition: () => this.authService.canEditRegions()
-        }
-    ];
+    // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), всё редактирование
+    // и удаление переехало на страницу профиля (RegionProfileComponent::openEditDialog).
+    tableActions: TableAction[] = [];
 
     actionButtons: ActionButton[] = [];
 
@@ -178,99 +164,9 @@ export class RegionsListComponent implements OnInit {
         this.loadRegions();
     }
 
-    onTableAction(event: { action: string; item: any }): void {
-        switch (event.action) {
-            case 'profile':
-                this.onRegionProfile(event.item);
-                break;
-            case 'edit':
-                this.onRegionEdit(event.item);
-                break;
-        }
-    }
-
+    /** Единственная навигация со строки (PROFILES_V2_TASK.md §3.1) — редактирование, удаление
+     *  и просмотр района/школ/учителей теперь живут на самом профиле. */
     onRegionProfile(region: Region): void {
         this.router.navigate(['/regions', region.id, 'profile']);
-    }
-
-    onRegionEdit(region: Region): void {
-        const dialogRef = this.dialog.open<any>(RegionEditingDialogComponent, {
-            width: '400px',
-            data: {
-                region: {
-                    id: region.id,
-                    name: region.name,
-                    code: region.code
-                },
-                isEditing: true,
-                canDelete: this.authService.canDeleteRegions()
-            },
-        });
-
-        dialogRef.closed.subscribe((result) => {
-            if (result?.action === 'delete') {
-                this.handleRegionDelete(region);
-            } else if (result?.action === 'save') {
-                this.isLoading = true;
-                this.regionService.updateRegion(region.id, result.data).subscribe({
-                    next: (response: ResponseFromBackend) => {
-                        const updatedRegion = ResponseHandlerUtil.extractData<Region>(response);
-                        const index = this.regions.findIndex(r => IdUtil.equals(r.id, region.id));
-                        if (index !== -1) {
-                            this.regions = [
-                                ...this.regions.slice(0, index),
-                                updatedRegion,
-                                ...this.regions.slice(index + 1)
-                            ];
-                        }
-                        this.isLoading = false;
-                        this.toastService.show(response.message || 'Regional Təhsil İdarəsi uğurla yeniləndi', 'success');
-                    },
-                    error: (error: any) => {
-                        this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    private handleRegionDelete(region: Region): void {
-        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
-            width: '350px',
-            data: {
-                title: 'Silinməyə razılıq',
-                text: 'Regional Təhsil İdarəsini silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Bu idarəyə bağlı rayonlar silinmir, sadəcə idarə ilə əlaqələri kəsilir.'
-            }
-        });
-
-        confirmRef.closed.subscribe((result: boolean) => {
-            if (result) {
-                this.isLoading = true;
-                this.regionService.deleteRegion(region.id).subscribe({
-                    next: () => {
-                        this.regions = this.regions.filter(r => r.id !== region.id);
-                        this.totalCount--;
-                        this.isLoading = false;
-                        this.toastService.show('Regional Təhsil İdarəsi uğurla silindi', 'success');
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.isLoading = false;
-                        this.toastService.show(error.error.message, 'error');
-                    }
-                });
-            }
-        });
-    }
-
-    onRegionView(region: Region): void {
-        const queryParams = {
-            regionPage: this.pageIndex,
-            regionPageSize: this.pageSize
-        };
-        this.router.navigate(['/regions', region.id, 'districts'], {
-            queryParams
-        });
     }
 }
