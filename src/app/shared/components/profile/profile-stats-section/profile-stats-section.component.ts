@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -37,6 +37,7 @@ export class ProfileStatsSectionComponent implements OnChanges {
 
     private destroyRef = inject(DestroyRef);
     private statisticsService = inject(StatisticsService);
+    private cdr = inject(ChangeDetectorRef);
     // Сравнение по содержимому, не по ссылке: страница обязана передавать [filter] как
     // стабильное поле (см. teacher/school/district-profile.component.ts), но если где-то в
     // будущем это правило нарушат и снова привяжут геттер/инлайн-объект, каждый цикл change
@@ -66,10 +67,17 @@ export class ProfileStatsSectionComponent implements OnChanges {
                 next: (response) => {
                     this.stats = ResponseHandlerUtil.extractData<YearlyStatistics>(response);
                     this.isLoading = false;
+                    // OnPush не перерисовывает вьюху сам по себе на завершение подписки —
+                    // это не @Input, не DOM-событие и не async pipe, поэтому без явного
+                    // markForCheck() блок так и остаётся с лоадером, хотя данные в компоненте
+                    // уже корректны (PROFILES_V2_TASK.md §4.3 — второй найденный дефект блока
+                    // статистики, отдельный от 500 на regionIds).
+                    this.cdr.markForCheck();
                 },
                 error: () => {
                     this.loadFailed = true;
                     this.isLoading = false;
+                    this.cdr.markForCheck();
                 },
             });
     }
