@@ -19,7 +19,12 @@ import { ConfigService } from '../../../../core/services/config.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { CertificateService } from '../../../certificates/services/certificate.service';
-import { CertificateAvailability } from '../../../../core/models/certificate.model';
+import {
+    AwardCode,
+    CERTIFICATE_AWARDS,
+    CertificateAvailabilityMap,
+    CertificateAwardMeta,
+} from '../../../../core/models/certificate.model';
 
 @Component({
     selector: 'app-student-details',
@@ -55,8 +60,11 @@ export class StudentDetailsComponent implements OnInit {
 
     // Sertifikat yükləmə — CERTIFICATES_TASK.md §9. Giriş = /students/:id-ə giriş,
     // ayrıca RBAC gate yoxdur (baxın certificate.model.ts).
-    certificateAvailability: Record<number, CertificateAvailability> = {};
-    downloadingResultId: number | null = null;
+    certificateAvailability: CertificateAvailabilityMap = {};
+    // `${resultId}:${awardCode}` — bir nəticəyə bir neçə mükafat sertifikatı ola bilər,
+    // hərəsinin öz yükləmə vəziyyəti olmalıdır.
+    downloadingKey: string | null = null;
+    readonly certificateAwards = CERTIFICATE_AWARDS;
 
     private get currentAcademicYearStart(): Date {
         const now = new Date();
@@ -147,25 +155,32 @@ export class StudentDetailsComponent implements OnInit {
         });
     }
 
-    canDownloadCertificate(resultId: number): boolean {
-        return !!this.certificateAvailability[resultId]?.available;
+    availableAwardsFor(resultId: number): CertificateAwardMeta[] {
+        const perAward = this.certificateAvailability[resultId];
+        if (!perAward) return [];
+        return this.certificateAwards.filter((a) => perAward[a.code]?.available);
     }
 
-    downloadCertificate(resultId: number): void {
-        if (this.downloadingResultId) return;
-        this.downloadingResultId = resultId;
-        this.certificateService.downloadForResult(resultId).subscribe({
+    isDownloading(resultId: number, awardCode: AwardCode): boolean {
+        return this.downloadingKey === `${resultId}:${awardCode}`;
+    }
+
+    downloadCertificate(resultId: number, awardCode: AwardCode): void {
+        if (this.downloadingKey) return;
+        const key = `${resultId}:${awardCode}`;
+        this.downloadingKey = key;
+        this.certificateService.downloadForResult(resultId, awardCode).subscribe({
             next: (blob) => {
-                this.downloadingResultId = null;
+                this.downloadingKey = null;
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `sertifikat-${resultId}.pdf`;
+                a.download = `sertifikat-${resultId}-${awardCode}.pdf`;
                 a.click();
                 URL.revokeObjectURL(url);
             },
             error: (err) => {
-                this.downloadingResultId = null;
+                this.downloadingKey = null;
                 const status = err?.status;
                 const message =
                     status === 409

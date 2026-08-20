@@ -10,21 +10,15 @@ import { ToastService } from '../../../../shared/components/ui/toast/toast.servi
 import { ConfigService } from '../../../../core/services/config.service';
 import { CertificateService } from '../../services/certificate.service';
 import {
-    CERTIFICATE_LEVELS,
+    CERTIFICATE_AWARDS,
     CertificateTemplate,
     DEVELOPING_STUDENT_AWARD,
 } from '../../../../core/models/certificate.model';
 
-// Пять пиллей заказчика (§1 плана). award_code пока один, но модель рассчитана на
-// добавление 'student_of_the_month' и т.д. без изменения кода — см. §12 п.4 ТЗ.
-const AWARDS: { code: string; label: string }[] = [
-    { code: DEVELOPING_STUDENT_AWARD, label: 'İnkişaf edən şagird' },
-];
-
 interface TemplateSlot {
     awardCode: string;
     awardLabel: string;
-    levelCode: string;
+    levelCode: string | null;
     levelLabel: string;
     template: CertificateTemplate | null;
 }
@@ -48,16 +42,26 @@ export class CertificateTemplatesListComponent implements OnInit {
     isLoading = true;
 
     isCreateModalOpen = false;
-    createAwardCode = DEVELOPING_STUDENT_AWARD;
-    createLevelCode = '';
+    createAwardCode: string = DEVELOPING_STUDENT_AWARD;
+    createLevelCode: string | null = null;
     createName = '';
     selectedFile: File | null = null;
     isSaving = false;
 
     deleteTarget: CertificateTemplate | null = null;
 
-    readonly awardOptions: SelectOption[] = AWARDS.map((a) => ({ value: a.code, label: a.label }));
-    readonly levelOptions: SelectOption[] = CERTIFICATE_LEVELS.map((l) => ({ value: l.code, label: l.label }));
+    readonly awardOptions: SelectOption[] = CERTIFICATE_AWARDS.map((a) => ({ value: a.code, label: a.label }));
+
+    // Пилля выбирается только у наград с градацией (developing_student) — у остальных
+    // один слот без пилле, показывать "Pillə" незачем.
+    get createLevelOptions(): SelectOption[] {
+        const award = CERTIFICATE_AWARDS.find((a) => a.code === this.createAwardCode);
+        return (award?.levels ?? []).filter((l) => l.code !== null).map((l) => ({ value: l.code, label: l.label }));
+    }
+
+    get showLevelSelect(): boolean {
+        return this.createLevelOptions.length > 0;
+    }
 
     constructor(
         private certificateService: CertificateService,
@@ -86,9 +90,10 @@ export class CertificateTemplatesListComponent implements OnInit {
 
     private buildSlots(templates: CertificateTemplate[]): TemplateSlot[] {
         const slots: TemplateSlot[] = [];
-        for (const award of AWARDS) {
-            for (const level of CERTIFICATE_LEVELS) {
-                const template = templates.find((t) => t.awardCode === award.code && t.levelCode === level.code) ?? null;
+        for (const award of CERTIFICATE_AWARDS) {
+            for (const level of award.levels) {
+                const template =
+                    templates.find((t) => t.awardCode === award.code && t.levelCode === level.code) ?? null;
                 slots.push({
                     awardCode: award.code,
                     awardLabel: award.label,

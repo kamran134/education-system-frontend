@@ -67,12 +67,14 @@
         name="awardCode">
       </app-select>
 
-      <app-select
-        label="Pillə"
-        [options]="levelOptions"
-        [(ngModel)]="createLevelCode"
-        name="levelCode">
-      </app-select>
+      @if (showLevelSelect) {
+        <app-select
+          label="Pillə"
+          [options]="createLevelOptions"
+          [(ngModel)]="createLevelCode"
+          name="levelCode">
+        </app-select>
+      }
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Şəkil</label>

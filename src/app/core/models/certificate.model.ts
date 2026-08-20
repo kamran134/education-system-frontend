@@ -44,7 +44,14 @@ export interface CertificateField {
     autoShrink: boolean;
     minFontSize: number;
     mask: CertificateFieldMask | null;
+    /** Только static. Поддерживает плейсхолдеры {month}/{grade}/… и **жирный**. */
     text?: string;
+    /** Цвет **жирного**, если отличается от `color`. `undefined` — тот же цвет. */
+    boldColor?: string;
+    /** Перенос по словам. У полей до v2 этого ключа нет — читать `?? false`. */
+    multiline?: boolean;
+    /** Множитель кегля для высоты строки при multiline — читать `?? 1.25`. */
+    lineHeight?: number;
 }
 
 export interface CertificateTemplate {
@@ -92,7 +99,22 @@ export interface CertificateAvailability {
     serial: string | null;
 }
 
-// Пять пиллей, под которые заказчик прислал шаблоны — CERTIFICATES_TASK.md §1
+// Три награды (CERTIFICATES_V2_TASK.md §4) — зеркалит AWARD_CODES на бэкенде
+// (certificate-issue.service.ts). Один результат может иметь право сразу на несколько.
+export const DEVELOPING_STUDENT_AWARD = 'developing_student';
+export const STUDENT_OF_THE_MONTH_AWARD = 'student_of_the_month';
+export const REPUBLIC_WIDE_STUDENT_OF_THE_MONTH_AWARD = 'republic_wide_student_of_the_month';
+
+export type AwardCode =
+    | typeof DEVELOPING_STUDENT_AWARD
+    | typeof STUDENT_OF_THE_MONTH_AWARD
+    | typeof REPUBLIC_WIDE_STUDENT_OF_THE_MONTH_AWARD;
+
+// Доступность сертификата на результат — по каждой из трёх наград отдельно.
+export type CertificateAvailabilityMap = Record<number, Record<AwardCode, CertificateAvailability>>;
+
+// Пять пиллей, под которые заказчик прислал шаблоны развития — CERTIFICATES_TASK.md §1.
+// У «Ayın şagirdi» / «Respublika üzrə» градации по пилле нет — один шаблон на награду.
 export const CERTIFICATE_LEVELS: { code: string; label: string }[] = [
     { code: 'D', label: 'D pilləsi' },
     { code: 'C', label: 'C pilləsi' },
@@ -101,4 +123,27 @@ export const CERTIFICATE_LEVELS: { code: string; label: string }[] = [
     { code: 'Lisey', label: 'Lisey pilləsi' },
 ];
 
-export const DEVELOPING_STUDENT_AWARD = 'developing_student';
+export interface CertificateAwardMeta {
+    code: AwardCode;
+    label: string;
+    /** null = единственный шаблон без градации по пилле */
+    levels: { code: string | null; label: string }[];
+}
+
+export const CERTIFICATE_AWARDS: CertificateAwardMeta[] = [
+    {
+        code: DEVELOPING_STUDENT_AWARD,
+        label: 'İnkişaf edən şagird',
+        levels: CERTIFICATE_LEVELS,
+    },
+    {
+        code: STUDENT_OF_THE_MONTH_AWARD,
+        label: 'Ayın şagirdi',
+        levels: [{ code: null, label: 'Ayın şagirdi' }],
+    },
+    {
+        code: REPUBLIC_WIDE_STUDENT_OF_THE_MONTH_AWARD,
+        label: 'Respublika üzrə Ayın Şagirdi',
+        levels: [{ code: null, label: 'Respublika üzrə Ayın Şagirdi' }],
+    },
+];

@@ -206,17 +206,17 @@
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
                           <div>{{ formatStudentAchievements(result) || '' }}</div>
-                          @if (canDownloadCertificate(result.id)) {
+                          @for (award of availableAwardsFor(result.id); track award.code) {
                             <button
-                              (click)="downloadCertificate(result.id)"
-                              [disabled]="downloadingResultId === result.id"
+                              (click)="downloadCertificate(result.id, award.code)"
+                              [disabled]="isDownloading(result.id, award.code)"
                               class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-800 disabled:opacity-50 transition-colors">
-                              @if (downloadingResultId === result.id) {
+                              @if (isDownloading(result.id, award.code)) {
                                 <lucide-icon [img]="Loader" class="w-3.5 h-3.5 animate-spin"></lucide-icon>
                               } @else {
                                 <lucide-icon [img]="Download" class="w-3.5 h-3.5"></lucide-icon>
                               }
-                              Sertifikatı yüklə
+                              {{ award.label }} sertifikatı
                             </button>
                           }
                         </div>
@@ -319,17 +319,17 @@
                             <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                               <div class="space-y-1">
                                 <div>{{ result.status || '—' }}</div>
-                                @if (canDownloadCertificate(result.id)) {
+                                @for (award of availableAwardsFor(result.id); track award.code) {
                                   <button
-                                    (click)="downloadCertificate(result.id)"
-                                    [disabled]="downloadingResultId === result.id"
+                                    (click)="downloadCertificate(result.id, award.code)"
+                                    [disabled]="isDownloading(result.id, award.code)"
                                     class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-800 disabled:opacity-50 transition-colors">
-                                    @if (downloadingResultId === result.id) {
+                                    @if (isDownloading(result.id, award.code)) {
                                       <lucide-icon [img]="Loader" class="w-3.5 h-3.5 animate-spin"></lucide-icon>
                                     } @else {
                                       <lucide-icon [img]="Download" class="w-3.5 h-3.5"></lucide-icon>
                                     }
-                                    Sertifikatı yüklə
+                                    {{ award.label }} sertifikatı
                                   </button>
                                 }
                               </div>

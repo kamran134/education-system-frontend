@@ -5,7 +5,8 @@ import { ConfigService } from '../../../core/services/config.service';
 import { ApiResponse } from '../../../core/models/response.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 import {
-    CertificateAvailability,
+    AwardCode,
+    CertificateAvailabilityMap,
     CertificateField,
     CertificateTemplate,
     IssuedCertificate,
@@ -108,16 +109,14 @@ export class CertificateService {
 
     // ---- Скачивание — доступ как у /students/:id, без RBAC-гейта (см. certificate.model.ts) ----
 
-    availabilityForStudent(studentId: number): Observable<Record<number, CertificateAvailability>> {
+    availabilityForStudent(studentId: number): Observable<CertificateAvailabilityMap> {
         return this.http
-            .get<ApiResponse<Record<number, CertificateAvailability>>>(
-                `${this.baseUrl}/availability/student/${studentId}`
-            )
-            .pipe(map((r) => ResponseHandlerUtil.extractData<Record<number, CertificateAvailability>>(r)));
+            .get<ApiResponse<CertificateAvailabilityMap>>(`${this.baseUrl}/availability/student/${studentId}`)
+            .pipe(map((r) => ResponseHandlerUtil.extractData<CertificateAvailabilityMap>(r)));
     }
 
-    downloadForResult(studentResultId: number): Observable<Blob> {
-        return this.http.get(`${this.baseUrl}/result/${studentResultId}`, { responseType: 'blob' });
+    downloadForResult(studentResultId: number, awardCode: AwardCode): Observable<Blob> {
+        return this.http.get(`${this.baseUrl}/result/${studentResultId}/${awardCode}`, { responseType: 'blob' });
     }
 
     // ---- Публичная проверка (без авторизации, отдельный /api/public) ----

@@ -79,7 +79,64 @@ function newField(type: CertificateFieldType, x: number, y: number): Certificate
         minFontSize: 24,
         mask: null,
         text: type === 'static' ? 'Mətn' : undefined,
+        multiline: false,
+        lineHeight: 1.25,
     };
+}
+
+// Готовые фразы для двух вшитых-в-макет предложений, которые заказчик убрал с картинок
+// (CERTIFICATES_V2_TASK.md, «Тексты фраз»). {placeholder}/{grade}/**жирный** — та же
+// разметка, что admin может набрать руками; кнопки — просто быстрый старт.
+const DEVELOPING_PHRASE =
+    'İSİM layihəsi çərçivəsində {month} ayında {grade} siniflər arasında **{level} pilləsinə** yüksəldiyinə görə';
+const CENTRALIZED_EXAM_PHRASE =
+    'İSİM layihəsi çərçivəsində {month} ayında keçirilən Mərkəzləşmiş İmtahanlarda {grade} siniflər arasında göstərdiyi nəticələrə əsasən';
+
+function phraseField(text: string, x: number, y: number, w: number, h: number): CertificateField {
+    return {
+        id: `f_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        type: 'static',
+        x, y, w, h,
+        align: 'center',
+        fontFamily: 'montserrat',
+        fontWeight: 'regular',
+        italic: false,
+        fontSize: 48,
+        color: '#33333d',
+        prefix: '',
+        suffix: '',
+        transform: 'none',
+        autoShrink: true,
+        minFontSize: 22,
+        mask: null,
+        text,
+        multiline: true,
+        lineHeight: 1.25,
+        // Жирный кусок (**{level} pilləsinə** и т.п.) — тёмно-синий, как «Karyera və
+        // Psixologiya» на самом шаблоне (та же краска, что и у ФИО ученика).
+        boldColor: '#1b2a6b',
+    };
+}
+
+// Плейсхолдеры, доступные в static-тексте — та же линейка типов, что резолвит
+// certificate-render.service.ts (SimpleFieldType). Список и демо-значения для холста
+// (previewRuns) должны совпадать 1:1 с backend'ом, иначе превью на холсте соврёт.
+const PLACEHOLDER_CHIPS: { token: string; label: string }[] = [
+    { token: 'month', label: 'Ay' },
+    { token: 'grade', label: 'Sinif' },
+    { token: 'studentFullName', label: 'Şagirdin adı' },
+    { token: 'schoolName', label: 'Məktəb' },
+    { token: 'districtName', label: 'Rayon/şəhər' },
+    { token: 'teacherFullName', label: 'Müəllim' },
+    { token: 'examDate', label: 'Tarix' },
+    { token: 'level', label: 'Pillə' },
+    { token: 'previousLevel', label: 'Əvvəlki pillə' },
+    { token: 'serial', label: 'Nömrə' },
+];
+
+interface PreviewRun {
+    text: string;
+    bold: boolean;
 }
 
 interface DragState {
@@ -246,28 +303,93 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
             fontFamily: field.fontFamily === 'notoSerif' ? "'Noto Serif', serif" : "'Montserrat', sans-serif",
             fontWeight: field.fontWeight === 'bold' ? '700' : field.fontWeight === 'semibold' ? '600' : '400',
             fontStyle: field.italic ? 'italic' : 'normal',
-            justifyContent: field.align === 'left' ? 'flex-start' : field.align === 'right' ? 'flex-end' : 'center',
             textAlign: field.align,
         };
     }
 
-    previewText(field: CertificateField): string {
-        const sample: Record<CertificateFieldType, string> = {
-            month: 'may',
-            grade: '2-ci',
-            studentFullName: 'Ələkbərov Rüstəm Rauf oğlu',
-            schoolName: 'Sumqayıt şəhər 5 nömrəli məktəb',
-            districtName: 'Sumqayıt şəhəri',
-            teacherFullName: 'Hacıyeva Sevinc Sahib qızı',
-            examDate: '30.05.2026',
-            level: 'A',
-            previousLevel: 'B',
-            serial: 'ISIM-2026-000123',
-            qr: '',
-            static: field.text || '',
-        };
+    private static readonly SAMPLE: Record<Exclude<CertificateFieldType, 'static' | 'qr'>, string> = {
+        month: 'may',
+        grade: '2-ci',
+        studentFullName: 'Ələkbərov Rüstəm Rauf oğlu',
+        schoolName: 'Sumqayıt şəhər 5 nömrəli məktəb',
+        districtName: 'Sumqayıt şəhəri',
+        teacherFullName: 'Hacıyeva Sevinc Sahib qızı',
+        examDate: '30.05.2026',
+        level: 'A',
+        previousLevel: 'B',
+        serial: 'ISIM-2026-000123',
+    };
+
+    // Демо-текст плейсхолдера — та же таблица, что бэкенд использует для {type} внутри
+    // static (см. certificate-render.service.ts PLACEHOLDER_TYPES). Неизвестный токен
+    // остаётся как есть, ровно как на сервере.
+    private substitutePlaceholders(text: string): string {
+        return text.replace(/\{(\w+)\}/g, (match, name) => {
+            const value = (CertificateEditorComponent.SAMPLE as Record<string, string>)[name];
+            return value !== undefined ? value : match;
+        });
+    }
+
+    private previewRawText(field: CertificateField): string {
         if (field.type === 'qr') return '';
-        return `${field.prefix}${sample[field.type]}${field.suffix}`;
+        const raw =
+            field.type === 'static'
+                ? this.substitutePlaceholders(field.text ?? '')
+                : CertificateEditorComponent.SAMPLE[field.type];
+        return `${field.prefix}${raw}${field.suffix}`;
+    }
+
+    // Приблизительное превью на холсте: **жирный** реально жирным, перенос строк —
+    // силами браузера (white-space:normal в шаблоне), а не повторной реализацией
+    // word-wrap из рендерера. Точная геометрия — только «Önizləmə (PDF)».
+    previewRuns(field: CertificateField): PreviewRun[] {
+        const text = this.previewRawText(field);
+        const runs: PreviewRun[] = [];
+        const re = /\*\*(.+?)\*\*/g;
+        let last = 0;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text))) {
+            if (m.index > last) runs.push({ text: text.slice(last, m.index), bold: false });
+            runs.push({ text: m[1], bold: true });
+            last = re.lastIndex;
+        }
+        if (last < text.length) runs.push({ text: text.slice(last), bold: false });
+        return runs.length ? runs : [{ text: '', bold: false }];
+    }
+
+    // ---- Плейсхолдеры и готовые фразы (панель свойств) ----
+
+    readonly placeholderChips = PLACEHOLDER_CHIPS;
+
+    insertPlaceholder(token: string): void {
+        const field = this.selectedField;
+        if (!field || field.type !== 'static') return;
+        field.text = `${field.text ?? ''}${field.text ? ' ' : ''}{${token}}`;
+    }
+
+    onMultilineToggle(enabled: boolean): void {
+        const field = this.selectedField;
+        if (!field) return;
+        field.multiline = enabled;
+        if (enabled && field.lineHeight === undefined) field.lineHeight = 1.25;
+    }
+
+    addDevelopingPhrase(): void {
+        this.addPhraseField(DEVELOPING_PHRASE);
+    }
+
+    addCentralizedExamPhrase(): void {
+        this.addPhraseField(CENTRALIZED_EXAM_PHRASE);
+    }
+
+    private addPhraseField(text: string): void {
+        if (!this.template) return;
+        const w = Math.min(1900, this.template.imageWidth - 200);
+        const x = Math.round((this.template.imageWidth - w) / 2);
+        const y = Math.round(this.template.imageHeight * 0.55);
+        const field = phraseField(text, Math.max(0, x), Math.max(0, y), w, 220);
+        this.fields.push(field);
+        this.selectedFieldId = field.id;
     }
 
     // ---- Добавление / удаление ----
@@ -332,6 +454,12 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         const field = this.selectedField;
         if (!field) return;
         field.mask = enabled ? { color: '#ffffff', padding: 6 } : null;
+    }
+
+    toggleBoldColor(enabled: boolean): void {
+        const field = this.selectedField;
+        if (!field) return;
+        field.boldColor = enabled ? (field.boldColor ?? '#1b2a6b') : undefined;
     }
 
     removeSelected(): void {
