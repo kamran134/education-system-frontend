@@ -1,12 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { StatisticsService } from '../../services/statistics.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
+import { TeacherService } from '../../../teachers/services/teacher.service';
 import { StatisticsFilter, StatisticsResponse, InkishafStatistics } from '../../../../core/models/statistics.model';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
+import { Teacher } from '../../../../core/models/teacher.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X } from 'lucide-angular';
@@ -27,7 +30,9 @@ export class StatisticsMainComponent implements OnInit {
     private statisticsService = inject(StatisticsService);
     private districtService = inject(DistrictService);
     private schoolService = inject(SchoolService);
+    private teacherService = inject(TeacherService);
     private authService = inject(AuthService);
+    private route = inject(ActivatedRoute);
 
     statistics: StatisticsResponse | null = null;
     isLoading = false;
@@ -54,6 +59,7 @@ export class StatisticsMainComponent implements OnInit {
     // Фильтры
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
+    selectedTeacherIds: string[] = [];
     selectedGrades: number[] = [];
     selectedMonth: number | null = null;
     selectedYear: number = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
@@ -61,6 +67,10 @@ export class StatisticsMainComponent implements OnInit {
     // Данные для фильтров
     districts: District[] = [];
     schools: School[] = [];
+    // Учитель — только в рамках выбранной школы (backend /teachers/filter фильтрует только по
+    // schoolIds, без districtIds), список пуст и select задизейблен, пока школа не выбрана —
+    // тот же паттерн каскада, что у districts→schools (PROFILES_V2_TASK.md §4.4).
+    teachers: Teacher[] = [];
     allGrades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
     months = [
@@ -86,12 +96,21 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     // Options для select компонентов
+    // value как строка, не d.id напрямую: selected*Ids типизированы string[] (как и
+    // StatisticsFilter/FilterParams), а queryParams всегда приходят строками — при числовых
+    // value SelectComponent.isSelected() делает строгое сравнение (===/Array.includes) и не
+    // находит совпадения с предзаполненными строками, чек-лист выглядит пустым, хотя фильтр
+    // в запрос уходит верно (PROFILES_V2_TASK.md §4.4, поймано при живой проверке).
     get districtOptions() {
-        return this.districts.map(d => ({ label: d.name, value: d.id }));
+        return this.districts.map(d => ({ label: d.name, value: String(d.id) }));
     }
 
     get schoolOptions() {
-        return this.schools.map(s => ({ label: s.name, value: s.id }));
+        return this.schools.map(s => ({ label: s.name, value: String(s.id) }));
+    }
+
+    get teacherOptions() {
+        return this.teachers.map(t => ({ label: t.fullname, value: String(t.id) }));
     }
 
     get gradeOptions() {
@@ -155,9 +174,38 @@ export class StatisticsMainComponent implements OnInit {
             this.inkishafMinParticipations = 3;
             this.selectedYear = this.currentAcademicYear;
         }
+
+        // Ссылка «Ətraflı statistika» с профилей учителя/школы/района (PROFILES_V2_TASK.md §4.4)
+        // приходит сюда с district/school/teacherIds в queryParams — раньше эта страница их
+        // вообще не читала, фильтр молча терялся и открывалась статистика по всей республике.
+        this.applyQueryParamFilters();
+
         this.loadDistricts();
+        if (this.selectedDistrictIds.length > 0) {
+            this.loadSchools();
+        }
+        if (this.selectedSchoolIds.length > 0) {
+            this.loadTeachers();
+        }
         this.loadStatistics();
         this.loadInkishafStatistics();
+    }
+
+    private applyQueryParamFilters(): void {
+        const params = this.route.snapshot.queryParams;
+        if (params['districtIds']) {
+            this.selectedDistrictIds = String(params['districtIds']).split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (params['schoolIds']) {
+            this.selectedSchoolIds = String(params['schoolIds']).split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (params['teacherIds']) {
+            this.selectedTeacherIds = String(params['teacherIds']).split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (params['year'] && this.isAdminUser) {
+            const year = parseInt(params['year'], 10);
+            if (!isNaN(year)) this.selectedYear = year;
+        }
     }
 
     loadDistricts(): void {
@@ -185,12 +233,31 @@ export class StatisticsMainComponent implements OnInit {
         });
     }
 
+    loadTeachers(): void {
+        if (this.selectedSchoolIds.length === 0) {
+            this.teachers = [];
+            return;
+        }
+
+        this.teacherService.getTeachersForFilter({ schoolIds: this.selectedSchoolIds.join(',') })
+            .subscribe({
+                next: (teachers) => {
+                    this.teachers = Array.isArray(teachers) ? teachers : [];
+                },
+                error: (error) => {
+                    this.teachers = [];
+                    console.error('Error loading teachers:', error);
+                }
+            });
+    }
+
     loadStatistics(): void {
         this.isLoading = true;
 
         const filters: StatisticsFilter = {
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
+            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined,
             month: this.selectedMonth !== null ? this.selectedMonth : undefined,
             year: this.selectedYear
@@ -235,14 +302,25 @@ export class StatisticsMainComponent implements OnInit {
 
     onDistrictChange(): void {
         this.selectedSchoolIds = [];
+        this.selectedTeacherIds = [];
+        this.teachers = [];
         this.loadSchools();
         this.loadStatistics();
         this.loadInkishafStatistics();
     }
 
     onSchoolChange(): void {
+        this.selectedTeacherIds = [];
+        this.loadTeachers();
         this.loadStatistics();
         this.loadInkishafStatistics();
+    }
+
+    /** Inkişaf statistikası (getInkishafStatistics) teacherIds не поддерживает — только
+     *  districtIds/schoolIds/grades/year (InkishafFilter, statistics.model.ts). Учитель — самый
+     *  узкий фильтр, statistics.service.pg.ts::applyStudentFilters уже AND'ит его со schoolIds. */
+    onTeacherChange(): void {
+        this.loadStatistics();
     }
 
     onGradeChange(): void {
@@ -267,11 +345,13 @@ export class StatisticsMainComponent implements OnInit {
     onFilterReset(): void {
         this.selectedDistrictIds = [];
         this.selectedSchoolIds = [];
+        this.selectedTeacherIds = [];
         this.selectedGrades = [];
         this.selectedMonth = null;
         this.selectedYear = this.currentAcademicYear;
         this.inkishafMinParticipations = 2;
         this.schools = [];
+        this.teachers = [];
         this.loadStatistics();
         this.loadInkishafStatistics();
     }

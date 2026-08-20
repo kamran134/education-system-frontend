@@ -75,6 +75,16 @@
           (ngModelChange)="onSchoolChange()">
         </app-select>
 
+        <!-- Фильтр по учителям: только в рамках выбранной школы, см. loadTeachers() -->
+        <app-select
+          label="Müəllimlər"
+          [multiple]="true"
+          [(ngModel)]="selectedTeacherIds"
+          [options]="teacherOptions"
+          [disabled]="teachers.length === 0"
+          (ngModelChange)="onTeacherChange()">
+        </app-select>
+
         <!-- Фильтр по классам -->
         <app-select
           label="Siniflər"
