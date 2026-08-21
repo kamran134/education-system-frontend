@@ -44,7 +44,17 @@ export interface PageSizeOption {
     selector: 'app-data-table',
     imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, CardComponent],
     template: `
-    <app-card class="overflow-hidden">
+    <!-- flat: skip the card chrome when a parent container already provides it (e.g. one tab card wrapping several tables) -->
+    @if (flat) {
+      <div class="overflow-hidden">
+        <ng-container *ngTemplateOutlet="tableContent"></ng-container>
+      </div>
+    } @else {
+      <app-card class="overflow-hidden">
+        <ng-container *ngTemplateOutlet="tableContent"></ng-container>
+      </app-card>
+    }
+    <ng-template #tableContent>
       <!-- No vertical scroll inside the table: the page scrolls. Header stays visible via sticky. -->
       <div class="overflow-x-auto">
         <div style="min-width: 100%;">
@@ -253,7 +263,7 @@ export interface PageSizeOption {
           </div>
         </div>
       }
-    </app-card>
+    </ng-template>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -270,6 +280,8 @@ export class DataTableComponent implements OnChanges {
   @Input() pageSizeOptions: PageSizeOption[] = TABLE_PAGE_SIZE_OPTIONS;
   /** Bind to a fullscreen-panel's `expanded` state. Toggling this auto-switches pageSize between default/fullscreen sizes, unless the user already picked a size manually. */
   @Input() fullscreen = false;
+  /** Skip the card border/shadow/padding — for tables already sitting inside another bordered container (e.g. a tab card holding several tables). */
+  @Input() flat = false;
 
   @Output() actionClicked = new EventEmitter<{ action: string; item: any }>();
   @Output() pageChanged = new EventEmitter<PaginationEvent>();

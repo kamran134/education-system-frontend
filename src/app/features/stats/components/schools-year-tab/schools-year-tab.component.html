@@ -20,6 +20,7 @@
     [sortBy]="sortBy"
     [sortDirection]="sortDirection"
     [fullscreen]="fullscreen"
+    [flat]="true"
     (sortChanged)="onSortChange($event)"
     (pageChanged)="pageChanged.emit($event)"
     (rowClicked)="rowClicked.emit(String($event.id))"

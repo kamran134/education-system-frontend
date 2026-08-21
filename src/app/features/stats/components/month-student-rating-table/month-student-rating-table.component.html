@@ -11,8 +11,8 @@
   </div>
 </ng-template>
 
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 py-4">
-  <h3 class="mx-5 mb-2 text-lg font-semibold text-gray-900">{{ title }}</h3>
+<div>
+  <h3 class="mb-2 text-lg font-semibold text-gray-900">{{ title }}</h3>
 
   <app-data-table
     [data]="isLoading ? [] : pagedData"
@@ -24,13 +24,14 @@
     [sortBy]="sortBy"
     [sortDirection]="sortDirection"
     [fullscreen]="fullscreen"
+    [flat]="true"
     (sortChanged)="onSort($event)"
     (pageChanged)="onPageChange($event)"
     (rowClicked)="onRowClick($event)"
     ></app-data-table>
 
   @if (!isLoading && dataSource.length > 0) {
-    <div class="mt-4 mx-5">
+    <div class="mt-4">
       <app-button variant="outline" (clicked)="onExportToExcel()">
         <div class="flex items-center gap-2">
           <lucide-icon [img]="Download" class="h-4 w-4"></lucide-icon>
