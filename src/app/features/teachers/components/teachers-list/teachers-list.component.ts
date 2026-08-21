@@ -22,6 +22,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 
@@ -33,6 +35,7 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
     LucideAngularModule,
     ListLayoutComponent,
     DataTableComponent,
+    FullscreenPanelComponent,
     SelectComponent
 ],
     templateUrl: './teachers-list.component.html',
@@ -65,8 +68,9 @@ export class TeachersListComponent implements OnInit {
 
     // Pagination
     totalCount = 0;
-    pageSize = 1000;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     // Sorting
     sortColumn = 'fullname';
@@ -126,7 +130,7 @@ export class TeachersListComponent implements OnInit {
                 this.pageIndex = parseInt(queryParams['teacherPage']) || 0;
             }
             if (queryParams['teacherPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['teacherPageSize']) || 1000;
+                this.pageSize = parseInt(queryParams['teacherPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
             }
 
             // Restore district selection (for display purposes)

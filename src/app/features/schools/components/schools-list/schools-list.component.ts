@@ -18,6 +18,8 @@ import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 
@@ -29,6 +31,7 @@ import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../
     LucideAngularModule,
     ListLayoutComponent,
     DataTableComponent,
+    FullscreenPanelComponent,
     SelectComponent
 ],
     templateUrl: './schools-list.component.html',
@@ -43,8 +46,9 @@ export class SchoolsListComponent implements OnInit {
 
     // Pagination
     totalCount = 0;
-    pageSize = 1000;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     // Sorting
     sortColumn = 'name';
@@ -106,7 +110,7 @@ export class SchoolsListComponent implements OnInit {
                 this.pageIndex = parseInt(queryParams['schoolPage']) || 0;
             }
             if (queryParams['schoolPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['schoolPageSize']) || 100;
+                this.pageSize = parseInt(queryParams['schoolPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
             }
 
             // Restore district selection (for display purposes)

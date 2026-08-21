@@ -24,6 +24,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { Student } from '../../../../core/models/student.model';
 import { StudentService } from '../../../students/services/student.service';
 import { PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT, TABLE_EXPORT_PAGE_SIZE } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { StatsFiltersComponent } from "../stats-filters/stats-filters.component";
 import { StatsPagination } from '../../../../core/models/pagination.model';
 import * as XLSX from 'xlsx';
@@ -62,7 +64,8 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
         TeachersYearTabComponent,
         SchoolsYearTabComponent,
         DistrictsYearTabComponent,
-        RegionsYearTabComponent
+        RegionsYearTabComponent,
+        FullscreenPanelComponent
     ],
     providers: [MonthNamePipe, MomentDateFormatPipe],
     templateUrl: './stats.component.html',
@@ -156,9 +159,11 @@ export class StatsComponent implements OnInit, OnDestroy {
     teachers: Teacher[] = [];
     students: Student[] = [];
     totalCount: number = 0;
-    pageSize: number = 1000;
-    studentsPageSize: number = 1000;
+    pageSize: number = TABLE_PAGE_SIZE_DEFAULT;
+    studentsPageSize: number = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex: number = 0;
+    isTablesFullscreen = false;
+    isExportingExcel = false;
     exams: Exam[] = [];
     errorMessage: string = '';
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -242,8 +247,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     // Restore sort and pagination
                     this.sortActive = params['sortActive'] || 'averageScore';
                     this.sortDirection = params['sortDirection'] || 'desc';
-                    this.pageSize = params['pageSize'] ? +params['pageSize'] : 1000;
-                    this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : 1000;
+                    this.pageSize = params['pageSize'] ? +params['pageSize'] : TABLE_PAGE_SIZE_DEFAULT;
+                    this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : TABLE_PAGE_SIZE_DEFAULT;
                     this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
 
                     // Map tab to correct tab index and load data
@@ -1235,56 +1240,162 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     exportToExcel(tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' | 'allRegions' | string) {
-        const workbook = XLSX.utils.book_new();
-        let sheetName: string = '';
-        let result: XLSX.WorkSheet = {};
-
         switch (tableName) {
-            case 'developingStudents': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.developingStudents || [], this.developingStudentColumns));
-                sheetName = `İE şagirdlər (${this.selectedMonth})`;
-                break;
-            }
-            case 'studentsOfMonth': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.studentsOfMonth || [], this.monthStudentColumns));
-                sheetName = `AŞ (${this.selectedMonth})`;
-                break;
-            }
-            case 'studentsOfMonthByRepublic': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatStudentData(this.stats.studentsOfMonthByRepublic || [], this.monthStudentColumns));
-                sheetName = `AŞ respublika üzrə (${this.selectedMonth})`;
-                break;
-            }
-            case 'allStudents': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatAllStudentData(this.stats.students || [], this.studentColumns));
-                sheetName = 'İlin şagirdləri';
-                break;
-            }
-            case 'allTeachers': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatTeacherData(this.stats.teachers || [], this.teacherColumns));
-                sheetName = 'İlin müəllimləri';
-                break;
-            }
-            case 'allSchools': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatSchoolData(this.stats.schools || [], this.schoolColumns));
-                sheetName = 'İlin məktəbləri';
-                break;
-            }
-            case 'allDistricts': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatDistrictData(this.stats.districts || [], this.districtColumns));
-                sheetName = 'İlin rayonları / şəhərləri';
-                break;
-            }
-            case 'allRegions': {
-                result = XLSX.utils.json_to_sheet(this.excelService.formatRegionData(this.stats.regions || [], this.regionColumns));
-                sheetName = 'İlin regional idarələri';
-                break;
-            }
+            // Tabs 0-2 keep the full, already-loaded array in memory (client-side pagination,
+            // TABLES_STANDARD_TASK.md §3.4) — no extra request needed, export is instant.
+            case 'developingStudents':
+                this.downloadExcelSheet(this.excelService.formatStudentData(this.stats.developingStudents || [], this.developingStudentColumns), `İE şagirdlər (${this.selectedMonth})`);
+                return;
+            case 'studentsOfMonth':
+                this.downloadExcelSheet(this.excelService.formatStudentData(this.stats.studentsOfMonth || [], this.monthStudentColumns), `AŞ (${this.selectedMonth})`);
+                return;
+            case 'studentsOfMonthByRepublic':
+                this.downloadExcelSheet(this.excelService.formatStudentData(this.stats.studentsOfMonthByRepublic || [], this.monthStudentColumns), `AŞ respublika üzrə (${this.selectedMonth})`);
+                return;
+            // Tabs 3-7 only hold the current page in memory (server pagination) — exporting
+            // `stats.students` etc. directly would silently truncate the file to `pageSize`
+            // rows (TABLES_STANDARD_TASK.md §3.5). Fetch the full filtered/sorted set instead.
+            case 'allStudents':
+                this.exportAllStudents();
+                return;
+            case 'allTeachers':
+                this.exportAllTeachers();
+                return;
+            case 'allSchools':
+                this.exportAllSchools();
+                return;
+            case 'allDistricts':
+                this.exportAllDistricts();
+                return;
+            case 'allRegions':
+                this.exportAllRegions();
+                return;
         }
+    }
 
-        this.excelService.formatHeaders(result);
-        XLSX.utils.book_append_sheet(workbook, result, sheetName);
+    private downloadExcelSheet(rows: any[], sheetName: string): void {
+        const workbook = XLSX.utils.book_new();
+        const sheet = XLSX.utils.json_to_sheet(rows);
+        this.excelService.formatHeaders(sheet);
+        XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
         XLSX.writeFile(workbook, `${sheetName}.xlsx`);
+    }
+
+    /** Same filters/sort as the on-screen page, but page 1 at export size — see TABLE_EXPORT_PAGE_SIZE. */
+    private buildExportBaseParams(): FilterParams {
+        return {
+            page: 1,
+            size: TABLE_EXPORT_PAGE_SIZE,
+            sortColumn: this.sortActive || 'score',
+            sortDirection: this.sortDirection || 'desc',
+            code: this.searchString || undefined,
+            academicYear: this.selectedAcademicYear,
+        };
+    }
+
+    private exportAllStudents(): void {
+        const params: FilterParams = {
+            ...this.buildExportBaseParams(),
+            regionIds: this.selectedRegionIds.join(","),
+            districtIds: this.selectedDistrictIds.join(","),
+            schoolIds: this.selectedSchoolIds.join(","),
+            teacherIds: this.selectedTeacherIds.join(","),
+            grades: this.selectedGrades.join(","),
+            examIds: this.selectedExamIds.join(',') || '',
+        };
+        this.isExportingExcel = true;
+        this.studentService.getStudents(params).subscribe({
+            next: (response) => {
+                this.isExportingExcel = false;
+                const data = ResponseHandlerUtil.extractPaginatedData<Student>(response).data || [];
+                this.downloadExcelSheet(this.excelService.formatAllStudentData(data, this.studentColumns), 'İlin şagirdləri');
+            },
+            error: (error: Error) => {
+                this.isExportingExcel = false;
+                this.toastService.show(error.error.message, 'error');
+            }
+        });
+    }
+
+    private exportAllTeachers(): void {
+        const params: FilterParams = {
+            ...this.buildExportBaseParams(),
+            regionIds: this.selectedRegionIds.join(","),
+            districtIds: this.selectedDistrictIds.join(","),
+            schoolIds: this.selectedSchoolIds.join(","),
+            teacherIds: this.selectedTeacherIds.join(","),
+            grades: this.selectedGrades.join(","),
+        };
+        this.isExportingExcel = true;
+        this.statsService.getTeachersStats(params).subscribe({
+            next: (response: any) => {
+                this.isExportingExcel = false;
+                const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
+                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.teacherColumns), 'İlin müəllimləri');
+            },
+            error: (error: Error) => {
+                this.isExportingExcel = false;
+                this.toastService.show(error.error.message, 'error');
+            }
+        });
+    }
+
+    private exportAllSchools(): void {
+        const params: FilterParams = {
+            ...this.buildExportBaseParams(),
+            regionIds: this.selectedRegionIds.join(","),
+            districtIds: this.selectedDistrictIds.join(","),
+            schoolIds: this.selectedSchoolIds.join(","),
+            teacherIds: this.selectedTeacherIds.join(","),
+            grades: this.selectedGrades.join(","),
+        };
+        this.isExportingExcel = true;
+        this.statsService.getSchoolsStats(params).subscribe({
+            next: (response) => {
+                this.isExportingExcel = false;
+                const data = ResponseHandlerUtil.extractPaginatedData<School>(response).data || [];
+                this.downloadExcelSheet(this.excelService.formatSchoolData(data, this.schoolColumns), 'İlin məktəbləri');
+            },
+            error: (error: Error) => {
+                this.isExportingExcel = false;
+                this.toastService.show(error.error.message, 'error');
+            }
+        });
+    }
+
+    private exportAllDistricts(): void {
+        const params: FilterParams = {
+            ...this.buildExportBaseParams(),
+            regionIds: this.selectedRegionIds.join(","),
+        };
+        this.isExportingExcel = true;
+        this.statsService.getDistrictsStats(params).subscribe({
+            next: (response: any) => {
+                this.isExportingExcel = false;
+                const data = ResponseHandlerUtil.extractPaginatedData<District>(response).data || [];
+                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), 'İlin rayonları / şəhərləri');
+            },
+            error: (error: Error) => {
+                this.isExportingExcel = false;
+                this.toastService.show(error.error.message, 'error');
+            }
+        });
+    }
+
+    private exportAllRegions(): void {
+        const params: FilterParams = this.buildExportBaseParams();
+        this.isExportingExcel = true;
+        this.statsService.getRegionsStats(params).subscribe({
+            next: (response: any) => {
+                this.isExportingExcel = false;
+                const data = ResponseHandlerUtil.extractPaginatedData<Region>(response).data || [];
+                this.downloadExcelSheet(this.excelService.formatRegionData(data, this.regionColumns), 'İlin regional idarələri');
+            },
+            error: (error: Error) => {
+                this.isExportingExcel = false;
+                this.toastService.show(error.error.message, 'error');
+            }
+        });
     }
 
     selectTab(index: number): void {

@@ -14,6 +14,8 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { LucideAngularModule, Plus } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 @Component({
     selector: 'app-regions-list',
@@ -21,7 +23,8 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
     RouterModule,
     LucideAngularModule,
     ListLayoutComponent,
-    DataTableComponent
+    DataTableComponent,
+    FullscreenPanelComponent
 ],
     templateUrl: './regions-list.component.html',
     styleUrls: ['./regions-list.component.scss']
@@ -33,8 +36,9 @@ export class RegionsListComponent implements OnInit {
     errorMessage = '';
 
     totalCount = 0;
-    pageSize = 100;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     sortColumn = 'name';
     sortDirection: 'asc' | 'desc' = 'asc';
@@ -73,7 +77,7 @@ export class RegionsListComponent implements OnInit {
                 this.pageIndex = parseInt(params['regionPage']) || 0;
             }
             if (params['regionPageSize'] !== undefined) {
-                this.pageSize = parseInt(params['regionPageSize']) || 100;
+                this.pageSize = parseInt(params['regionPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
             }
         });
 

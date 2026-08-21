@@ -14,10 +14,11 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 @Component({
     selector: 'app-statistics-main',
-    imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule],
+    imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule, FullscreenPanelComponent],
     templateUrl: './statistics-main.component.html',
     styleUrl: './statistics-main.component.scss'
 })
@@ -37,6 +38,7 @@ export class StatisticsMainComponent implements OnInit {
     statistics: StatisticsResponse | null = null;
     isLoading = false;
     filtersExpanded = true;
+    monthlyTableFullscreen = false;
 
     // İnkişaf statistikası
     inkishafStatistics: InkishafStatistics | null = null;

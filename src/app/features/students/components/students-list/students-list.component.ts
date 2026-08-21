@@ -27,6 +27,8 @@ import { connectSearchDebounce } from '../../../../core/utils/debounce.util';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft, Trash } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 // Dialogs
 import { StudentEditingDialogComponent } from '../student-editing/student-editing-dialog.component';
@@ -42,6 +44,7 @@ import { BulkAvatarUploadModalComponent } from '../../../../shared/components/mo
     LucideAngularModule,
     ListLayoutComponent,
     DataTableComponent,
+    FullscreenPanelComponent,
     SelectComponent,
     BulkAvatarUploadModalComponent
 ],
@@ -62,8 +65,9 @@ export class StudentsListComponent implements OnInit, OnDestroy {
 
     // Pagination
     totalCount = 0;
-    pageSize = 1000;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     // Sorting
     sortColumn = 'lastName';
@@ -164,7 +168,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 this.pageIndex = parseInt(queryParams['pageIndex']) || 0;
             }
             if (queryParams['pageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['pageSize']) || 1000;
+                this.pageSize = parseInt(queryParams['pageSize']) || TABLE_PAGE_SIZE_DEFAULT;
             }
 
             // Restore filters from query params (for display purposes)

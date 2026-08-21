@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { School } from '../../../../core/models/school.model';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { DataTableComponent, TableColumn, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { LucideAngularModule, ArrowLeft, Download } from 'lucide-angular';
 
@@ -18,10 +19,12 @@ export class SchoolsYearTabComponent {
     @Input() schools: School[] = [];
     @Input() displayedColumns: string[] = [];
     @Input() totalCount: number = 0;
-    @Input() pageSize: number = 1000;
+    @Input() pageSize: number = TABLE_PAGE_SIZE_DEFAULT;
     @Input() pageIndex: number = 0;
     @Input() isLoading: boolean = false;
     @Input() canGoBack: boolean = false;
+    @Input() fullscreen = false;
+    @Input() isExporting = false;
 
     @Output() sortChanged = new EventEmitter<{ column: string; direction: 'asc' | 'desc' }>();
     @Output() pageChanged = new EventEmitter<PaginationEvent>();

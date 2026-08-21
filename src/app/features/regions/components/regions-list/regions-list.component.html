@@ -8,18 +8,21 @@
   [actionButtons]="actionButtons"
 >
   <div slot="content">
-    <app-data-table
-      [data]="regions"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      [totalCount]="totalCount"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [sortBy]="sortColumn"
-      [sortDirection]="sortDirection"
-      (pageChanged)="onPageChange($event)"
-      (sortChanged)="onSortChange($event)"
-      (rowClicked)="onRegionProfile($event)"
-    ></app-data-table>
+    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Regional Təhsil İdarələri">
+      <app-data-table
+        [data]="regions"
+        [columns]="tableColumns"
+        [actions]="tableActions"
+        [totalCount]="totalCount"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [sortBy]="sortColumn"
+        [sortDirection]="sortDirection"
+        [fullscreen]="tableFullscreen"
+        (pageChanged)="onPageChange($event)"
+        (sortChanged)="onSortChange($event)"
+        (rowClicked)="onRegionProfile($event)"
+      ></app-data-table>
+    </app-fullscreen-panel>
   </div>
 </app-list-layout>

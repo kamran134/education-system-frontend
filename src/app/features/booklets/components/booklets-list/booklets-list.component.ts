@@ -35,6 +35,8 @@ import {
     TableAction,
     PaginationEvent
 } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { BookletEditDialogComponent, BookletEditDialogResult } from '../booklet-edit-dialog/booklet-edit-dialog.component';
 
@@ -44,7 +46,8 @@ import { BookletEditDialogComponent, BookletEditDialogResult } from '../booklet-
     FormsModule,
     LucideAngularModule,
     ListLayoutComponent,
-    DataTableComponent
+    DataTableComponent,
+    FullscreenPanelComponent
 ],
     templateUrl: './booklets-list.component.html',
     styleUrls: ['./booklets-list.component.scss']
@@ -62,8 +65,9 @@ export class BookletsListComponent implements OnInit, OnDestroy {
 
     // Pagination
     totalCount = 0;
-    pageSize = 25;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     // Sorting
     sortColumn = 'grade';

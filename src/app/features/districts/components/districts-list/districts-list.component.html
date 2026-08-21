@@ -9,18 +9,21 @@
   [backButton]="backButton"
 >
   <div slot="content">
-    <app-data-table
-      [data]="districts"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      [totalCount]="totalCount"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [sortBy]="sortColumn"
-      [sortDirection]="sortDirection"
-      (pageChanged)="onPageChange($event)"
-      (sortChanged)="onSortChange($event)"
-      (rowClicked)="onDistrictProfile($event)"
-    ></app-data-table>
+    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Rayonlar / şəhərlər">
+      <app-data-table
+        [data]="districts"
+        [columns]="tableColumns"
+        [actions]="tableActions"
+        [totalCount]="totalCount"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [sortBy]="sortColumn"
+        [sortDirection]="sortDirection"
+        [fullscreen]="tableFullscreen"
+        (pageChanged)="onPageChange($event)"
+        (sortChanged)="onSortChange($event)"
+        (rowClicked)="onDistrictProfile($event)"
+      ></app-data-table>
+    </app-fullscreen-panel>
   </div>
 </app-list-layout>

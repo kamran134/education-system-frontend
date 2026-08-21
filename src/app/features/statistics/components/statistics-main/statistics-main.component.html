@@ -261,6 +261,7 @@
       @if (selectedMonth === null) {
         <div class="monthly-stats">
           <h2 class="text-2xl font-bold text-gray-900 mb-4">Aylıq statistika</h2>
+          <app-fullscreen-panel [(expanded)]="monthlyTableFullscreen" title="Aylıq statistika">
           <div class="overflow-x-auto">
             <table class="min-w-full bg-white rounded-lg overflow-hidden border border-gray-200">
               <thead class="bg-gray-100">
@@ -324,6 +325,7 @@
               </tbody>
             </table>
           </div>
+          </app-fullscreen-panel>
         </div>
       }
     </div>

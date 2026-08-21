@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, TemplateRef, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -27,6 +27,9 @@ import { LucideAngularModule, Search, Download, Filter, X, Edit2 } from 'lucide-
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../shared/components/ui/form-controls/input/input.component';
 import { SelectComponent, SelectOption } from '../../../shared/components/ui/form-controls/select/select.component';
+import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 @Component({
     selector: 'app-exam-results',
@@ -37,7 +40,9 @@ import { SelectComponent, SelectOption } from '../../../shared/components/ui/for
         LucideAngularModule,
         ButtonComponent,
         InputComponent,
-        SelectComponent
+        SelectComponent,
+        DataTableComponent,
+        FullscreenPanelComponent
     ],
     templateUrl: './exam-results.component.html',
     styleUrl: './exam-results.component.scss'
@@ -50,9 +55,6 @@ export class ExamResultsComponent implements OnInit {
     readonly X = X;
     readonly Edit2 = Edit2;
 
-    // Math for template
-    readonly Math = Math;
-
     // Data
     examResults: ExamResult[] = [];
     districts: District[] = [];
@@ -63,7 +65,8 @@ export class ExamResultsComponent implements OnInit {
     // Pagination
     totalCount = 0;
     pageIndex = 0;
-    pageSize = 1000;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
+    tableFullscreen = false;
 
     // Loading states
     isLoading = false;
@@ -84,20 +87,29 @@ export class ExamResultsComponent implements OnInit {
     // Filter visibility
     showFilters = false;
 
-    // Table columns
-    displayedColumns = [
-        { key: 'exam.date', label: 'Tarix', sortable: true },
-        { key: 'studentData.code', label: 'İş nömrəsi', sortable: true },
-        { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
-        { key: 'studentData.firstName', label: 'Adı', sortable: true },
-        { key: 'grade', label: 'Sinif', sortable: true },
-        { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
-        { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
-        { key: 'studentData.district.name', label: 'Rayon', sortable: true },
-        { key: 'totalScore', label: 'Ümumi bal', sortable: true },
-        { key: 'level', label: 'Pillə', sortable: true },
-        { key: 'actions', label: 'Əməliyyatlar', sortable: false }
-    ];
+    @ViewChild('totalScoreCell', { static: true }) totalScoreCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
+    @ViewChild('levelCell', { static: true }) levelCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
+
+    get displayedColumns(): TableColumn[] {
+        return [
+            { key: 'exam.date', label: 'Tarix', sortable: true, formatter: (v) => this.formatDate(v) },
+            { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student },
+            { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
+            { key: 'studentData.firstName', label: 'Adı', sortable: true },
+            { key: 'grade', label: 'Sinif', sortable: true },
+            { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
+            { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
+            { key: 'studentData.district.name', label: 'Rayon', sortable: true },
+            { key: 'totalScore', label: 'Ümumi bal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
+            { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate }
+        ];
+    }
+
+    get tableActions(): TableAction[] {
+        return this.canEditExamResults
+            ? [{ key: 'edit', label: 'Düzəliş et', icon: this.Edit2, variant: 'primary' }]
+            : [];
+    }
 
     // Sort
     sortColumn = '';
@@ -331,14 +343,9 @@ export class ExamResultsComponent implements OnInit {
         this.loadExamResults();
     }
 
-    onPageChange(event: { pageIndex: number; pageSize: number }): void {
+    onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
-        this.loadExamResults();
-    }
-
-    onPageSizeChange(): void {
-        this.pageIndex = 0; // Reset to first page when changing page size
         this.loadExamResults();
     }
 
@@ -365,9 +372,6 @@ export class ExamResultsComponent implements OnInit {
         const dateObj = typeof date === 'string' ? new Date(date) : date;
         return dateObj.toLocaleDateString('az-AZ');
     }
-
-    trackByColumnKey(_: number, col: { key: string }): string { return col.key; }
-    trackByResultId(_: number, result: ExamResult): number { return result.id; }
 
     getLevelBadgeClass(level: string): string {
         switch (level?.toLowerCase()) {
@@ -417,6 +421,12 @@ export class ExamResultsComponent implements OnInit {
 
     get canDeleteExamResults(): boolean {
         return this.authService.canDeleteExamResults();
+    }
+
+    onTableAction(event: { action: string; item: ExamResult }): void {
+        if (event.action === 'edit') {
+            this.onEditResult(event.item);
+        }
     }
 
     onEditResult(result: ExamResult): void {

@@ -1,0 +1,42 @@
+<ng-template #avatarCell let-avatarUrl let-row="row">
+  <div class="w-16 h-20 flex items-center justify-center overflow-hidden">
+    @if (avatarUrl) {
+      <img [src]="avatarUrl" alt="Student avatar" class="w-full h-full object-cover rounded border border-gray-200">
+    }
+    @if (!avatarUrl) {
+      <div class="w-full h-full bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+        <lucide-icon [img]="User" class="w-8 h-8 text-gray-400"></lucide-icon>
+      </div>
+    }
+  </div>
+</ng-template>
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 py-4">
+  <h3 class="mx-5 mb-2 text-lg font-semibold text-gray-900">{{ title }}</h3>
+
+  <app-data-table
+    [data]="isLoading ? [] : pagedData"
+    [columns]="columns_"
+    ariaLabel="Şagirdlər cədvəli"
+    [totalCount]="totalCount"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [sortBy]="sortBy"
+    [sortDirection]="sortDirection"
+    [fullscreen]="fullscreen"
+    (sortChanged)="onSort($event)"
+    (pageChanged)="onPageChange($event)"
+    (rowClicked)="onRowClick($event)"
+    ></app-data-table>
+
+  @if (!isLoading && dataSource.length > 0) {
+    <div class="mt-4 mx-5">
+      <app-button variant="outline" (clicked)="onExportToExcel()">
+        <div class="flex items-center gap-2">
+          <lucide-icon [img]="Download" class="h-4 w-4"></lucide-icon>
+          <span>Excel-ə eksport et</span>
+        </div>
+      </app-button>
+    </div>
+  }
+</div>

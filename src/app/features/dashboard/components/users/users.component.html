@@ -30,141 +30,47 @@
     </nav>
   </div>
 
+  <!-- Cell templates for columns that render a badge instead of plain text -->
+  <ng-template #roleCell let-role>
+    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getRoleBadgeClass(role)">
+      {{ role }}
+    </span>
+  </ng-template>
+  <ng-template #approvedCell let-isApproved>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+      [class]="isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
+      {{ isApproved ? 'təsdiq edilmiş' : 'təsdiq edilməmiş' }}
+    </span>
+  </ng-template>
+
   <!-- Table -->
   <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <button type="button" class="group inline-flex items-center space-x-1 hover:text-gray-700" (click)="onSortChange('email')">
-                <span>E-mail</span>
-                <lucide-icon
-                  [img]="sortColumn === 'email' && sortDirection === 'asc' ? ChevronUp : ChevronDown"
-                  class="w-3.5 h-3.5 transition-colors"
-                  [class.text-indigo-600]="sortColumn === 'email'"
-                  [class.text-gray-300]="sortColumn !== 'email'">
-                </lucide-icon>
-              </button>
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              <button type="button" class="group inline-flex items-center space-x-1 hover:text-gray-700" (click)="onSortChange('role')">
-                <span>Vəzifəsi</span>
-                <lucide-icon
-                  [img]="sortColumn === 'role' && sortDirection === 'asc' ? ChevronUp : ChevronDown"
-                  class="w-3.5 h-3.5 transition-colors"
-                  [class.text-indigo-600]="sortColumn === 'role'"
-                  [class.text-gray-300]="sortColumn !== 'role'">
-                </lucide-icon>
-              </button>
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Təsdiq
-            </th>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Əməliyyatlar
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          @for (user of dataSource; track user) {
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ user.email }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  [class]="getRoleBadgeClass(user.role)">
-                  {{ user.role }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  [class]="user.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                  {{ user.isApproved ? 'təsdiq edilmiş' : 'təsdiq edilməmiş' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                @if (!isLevelUpUser(user)) {
-                  <div class="flex justify-end space-x-2">
-                    <app-button variant="secondary" (clicked)="onUserUpdate(user)" size="sm">
-                      <div class="flex items-center space-x-1">
-                        <lucide-icon [img]="Edit" class="w-3.5 h-3.5"></lucide-icon>
-                        <span>Redaktə</span>
-                      </div>
-                    </app-button>
-                    @if (user.role != 'superadmin') {
-                      <app-button
-                        variant="danger"
-                        (clicked)="onUserDelete(user)"
-                        size="sm">
-                        <div class="flex items-center space-x-1">
-                          <lucide-icon [img]="Trash2" class="w-3.5 h-3.5"></lucide-icon>
-                          <span>Sil</span>
-                        </div>
-                      </app-button>
-                    }
-                  </div>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Empty State -->
     @if (dataSource.length === 0) {
       <div class="text-center py-12">
         <lucide-icon [img]="Users" class="w-12 h-12 mx-auto text-gray-400 mb-4"></lucide-icon>
         <p class="text-gray-500">İstifadəçi tapılmadı</p>
       </div>
     }
-
-    <!-- Pagination -->
-    @if (totalCount > 0) {
-      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
-          <div class="flex items-center space-x-4">
-            <p class="text-sm text-gray-700">
-              <span class="font-medium">{{ getDisplayStart() }}</span>
-              –
-              <span class="font-medium">{{ getDisplayEnd() }}</span>
-              arası,
-              <span class="font-medium">{{ totalCount }}</span>
-              nəticədən
-            </p>
-            <div class="flex items-center space-x-2">
-              <label class="text-sm text-gray-700 whitespace-nowrap">Səhifə ölçüsü:</label>
-              <select
-                [(ngModel)]="pageSize"
-                (ngModelChange)="onPageSizeChange($event)"
-                class="block rounded-md border-gray-300 py-1 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500">
-                @for (opt of pageSizeOptions; track opt) {
-                  <option [value]="opt">{{ opt }}</option>
-                }
-              </select>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2">
-            <app-button variant="outline" size="sm" aria-label="Birinci səhifə" [disabled]="currentPage === 0" (clicked)="goToPage(0)">
-              <lucide-icon [img]="ChevronsLeft" class="h-4 w-4"></lucide-icon>
-            </app-button>
-            <app-button variant="outline" size="sm" aria-label="Əvvəlki səhifə" [disabled]="currentPage === 0" (clicked)="goToPage(currentPage - 1)">
-              <lucide-icon [img]="ChevronLeft" class="h-4 w-4"></lucide-icon>
-            </app-button>
-            <span class="text-sm text-gray-700 px-2">
-              {{ currentPage + 1 }} / {{ getTotalPages() }}
-            </span>
-            <app-button variant="outline" size="sm" aria-label="Növbəti səhifə" [disabled]="currentPage >= getTotalPages() - 1" (clicked)="goToPage(currentPage + 1)">
-              <lucide-icon [img]="ChevronRight" class="h-4 w-4"></lucide-icon>
-            </app-button>
-            <app-button variant="outline" size="sm" aria-label="Son səhifə" [disabled]="currentPage >= getTotalPages() - 1" (clicked)="goToPage(getTotalPages() - 1)">
-              <lucide-icon [img]="ChevronsRight" class="h-4 w-4"></lucide-icon>
-            </app-button>
-          </div>
-        </div>
-      </div>
+    @if (dataSource.length > 0) {
+      <app-fullscreen-panel [(expanded)]="tableFullscreen" title="İstifadəçilər">
+        <app-data-table
+          [data]="dataSource"
+          [columns]="tableColumns"
+          [actions]="tableActions"
+          ariaLabel="İstifadəçilər cədvəli"
+          [totalCount]="totalCount"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          [sortBy]="sortColumn"
+          [sortDirection]="sortDirection"
+          [fullscreen]="tableFullscreen"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)"
+          (actionClicked)="onTableAction($event)"
+          (rowClicked)="openUserDetails($event)"
+          ></app-data-table>
+      </app-fullscreen-panel>
     }
   </div>
 </div>

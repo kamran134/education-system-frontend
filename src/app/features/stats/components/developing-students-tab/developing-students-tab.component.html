@@ -1,13 +1,15 @@
 <div>
     <div class="stats-container">
-        <app-student-rating-table
+        <app-month-student-rating-table
           [title]="(developingLabel$ | async) ?? 'Cari ayda inkişaf edən şagirdlər'"
           tableName="developingStudents"
           [dataSource]="stats.developingStudents || []"
           [columns]="monthStudentColumns"
+          [isLoading]="isLoading"
+          [fullscreen]="fullscreen"
           (excelExport)="excelExport.emit('developingStudents')"
           (rowClicked)="rowClicked.emit($event)"
           (sortChanged)="sortChanged.emit($event)"
-        ></app-student-rating-table>
+        ></app-month-student-rating-table>
     </div>
 </div>

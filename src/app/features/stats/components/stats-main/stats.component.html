@@ -50,8 +50,9 @@
     (academicYearUpdated)="onAcademicYearChanged($event)"
   ></app-stats-filters>
 
-  <!-- Custom Tabs -->
-  <div class="bg-white rounded-lg shadow-md border border-gray-200">
+  <!-- Custom Tabs: one fullscreen button expands the tab strip together with the active table -->
+  <app-fullscreen-panel [(expanded)]="isTablesFullscreen" title="Reytinqlər" class="block">
+    <div class="bg-white rounded-lg shadow-md border border-gray-200">
     <!-- Tab Headers -->
     <div class="border-b border-gray-200">
       <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
@@ -75,6 +76,7 @@
             [monthStudentColumns]="developingStudentColumns"
             [isLoading]="isloading"
             [developingLabel$]="developingStudentsLabel$"
+            [fullscreen]="isTablesFullscreen"
             (sortChanged)="onSortChange($event)"
             (excelExport)="exportToExcel($event)"
             (rowClicked)="openStudentDetails($event)"
@@ -90,6 +92,7 @@
             [monthStudentColumns]="monthStudentColumns"
             [isLoading]="isloading"
             [ofMonthLabel$]="studentsOfMonthLabel$"
+            [fullscreen]="isTablesFullscreen"
             (sortChanged)="onSortChange($event)"
             (excelExport)="exportToExcel($event)"
             (rowClicked)="openStudentDetails($event)"
@@ -105,6 +108,7 @@
             [monthStudentColumns]="monthStudentColumns"
             [isLoading]="isloading"
             [republicLabel$]="studentsOfMonthByRepublicLabel$"
+            [fullscreen]="isTablesFullscreen"
             (sortChanged)="onSortChange($event)"
             (excelExport)="exportToExcel($event)"
             (rowClicked)="openStudentDetails($event)"
@@ -123,6 +127,8 @@
             [pageSize]="studentsPageSize"
             [isLoading]="isloading"
             [canGoBack]="canGoBack()"
+            [fullscreen]="isTablesFullscreen"
+            [isExporting]="isExportingExcel"
             (sortChanged)="onSortChange($event)"
             (pageChanged)="onPageChange($event)"
             (exportClicked)="exportToExcel('allStudents')"
@@ -143,6 +149,8 @@
             [pageSize]="pageSize"
             [isLoading]="isloading"
             [canGoBack]="canGoBack()"
+            [fullscreen]="isTablesFullscreen"
+            [isExporting]="isExportingExcel"
             (sortChanged)="onSortChange($event)"
             (pageChanged)="onPageChange($event)"
             (exportClicked)="exportToExcel('allTeachers')"
@@ -163,6 +171,8 @@
             [pageSize]="pageSize"
             [isLoading]="isloading"
             [canGoBack]="canGoBack()"
+            [fullscreen]="isTablesFullscreen"
+            [isExporting]="isExportingExcel"
             (sortChanged)="onSortChange($event)"
             (pageChanged)="onPageChange($event)"
             (exportClicked)="exportToExcel('allSchools')"
@@ -183,6 +193,8 @@
             [pageSize]="pageSize"
             [isLoading]="isloading"
             [canGoBack]="canGoBack()"
+            [fullscreen]="isTablesFullscreen"
+            [isExporting]="isExportingExcel"
             (sortChanged)="onSortChange($event)"
             (pageChanged)="onPageChange($event)"
             (exportClicked)="exportToExcel('allDistricts')"
@@ -203,6 +215,8 @@
             [pageSize]="pageSize"
             [isLoading]="isloading"
             [canGoBack]="canGoBack()"
+            [fullscreen]="isTablesFullscreen"
+            [isExporting]="isExportingExcel"
             (sortChanged)="onSortChange($event)"
             (pageChanged)="onPageChange($event)"
             (exportClicked)="exportToExcel('allRegions')"
@@ -212,7 +226,8 @@
         </div>
       }
     </div>
-  </div>
+    </div>
+  </app-fullscreen-panel>
 
   <!-- Loading State -->
   @if (isloading) {

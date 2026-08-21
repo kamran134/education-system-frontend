@@ -37,18 +37,21 @@
 
   <!-- Table Section -->
   <div slot="content">
-    <app-data-table
-      [data]="schools"
-      [columns]="tableColumns"
-      [actions]="tableActions"
-      [totalCount]="totalCount"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [sortBy]="sortColumn"
-      [sortDirection]="sortDirection"
-      (pageChanged)="onPageChange($event)"
-      (sortChanged)="onSortChange($event)"
-      (rowClicked)="onSchoolProfile($event)"
-    ></app-data-table>
+    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Məktəblər">
+      <app-data-table
+        [data]="schools"
+        [columns]="tableColumns"
+        [actions]="tableActions"
+        [totalCount]="totalCount"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [sortBy]="sortColumn"
+        [sortDirection]="sortDirection"
+        [fullscreen]="tableFullscreen"
+        (pageChanged)="onPageChange($event)"
+        (sortChanged)="onSortChange($event)"
+        (rowClicked)="onSchoolProfile($event)"
+      ></app-data-table>
+    </app-fullscreen-panel>
   </div>
 </app-list-layout>

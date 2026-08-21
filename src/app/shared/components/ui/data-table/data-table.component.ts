@@ -1,9 +1,10 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges, SimpleChanges, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Edit, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-angular';
 import { ButtonComponent } from '../button/button.component';
 import { CardComponent } from '../card/card.component';
+import { TABLE_PAGE_SIZE_DEFAULT, TABLE_PAGE_SIZE_FULLSCREEN, TABLE_PAGE_SIZE_OPTIONS } from './table-defaults';
 
 export interface TableColumn {
   key: string;
@@ -16,6 +17,8 @@ export interface TableColumn {
   field?: string;
   /** Transforms the raw value (after `field`/`key` lookup) into the display string. */
   formatter?: (value: any, row: any) => any;
+  /** Custom cell rendering. Context: { $implicit: formatted value, row: full row object }. Takes priority over `type`. */
+  cellTemplate?: TemplateRef<{ $implicit: any; row: any }>;
 }
 
 export interface TableAction {
@@ -42,11 +45,11 @@ export interface PageSizeOption {
     imports: [CommonModule, FormsModule, LucideAngularModule, ButtonComponent, CardComponent],
     template: `
     <app-card class="overflow-hidden">
-      <!-- Table: make the table area vertically scrollable so horizontal scrollbar stays visible -->
-      <div class="overflow-auto" style="max-height: calc(100vh - 260px);">
+      <!-- No vertical scroll inside the table: the page scrolls. Header stays visible via sticky. -->
+      <div class="overflow-x-auto">
         <div style="min-width: 100%;">
           <table class="min-w-full divide-y divide-gray-200" [attr.aria-label]="ariaLabel">
-            <thead class="bg-gray-50">
+            <thead class="bg-gray-50 sticky top-0 z-10">
               <tr>
                 @for (column of columns; track trackByColumnKey($index, column)) {
                   <th
@@ -88,43 +91,45 @@ export interface PageSizeOption {
                       [class]="getCellClass(column)"
                       >
                       <div>
-                        @switch (column.type || 'text') {
-                          <!-- Text -->
-                          @case ('text') {
-                            <span class="text-sm text-gray-900">
-                              {{ getFormattedValue(item, column) }}
-                            </span>
-                          }
-                          <!-- Number -->
-                          @case ('number') {
-                            <span class="text-sm text-gray-900 font-mono">
-                              {{ getValue(item, column.key) | number }}
-                            </span>
-                          }
-                          <!-- Date -->
-                          @case ('date') {
-                            <span class="text-sm text-gray-500">
-                              {{ getValue(item, column.key) | date:'dd.MM.yyyy' }}
-                            </span>
-                          }
-                          <!-- Boolean -->
-                          @case ('boolean') {
-                            <span class="inline-flex items-center">
-                              <span [class]="getValue(item, column.key) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                                class="inline-flex rounded-full px-2 text-xs font-semibold leading-5">
-                                {{ getValue(item, column.key) ? 'Bəli' : 'Xeyr' }}
+                        @if (column.cellTemplate) {
+                          <ng-container
+                            *ngTemplateOutlet="column.cellTemplate; context: { $implicit: getFormattedValue(item, column), row: item }"
+                            ></ng-container>
+                        } @else {
+                          @switch (column.type || 'text') {
+                            <!-- Text -->
+                            @case ('text') {
+                              <span class="text-sm text-gray-900">
+                                {{ getFormattedValue(item, column) }}
                               </span>
-                            </span>
-                          }
-                          <!-- Custom -->
-                          @case ('custom') {
-                            <ng-content [select]="'[slot=column-' + column.key + ']'"></ng-content>
-                          }
-                          <!-- Default -->
-                          @default {
-                            <span class="text-sm text-gray-900">
-                              {{ getFormattedValue(item, column) }}
-                            </span>
+                            }
+                            <!-- Number -->
+                            @case ('number') {
+                              <span class="text-sm text-gray-900 font-mono">
+                                {{ getValue(item, column.key) | number }}
+                              </span>
+                            }
+                            <!-- Date -->
+                            @case ('date') {
+                              <span class="text-sm text-gray-500">
+                                {{ getValue(item, column.key) | date:'dd.MM.yyyy' }}
+                              </span>
+                            }
+                            <!-- Boolean -->
+                            @case ('boolean') {
+                              <span class="inline-flex items-center">
+                                <span [class]="getValue(item, column.key) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  class="inline-flex rounded-full px-2 text-xs font-semibold leading-5">
+                                  {{ getValue(item, column.key) ? 'Bəli' : 'Xeyr' }}
+                                </span>
+                              </span>
+                            }
+                            <!-- Default -->
+                            @default {
+                              <span class="text-sm text-gray-900">
+                                {{ getFormattedValue(item, column) }}
+                              </span>
+                            }
                           }
                         }
                       </div>
@@ -252,22 +257,19 @@ export interface PageSizeOption {
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataTableComponent {
+export class DataTableComponent implements OnChanges {
   @Input() data: any[] = [];
   @Input() columns: TableColumn[] = [];
   @Input() actions: TableAction[] = [];
   @Input() ariaLabel = 'Cədvəl';
   @Input() totalCount = 0;
-  @Input() pageSize = 10;
+  @Input() pageSize = TABLE_PAGE_SIZE_DEFAULT;
   @Input() pageIndex = 0;
   @Input() sortBy = '';
   @Input() sortDirection: 'asc' | 'desc' = 'asc';
-  @Input() pageSizeOptions: PageSizeOption[] = [
-    { value: 100, label: '100' },
-    { value: 500, label: '500' },
-    { value: 1000, label: '1000' },
-    { value: 10000, label: '10000' }
-  ];
+  @Input() pageSizeOptions: PageSizeOption[] = TABLE_PAGE_SIZE_OPTIONS;
+  /** Bind to a fullscreen-panel's `expanded` state. Toggling this auto-switches pageSize between default/fullscreen sizes, unless the user already picked a size manually. */
+  @Input() fullscreen = false;
 
   @Output() actionClicked = new EventEmitter<{ action: string; item: any }>();
   @Output() pageChanged = new EventEmitter<PaginationEvent>();
@@ -280,6 +282,30 @@ export class DataTableComponent {
   readonly ChevronRight = ChevronRight;
   readonly ChevronsLeft = ChevronsLeft;
   readonly ChevronsRight = ChevronsRight;
+
+  private pageSizeTouchedByUser = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const fullscreenChange = changes['fullscreen'];
+    if (fullscreenChange && !fullscreenChange.firstChange) {
+      this.applyFullscreenPageSize(fullscreenChange.currentValue as boolean);
+    }
+  }
+
+  private applyFullscreenPageSize(isFullscreen: boolean): void {
+    if (this.pageSizeTouchedByUser) {
+      return;
+    }
+    const newPageSize = isFullscreen ? TABLE_PAGE_SIZE_FULLSCREEN : TABLE_PAGE_SIZE_DEFAULT;
+    if (newPageSize === this.pageSize) {
+      return;
+    }
+    this.pageChanged.emit({
+      pageIndex: 0,
+      pageSize: newPageSize,
+      length: this.totalCount
+    });
+  }
 
   getHeaderClass(column: TableColumn): string {
     const baseClasses = 'px-6 py-3';
@@ -334,6 +360,7 @@ export class DataTableComponent {
   }
 
   onPageSizeChange(newPageSize: number): void {
+    this.pageSizeTouchedByUser = true;
     this.pageChanged.emit({
       pageIndex: 0, // Reset to first page when changing page size
       pageSize: newPageSize,

@@ -136,21 +136,23 @@
 
       <!-- Main Content -->
       <div slot="content" class="flex flex-col h-full">
-        <app-data-table
-          [data]="students"
-          [columns]="tableColumns"
-          [actions]="tableActions"
-          [totalCount]="totalCount"
-          [pageSize]="pageSize"
-          [pageIndex]="pageIndex"
-          [sortBy]="sortColumn"
-          [sortDirection]="sortDirection"
-          (actionClicked)="onTableAction($event)"
-          (pageChanged)="onPageChange($event)"
-          (sortChanged)="onSortChange($event)"
-          (rowClicked)="onStudentView($event)"
-          class="flex-1">
-        </app-data-table>
+        <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Şagirdlər" class="flex-1">
+          <app-data-table
+            [data]="students"
+            [columns]="tableColumns"
+            [actions]="tableActions"
+            [totalCount]="totalCount"
+            [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
+            [sortBy]="sortColumn"
+            [sortDirection]="sortDirection"
+            [fullscreen]="tableFullscreen"
+            (actionClicked)="onTableAction($event)"
+            (pageChanged)="onPageChange($event)"
+            (sortChanged)="onSortChange($event)"
+            (rowClicked)="onStudentView($event)">
+          </app-data-table>
+        </app-fullscreen-panel>
       </div>
     </app-list-layout>
 

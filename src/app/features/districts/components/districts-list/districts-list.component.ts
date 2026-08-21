@@ -15,6 +15,8 @@ import { runStatsUpdate } from '../../../../core/utils/stats-update.util';
 import { LucideAngularModule, Plus, RefreshCw, Trash2 } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 @Component({
     selector: 'app-districts-list',
@@ -22,7 +24,8 @@ import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '.
     RouterModule,
     LucideAngularModule,
     ListLayoutComponent,
-    DataTableComponent
+    DataTableComponent,
+    FullscreenPanelComponent
 ],
     templateUrl: './districts-list.component.html',
     styleUrls: ['./districts-list.component.scss']
@@ -35,8 +38,9 @@ export class DistrictsListComponent implements OnInit {
 
     // Pagination properties
     totalCount = 0;
-    pageSize = 100;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     // Sorting properties
     sortColumn = 'name';
@@ -103,7 +107,7 @@ export class DistrictsListComponent implements OnInit {
                 this.pageIndex = parseInt(params['districtPage']) || 0;
             }
             if (params['districtPageSize'] !== undefined) {
-                this.pageSize = parseInt(params['districtPageSize']) || 100;
+                this.pageSize = parseInt(params['districtPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
             }
         });
     }

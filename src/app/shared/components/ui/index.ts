@@ -12,3 +12,7 @@ export * from './list-layout/list-layout.types';
 
 // Data Table
 export * from './data-table/data-table.component';
+export * from './data-table/table-defaults';
+
+// Fullscreen
+export * from './fullscreen-panel/fullscreen-panel.component';

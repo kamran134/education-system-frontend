@@ -19,6 +19,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Calendar, ChevronDown, ChevronUp, BookOpen } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
+import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 // Dialogs
 import { ExamAddDialogComponent } from '../exam-add-dialog/exam-add-dialog.component';
@@ -34,7 +36,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
     RouterModule,
     LucideAngularModule,
     ListLayoutComponent,
-    DataTableComponent
+    DataTableComponent,
+    FullscreenPanelComponent
 ],
     templateUrl: './exams-list.component.html',
     styleUrls: ['./exams-list.component.scss']
@@ -50,8 +53,9 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
     // Pagination
     totalCount = 0;
-    pageSize = 25;
+    pageSize = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex = 0;
+    tableFullscreen = false;
 
     // Sorting
     sortColumn = 'date';

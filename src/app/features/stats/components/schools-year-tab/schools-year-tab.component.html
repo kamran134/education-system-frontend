@@ -19,6 +19,7 @@
     [pageSize]="pageSize"
     [sortBy]="sortBy"
     [sortDirection]="sortDirection"
+    [fullscreen]="fullscreen"
     (sortChanged)="onSortChange($event)"
     (pageChanged)="pageChanged.emit($event)"
     (rowClicked)="rowClicked.emit(String($event.id))"
@@ -26,10 +27,10 @@
 
   @if (!isLoading && schools.length > 0) {
     <div class="mt-4">
-      <app-button variant="outline" (clicked)="exportClicked.emit()">
+      <app-button variant="outline" [disabled]="isExporting" (clicked)="exportClicked.emit()">
         <div class="flex items-center gap-2">
-          <lucide-icon [img]="Download" class="h-4 w-4"></lucide-icon>
-          <span>Excel-ə eksport et</span>
+          <lucide-icon [img]="Download" [class]="isExporting ? 'animate-spin' : ''" class="h-4 w-4"></lucide-icon>
+          <span>{{ isExporting ? 'Yüklənir...' : 'Excel-ə eksport et' }}</span>
         </div>
       </app-button>
     </div>

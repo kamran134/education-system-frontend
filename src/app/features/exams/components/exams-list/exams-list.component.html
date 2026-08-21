@@ -109,19 +109,21 @@
 
     <!-- Main Content -->
     <div slot="content" class="flex flex-col h-full">
-      <app-data-table
-        [data]="exams"
-        [columns]="tableColumns"
-        [actions]="tableActions"
-        [totalCount]="totalCount"
-        [pageSize]="pageSize"
-        [pageIndex]="pageIndex"
-        [sortBy]="sortColumn"
-        [sortDirection]="sortDirection"
-        (actionClicked)="onTableAction($event)"
-        (pageChanged)="onPageChange($event)"
-        (sortChanged)="onSortChange($event)"
-        class="flex-1">
-      </app-data-table>
+      <app-fullscreen-panel [(expanded)]="tableFullscreen" title="İmtahanlar" class="flex-1">
+        <app-data-table
+          [data]="exams"
+          [columns]="tableColumns"
+          [actions]="tableActions"
+          [totalCount]="totalCount"
+          [pageSize]="pageSize"
+          [pageIndex]="pageIndex"
+          [sortBy]="sortColumn"
+          [sortDirection]="sortDirection"
+          [fullscreen]="tableFullscreen"
+          (actionClicked)="onTableAction($event)"
+          (pageChanged)="onPageChange($event)"
+          (sortChanged)="onSortChange($event)">
+        </app-data-table>
+      </app-fullscreen-panel>
     </div>
   </app-list-layout>
