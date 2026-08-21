@@ -979,18 +979,26 @@ export class StatsComponent implements OnInit, OnDestroy {
 
         if (event.index === 0) {
             this.selectedTab = 'developingStudents';
+            // Сбрасываем сортировку на дефолт этого таба — иначе остаётся 'score',
+            // унаследованный от İlin-табов (3-7), и там его нет в columnMap
+            this.sortActive = 'averageScore';
+            this.sortDirection = 'desc';
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
             this.loadDevelopingStudentsStats();
         } else if (event.index === 1) {
             this.selectedTab = 'studentsOfMonth';
+            this.sortActive = 'averageScore';
+            this.sortDirection = 'desc';
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
             this.loadStudentsOfMonthStats();
         } else if (event.index === 2) {
             this.selectedTab = 'studentsOfMonthByRepublic';
+            this.sortActive = 'score';
+            this.sortDirection = 'desc';
             // Для месячной статистики загружаем школы и учителей для фильтров
             this.loadSchools();
             this.loadTeachers();
