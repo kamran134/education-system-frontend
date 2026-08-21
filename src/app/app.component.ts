@@ -40,6 +40,11 @@ export class AppComponent implements OnInit {
     userId: string | null = null;
     // Лендинг ('/') рисует свою шапку — глобальная на нём скрыта.
     isLandingRoute: boolean = false;
+    // '/admin/*' (свой topbar+сайдбар) и '/sertifikat/:token' (публичная страница проверки,
+    // своя мини-шапка с лого) тоже рисуют собственную шапку. Без этого флага глобальная
+    // накладывалась поверх неё — на десктопе выглядело как toolbar над toolbar, на мобильном
+    // читалось однозначно как «два хедера подряд».
+    hideGlobalHeader: boolean = false;
 
     // Lucide Icons
     readonly User = User;
@@ -64,10 +69,12 @@ export class AppComponent implements OnInit {
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this.isLandingRoute = this.isLandingUrl(this.router.url);
+        this.hideGlobalHeader = this.hasOwnHeader(this.router.url);
         this.router.events
             .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
             .subscribe((event) => {
                 this.isLandingRoute = this.isLandingUrl(event.urlAfterRedirects);
+                this.hideGlobalHeader = this.hasOwnHeader(event.urlAfterRedirects);
                 // Лендинг темонезависим (см. LANDING_TASK.md): без этого пересчёта переход
                 // на / внутри SPA (клик по лого) сохранял бы .dark-mode на body/html с
                 // предыдущей страницы — класс не снимается сам по себе при смене маршрута.
@@ -120,6 +127,11 @@ export class AppComponent implements OnInit {
      */
     private isLandingUrl(url: string): boolean {
         return url.split('#')[0].split('?')[0] === '/';
+    }
+
+    private hasOwnHeader(url: string): boolean {
+        const path = url.split('#')[0].split('?')[0];
+        return path.startsWith('/admin') || path.startsWith('/sertifikat/');
     }
 
     darkModeToogleChanged(): void {
