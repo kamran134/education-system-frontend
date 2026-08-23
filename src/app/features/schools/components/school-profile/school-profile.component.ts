@@ -16,16 +16,16 @@ import { SnackBarService } from '../../../commonComponents/services/snack-bar.se
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
-import { ProfileHeroComponent, ProfileHeroChip, ProfileHeroSubtitlePart, ProfileHeroRank } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
-import { ProfileFactsComponent, ProfileFact } from '../../../../shared/components/profile/profile-facts/profile-facts.component';
+import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart, ProfileHeroMetric, ProfileHeroPlace } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
 import { ProfileAchievementsComponent } from '../../../../shared/components/profile/profile-achievements/profile-achievements.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
-import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
+import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
+import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 
 const TEACHERS_PAGE_SIZE = 12;
 
@@ -34,7 +34,7 @@ const TEACHERS_PAGE_SIZE = 12;
     imports: [
         CommonModule, FormsModule, RouterModule, LucideAngularModule,
         ButtonComponent, InputComponent,
-        ProfileHeroComponent, ProfileFactsComponent, ProfileAchievementsComponent,
+        ProfileHeroComponent, ProfileAchievementsComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
     ],
     templateUrl: './school-profile.component.html',
@@ -72,10 +72,9 @@ export class SchoolProfileComponent implements OnInit {
      */
     crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
-    heroChips: ProfileHeroChip[] = [];
-    heroRank: ProfileHeroRank | null = null;
-    facts: ProfileFact[] = [];
-    ratingScopes: ProfileRatingScope[] = [];
+    heroFacts: ProfileHeroFact[] = [];
+    heroMetric: ProfileHeroMetric | null = null;
+    heroPlaces: ProfileHeroPlace[] = [];
     teacherCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
@@ -192,10 +191,9 @@ export class SchoolProfileComponent implements OnInit {
         const school = this.school;
         if (!school) {
             this.heroSubtitleParts = [];
-            this.heroChips = [];
-            this.heroRank = null;
-            this.facts = [];
-            this.ratingScopes = [];
+            this.heroFacts = [];
+            this.heroMetric = null;
+            this.heroPlaces = [];
             return;
         }
 
@@ -219,29 +217,24 @@ export class SchoolProfileComponent implements OnInit {
 
         this.heroSubtitleParts = [{ text: 'Kod ' + school.code }];
 
-        const chips: ProfileHeroChip[] = [];
-        if (school.directorName) chips.push({ label: 'Direktor', value: school.directorName });
-        if (school.foundedYear) chips.push({ label: 'Yaranma tarixi', value: String(school.foundedYear) });
-        chips.push({ label: 'Şagird sayı', value: String(school.actualStudentCount ?? 0) });
-        this.heroChips = chips;
-
-        this.heroRank = school.place != null ? { place: school.place, label: 'Respublika üzrə' } : null;
-
-        this.facts = [
-            { label: 'Məktəb direktoru', value: school.directorName ?? null },
+        this.heroFacts = [
+            { label: 'Direktor', value: school.directorName ?? null },
             { label: 'Yaranma tarixi', value: school.foundedYear ? String(school.foundedYear) : null },
             { label: 'Şagird sayı', value: String(school.actualStudentCount ?? 0) },
             { label: 'Layihə müəllimləri', value: String(school.teacherCount ?? 0) },
-            { label: 'Rayon üzrə yeri', value: school.districtPlace != null ? String(school.districtPlace) : null },
-            { label: 'Ünvan', value: school.address || null },
+            { label: 'Ünvan', value: school.address || null, wide: true },
         ];
 
-        const scopes: ProfileRatingScope[] = [];
-        if (school.place != null) scopes.push({ label: 'Respublika üzrə yeri', value: String(school.place) });
-        if (school.districtPlace != null) scopes.push({ label: 'Rayon üzrə yeri', value: String(school.districtPlace) });
-        if (school.score != null) scopes.push({ label: 'Ümumi bal', value: school.score.toFixed(1) });
-        if (school.averageScore != null) scopes.push({ label: 'Orta bal', value: school.averageScore.toFixed(1) });
-        this.ratingScopes = scopes;
+        this.heroMetric = {
+            label: 'Reytinq xalı',
+            value: school.score != null ? school.score.toFixed(1) : '—',
+            caption: academicYearLabel(getCurrentAcademicYear()),
+        };
+
+        const places: ProfileHeroPlace[] = [];
+        if (school.place != null) places.push({ label: 'Respublika', value: String(school.place) });
+        if (school.districtPlace != null) places.push({ label: 'Rayon', value: String(school.districtPlace) });
+        this.heroPlaces = places;
     }
 
     private recomputeTeacherCards(): void {

@@ -4,25 +4,35 @@ import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Camera, Edit2 } from 'lucide-angular';
 import { ImageCropModalComponent } from '../../modals/image-crop-modal/image-crop-modal.component';
 
-export interface ProfileHeroChip {
-    label: string;
-    value: string;
-}
-
 export interface ProfileHeroSubtitlePart {
     text: string;
     link?: any[];
 }
 
-export interface ProfileHeroRank {
-    place: number;
-    total?: number;
+export interface ProfileHeroFact {
     label: string;
+    value: string | null;
+    /** Занимает всю ширину сетки фактов (например Ünvan школы). */
+    wide?: boolean;
+}
+
+export interface ProfileHeroMetric {
+    label: string;
+    value: string;
+    caption?: string;
+}
+
+export interface ProfileHeroPlace {
+    label: string;
+    value: string;
 }
 
 /**
- * Шапка профиля учителя/школы/района (PROFILES_TASK.md §5). Два варианта: "portrait" —
- * фото-портрет 3:4 (учитель), "banner" — широкий баннер 3:1 с затемнением (школа/район).
+ * Шапка профиля учителя/школы/района/региона (PROFILES_V3_TASK.md §4). Два варианта:
+ * "person" — круглое фото слева, факты и метрика в одну строку (учитель); "entity" —
+ * фото 16:9 слева, данные справа (школа/район/регион). Заменяет прежние "portrait"/"banner"
+ * с chips/rank — теперь facts/metric/places, детали см. в задании.
+ *
  * Презентационный компонент — загрузку аватара делегирует наверх через avatarSelected
  * (сам только валидирует файл и открывает кроппер), сохранение — на странице.
  */
@@ -34,18 +44,23 @@ export interface ProfileHeroRank {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeroComponent {
-    @Input() variant: 'portrait' | 'banner' = 'portrait';
+    @Input() variant: 'person' | 'entity' = 'person';
     @Input() eyebrow: string | null = null;
     @Input() title = '';
     @Input() subtitleParts: ProfileHeroSubtitlePart[] = [];
-    @Input() chips: ProfileHeroChip[] = [];
+    @Input() facts: ProfileHeroFact[] = [];
     @Input() avatarUrl: string | null = null;
-    @Input() rank: ProfileHeroRank | null = null;
+    @Input() metric: ProfileHeroMetric | null = null;
+    @Input() places: ProfileHeroPlace[] = [];
     @Input() canEdit = false;
+    /** Есть страницы (регион), где ни один факт не редактируется отдельной формой — там
+     *  ссылка "Profil məlumatlarını redaktə et" была бы мёртвой кнопкой. */
+    @Input() showEditFactsLink = true;
     @Input() canUploadPhoto = false;
     @Input() isUploading = false;
 
     @Output() editClicked = new EventEmitter<void>();
+    @Output() editFactsClicked = new EventEmitter<void>();
     @Output() avatarSelected = new EventEmitter<Blob>();
     @Output() uploadRejected = new EventEmitter<string>();
 
@@ -68,6 +83,15 @@ export class ProfileHeroComponent {
     }
 
     /** Детерминированный от заголовка индекс — та же карточка всегда получает тот же тон заглушки. */
+    /**
+     * Пустой факт скрывается целиком у обычного посетителя — но у того, кто вправе его
+     * заполнить, остаётся видимым с плейсхолдером "Doldurulmayıb" (PROFILES_V3_TASK.md §4.4),
+     * иначе админ не поймёт, что поле вообще существует.
+     */
+    get visibleFacts(): ProfileHeroFact[] {
+        return this.canEdit ? this.facts : this.facts.filter((f) => f.value !== null);
+    }
+
     get placeholderTone(): number {
         let hash = 0;
         for (let i = 0; i < this.title.length; i++) {
@@ -77,11 +101,11 @@ export class ProfileHeroComponent {
     }
 
     get aspectRatio(): number {
-        return this.variant === 'banner' ? 3 : 3 / 4;
+        return this.variant === 'entity' ? 16 / 9 : 1;
     }
 
     get resizeToWidth(): number {
-        return this.variant === 'banner' ? 1600 : 600;
+        return this.variant === 'entity' ? 1600 : 800;
     }
 
     openFilePicker(): void {

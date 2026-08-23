@@ -16,17 +16,6 @@
   </div>
 
   <div class="px-5 sm:px-6 py-5">
-    @if (scopes.length > 0) {
-      <div class="flex flex-wrap gap-3 mb-5">
-        @for (scope of scopes; track scope.label) {
-          <div class="flex-1 min-w-[150px] rounded-xl border px-4 py-3 bg-[var(--ui-surface-2)] border-[var(--ui-line)]">
-            <div class="text-[11px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ scope.label }}</div>
-            <div class="text-xl font-extrabold tabular-nums tracking-tight text-[var(--ui-ink)] mt-0.5">{{ scope.value }}</div>
-          </div>
-        }
-      </div>
-    }
-
     @if (sortedRatings.length > 0) {
       <div class="grid grid-cols-[76px_1fr_60px_48px] sm:grid-cols-[92px_1fr_68px_56px] gap-3 sm:gap-3.5 px-1 pb-1.5 border-b border-[var(--ui-line)] text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">
         <span>Tədris ili</span>

@@ -33,31 +33,36 @@
       </div>
 
       <app-profile-hero
-        variant="portrait"
+        variant="person"
         eyebrow="Layihə müəllimi"
         [title]="teacher.fullname"
         [subtitleParts]="heroSubtitleParts"
-        [chips]="heroChips"
+        [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
-        [rank]="heroRank"
+        [metric]="heroMetric"
+        [places]="heroPlaces"
         [canEdit]="canEdit"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
         (editClicked)="openEditDialog()"
+        (editFactsClicked)="startEditFacts()"
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
 
-      <div class="flex flex-col gap-3">
-        @if (canEdit && !editingFacts) {
-          <div class="flex justify-end -mb-1">
-            <button type="button" (click)="startEditFacts()" class="text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">Profil məlumatlarını redaktə et</button>
-          </div>
-        }
-        <app-profile-facts [facts]="facts"></app-profile-facts>
-
-        @if (editingFacts) {
-          <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
+      @if (editingFacts) {
+        <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <app-input
+                label="Sinfi"
+                [(ngModel)]="editedGradeLabel"
+                name="gradeLabel"
+                [maxLength]="40"
+                placeholder="məs. 5-ci sinif"
+              ></app-input>
+              <p class="text-xs text-[var(--ui-muted)] mt-1">Məsələn: «5-ci sinif», «5–6-cı siniflər», «7A, 7B»</p>
+            </div>
             <app-input
               label="Pedaqoji stajın başlanğıc ili"
               type="number"
@@ -65,15 +70,15 @@
               name="pedagogicalStartYear"
               placeholder="məs. 2011"
             ></app-input>
-            <div class="flex gap-2 mt-4">
-              <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
-                {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
-              </app-button>
-              <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
-            </div>
           </div>
-        }
-      </div>
+          <div class="flex gap-2 mt-4">
+            <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
+              {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
+            </app-button>
+            <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
+          </div>
+        </div>
+      }
 
       <app-profile-achievements
         title="Uğurları"
@@ -92,8 +97,7 @@
       </app-profile-stats-section>
 
       <app-profile-rating-section
-        [ratings]="teacher.ratings ?? []"
-        [scopes]="ratingScopes">
+        [ratings]="teacher.ratings ?? []">
       </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">

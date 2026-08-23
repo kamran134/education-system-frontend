@@ -19,6 +19,13 @@ $tones-dark: (
     5: (#262f5c, #1d244a, #a5b4fc),
 );
 
+// Кольцо вокруг круглого фото учителя — отделяет его от фона карточки на любой теме
+// (одноцветный border слился бы с --ui-surface, если бы фото было того же тона).
+.avatar-ring {
+    border: 3px solid var(--ui-surface);
+    box-shadow: 0 0 0 1px var(--ui-line), 0 6px 18px rgba(15, 23, 42, .10);
+}
+
 .avatar-ph {
     @each $tone, $colors in $tones-light {
         &[data-tone="#{$tone}"] {

@@ -15,7 +15,7 @@ export interface EntityCardItem {
 
 /**
  * Drill-down сетка карточек уровнем ниже (Şagirdlər/Layihə müəllimləri/Məktəblər —
- * PROFILES_TASK.md §5). "portrait" — 3:4 для людей (учеников/учителей), "wide" — 16:10
+ * PROFILES_TASK.md §5). "portrait" — 3:4 для людей (учеников/учителей), "wide" — 16:9
  * для учреждений (школ). Первые три места получают золотой бейдж, остальные — нейтральный.
  */
 @Component({
@@ -50,7 +50,7 @@ export class EntityCardGridComponent {
     }
 
     get pictureClasses(): string {
-        return this.layout === 'wide' ? 'relative overflow-hidden aspect-[16/10]' : 'relative overflow-hidden aspect-[3/4]';
+        return this.layout === 'wide' ? 'relative overflow-hidden aspect-[16/9]' : 'relative overflow-hidden aspect-[3/4]';
     }
 
     initials(name: string): string {

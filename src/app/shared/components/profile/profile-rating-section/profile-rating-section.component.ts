@@ -3,19 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, TrendingUp, ChevronRight } from 'lucide-angular';
 import { YearRating } from '../../../../core/models/year-rating.model';
+import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 
-export interface ProfileRatingScope {
-    label: string;
-    value: string;
-}
-
-/** Академический год — та же формула, что backend/utils/academic-year.util.ts (сентябрь–июнь). */
-function currentAcademicYear(): number {
-    const now = new Date();
-    return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1;
-}
-
-/** Блок "Reytinqlər bölməsi" на профиле (PROFILES_TASK.md §5) — данные уже приходят в ratings[]. */
+/**
+ * Блок "Reytinqlər bölməsi" на профиле (PROFILES_TASK.md §5) — данные уже приходят в ratings[].
+ * С PROFILES_V3_TASK.md §3 плашки мест/баллов (бывший @Input scopes) отсюда убраны — это был
+ * стопроцентный дубль шапки профиля (profile-hero: metric + places), таблица по годам ниже
+ * их и так содержит. Только таблица история по годам.
+ */
 @Component({
     selector: 'app-profile-rating-section',
     imports: [CommonModule, RouterModule, LucideAngularModule],
@@ -24,12 +19,11 @@ function currentAcademicYear(): number {
 })
 export class ProfileRatingSectionComponent {
     @Input() ratings: YearRating[] = [];
-    @Input() scopes: ProfileRatingScope[] = [];
     @Input() showDetailsLink = true;
 
     readonly TrendingUp = TrendingUp;
     readonly ChevronRight = ChevronRight;
-    readonly currentYear = currentAcademicYear();
+    readonly currentYear = getCurrentAcademicYear();
 
     get sortedRatings(): YearRating[] {
         return [...this.ratings].sort((a, b) => b.year - a.year);
@@ -44,6 +38,6 @@ export class ProfileRatingSectionComponent {
     }
 
     yearLabel(year: number): string {
-        return `${year}/${year + 1}`;
+        return academicYearLabel(year);
     }
 }

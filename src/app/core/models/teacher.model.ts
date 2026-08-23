@@ -35,6 +35,9 @@ export interface Teacher {
     // среднего балла, actualStudentCount — живой count(students) для отображения.
     actualStudentCount?: number;
     grades?: number[];
+    // Ручной ввод (PROFILES_V3_TASK.md §5) — источник значения "Sinfi" на профиле, в отличие
+    // от grades[] (вычисляется из классов учеников). См. core/config/teacher-grade.config.ts.
+    gradeLabel?: string | null;
     pedagogicalStartYear?: number | null;
     achievements?: string | null;
 }

@@ -26,21 +26,21 @@
       }
 
       <app-profile-hero
-        variant="banner"
+        variant="entity"
         [title]="region.name"
         [subtitleParts]="heroSubtitleParts"
-        [chips]="heroChips"
+        [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
-        [rank]="heroRank"
+        [metric]="heroMetric"
+        [places]="heroPlaces"
         [canEdit]="canEdit"
+        [showEditFactsLink]="false"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
         (editClicked)="openEditDialog()"
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
-
-      <app-profile-facts [facts]="facts"></app-profile-facts>
 
       <app-profile-stats-section
         periodLabel="cari tədris ili"
@@ -50,8 +50,7 @@
       </app-profile-stats-section>
 
       <app-profile-rating-section
-        [ratings]="region.ratings ?? []"
-        [scopes]="ratingScopes">
+        [ratings]="region.ratings ?? []">
       </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">

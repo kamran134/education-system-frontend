@@ -33,54 +33,47 @@
       </div>
 
       <app-profile-hero
-        variant="banner"
+        variant="entity"
         [title]="school.name"
         [subtitleParts]="heroSubtitleParts"
-        [chips]="heroChips"
+        [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
-        [rank]="heroRank"
+        [metric]="heroMetric"
+        [places]="heroPlaces"
         [canEdit]="canEdit"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
         (editClicked)="openEditDialog()"
+        (editFactsClicked)="startEditFacts()"
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
 
-      <div class="flex flex-col gap-3">
-        @if (canEdit && !editingFacts) {
-          <div class="flex justify-end -mb-1">
-            <button type="button" (click)="startEditFacts()" class="text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">Profil məlumatlarını redaktə et</button>
+      @if (editingFacts) {
+        <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <app-input
+              label="Məktəb direktoru"
+              [(ngModel)]="editedDirectorName"
+              name="directorName"
+              placeholder="Ad Soyad"
+            ></app-input>
+            <app-input
+              label="Yaranma tarixi"
+              type="number"
+              [(ngModel)]="editedFoundedYear"
+              name="foundedYear"
+              placeholder="məs. 1967"
+            ></app-input>
           </div>
-        }
-        <app-profile-facts [facts]="facts"></app-profile-facts>
-
-        @if (editingFacts) {
-          <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <app-input
-                label="Məktəb direktoru"
-                [(ngModel)]="editedDirectorName"
-                name="directorName"
-                placeholder="Ad Soyad"
-              ></app-input>
-              <app-input
-                label="Yaranma tarixi"
-                type="number"
-                [(ngModel)]="editedFoundedYear"
-                name="foundedYear"
-                placeholder="məs. 1967"
-              ></app-input>
-            </div>
-            <div class="flex gap-2 mt-4">
-              <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
-                {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
-              </app-button>
-              <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
-            </div>
+          <div class="flex gap-2 mt-4">
+            <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
+              {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
+            </app-button>
+            <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
           </div>
-        }
-      </div>
+        </div>
+      }
 
       <app-profile-achievements
         title="Məktəbin uğurları"
@@ -99,8 +92,7 @@
       </app-profile-stats-section>
 
       <app-profile-rating-section
-        [ratings]="school.ratings ?? []"
-        [scopes]="ratingScopes">
+        [ratings]="school.ratings ?? []">
       </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">

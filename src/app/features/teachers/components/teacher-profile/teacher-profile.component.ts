@@ -16,16 +16,17 @@ import { SnackBarService } from '../../../commonComponents/services/snack-bar.se
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
-import { ProfileHeroComponent, ProfileHeroChip, ProfileHeroSubtitlePart, ProfileHeroRank } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
-import { ProfileFactsComponent, ProfileFact } from '../../../../shared/components/profile/profile-facts/profile-facts.component';
+import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart, ProfileHeroMetric, ProfileHeroPlace } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
 import { ProfileAchievementsComponent } from '../../../../shared/components/profile/profile-achievements/profile-achievements.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
-import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
+import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
+import { resolveTeacherGradeLabel } from '../../../../core/config/teacher-grade.config';
+import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 
 const STUDENTS_PAGE_SIZE = 12;
 
@@ -34,7 +35,7 @@ const STUDENTS_PAGE_SIZE = 12;
     imports: [
         CommonModule, FormsModule, RouterModule, LucideAngularModule,
         ButtonComponent, InputComponent,
-        ProfileHeroComponent, ProfileFactsComponent, ProfileAchievementsComponent,
+        ProfileHeroComponent, ProfileAchievementsComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
     ],
     templateUrl: './teacher-profile.component.html',
@@ -52,6 +53,7 @@ export class TeacherProfileComponent implements OnInit {
     private studentsPage = 1;
 
     editingFacts = false;
+    editedGradeLabel = '';
     editedPedagogicalStartYear: number | null = null;
     isSavingFacts = false;
     factsSaveFailed = false;
@@ -75,10 +77,9 @@ export class TeacherProfileComponent implements OnInit {
      */
     crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
-    heroChips: ProfileHeroChip[] = [];
-    heroRank: ProfileHeroRank | null = null;
-    facts: ProfileFact[] = [];
-    ratingScopes: ProfileRatingScope[] = [];
+    heroFacts: ProfileHeroFact[] = [];
+    heroMetric: ProfileHeroMetric | null = null;
+    heroPlaces: ProfileHeroPlace[] = [];
     studentCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
@@ -197,13 +198,6 @@ export class TeacherProfileComponent implements OnInit {
         return this.configService.resolveAssetUrl(this.teacher?.avatarUrl);
     }
 
-    private gradesLabel(teacher: Teacher): string | null {
-        const grades = teacher.grades ?? [];
-        if (grades.length === 0) return null;
-        if (grades.length === 1) return `${grades[0]}-ci sinif`;
-        return `${grades.join(', ')}-ci siniflər`;
-    }
-
     private pedagogicalYearsLabel(teacher: Teacher): string | null {
         const startYear = teacher.pedagogicalStartYear;
         if (!startYear) return null;
@@ -215,14 +209,13 @@ export class TeacherProfileComponent implements OnInit {
         const teacher = this.teacher;
         if (!teacher) {
             this.heroSubtitleParts = [];
-            this.heroChips = [];
-            this.heroRank = null;
-            this.facts = [];
-            this.ratingScopes = [];
+            this.heroFacts = [];
+            this.heroMetric = null;
+            this.heroPlaces = [];
             return;
         }
 
-        const grades = this.gradesLabel(teacher);
+        const grades = resolveTeacherGradeLabel(teacher);
         const pedStaj = this.pedagogicalYearsLabel(teacher);
 
         const user = this.authService.getCurrentUserValue();
@@ -251,26 +244,22 @@ export class TeacherProfileComponent implements OnInit {
 
         this.heroSubtitleParts = [{ text: 'Kod ' + teacher.code }];
 
-        const chips: ProfileHeroChip[] = [];
-        if (grades) chips.push({ label: 'Sinfi', value: grades });
-        chips.push({ label: 'Şagird sayı', value: String(teacher.actualStudentCount ?? 0) });
-        if (pedStaj) chips.push({ label: 'Pedaqoji stajı', value: pedStaj });
-        this.heroChips = chips;
-
-        this.heroRank = teacher.place != null ? { place: teacher.place, label: 'Respublika üzrə' } : null;
-
-        this.facts = [
+        this.heroFacts = [
             { label: 'Sinfi', value: grades },
             { label: 'Şagird sayı', value: String(teacher.actualStudentCount ?? 0) },
             { label: 'Pedaqoji stajı', value: pedStaj },
         ];
 
-        const scopes: ProfileRatingScope[] = [];
-        if (teacher.place != null) scopes.push({ label: 'Respublika üzrə yeri', value: String(teacher.place) });
-        if (teacher.districtPlace != null) scopes.push({ label: 'Rayon üzrə yeri', value: String(teacher.districtPlace) });
-        if (teacher.score != null) scopes.push({ label: 'Ümumi bal', value: teacher.score.toFixed(1) });
-        if (teacher.averageScore != null) scopes.push({ label: 'Orta bal', value: teacher.averageScore.toFixed(1) });
-        this.ratingScopes = scopes;
+        this.heroMetric = {
+            label: 'Reytinq xalı',
+            value: teacher.score != null ? teacher.score.toFixed(1) : '—',
+            caption: academicYearLabel(getCurrentAcademicYear()),
+        };
+
+        const places: ProfileHeroPlace[] = [];
+        if (teacher.place != null) places.push({ label: 'Respublika', value: String(teacher.place) });
+        if (teacher.districtPlace != null) places.push({ label: 'Rayon', value: String(teacher.districtPlace) });
+        this.heroPlaces = places;
     }
 
     private recomputeStudentCards(): void {
@@ -345,6 +334,7 @@ export class TeacherProfileComponent implements OnInit {
     }
 
     startEditFacts(): void {
+        this.editedGradeLabel = this.teacher?.gradeLabel ?? '';
         this.editedPedagogicalStartYear = this.teacher?.pedagogicalStartYear ?? null;
         this.factsSaveFailed = false;
         this.editingFacts = true;
@@ -358,7 +348,7 @@ export class TeacherProfileComponent implements OnInit {
         if (!this.teacher) return;
         this.isSavingFacts = true;
         this.factsSaveFailed = false;
-        this.teacherService.updateTeacherProfile(this.teacherId, { pedagogicalStartYear: this.editedPedagogicalStartYear })
+        this.teacherService.updateTeacherProfile(this.teacherId, { gradeLabel: this.editedGradeLabel.trim() || null, pedagogicalStartYear: this.editedPedagogicalStartYear })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (updated) => {

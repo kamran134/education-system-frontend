@@ -33,45 +33,38 @@
       </div>
 
       <app-profile-hero
-        variant="banner"
+        variant="entity"
         [title]="district.name"
         [subtitleParts]="heroSubtitleParts"
-        [chips]="heroChips"
+        [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
-        [rank]="heroRank"
+        [metric]="heroMetric"
+        [places]="heroPlaces"
         [canEdit]="canEdit"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
         (editClicked)="openEditDialog()"
+        (editFactsClicked)="startEditFacts()"
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
 
-      <div class="flex flex-col gap-3">
-        @if (canEdit && !editingFacts) {
-          <div class="flex justify-end -mb-1">
-            <button type="button" (click)="startEditFacts()" class="text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">Profil məlumatlarını redaktə et</button>
+      @if (editingFacts) {
+        <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
+          <app-input
+            label="Təhsil sektorunun müdiri"
+            [(ngModel)]="editedEducationHeadName"
+            name="educationHeadName"
+            placeholder="Ad Soyad"
+          ></app-input>
+          <div class="flex gap-2 mt-4">
+            <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
+              {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
+            </app-button>
+            <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
           </div>
-        }
-        <app-profile-facts [facts]="facts"></app-profile-facts>
-
-        @if (editingFacts) {
-          <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
-            <app-input
-              label="Təhsil sektorunun müdiri"
-              [(ngModel)]="editedEducationHeadName"
-              name="educationHeadName"
-              placeholder="Ad Soyad"
-            ></app-input>
-            <div class="flex gap-2 mt-4">
-              <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
-                {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
-              </app-button>
-              <app-button variant="outline" [disabled]="isSavingFacts" (clicked)="cancelEditFacts()">Ləğv et</app-button>
-            </div>
-          </div>
-        }
-      </div>
+        </div>
+      }
 
       <app-profile-stats-section
         periodLabel="cari tədris ili"
@@ -81,8 +74,7 @@
       </app-profile-stats-section>
 
       <app-profile-rating-section
-        [ratings]="district.ratings ?? []"
-        [scopes]="ratingScopes">
+        [ratings]="district.ratings ?? []">
       </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">

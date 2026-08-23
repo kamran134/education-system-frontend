@@ -1,26 +1,158 @@
 <div class="rounded-2xl border overflow-hidden bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
 
-  @if (variant === 'portrait') {
-    <div class="p-5 sm:p-6 flex flex-col sm:flex-row gap-5 sm:items-start">
-      <!-- Портрет 3:4 -->
-      <div class="relative w-28 sm:w-32 shrink-0 self-center sm:self-start aspect-[3/4] rounded-xl overflow-hidden border border-[var(--ui-line)] group"
+  @if (variant === 'person') {
+    <div class="p-5 sm:p-6 flex flex-col sm:flex-row gap-6 sm:gap-7 items-center sm:items-start">
+
+      <!-- Фото-круг -->
+      <div class="relative w-[116px] h-[116px] sm:w-[168px] sm:h-[168px] shrink-0 rounded-full overflow-hidden group avatar-ring"
+           [class.cursor-pointer]="canUploadPhoto"
+           (click)="openFilePicker()">
+        @if (avatarUrl) {
+          <img [src]="avatarUrl" alt="" class="w-full h-full object-cover" style="object-position: 50% 30%">
+        } @else {
+          <div class="w-full h-full flex items-center justify-center text-3xl sm:text-4xl font-bold tracking-tight avatar-ph" [attr.data-tone]="placeholderTone">
+            {{ initials }}
+          </div>
+        }
+        @if (canUploadPhoto) {
+          <span class="absolute right-0 bottom-0 w-8 h-8 rounded-full bg-[var(--ui-surface)] border border-[var(--ui-line)] flex items-center justify-center shadow-sm">
+            <lucide-icon [img]="Camera" class="w-3.5 h-3.5 text-[var(--ui-ink-2)]"></lucide-icon>
+          </span>
+        }
+      </div>
+
+      <!-- Заголовок + факты -->
+      <div class="min-w-0 flex-1 flex flex-col gap-2.5 items-center sm:items-start text-center sm:text-left w-full">
+        @if (eyebrow) {
+          <span class="text-[11px] font-bold tracking-wider uppercase text-[var(--ui-accent)]">{{ eyebrow }}</span>
+        }
+        <h1 class="text-xl sm:text-2xl font-bold leading-tight tracking-tight text-[var(--ui-ink)] text-balance">{{ title }}</h1>
+
+        @if (subtitleParts.length > 0) {
+          <p class="text-sm text-[var(--ui-muted)] flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1">
+            @for (part of subtitleParts; track $index; let last = $last) {
+              @if (part.link) {
+                <a [routerLink]="part.link" class="hover:text-[var(--ui-accent)] transition-colors">{{ part.text }}</a>
+              } @else {
+                <span>{{ part.text }}</span>
+              }
+              @if (!last) {
+                <span class="opacity-50">·</span>
+              }
+            }
+          </p>
+        }
+
+        <!-- Метрика + места: только на мобильном, между подзаголовком и фактами -->
+        @if (metric) {
+          <div class="w-full sm:hidden rounded-xl px-4 py-3 text-center mt-1" style="background: var(--ui-gold-soft); border: 1px solid var(--ui-gold-line)">
+            <div class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ metric.label }}</div>
+            <div class="text-[28px] font-extrabold leading-tight tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ metric.value }}</div>
+            @if (metric.caption) {
+              <div class="text-xs text-[var(--ui-muted)]">{{ metric.caption }}</div>
+            }
+          </div>
+        }
+        @if (places.length > 0) {
+          <div class="flex sm:hidden flex-wrap justify-center gap-2">
+            @for (place of places; track place.label) {
+              <span class="text-[11.5px] text-[var(--ui-muted)] bg-[var(--ui-surface-3)] border border-[var(--ui-line)] rounded-full px-2.5 py-1 tabular-nums">
+                {{ place.label }} <b class="text-[var(--ui-ink-2)] font-bold">{{ place.value }}</b>
+              </span>
+            }
+          </div>
+        }
+
+        @if (visibleFacts.length > 0) {
+          <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3.5 mt-2 sm:mt-1 pt-4 sm:pt-0 border-t sm:border-t-0 border-[var(--ui-line)] w-full text-left">
+            @for (fact of visibleFacts; track fact.label) {
+              <div [class.col-span-2]="fact.wide">
+                <dt class="text-[10.5px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-0.5">{{ fact.label }}</dt>
+                @if (fact.value) {
+                  <dd class="text-[15px] font-semibold text-[var(--ui-ink)] tabular-nums">{{ fact.value }}</dd>
+                } @else {
+                  <dd class="text-[15px] italic text-[var(--ui-faint)]">Doldurulmayıb</dd>
+                }
+              </div>
+            }
+          </dl>
+        }
+      </div>
+
+      <!-- Метрика + места + редактирование: только на десктопе, отдельная колонка справа -->
+      <div class="hidden sm:flex flex-col items-stretch gap-2.5 shrink-0 w-[170px]">
+        @if (metric) {
+          <div class="rounded-xl px-4 py-3 text-center" style="background: var(--ui-gold-soft); border: 1px solid var(--ui-gold-line)">
+            <div class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ metric.label }}</div>
+            <div class="text-[30px] font-extrabold leading-tight tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ metric.value }}</div>
+            @if (metric.caption) {
+              <div class="text-xs text-[var(--ui-muted)]">{{ metric.caption }}</div>
+            }
+          </div>
+        }
+        @if (places.length > 0) {
+          <div class="flex flex-wrap justify-center gap-2">
+            @for (place of places; track place.label) {
+              <span class="text-[11.5px] text-[var(--ui-muted)] bg-[var(--ui-surface-3)] border border-[var(--ui-line)] rounded-full px-2.5 py-1 tabular-nums">
+                {{ place.label }} <b class="text-[var(--ui-ink-2)] font-bold">{{ place.value }}</b>
+              </span>
+            }
+          </div>
+        }
+        @if (canEdit) {
+          <button type="button" (click)="editClicked.emit()"
+            class="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors mt-1">
+            <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+            Redaktə et
+          </button>
+          @if (facts.length > 0 && showEditFactsLink) {
+            <button type="button" (click)="editFactsClicked.emit()"
+              class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+              Profil məlumatlarını redaktə et
+            </button>
+          }
+        }
+      </div>
+
+      <!-- Кнопки редактирования на мобильном -->
+      @if (canEdit) {
+        <div class="flex sm:hidden flex-col items-center gap-1.5 w-full">
+          <button type="button" (click)="editClicked.emit()"
+            class="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors">
+            <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+            Redaktə et
+          </button>
+          @if (facts.length > 0 && showEditFactsLink) {
+            <button type="button" (click)="editFactsClicked.emit()"
+              class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+              Profil məlumatlarını redaktə et
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (variant === 'entity') {
+    <div class="p-5 sm:p-6 flex flex-col sm:flex-row gap-5 sm:gap-6 items-start">
+
+      <!-- Фото 16:9 -->
+      <div class="relative w-full sm:flex-none sm:w-[46%] sm:max-w-[460px] aspect-[16/9] rounded-xl overflow-hidden border border-[var(--ui-line)] group shrink-0"
            [class.cursor-pointer]="canUploadPhoto"
            (click)="openFilePicker()">
         @if (avatarUrl) {
           <img [src]="avatarUrl" alt="" class="w-full h-full object-cover">
         } @else {
-          <div class="w-full h-full flex items-center justify-center text-2xl sm:text-3xl font-bold tracking-tight avatar-ph" [attr.data-tone]="placeholderTone">
-            {{ initials }}
-          </div>
+          <div class="w-full h-full avatar-ph-banner" [attr.data-tone]="placeholderTone"></div>
         }
         @if (canUploadPhoto) {
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 flex items-center justify-center transition-colors">
-            <lucide-icon [img]="Camera" class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity"></lucide-icon>
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-colors">
+            <lucide-icon [img]="Camera" class="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity"></lucide-icon>
           </div>
         }
       </div>
 
-      <!-- Заголовок + факты -->
+      <!-- Данные -->
       <div class="min-w-0 flex-1 flex flex-col gap-2.5">
         @if (eyebrow) {
           <span class="text-[11px] font-bold tracking-wider uppercase text-[var(--ui-accent)]">{{ eyebrow }}</span>
@@ -42,108 +174,49 @@
           </p>
         }
 
-        @if (chips.length > 0) {
-          <div class="flex flex-wrap gap-2 mt-1">
-            @for (chip of chips; track chip.label) {
-              <span class="inline-flex items-baseline gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[var(--ui-surface-3)] border border-[var(--ui-line)] text-[var(--ui-ink-2)]">
-                <span class="text-[var(--ui-muted)]">{{ chip.label }}</span>
-                <b class="font-bold tabular-nums">{{ chip.value }}</b>
-              </span>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Место в рейтинге + редактирование -->
-      <div class="flex sm:flex-col items-center sm:items-end gap-3 sm:gap-3 shrink-0">
-        @if (rank) {
-          <div class="flex-1 sm:flex-none text-center px-4 py-2.5 rounded-xl bg-[var(--ui-gold-soft)] border border-[var(--ui-gold-line)] min-w-[104px]">
-            <div class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ rank.label }}</div>
-            <div class="text-2xl sm:text-3xl font-extrabold leading-tight tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ rank.place }}</div>
-            @if (rank.total) {
-              <div class="text-xs text-[var(--ui-muted)] tabular-nums">/ {{ rank.total }}</div>
-            }
-          </div>
-        }
-        @if (canEdit) {
-          <button type="button" (click)="editClicked.emit()"
-            class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors">
-            <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
-            Redaktə et
-          </button>
-        }
-      </div>
-    </div>
-  }
-
-  @if (variant === 'banner') {
-    <div class="relative min-h-[176px] sm:min-h-[208px] flex items-end group"
-         [class.cursor-pointer]="canUploadPhoto"
-         (click)="openFilePicker()">
-      @if (avatarUrl) {
-        <img [src]="avatarUrl" alt="" class="absolute inset-0 w-full h-full object-cover">
-      } @else {
-        <div class="absolute inset-0 avatar-ph-banner" [attr.data-tone]="placeholderTone"></div>
-      }
-      <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(4,10,20,.86) 0%, rgba(4,10,20,.42) 45%, rgba(4,10,20,.08) 100%)"></div>
-
-      @if (canUploadPhoto) {
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-colors">
-          <lucide-icon [img]="Camera" class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity"></lucide-icon>
-        </div>
-      }
-
-      @if (canEdit) {
-        <button type="button" (click)="editClicked.emit(); $event.stopPropagation()"
-          class="absolute top-4 right-4 inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg bg-white/15 border border-white/25 text-white backdrop-blur-sm hover:bg-white/25 transition-colors">
-          <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
-          Redaktə et
-        </button>
-      }
-
-      <div class="relative w-full p-5 sm:p-6 flex flex-wrap items-end justify-between gap-4">
-        <div class="min-w-0">
-          @if (eyebrow) {
-            <span class="text-[11px] font-bold tracking-wider uppercase text-white/70">{{ eyebrow }}</span>
-          }
-          <h1 class="text-2xl sm:text-[28px] font-bold leading-tight tracking-tight text-white text-balance max-w-[22ch]">{{ title }}</h1>
-
-          @if (subtitleParts.length > 0) {
-            <p class="text-sm text-white/80 flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
-              @for (part of subtitleParts; track $index; let last = $last) {
-                @if (part.link) {
-                  <a [routerLink]="part.link" class="hover:text-white transition-colors" (click)="$event.stopPropagation()">{{ part.text }}</a>
+        @if (visibleFacts.length > 0) {
+          <dl class="grid grid-cols-2 gap-x-6 gap-y-3 mt-1">
+            @for (fact of visibleFacts; track fact.label) {
+              <div [class.col-span-2]="fact.wide">
+                <dt class="text-[10.5px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-0.5">{{ fact.label }}</dt>
+                @if (fact.value) {
+                  <dd class="text-[15px] font-semibold text-[var(--ui-ink)] tabular-nums">{{ fact.value }}</dd>
                 } @else {
-                  <span>{{ part.text }}</span>
+                  <dd class="text-[15px] italic text-[var(--ui-faint)]">Doldurulmayıb</dd>
                 }
-                @if (!last) {
-                  <span class="opacity-60">·</span>
-                }
-              }
-            </p>
-          }
+              </div>
+            }
+          </dl>
+        }
 
-          @if (chips.length > 0) {
-            <div class="flex flex-wrap gap-2 mt-3">
-              @for (chip of chips; track chip.label) {
-                <span class="inline-flex items-baseline gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/15 border border-white/25 text-white backdrop-blur-sm">
-                  <span class="text-white/70">{{ chip.label }}</span>
-                  <b class="font-bold tabular-nums">{{ chip.value }}</b>
-                </span>
+        <div class="flex items-center gap-3 flex-wrap mt-1">
+          @if (metric) {
+            <div class="flex items-baseline gap-2 rounded-xl px-3.5 py-2" style="background: var(--ui-gold-soft); border: 1px solid var(--ui-gold-line)">
+              <span class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ metric.label }}</span>
+              <span class="text-2xl font-extrabold tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ metric.value }}</span>
+            </div>
+          }
+          @for (place of places; track place.label) {
+            <span class="text-[11.5px] text-[var(--ui-muted)] bg-[var(--ui-surface-3)] border border-[var(--ui-line)] rounded-full px-2.5 py-1 tabular-nums">
+              {{ place.label }} <b class="text-[var(--ui-ink-2)] font-bold">{{ place.value }}</b>
+            </span>
+          }
+          @if (canEdit) {
+            <div class="flex items-center gap-3 sm:ml-auto">
+              @if (facts.length > 0 && showEditFactsLink) {
+                <button type="button" (click)="editFactsClicked.emit()"
+                  class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+                  Profil məlumatlarını redaktə et
+                </button>
               }
+              <button type="button" (click)="editClicked.emit()"
+                class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors">
+                <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+                Redaktə et
+              </button>
             </div>
           }
         </div>
-
-        @if (rank) {
-          <div class="text-center px-4 py-2.5 rounded-xl bg-white/15 border border-white/25 backdrop-blur-sm min-w-[104px]">
-            <div class="text-[10px] font-bold tracking-wider uppercase text-white/75">{{ rank.label }}</div>
-            <div class="text-2xl sm:text-3xl font-extrabold leading-tight tabular-nums tracking-tight text-white">{{ rank.place }}</div>
-            @if (rank.total) {
-              <div class="text-xs text-white/75 tabular-nums">/ {{ rank.total }}</div>
-            }
-          </div>
-        }
       </div>
     </div>
   }

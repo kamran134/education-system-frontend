@@ -13,14 +13,14 @@ import { PermissionsService } from '../../../../core/services/permissions.servic
 import { ConfigService } from '../../../../core/services/config.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { ProfileHeroComponent, ProfileHeroChip, ProfileHeroSubtitlePart, ProfileHeroRank } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
-import { ProfileFactsComponent, ProfileFact } from '../../../../shared/components/profile/profile-facts/profile-facts.component';
+import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart, ProfileHeroMetric, ProfileHeroPlace } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
-import { ProfileRatingSectionComponent, ProfileRatingScope } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
+import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { RegionEditingDialogComponent } from '../region-editing-dialog/region-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
+import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 
 const DISTRICTS_PAGE_SIZE = 12;
 
@@ -39,7 +39,7 @@ const DISTRICTS_PAGE_SIZE = 12;
     imports: [
         CommonModule, RouterModule, LucideAngularModule,
         ButtonComponent,
-        ProfileHeroComponent, ProfileFactsComponent,
+        ProfileHeroComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
     ],
     templateUrl: './region-profile.component.html',
@@ -58,10 +58,9 @@ export class RegionProfileComponent implements OnInit {
     isUploadingAvatar = false;
 
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
-    heroChips: ProfileHeroChip[] = [];
-    heroRank: ProfileHeroRank | null = null;
-    facts: ProfileFact[] = [];
-    ratingScopes: ProfileRatingScope[] = [];
+    heroFacts: ProfileHeroFact[] = [];
+    heroMetric: ProfileHeroMetric | null = null;
+    heroPlaces: ProfileHeroPlace[] = [];
     districtCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
@@ -258,35 +257,28 @@ export class RegionProfileComponent implements OnInit {
         const region = this.region;
         if (!region) {
             this.heroSubtitleParts = [];
-            this.heroChips = [];
-            this.heroRank = null;
-            this.facts = [];
-            this.ratingScopes = [];
+            this.heroFacts = [];
+            this.heroMetric = null;
+            this.heroPlaces = [];
             return;
         }
 
         this.heroSubtitleParts = [{ text: 'Kod ' + region.code }];
 
-        this.heroChips = [
-            { label: 'Rayon sayı', value: String(region.districtCount ?? 0) },
-            { label: 'Məktəb sayı', value: String(region.schoolCount ?? 0) },
-            { label: 'Şagird sayı', value: String(region.studentCount ?? 0) },
-        ];
-
-        this.heroRank = region.place != null ? { place: region.place, label: 'Respublika üzrə' } : null;
-
-        this.facts = [
+        this.heroFacts = [
             { label: 'Rayon / şəhər sayı', value: String(region.districtCount ?? 0) },
             { label: 'Məktəb sayı', value: String(region.schoolCount ?? 0) },
             { label: 'Layihə müəllimləri', value: String(region.teacherCount ?? 0) },
             { label: 'Şagird sayı', value: String(region.studentCount ?? 0) },
         ];
 
-        const scopes: ProfileRatingScope[] = [];
-        if (region.place != null) scopes.push({ label: 'Respublika üzrə yeri', value: String(region.place) });
-        if (region.score != null) scopes.push({ label: 'Ümumi bal', value: region.score.toFixed(1) });
-        if (region.averageScore != null) scopes.push({ label: 'Orta bal', value: region.averageScore.toFixed(1) });
-        this.ratingScopes = scopes;
+        this.heroMetric = {
+            label: 'Reytinq xalı',
+            value: region.score != null ? region.score.toFixed(1) : '—',
+            caption: academicYearLabel(getCurrentAcademicYear()),
+        };
+
+        this.heroPlaces = region.place != null ? [{ label: 'Respublika', value: String(region.place) }] : [];
     }
 
     private recomputeDistrictCards(): void {
