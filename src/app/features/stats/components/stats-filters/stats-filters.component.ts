@@ -61,6 +61,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() hideGradeFilter: boolean = false;
     @Input() hideLevelFilter: boolean = false;
     @Input() hideExamFilter: boolean = false;
+    @Input() hideSearchFilter: boolean = false;
 
     @Output() monthUpdated = new EventEmitter<string>();
     @Output() regionChanged = new EventEmitter<string[]>();

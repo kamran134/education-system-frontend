@@ -523,6 +523,20 @@ export class StatsComponent implements OnInit, OnDestroy {
         return this.authorizedUserRole === 'student';
     }
 
+    // Поиск по коду бесполезен там, где для роли на текущей вкладке физически всегда
+    // ровно одна строка (её собственная) — например, у учителя на вкладке "İlin
+    // müəllimləri" или у директора школы на "İlin məktəbləri". На вкладках с несколькими
+    // подчинёнными строками (свои ученики/школы/районы) поиск остаётся полезным.
+    get shouldHideSearchFilter(): boolean {
+        const role = this.authorizedUserRole;
+        if (role === 'student') return true;
+        if (role === 'teacher' && this.selectedTab === 'allTeachers') return true;
+        if (role === 'schoolDirector' && this.selectedTab === 'allSchools') return true;
+        if (role === 'districtRepresenter' && this.selectedTab === 'allDistricts') return true;
+        if (role === 'regionRepresenter' && this.selectedTab === 'allRegions') return true;
+        return false;
+    }
+
     // Метод для загрузки развивающихся студентов
     loadDevelopingStudentsStats(): void {
         // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены

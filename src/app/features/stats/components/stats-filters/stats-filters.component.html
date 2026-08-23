@@ -142,15 +142,17 @@
       }
 
       <!-- Search Filter -->
-      <div>
-        <app-input
-          label="Kod üzrə axtarış"
-          placeholder="Kod daxil edin..."
-          [leftIcon]="Search"
-          [(ngModel)]="searchString"
-          (ngModelChange)="onSearchChange()">
-        </app-input>
-      </div>
+      @if (!hideSearchFilter) {
+        <div>
+          <app-input
+            label="Kod üzrə axtarış"
+            placeholder="Kod daxil edin..."
+            [leftIcon]="Search"
+            [(ngModel)]="searchString"
+            (ngModelChange)="onSearchChange()">
+          </app-input>
+        </div>
+      }
     </div>
   </div>
 </div>
