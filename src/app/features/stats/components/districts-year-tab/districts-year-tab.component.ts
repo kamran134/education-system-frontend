@@ -49,7 +49,9 @@ export class DistrictsYearTabComponent {
     ];
 
     get columns(): TableColumn[] {
-        return this.allColumns.filter(c => this.displayedColumns.includes(c.key));
+        return this.displayedColumns
+            .map(key => this.allColumns.find(c => c.key === key))
+            .filter((c): c is TableColumn => !!c);
     }
 
     sortBy = '';
