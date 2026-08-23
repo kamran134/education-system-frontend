@@ -487,31 +487,40 @@ export class StatsComponent implements OnInit, OnDestroy {
         return '';
     }
 
-    // Проверка, должны ли быть отключены фильтры
-    get shouldDisableFilters(): boolean {
+    // Фильтр бесполезен для роли, если его значение и так жёстко зафиксировано контекстом
+    // роли (например, у представителя района всегда выбран его единственный район) —
+    // такие фильтры не отключаем, а полностью скрываем из формы.
+    get shouldHideRegionFilter(): boolean {
         const role = this.authorizedUserRole;
-        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter' || role === 'regionRepresenter';
+        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter' || role === 'regionRepresenter' || role === 'student';
     }
 
-    // Методы для проверки конкретных фильтров
-    get shouldDisableRegionFilter(): boolean {
+    get shouldHideDistrictFilter(): boolean {
         const role = this.authorizedUserRole;
-        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter' || role === 'regionRepresenter';
+        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter' || role === 'student';
     }
 
-    get shouldDisableDistrictFilter(): boolean {
+    get shouldHideSchoolFilter(): boolean {
         const role = this.authorizedUserRole;
-        return role === 'schoolDirector' || role === 'teacher' || role === 'districtRepresenter';
+        return role === 'schoolDirector' || role === 'teacher' || role === 'student';
     }
 
-    get shouldDisableSchoolFilter(): boolean {
+    get shouldHideTeacherFilter(): boolean {
         const role = this.authorizedUserRole;
-        return role === 'schoolDirector' || role === 'teacher';
+        return role === 'teacher' || role === 'student';
     }
 
-    get shouldDisableTeacherFilter(): boolean {
-        const role = this.authorizedUserRole;
-        return role === 'teacher';
+    // Ученик видит только себя — фильтрация по оценкам/уровню/экзаменам тоже не имеет смысла
+    get shouldHideGradeFilter(): boolean {
+        return this.authorizedUserRole === 'student';
+    }
+
+    get shouldHideLevelFilter(): boolean {
+        return this.authorizedUserRole === 'student';
+    }
+
+    get shouldHideExamFilter(): boolean {
+        return this.authorizedUserRole === 'student';
     }
 
     // Метод для загрузки развивающихся студентов

@@ -52,11 +52,15 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedExamIds: string[] | [] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
 
-    // Role-based filter disabling
-    @Input() disableRegionFilter: boolean = false;
-    @Input() disableDistrictFilter: boolean = false;
-    @Input() disableSchoolFilter: boolean = false;
-    @Input() disableTeacherFilter: boolean = false;
+    // Role-based filter visibility — filter is hidden entirely when the role's value
+    // is always fixed to a single option (e.g. a teacher can't filter by teacher)
+    @Input() hideRegionFilter: boolean = false;
+    @Input() hideDistrictFilter: boolean = false;
+    @Input() hideSchoolFilter: boolean = false;
+    @Input() hideTeacherFilter: boolean = false;
+    @Input() hideGradeFilter: boolean = false;
+    @Input() hideLevelFilter: boolean = false;
+    @Input() hideExamFilter: boolean = false;
 
     @Output() monthUpdated = new EventEmitter<string>();
     @Output() regionChanged = new EventEmitter<string[]>();

@@ -51,63 +51,59 @@
       }
 
       <!-- Regions Filter -->
-      @if (selectedTab !== 'allRegions') {
+      @if (selectedTab !== 'allRegions' && !hideRegionFilter) {
         <div>
           <app-select
             label="Regional Təhsil İdarələri"
             [multiple]="true"
             [(ngModel)]="selectedRegionIds"
             [options]="regionOptions"
-            [disabled]="disableRegionFilter"
             (ngModelChange)="onRegionSelectChanged($event)">
           </app-select>
         </div>
       }
 
       <!-- Districts Filter -->
-      @if (selectedTab !== 'allDistricts') {
+      @if (selectedTab !== 'allDistricts' && !hideDistrictFilter) {
         <div>
           <app-select
             label="Rayonlar / şəhərlər"
             [multiple]="true"
             [(ngModel)]="selectedDistrictIds"
             [options]="districtOptions"
-            [disabled]="disableDistrictFilter"
             (ngModelChange)="onDistrictSelectChanged($event)">
           </app-select>
         </div>
       }
 
       <!-- Schools Filter -->
-      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents', 'allTeachers'].includes(selectedTab)) {
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents', 'allTeachers'].includes(selectedTab) && !hideSchoolFilter) {
         <div>
           <app-select
             label="Məktəblər"
             [multiple]="true"
             [(ngModel)]="selectedSchoolIds"
             [options]="schoolOptions"
-            [disabled]="disableSchoolFilter"
             (ngModelChange)="onSchoolSelectChanged($event)">
           </app-select>
         </div>
       }
 
       <!-- Teachers Filter -->
-      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)) {
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab) && !hideTeacherFilter) {
         <div>
           <app-select
             label="Müəllimlər"
             [multiple]="true"
             [(ngModel)]="selectedTeacherIds"
             [options]="teacherOptions"
-            [disabled]="disableTeacherFilter"
             (ngModelChange)="onTeacherSelectChanged($event)">
           </app-select>
         </div>
       }
 
       <!-- Grades Filter -->
-      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)) {
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab) && !hideGradeFilter) {
         <div>
           <app-select
             label="Siniflər"
@@ -120,7 +116,7 @@
       }
 
       <!-- Levels Filter -->
-      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)) {
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab) && !hideLevelFilter) {
         <div>
           <app-select
             label="Pillə"
@@ -133,7 +129,7 @@
       }
 
       <!-- Exams Filter -->
-      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab)) {
+      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab) && !hideExamFilter) {
         <div>
           <app-select
             label="İmtahanlar"
