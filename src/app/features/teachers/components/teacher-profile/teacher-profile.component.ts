@@ -139,8 +139,8 @@ export class TeacherProfileComponent implements OnInit {
         this.studentsLoadingMore = this.studentsPage > 1;
         this.studentService.getStudents({
             teacherIds: [this.teacherId],
-            sortColumn: 'place',
-            sortDirection: 'asc',
+            sortColumn: 'score',
+            sortDirection: 'desc',
             page: this.studentsPage,
             size: STUDENTS_PAGE_SIZE,
         })

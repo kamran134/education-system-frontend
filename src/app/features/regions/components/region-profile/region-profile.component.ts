@@ -140,7 +140,7 @@ export class RegionProfileComponent implements OnInit {
         this.districtsLoadingMore = this.districtsPage > 1;
         this.districtService.getDistricts({
             regionIds: [this.regionId],
-            sortColumn: 'averageScore',
+            sortColumn: 'score',
             sortDirection: 'desc',
             page: this.districtsPage,
             size: DISTRICTS_PAGE_SIZE,
