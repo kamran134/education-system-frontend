@@ -5,8 +5,8 @@ import { UserSettings } from '../../../../core/models/settings.model';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { LucideAngularModule, Home, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
-import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { LucideAngularModule, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
+import { HomeButtonComponent } from '../../../../shared/components/ui/home-button/home-button.component';
 import { Router } from '@angular/router';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
 
@@ -22,6 +22,7 @@ interface Column {
     imports: [
     FormsModule,
     LucideAngularModule,
+    HomeButtonComponent,
     CdkDropList,
     CdkDrag,
     CdkDragHandle
@@ -31,7 +32,6 @@ interface Column {
 })
 export class StatsColumnsComponent implements OnInit{
     // Icons
-    readonly Home = Home;
     readonly Save = Save;
     readonly RotateCcw = RotateCcw;
     readonly CheckSquare = CheckSquare;

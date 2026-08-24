@@ -2,46 +2,38 @@
 <header class="bg-white border-b border-gray-200 shadow-sm">
   <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center cursor-pointer" routerLink="/">
-        <img src="assets/isim-tiles.png" alt="İSİM" class="h-10 w-auto" />
+      <!-- Left side: logo + Kabinetim -->
+      <div class="flex items-center gap-1 sm:gap-3">
+        <!-- Logo -->
+        <div class="flex items-center cursor-pointer" routerLink="/">
+          <img src="assets/isim-tiles.png" alt="İSİM" class="h-8 sm:h-10 w-auto" />
+        </div>
+
+        <!-- Kabinetim -->
+        @if (isAuthorized()) {
+          <a
+            routerLink="/panel"
+            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+            aria-label="Kabinetim"
+            title="Kabinetim"
+            >
+            <lucide-icon [img]="Home" class="h-5 w-5"></lucide-icon>
+            <span class="hidden sm:block">Kabinetim</span>
+          </a>
+        }
       </div>
 
       <!-- Right side navigation -->
-      <div class="flex items-center space-x-4">
-        <!-- Theme Toggle -->
-        <button
-          type="button"
-          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
-          (click)="darkModeToogleChanged()"
-          >
-          <lucide-icon
-            [img]="darkMode ? Moon : Sun"
-            class="h-5 w-5"
-            [@rotateAnimation]="animationState">
-          </lucide-icon>
-        </button>
-
-        <!-- User Menu -->
+      <div class="flex items-center space-x-1 sm:space-x-4">
+        <!-- Bölmələr Menu -->
         @if (isAuthorized()) {
           <app-dropdown position="right">
             <div slot="trigger" class="flex items-center space-x-1">
-              <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
-              <span class="hidden sm:block">Profil</span>
+              <lucide-icon [img]="LayoutGrid" class="h-5 w-5"></lucide-icon>
+              <span class="hidden sm:block">Bölmələr</span>
               <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
             </div>
             <div slot="content">
-              <app-dropdown-item (clicked)="goToProfile()">
-                <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
-                Şəxsi məlumatlar
-              </app-dropdown-item>
-              @if (permissions.canAccessRoute('canAccessRatingColumns')) {
-                <app-dropdown-item (clicked)="goToRatingColumns()">
-                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
-                  Reytinq sütunları
-                </app-dropdown-item>
-              }
-              <app-dropdown-divider></app-dropdown-divider>
               @if (permissions.canAccessRoute('canAccessStats')) {
                 <app-dropdown-item (clicked)="goToStats()">
                   <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
@@ -52,6 +44,21 @@
                 <app-dropdown-item (clicked)="goToStatistics()">
                   <lucide-icon [img]="TrendingUp" class="mr-3 h-4 w-4"></lucide-icon>
                   Statistika
+                </app-dropdown-item>
+              }
+              <!-- Без ролевого условия намеренно: /exam-results закрыт одним authGuard, без
+                   roleGuard, то есть открыт всем авторизованным. До этого пункта пути к нему
+                   не было вообще ни у кого, у кого showExamsSection=false (учитель, директор,
+                   представитель района) — карточки на /panel нет, в меню не было тоже. -->
+              <app-dropdown-item (clicked)="goToExamResults()">
+                <lucide-icon [img]="ClipboardList" class="mr-3 h-4 w-4"></lucide-icon>
+                İmtahan nəticələri
+              </app-dropdown-item>
+              <app-dropdown-divider></app-dropdown-divider>
+              @if (permissions.canAccessRoute('canAccessRegions')) {
+                <app-dropdown-item (clicked)="goToRegions()">
+                  <lucide-icon [img]="Landmark" class="mr-3 h-4 w-4"></lucide-icon>
+                  Regional idarələr
                 </app-dropdown-item>
               }
               @if (permissions.canAccessRoute('canAccessDistricts')) {
@@ -68,7 +75,7 @@
               }
               @if (permissions.canAccessRoute('canAccessTeachers')) {
                 <app-dropdown-item (clicked)="goToTeachers()">
-                  <lucide-icon [img]="User" class="mr-3 h-4 w-4"></lucide-icon>
+                  <lucide-icon [img]="UserCheck" class="mr-3 h-4 w-4"></lucide-icon>
                   Müəllimlər
                 </app-dropdown-item>
               }
@@ -78,13 +85,27 @@
                   Şagirdlər
                 </app-dropdown-item>
               }
-              <!-- Без ролевого условия намеренно: /exam-results закрыт одним authGuard, без
-                   roleGuard, то есть открыт всем авторизованным. До этого пункта пути к нему
-                   не было вообще ни у кого, у кого showExamsSection=false (учитель, директор,
-                   представитель района) — карточки на /panel нет, в меню не было тоже. -->
-              <app-dropdown-item (clicked)="goToExamResults()">
-                <lucide-icon [img]="ClipboardList" class="mr-3 h-4 w-4"></lucide-icon>
-                İmtahan nəticələri
+            </div>
+          </app-dropdown>
+        }
+
+        <!-- Profil Menu -->
+        @if (isAuthorized()) {
+          <app-dropdown position="right">
+            <div slot="trigger" class="flex items-center space-x-1">
+              <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
+              <span class="hidden sm:block">Profil</span>
+              <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+            </div>
+            <div slot="content">
+              <app-dropdown-item (clicked)="goToProfile()">
+                <lucide-icon [img]="UserCog" class="mr-3 h-4 w-4"></lucide-icon>
+                Şəxsi məlumatlar
+              </app-dropdown-item>
+              <app-dropdown-divider></app-dropdown-divider>
+              <app-dropdown-item (clicked)="logInOut()">
+                <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4"></lucide-icon>
+                Sistemdən çıxış
               </app-dropdown-item>
             </div>
           </app-dropdown>
@@ -124,15 +145,30 @@
           </app-dropdown>
         }
 
-        <!-- Login/Logout Button -->
+        <!-- Theme Toggle -->
         <button
           type="button"
-          class="inline-flex items-center space-x-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-          (click)="logInOut()"
+          class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          (click)="darkModeToogleChanged()"
           >
-          <lucide-icon [img]="isAuthorized() ? LogOut : LogIn" class="h-4 w-4"></lucide-icon>
-          <span class="hidden sm:block">{{ isAuthorized() ? 'Sistemdən çıxış' : 'Sistemə giriş' }}</span>
+          <lucide-icon
+            [img]="darkMode ? Moon : Sun"
+            class="h-5 w-5"
+            [@rotateAnimation]="animationState">
+          </lucide-icon>
         </button>
+
+        <!-- Login Button (guest only) -->
+        @if (!isAuthorized()) {
+          <button
+            type="button"
+            class="inline-flex items-center space-x-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+            (click)="logInOut()"
+            >
+            <lucide-icon [img]="LogIn" class="h-4 w-4"></lucide-icon>
+            <span class="hidden sm:block">Sistemə giriş</span>
+          </button>
+        }
       </div>
     </div>
   </nav>

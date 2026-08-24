@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ElementRef, HostListener, Optional, Host } from '@angular/core';
 
 
 @Component({
@@ -87,7 +87,12 @@ export class DropdownComponent {
 export class DropdownItemComponent {
   @Output() clicked = new EventEmitter<Event>();
 
+  // Дропдаун закрывается только по document:click ВНЕ себя, а клик по пункту — внутри,
+  // поэтому без этого меню оставалось раскрытым поверх новой страницы после перехода.
+  constructor(@Optional() @Host() private parent?: DropdownComponent) {}
+
   handleClick(event: Event): void {
+    this.parent?.closeDropdown();
     this.clicked.emit(event);
   }
 }

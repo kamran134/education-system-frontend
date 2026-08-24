@@ -30,6 +30,7 @@ import { SelectComponent, SelectOption } from '../../../shared/components/ui/for
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../shared/components/ui/data-table/data-table.component';
 import { TABLE_PAGE_SIZE_DEFAULT } from '../../../shared/components/ui/data-table/table-defaults';
 import { FullscreenPanelComponent } from '../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
+import { HomeButtonComponent } from '../../../shared/components/ui/home-button/home-button.component';
 
 @Component({
     selector: 'app-exam-results',
@@ -42,7 +43,8 @@ import { FullscreenPanelComponent } from '../../../shared/components/ui/fullscre
         InputComponent,
         SelectComponent,
         DataTableComponent,
-        FullscreenPanelComponent
+        FullscreenPanelComponent,
+        HomeButtonComponent
     ],
     templateUrl: './exam-results.component.html',
     styleUrl: './exam-results.component.scss'

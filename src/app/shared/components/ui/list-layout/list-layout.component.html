@@ -2,14 +2,7 @@
   <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
     <!-- Breadcrumbs -->
     <nav class="mb-6 flex items-center gap-3">
-      <button
-        type="button"
-        class="inline-flex items-center space-x-2 rounded-lg bg-white dark-mode:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark-mode:text-gray-200 shadow-sm border border-gray-300 dark-mode:border-gray-600 hover:bg-gray-50 dark-mode:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-        routerLink="/"
-        >
-        <lucide-icon [img]="Home" class="h-4 w-4"></lucide-icon>
-        <span>Baş səhifə</span>
-      </button>
+      <app-home-button></app-home-button>
 
       <!-- Back Button -->
       @if (backButton && backButton.show) {

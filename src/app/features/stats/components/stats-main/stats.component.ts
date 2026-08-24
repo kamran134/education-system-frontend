@@ -45,8 +45,9 @@ import { RegionsYearTabComponent } from "../regions-year-tab/regions-year-tab.co
 import { PermissionsService } from '../../../../core/services/permissions.service';
 
 // UI Components
-import { LucideAngularModule, Home, RefreshCw, Loader, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, RefreshCw, Loader, AlertCircle } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { HomeButtonComponent } from '../../../../shared/components/ui/home-button/home-button.component';
 
 @Component({
     selector: 'app-stats',
@@ -56,6 +57,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
         RouterModule,
         LucideAngularModule,
         ButtonComponent,
+        HomeButtonComponent,
         StatsFiltersComponent,
         DevelopingStudentsTabComponent,
         MonthStudentsTabComponent,
@@ -73,7 +75,6 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 })
 export class StatsComponent implements OnInit, OnDestroy {
     // Icons
-    readonly Home = Home;
     readonly RefreshCw = RefreshCw;
     readonly Loader = Loader;
     readonly AlertCircle = AlertCircle;

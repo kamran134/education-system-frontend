@@ -200,7 +200,7 @@ export class SchoolProfileComponent implements OnInit {
 
         const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
-        if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
+        if (!this.isOwnHome) crumbs.push({ text: 'Kabinetim', link: ['/panel'] });
         if (school.district) {
             const canViewDistrict = canViewAncestorCrumb(user, 'district', school.district.id);
             crumbs.push({ text: school.district.name, link: canViewDistrict ? ['/districts', school.district.id, 'profile'] : undefined });

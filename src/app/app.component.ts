@@ -6,7 +6,7 @@ import { filter } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList } from 'lucide-angular';
+import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList, Home, LayoutGrid, UserCog, UserCheck, Landmark } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 import { ConfirmDialogComponent } from './shared/components/ui/confirm-dialog/confirm-dialog.component';
@@ -61,6 +61,11 @@ export class AppComponent implements OnInit {
     readonly Shield = Shield;
     readonly BarChart3 = BarChart3;
     readonly ClipboardList = ClipboardList;
+    readonly Home = Home;
+    readonly LayoutGrid = LayoutGrid;
+    readonly UserCog = UserCog;
+    readonly UserCheck = UserCheck;
+    readonly Landmark = Landmark;
 
     constructor(
         private authService: AuthService,
@@ -232,6 +237,18 @@ export class AppComponent implements OnInit {
             return;
         }
         this.router.navigate(['/statistics']);
+    }
+
+    goToRegions(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessRegions')) {
+            this.router.navigate(['/panel']);
+            return;
+        }
+        this.router.navigate(['/regions']);
     }
 
     goToDistricts(): void {

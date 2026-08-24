@@ -200,7 +200,7 @@ export class DistrictProfileComponent implements OnInit {
 
         const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
-        if (!this.isOwnHome) crumbs.push({ text: 'Panel', link: ['/panel'] });
+        if (!this.isOwnHome) crumbs.push({ text: 'Kabinetim', link: ['/panel'] });
         // Регион — ссылкой на его профиль, если привязка есть (districts.region_id заполнен
         // у всех с миграции 006, но regionName приходит только когда джойн отработал) И
         // текущий пользователь вправе его увидеть (см. canViewAncestorCrumb).
