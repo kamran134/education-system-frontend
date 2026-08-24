@@ -97,7 +97,9 @@
       </app-profile-stats-section>
 
       <app-profile-rating-section
-        [ratings]="teacher.ratings ?? []">
+        [ratings]="teacher.ratings ?? []"
+        placeField="districtPlace"
+        [placeColumnLabel]="ratingsPlaceLabel">
       </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">

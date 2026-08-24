@@ -17,28 +17,24 @@
 
   <div class="px-5 sm:px-6 py-5">
     @if (sortedRatings.length > 0) {
-      <div class="grid grid-cols-[76px_1fr_60px_48px] sm:grid-cols-[92px_1fr_68px_56px] gap-3 sm:gap-3.5 px-1 pb-1.5 border-b border-[var(--ui-line)] text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">
+      <div class="grid grid-cols-[76px_1fr_1fr] sm:grid-cols-[92px_1fr_1fr] gap-3 sm:gap-3.5 px-1 pb-1.5 border-b border-[var(--ui-line)] text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">
         <span>Tədris ili</span>
-        <span>Orta bal</span>
-        <span class="text-right">Bal</span>
-        <span class="text-right">Yer</span>
+        <span class="text-right">Reytinq xalı</span>
+        <span class="text-right">{{ placeColumnLabel }}</span>
       </div>
       <div class="flex flex-col">
         @for (rating of sortedRatings; track rating.year) {
-          <div class="grid grid-cols-[76px_1fr_60px_48px] sm:grid-cols-[92px_1fr_68px_56px] gap-3 sm:gap-3.5 items-center px-1 py-2.5"
+          <div class="grid grid-cols-[76px_1fr_1fr] sm:grid-cols-[92px_1fr_1fr] gap-3 sm:gap-3.5 items-center px-1 py-2.5"
                [class.border-b]="!$last" [class.border-dashed]="!$last"
                style="border-color: var(--ui-line)">
             <span class="text-[13px] font-semibold tabular-nums" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink-2)'">
               {{ yearLabel(rating.year) }}
             </span>
-            <span class="h-2 rounded-full overflow-hidden bg-[var(--ui-surface-3)]">
-              <span class="block h-full rounded-full bg-[var(--ui-accent)]" [style.width.%]="barWidth(rating)" [style.opacity]="rating.year === currentYear ? 1 : 0.45"></span>
-            </span>
             <span class="text-sm font-bold text-right tabular-nums tracking-tight" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink)'">
-              {{ rating.averageScore != null ? (rating.averageScore | number:'1.1-1') : '—' }}
+              {{ rating.score != null ? (rating.score | number:'1.0-0') : '—' }}
             </span>
             <span class="text-xs font-bold text-right tabular-nums text-[var(--ui-muted)]">
-              {{ rating.place ?? '—' }}
+              {{ placeValue(rating) ?? '—' }}
             </span>
           </div>
         }

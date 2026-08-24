@@ -274,7 +274,7 @@ export class RegionProfileComponent implements OnInit {
 
         this.heroMetric = {
             label: 'Reytinq xalı',
-            value: region.score != null ? region.score.toFixed(1) : '—',
+            value: region.score != null ? String(Math.round(region.score)) : '—',
             caption: academicYearLabel(getCurrentAcademicYear()),
         };
 

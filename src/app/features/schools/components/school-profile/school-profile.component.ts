@@ -75,6 +75,7 @@ export class SchoolProfileComponent implements OnInit {
     heroFacts: ProfileHeroFact[] = [];
     heroMetric: ProfileHeroMetric | null = null;
     heroPlaces: ProfileHeroPlace[] = [];
+    ratingsPlaceLabel = 'Respublika üzrə yeri';
     teacherCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
@@ -227,7 +228,7 @@ export class SchoolProfileComponent implements OnInit {
 
         this.heroMetric = {
             label: 'Reytinq xalı',
-            value: school.score != null ? school.score.toFixed(1) : '—',
+            value: school.score != null ? String(Math.round(school.score)) : '—',
             caption: academicYearLabel(getCurrentAcademicYear()),
         };
 
@@ -235,6 +236,11 @@ export class SchoolProfileComponent implements OnInit {
         if (school.place != null) places.push({ label: 'Respublika', value: String(school.place) });
         if (school.districtPlace != null) places.push({ label: 'Rayon', value: String(school.districtPlace) });
         this.heroPlaces = places;
+
+        // Заказчик (24.08.2026): в таблице «Reytinqlər» колонка "Yer" должна показывать место
+        // в СВОЁМ районе, не по республике — «Gəncə üzrə yeri» (см. комментарий в
+        // profile-rating-section.component.ts).
+        this.ratingsPlaceLabel = school.district?.name ? `${school.district.name} üzrə yeri` : 'Respublika üzrə yeri';
     }
 
     private recomputeTeacherCards(): void {

@@ -222,7 +222,7 @@ export class DistrictProfileComponent implements OnInit {
 
         this.heroMetric = {
             label: 'Reytinq xalı',
-            value: district.score != null ? district.score.toFixed(1) : '—',
+            value: district.score != null ? String(Math.round(district.score)) : '—',
             caption: academicYearLabel(getCurrentAcademicYear()),
         };
 
