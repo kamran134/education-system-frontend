@@ -5,6 +5,7 @@ export interface FilterParams {
     districtIds?: string | string[];
     schoolIds?: string | string[];
     teacherIds?: string | string[];
+    active?: boolean;
     defective?: boolean;
     grades?: string;
     levels?: string;

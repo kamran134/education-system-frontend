@@ -28,6 +28,10 @@ export class SchoolService {
             queryParams.push(`districtIds=${params.districtIds}`);
         }
 
+        if (params.active !== undefined) {
+            queryParams.push(`active=${params.active}`);
+        }
+
         if (params.sortColumn && params.sortDirection) {
             queryParams.push(`sortColumn=${params.sortColumn}`);
             queryParams.push(`sortDirection=${params.sortDirection}`);

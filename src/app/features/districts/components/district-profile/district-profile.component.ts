@@ -135,6 +135,10 @@ export class DistrictProfileComponent implements OnInit {
         this.schoolsLoadingMore = this.schoolsPage > 1;
         this.schoolService.getSchools({
             districtIds: [this.districtId],
+            // "Məktəb sayı" факт в шапке считает только active=true школы
+            // (attachProfileCounts на бэкенде) — тот же фикс, что для school→teachers
+            // (см. school-profile.component.ts), чтобы число совпадало со списком ниже.
+            active: true,
             sortColumn: 'score',
             sortDirection: 'desc',
             page: this.schoolsPage,

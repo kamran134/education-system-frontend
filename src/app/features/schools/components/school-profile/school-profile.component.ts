@@ -135,6 +135,11 @@ export class SchoolProfileComponent implements OnInit {
         this.teachersLoadingMore = this.teachersPage > 1;
         this.teacherService.getTeachers({
             schoolIds: [this.schoolId],
+            // "Layihə müəllimləri" факт в шапке (heroFacts) считает только active=true
+            // учителей (attachProfileCounts на бэкенде) — без этого фильтра список ниже
+            // включал бы и неактивных (снятых с рейтингов) учителей, и число совпадать
+            // не будет (заказчик заметил расхождение 13 vs 16, 24.08.2026).
+            active: true,
             sortColumn: 'score',
             sortDirection: 'desc',
             page: this.teachersPage,
