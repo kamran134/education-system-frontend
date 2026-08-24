@@ -10,6 +10,7 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
 import { CardComponent } from '../../shared/components/ui/card/card.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../shared/components/ui/form-controls/input/input.component';
+import { HomeButtonComponent } from '../../shared/components/ui/home-button/home-button.component';
 
 @Component({
     selector: 'app-user-profile',
@@ -19,7 +20,8 @@ import { InputComponent } from '../../shared/components/ui/form-controls/input/i
         UserSessionsComponent,
         CardComponent,
         ButtonComponent,
-        InputComponent
+        InputComponent,
+        HomeButtonComponent
     ],
     templateUrl: './user-profile.component.html'
 })
