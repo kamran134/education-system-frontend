@@ -4,7 +4,6 @@ import { ConfigService } from '../../../core/services/config.service';
 import { Observable } from 'rxjs';
 import { Stats, StatsResponse } from '../../../core/models/stats.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
-import { Exam } from '../../../core/models/exam.model';
 import { ApiResponse } from '../../../core/models/response.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 import { map } from 'rxjs/operators';
@@ -53,9 +52,6 @@ export class StatsService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        if (params.examIds) {
-            url = `${url}&examIds=${params.examIds}`;
-        }
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
@@ -86,9 +82,6 @@ export class StatsService {
         }
         if (params.code) {
             url = `${url}&code=${params.code}`;
-        }
-        if (params.examIds) {
-            url = `${url}&examIds=${params.examIds}`;
         }
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
@@ -121,9 +114,6 @@ export class StatsService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        if (params.examIds) {
-            url = `${url}&examIds=${params.examIds}`;
-        }
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
@@ -155,21 +145,10 @@ export class StatsService {
         if (params.code) {
             url = `${url}&code=${params.code}`;
         }
-        if (params.examIds) {
-            url = `${url}&examIds=${params.examIds}`;
-        }
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
         return this.http.get<ApiResponse<any[]>>(url, {})
-            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
-    }
-
-    getStatsByExam(exam: Exam[]): Observable<StatsResponse> {
-        // Используем первый экзамен из массива для получения статистики
-        const examId = exam.length > 0 ? exam[0].id : '';
-        let url: string = `${this.configService.getApiUrl()}/stats/by-exam/${examId}`;
-        return this.http.get<ApiResponse<StatsResponse>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 

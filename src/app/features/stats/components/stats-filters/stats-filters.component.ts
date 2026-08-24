@@ -5,7 +5,6 @@ import { District } from '../../../../core/models/district.model';
 import { Region } from '../../../../core/models/region.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
-import { Exam } from '../../../../core/models/exam.model';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
 import { getCurrentAcademicYear, academicYearLabel, FIRST_TRACKED_ACADEMIC_YEAR } from '../../../../core/utils/academic-year.util';
 
@@ -42,7 +41,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() districts: District[] = [];
     @Input() schools: School[] = [];
     @Input() teachers: Teacher[] = [];
-    @Input() exams: Exam[] = [];
     @Input() gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     @Input() selectedRegionIds: string[] = [];
     @Input() selectedDistrictIds: string[] = [];
@@ -50,7 +48,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedTeacherIds: string[] = [];
     @Input() selectedGrades: number[] = [];
     @Input() selectedLevels: string[] = [];
-    @Input() selectedExamIds: string[] | [] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
 
     // Role-based filter visibility — filter is hidden entirely when the role's value
@@ -61,7 +58,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() hideTeacherFilter: boolean = false;
     @Input() hideGradeFilter: boolean = false;
     @Input() hideLevelFilter: boolean = false;
-    @Input() hideExamFilter: boolean = false;
     @Input() hideSearchFilter: boolean = false;
 
     @Output() monthUpdated = new EventEmitter<string>();
@@ -71,7 +67,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Output() teacherChanged = new EventEmitter<string[]>();
     @Output() gradeChanged = new EventEmitter<number[]>();
     @Output() levelChanged = new EventEmitter<string[]>();
-    @Output() examChanged = new EventEmitter<string[]>();
     @Output() searchStringChanged = new EventEmitter<string>();
     @Output() academicYearUpdated = new EventEmitter<number>();
 
@@ -85,7 +80,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
 
     academicYearControl = new FormControl(Math.max(getCurrentAcademicYear(), FIRST_TRACKED_ACADEMIC_YEAR));
     academicYears: { value: number; label: string }[] = [];
-    // examControl = new FormControl<Exam[] | undefined>(undefined);
 
     months = [
         { value: 0, name: 'Seçin' }, // Добавляем опцию "Выберите"
@@ -133,10 +127,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         return (this.gradesOptions || []).map(grade => ({ label: grade.toString(), value: grade }));
     }
 
-    get examOptions() {
-        return (this.exams || []).map(exam => ({ label: exam.name, value: exam.id }));
-    }
-
     readonly levelOptions = [
         { label: 'E', value: 'E' },
         { label: 'D', value: 'D' },
@@ -161,7 +151,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         // Trigger change detection when input data changes
-        if (changes['regions'] || changes['districts'] || changes['schools'] || changes['teachers'] || changes['exams']) {
+        if (changes['regions'] || changes['districts'] || changes['schools'] || changes['teachers']) {
             // Data has been updated, component will re-render
         }
     }
@@ -211,13 +201,6 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     }
 
 
-
-    onExamSelectChanged(examIds?: string[]) {
-        if (examIds !== undefined) {
-            this.selectedExamIds = examIds;
-        }
-        this.examChanged.emit(this.selectedExamIds);
-    }
 
     onRegionSelectChanged(regionIds?: string[]) {
         if (regionIds !== undefined) {

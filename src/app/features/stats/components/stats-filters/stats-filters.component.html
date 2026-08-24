@@ -128,19 +128,6 @@
         </div>
       }
 
-      <!-- Exams Filter -->
-      @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic', 'allStudents'].includes(selectedTab) && !hideExamFilter) {
-        <div>
-          <app-select
-            label="İmtahanlar"
-            [multiple]="true"
-            [(ngModel)]="selectedExamIds"
-            [options]="examOptions"
-            (ngModelChange)="onExamSelectChanged($event)">
-          </app-select>
-        </div>
-      }
-
       <!-- Search Filter -->
       @if (!hideSearchFilter) {
         <div>

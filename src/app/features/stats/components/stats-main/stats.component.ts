@@ -9,8 +9,6 @@ import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.uti
 import { Stats } from '../../../../core/models/stats.model';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
-import { Exam, ExamResponse } from '../../../../core/models/exam.model';
-import { ExamService } from '../../../exams/services/exam.service';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
@@ -136,8 +134,6 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedTeacherIds: string[] = [];
     selectedGrades: number[] = [];
     selectedLevels: string[] = [];
-    selectedExams: Exam[] | undefined = undefined;
-    selectedExamIds: string[] = [];
     selectedTabIndex: number = 0;
 
     // Все возможные табы
@@ -169,7 +165,6 @@ export class StatsComponent implements OnInit, OnDestroy {
     pageIndex: number = 0;
     isTablesFullscreen = false;
     isExportingExcel = false;
-    exams: Exam[] = [];
     errorMessage: string = '';
     gradesOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     darkMode: boolean = false;
@@ -204,7 +199,6 @@ export class StatsComponent implements OnInit, OnDestroy {
         private schoolService: SchoolService,
         private teacherService: TeacherService,
         private studentService: StudentService,
-        private examService: ExamService,
         private excelService: ExcelService,
         private router: Router,
         private route: ActivatedRoute,
@@ -227,7 +221,6 @@ export class StatsComponent implements OnInit, OnDestroy {
                 this.authorizedUserRole = this.authService.getRole();
                 this.loadCurrentUserData();
                 this.loadSettings();
-                this.loadExams();
                 this.loadRegions();
                 // Не загружаем районы/школы/учителей сразу — районы зависят от возможного
                 // restored regionIds из query-параметров, см. подписку ниже
@@ -239,7 +232,6 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
-                    this.selectedExamIds = params['examIds'] ? params['examIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.searchString = params['search'] || '';
 
                     // Список районов зависит от возможного restored regionIds
@@ -515,16 +507,12 @@ export class StatsComponent implements OnInit, OnDestroy {
         return role === 'teacher' || role === 'student';
     }
 
-    // Ученик видит только себя — фильтрация по оценкам/уровню/экзаменам тоже не имеет смысла
+    // Ученик видит только себя — фильтрация по оценкам/уровню тоже не имеет смысла
     get shouldHideGradeFilter(): boolean {
         return this.authorizedUserRole === 'student';
     }
 
     get shouldHideLevelFilter(): boolean {
-        return this.authorizedUserRole === 'student';
-    }
-
-    get shouldHideExamFilter(): boolean {
         return this.authorizedUserRole === 'student';
     }
 
@@ -544,10 +532,10 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     // Метод для загрузки развивающихся студентов
     loadDevelopingStudentsStats(): void {
-        // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
+        // Проверяем, что месяц выбран (не равен "YYYY-0")
         const monthPart = this.selectedMonth.split('-')[1];
-        if (monthPart === '0' && this.selectedExamIds.length === 0) {
-            this.toastService.show('Ay və ya imtahan seçilməyib', 'error');
+        if (monthPart === '0') {
+            this.toastService.show('Ay seçilməyib', 'error');
             return;
         }
 
@@ -564,7 +552,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'averageScore',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
-            examIds: this.selectedExamIds.join(',') || '',
             month: this.selectedMonth,
         };
 
@@ -584,10 +571,10 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     // Метод для загрузки студентов месяца по районам
     loadStudentsOfMonthStats(): void {
-        // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
+        // Проверяем, что месяц выбран (не равен "YYYY-0")
         const monthPart = this.selectedMonth.split('-')[1];
-        if (monthPart === '0' && this.selectedExamIds.length === 0) {
-            this.toastService.show('Ay və ya imtahan seçilməyib', 'error');
+        if (monthPart === '0') {
+            this.toastService.show('Ay seçilməyib', 'error');
             return;
         }
 
@@ -604,7 +591,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'averageScore',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
-            examIds: this.selectedExamIds.join(',') || '',
             month: this.selectedMonth,
         };
 
@@ -624,10 +610,10 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     // Метод для загрузки студентов месяца по республике
     loadStudentsOfMonthByRepublicStats(): void {
-        // Проверяем, что месяц выбран (не равен "YYYY-0") или есть выбранные экзамены
+        // Проверяем, что месяц выбран (не равен "YYYY-0")
         const monthPart = this.selectedMonth.split('-')[1];
-        if (monthPart === '0' && this.selectedExamIds.length === 0) {
-            this.toastService.show('Ay və ya imtahan seçilməyib', 'error');
+        if (monthPart === '0') {
+            this.toastService.show('Ay seçilməyib', 'error');
             return;
         }
 
@@ -644,7 +630,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
-            examIds: this.selectedExamIds.join(',') || '',
             month: this.selectedMonth,
         };
 
@@ -686,7 +671,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortColumn: this.sortActive || 'score',
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
-            examIds: this.selectedExamIds.join(',') || '',
             academicYear: this.selectedAcademicYear,
         };
 
@@ -699,30 +683,6 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const paginatedData = ResponseHandlerUtil.extractPaginatedData<Student>(response);
                 this.stats.students = paginatedData.data || [];
                 this.totalCounts.allStudentsTotalCount = paginatedData.totalCount || 0;
-            },
-            error: (error: Error) => {
-                this.isloading = false;
-                this.toastService.show(error.error.message, 'error');
-            }
-        });
-    }
-
-    loadStatsByExam(): void {
-        this.isloading = true;
-        // Не очищаем весь объект stats, только обнуляем нужные поля
-        this.stats.studentsOfMonth = [];
-        this.stats.studentsOfMonthByRepublic = [];
-        this.stats.developingStudents = [];
-
-        if (!this.selectedExams) {
-            this.isloading = false;
-            this.toastService.show('İmtahan seçilməyib', 'error');
-            return;
-        }
-        this.statsService.getStatsByExam(this.selectedExams).subscribe({
-            next: (response) => {
-                this.isloading = false;
-                this.stats = ResponseHandlerUtil.extractData<any>(response);
             },
             error: (error: Error) => {
                 this.isloading = false;
@@ -937,21 +897,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             });
     }
 
-    loadExams(): void {
-        this.examService.getExamsForFilter()
-            .subscribe({
-                next: (response: ExamResponse) => {
-                    const data = ResponseHandlerUtil.extractData<Exam[]>(response);
-                    this.exams = Array.isArray(data) ? data : [];
-                },
-                error: (error: any) => {
-                    this.exams = [];
-                    this.toastService.show(error.error.message, 'error');
-                }
-            });
-    }
-
-
     // Button Handlers
 
     updateStats(): void {
@@ -987,8 +932,6 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     updateMonth(month: string) {
         this.selectedMonth = month;
-        this.selectedExams = [];
-        this.selectedExamIds = [];
         // Вызываем соответствующий метод в зависимости от активного таба
         if (this.selectedTabIndex === 0) {
             this.loadDevelopingStudentsStats();
@@ -1174,23 +1117,6 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    onExamSelectChanged(examIds: string[]) {
-        this.selectedExamIds = examIds;
-        this.selectedMonth = `${new Date().getFullYear()}-0`; // Сбрасываем месяц при смене экзамена
-        if (this.isStudentMonthTab()) {
-            this.loadMonthStudentsStats();
-
-            if (this.selectedExams && this.selectedExams.length > 0) {
-                this.developingStudentsLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə inkişaf edən şagirdlər`);
-                this.studentsOfMonthLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə ayın şagirdləri`);
-                this.studentsOfMonthByRepublicLabel$.next(`${this.selectedExams.map(exam => exam.name).join(', ')} üzrə respublika üzrə ayın şagirdləri`);
-            }
-        }
-        else if (this.selectedTab === 'allStudents') {
-            this.loadAllStudentsStats();
-        }
-    }
-
     openStudentDetails(studentId: string): void {
         const queryParams = {
             regionIds: this.selectedRegionIds.length > 0 ? this.selectedRegionIds.join(",") : undefined,
@@ -1198,7 +1124,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(",") : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(",") : undefined,
-            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
             search: this.searchString || undefined,
             month: this.selectedMonth,
             source: 'stats',
@@ -1339,7 +1264,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.join(","),
             teacherIds: this.selectedTeacherIds.join(","),
             grades: this.selectedGrades.join(","),
-            examIds: this.selectedExamIds.join(',') || '',
         };
         this.isExportingExcel = true;
         this.studentService.getStudents(params).subscribe({
