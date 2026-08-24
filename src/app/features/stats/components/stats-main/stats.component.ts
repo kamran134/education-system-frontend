@@ -26,6 +26,7 @@ import { StudentService } from '../../../students/services/student.service';
 import { PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { TABLE_PAGE_SIZE_DEFAULT, TABLE_EXPORT_PAGE_SIZE } from '../../../../shared/components/ui/data-table/table-defaults';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
+import { TabsComponent } from '../../../../shared/components/ui/tabs/tabs.component';
 import { StatsFiltersComponent } from "../stats-filters/stats-filters.component";
 import { StatsPagination } from '../../../../core/models/pagination.model';
 import * as XLSX from 'xlsx';
@@ -67,7 +68,8 @@ import { HomeButtonComponent } from '../../../../shared/components/ui/home-butto
         SchoolsYearTabComponent,
         DistrictsYearTabComponent,
         RegionsYearTabComponent,
-        FullscreenPanelComponent
+        FullscreenPanelComponent,
+        TabsComponent
     ],
     providers: [MonthNamePipe, MomentDateFormatPipe],
     templateUrl: './stats.component.html',
@@ -1432,18 +1434,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     selectTab(index: number): void {
         this.selectedTabIndex = index;
-        const tabKey = this.tabs[index].key;
         this.onTabChange({ index, tab: { textLabel: this.tabs[index].label } });
-    }
-
-    getTabClasses(index: number): string {
-        const baseClasses = 'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm focus:outline-none cursor-pointer transition-colors';
-
-        if (index === this.selectedTabIndex) {
-            return `${baseClasses} border-blue-500 text-blue-600`;
-        } else {
-            return `${baseClasses} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`;
-        }
     }
 
     // Navigation between stats tabs with filtering

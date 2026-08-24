@@ -11,6 +11,7 @@ import { CardComponent } from '../../shared/components/ui/card/card.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../shared/components/ui/form-controls/input/input.component';
 import { HomeButtonComponent } from '../../shared/components/ui/home-button/home-button.component';
+import { TabsComponent, TabItem } from '../../shared/components/ui/tabs/tabs.component';
 
 @Component({
     selector: 'app-user-profile',
@@ -21,7 +22,8 @@ import { HomeButtonComponent } from '../../shared/components/ui/home-button/home
         CardComponent,
         ButtonComponent,
         InputComponent,
-        HomeButtonComponent
+        HomeButtonComponent,
+        TabsComponent
     ],
     templateUrl: './user-profile.component.html'
 })
@@ -32,6 +34,11 @@ export class UserProfileComponent implements OnInit {
     activeTab: number = 0;
     passwordForm: FormGroup;
 
+    readonly tabs: TabItem[] = [
+        { label: 'Şəxsi məlumatlar', icon: User },
+        { label: 'Sessiyalar', icon: Monitor },
+    ];
+
     readonly User = User;
     readonly Mail = Mail;
     readonly ShieldCheck = ShieldCheck;
@@ -41,7 +48,6 @@ export class UserProfileComponent implements OnInit {
     readonly X = X;
     readonly Pencil = Pencil;
     readonly Save = Save;
-    readonly Monitor = Monitor;
     readonly Loader = Loader;
 
     constructor(

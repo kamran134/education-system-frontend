@@ -32,52 +32,10 @@
     <!-- Custom Tabs -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
       <!-- Tab Headers -->
-      <div class="border-b border-gray-200">
-        <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-          <button
-            [class]="activeTab === 0 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 0">
-            İnkişaf edən şagirdlər
-          </button>
-          <button
-            [class]="activeTab === 1 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 1">
-            Ayın şagirdləri
-          </button>
-          <button
-            [class]="activeTab === 2 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 2">
-            İlin şagirdləri
-          </button>
-          <button
-            [class]="activeTab === 3 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 3">
-            İlin müəllimləri
-          </button>
-          <button
-            [class]="activeTab === 4 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 4">
-            İlin məktəbləri
-          </button>
-          <button
-            [class]="activeTab === 5 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 5">
-            İlin rayonları
-          </button>
-          <button
-            [class]="activeTab === 6 ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
-            (click)="activeTab = 6">
-            İlin regional idarələri
-          </button>
-        </nav>
-      </div>
+      <app-tabs
+        [tabs]="tabs"
+        [selectedIndex]="activeTab"
+        (selectedIndexChange)="activeTab = $event"></app-tabs>
 
       <!-- Tab Content -->
       <div class="p-6">

@@ -5,6 +5,7 @@ import { AdminTokenStatsComponent } from '../../shared/components/admin-token-st
 import { UserSessionsComponent } from '../../shared/components/user-sessions.component';
 import { LucideAngularModule, Shield, BarChart, User, Settings, Info, ShieldCheck, Eye, Users, Server, CreditCard, Database, Clock, CheckCircle } from 'lucide-angular';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
+import { TabsComponent, TabItem } from '../../shared/components/ui/tabs/tabs.component';
 
 @Component({
     selector: 'app-admin-dashboard',
@@ -12,7 +13,8 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
     LucideAngularModule,
     ButtonComponent,
     AdminTokenStatsComponent,
-    UserSessionsComponent
+    UserSessionsComponent,
+    TabsComponent
 ],
     templateUrl: './admin-dashboard.component.html',
     styleUrl: './admin-dashboard.component.scss'
@@ -20,11 +22,14 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 export class AdminDashboardComponent implements OnInit {
     selectedTabIndex = 0;
 
+    readonly tabs: TabItem[] = [
+        { label: 'Token Statistikası', icon: BarChart },
+        { label: 'Şəxsi Sessiyalar', icon: User },
+        { label: 'Sistem', icon: Settings },
+    ];
+
     // Icons
     readonly Shield = Shield;
-    readonly BarChart = BarChart;
-    readonly User = User;
-    readonly Settings = Settings;
     readonly Info = Info;
     readonly ShieldCheck = ShieldCheck;
     readonly Eye = Eye;
@@ -43,16 +48,6 @@ export class AdminDashboardComponent implements OnInit {
 
     selectTab(index: number): void {
         this.selectedTabIndex = index;
-    }
-
-    getTabClasses(index: number): string {
-        const baseClasses = 'flex items-center space-x-2 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm focus:outline-none cursor-pointer transition-colors';
-        
-        if (index === this.selectedTabIndex) {
-            return `${baseClasses} border-blue-500 text-blue-600`;
-        } else {
-            return `${baseClasses} border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300`;
-        }
     }
 
     viewSystemLogs(): void {

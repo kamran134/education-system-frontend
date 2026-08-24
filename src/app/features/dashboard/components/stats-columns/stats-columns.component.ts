@@ -9,6 +9,7 @@ import { LucideAngularModule, Save, RotateCcw, CheckSquare, Square, GripVertical
 import { HomeButtonComponent } from '../../../../shared/components/ui/home-button/home-button.component';
 import { Router } from '@angular/router';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
+import { TabsComponent, TabItem } from '../../../../shared/components/ui/tabs/tabs.component';
 
 interface Column {
     key: string;
@@ -25,7 +26,8 @@ interface Column {
     HomeButtonComponent,
     CdkDropList,
     CdkDrag,
-    CdkDragHandle
+    CdkDragHandle,
+    TabsComponent
 ],
     templateUrl: './stats-columns.component.html',
     styleUrl: './stats-columns.component.scss'
@@ -39,6 +41,12 @@ export class StatsColumnsComponent implements OnInit{
     readonly GripVertical = GripVertical;
 
     activeTab: number = 0;
+
+    readonly tabs: TabItem[] = [
+        { label: 'İnkişaf edən şagirdlər' }, { label: 'Ayın şagirdləri' }, { label: 'İlin şagirdləri' },
+        { label: 'İlin müəllimləri' }, { label: 'İlin məktəbləri' }, { label: 'İlin rayonları' },
+        { label: 'İlin regional idarələri' },
+    ];
 
     displayedColumns: string[] = ['id', 'name', 'actions'];
     dataSource: UserSettings = {
