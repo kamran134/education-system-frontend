@@ -233,7 +233,9 @@ export class DistrictProfileComponent implements OnInit {
         this.schoolCards = this.schools.map((s) => ({
             id: s.id,
             name: s.name,
-            meta: `Kod ${s.code}${s.averageScore != null ? ' · ' + s.averageScore.toFixed(1) + ' orta bal' : ''}`,
+            // score (reytinq xalı), не averageScore — та же путаница, что в
+            // teacher-profile.component.ts::recomputeStudentCards (см. комментарий там).
+            meta: `Kod ${s.code}${s.score != null ? ' · ' + Math.round(s.score) + ' xal' : ''}`,
             avatarUrl: this.configService.resolveAssetUrl(s.avatarUrl ?? null),
             place: s.place ?? null,
             routerLink: ['/schools', s.id, 'profile'],
