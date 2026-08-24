@@ -252,12 +252,13 @@ export class SchoolProfileComponent implements OnInit {
         this.teacherCards = this.teachers.map((t) => ({
             id: t.id,
             name: t.fullname,
-            // score (reytinq xalı) добавлен: список сортируется сервером по score
-            // (loadTeachers ниже), а раньше на карточке вообще не было числа, отражающего
-            // порядок — заказчик принял это за случайную сортировку (24.08.2026).
-            meta: `Kod ${t.code}${t.score != null ? ' · ' + Math.round(t.score) + ' xal' : ''}${t.studentCount != null ? ' · ' + t.studentCount + ' şagird' : ''}`,
+            meta: `Kod ${t.code}${t.studentCount != null ? ' · ' + t.studentCount + ' şagird' : ''}`,
             avatarUrl: this.configService.resolveAssetUrl(t.avatarUrl ?? null),
             place: t.place ?? null,
+            // score (reytinq xalı) в бейдже карточки — раньше там не было числа, отражающего
+            // реальный порядок сортировки, только национальное место (заказчик принял это
+            // за случайную сортировку, 24.08.2026).
+            metric: t.score != null ? String(Math.round(t.score)) : null,
             routerLink: ['/teachers', t.id, 'profile'],
         }));
     }

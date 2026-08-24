@@ -21,10 +21,10 @@
               {{ initials(item.name) }}
             </div>
           }
-          @if (item.place) {
+          @if (item.metric) {
             <span class="absolute top-2 left-2 min-w-[26px] h-[26px] px-2 rounded-lg flex items-center justify-center text-[13px] font-extrabold text-white tabular-nums backdrop-blur-sm"
-                  [style.background]="item.place <= 3 ? '#b45309' : 'rgba(9,14,24,.74)'">
-              {{ item.place }}
+                  [style.background]="item.place != null && item.place <= 3 ? '#b45309' : 'rgba(9,14,24,.74)'">
+              {{ item.metric }}
             </span>
           }
         </div>

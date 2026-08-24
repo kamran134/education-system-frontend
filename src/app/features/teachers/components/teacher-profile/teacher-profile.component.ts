@@ -272,13 +272,14 @@ export class TeacherProfileComponent implements OnInit {
         this.studentCards = this.students.map((s) => ({
             id: s.id,
             name: `${s.lastName ?? ''} ${s.firstName}`.trim(),
-            // score (reytinq xalı), не averageScore: список сортируется сервером по score
-            // (loadStudents ниже), а averageScore ей не тождественна — карточка с "чужим"
-            // числом выглядела бы неотсортированной, хотя сортировка честная (заказчик,
-            // 24.08.2026, принял за баг сортировки именно это несоответствие).
-            meta: `${s.grade}-ci sinif${s.score != null ? ' · ' + Math.round(s.score) + ' xal' : ''}`,
+            meta: `${s.grade}-ci sinif`,
             avatarUrl: this.configService.resolveAssetUrl(s.avatarUrl) ?? null,
             place: s.place ?? null,
+            // score (reytinq xalı) в бейдже карточки, не averageScore и не place: список
+            // сортируется сервером по score (loadStudents ниже), а показывать что-то другое
+            // рядом со счётом выглядело бы неотсортированным, хотя сортировка честная
+            // (заказчик, 24.08.2026, принял за баг сортировки именно это несоответствие).
+            metric: s.score != null ? String(Math.round(s.score)) : null,
             routerLink: ['/students', s.id],
         }));
     }

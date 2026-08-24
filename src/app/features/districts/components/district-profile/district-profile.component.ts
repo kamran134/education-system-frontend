@@ -237,11 +237,12 @@ export class DistrictProfileComponent implements OnInit {
         this.schoolCards = this.schools.map((s) => ({
             id: s.id,
             name: s.name,
-            // score (reytinq xalı), не averageScore — та же путаница, что в
-            // teacher-profile.component.ts::recomputeStudentCards (см. комментарий там).
-            meta: `Kod ${s.code}${s.score != null ? ' · ' + Math.round(s.score) + ' xal' : ''}`,
+            meta: `Kod ${s.code}`,
             avatarUrl: this.configService.resolveAssetUrl(s.avatarUrl ?? null),
             place: s.place ?? null,
+            // score (reytinq xalı) в бейдже карточки — см. комментарий в
+            // teacher-profile.component.ts::recomputeStudentCards.
+            metric: s.score != null ? String(Math.round(s.score)) : null,
             routerLink: ['/schools', s.id, 'profile'],
         }));
     }
