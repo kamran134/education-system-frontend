@@ -35,6 +35,7 @@ import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-forma
 import { DashboardService } from '../../../dashboard/services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
 import { BehaviorSubject } from 'rxjs';
+import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 import { DevelopingStudentsTabComponent } from '../developing-students-tab/developing-students-tab.component';
 import { MonthStudentsTabComponent } from '../month-students-tab/month-students-tab.component';
 import { RepublicMonthStudentsTabComponent } from '../republic-month-students-tab/republic-month-students-tab.component';
@@ -127,7 +128,8 @@ export class StatsComponent implements OnInit, OnDestroy {
     private readonly availableRegionColumns: string[] = ['place', 'filterPlace', 'code', 'name', 'districtCount', 'studentCount', 'score', 'averageScore'];
 
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
-    selectedAcademicYear: number = (() => { const now = new Date(); return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1; })();
+    selectedAcademicYear: number = getCurrentAcademicYear();
+    readonly academicYearLabel = academicYearLabel;
     selectedRegionIds: string[] = [];
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
@@ -1311,7 +1313,9 @@ export class StatsComponent implements OnInit, OnDestroy {
         const workbook = XLSX.utils.book_new();
         const sheet = XLSX.utils.json_to_sheet(rows);
         this.excelService.formatHeaders(sheet);
-        XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+        // XLSX внутренние имена листов ограничены 31 символом (спецификация OOXML) — полное
+        // имя всё равно становится именем файла ниже, обрезаем только вкладку.
+        XLSX.utils.book_append_sheet(workbook, sheet, sheetName.slice(0, 31));
         XLSX.writeFile(workbook, `${sheetName}.xlsx`);
     }
 
@@ -1342,7 +1346,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Student>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatAllStudentData(data, this.studentColumns), 'İlin şagirdləri');
+                this.downloadExcelSheet(this.excelService.formatAllStudentData(data, this.studentColumns), `İlin şagirdləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: Error) => {
                 this.isExportingExcel = false;
@@ -1365,7 +1369,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.teacherColumns), 'İlin müəllimləri');
+                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.teacherColumns), `İlin müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: Error) => {
                 this.isExportingExcel = false;
@@ -1388,7 +1392,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<School>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatSchoolData(data, this.schoolColumns), 'İlin məktəbləri');
+                this.downloadExcelSheet(this.excelService.formatSchoolData(data, this.schoolColumns), `İlin məktəbləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: Error) => {
                 this.isExportingExcel = false;
@@ -1407,7 +1411,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<District>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), 'İlin rayonları / şəhərləri');
+                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), `İlin rayonları / şəhərləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: Error) => {
                 this.isExportingExcel = false;
@@ -1423,7 +1427,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Region>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatRegionData(data, this.regionColumns), 'İlin regional idarələri');
+                this.downloadExcelSheet(this.excelService.formatRegionData(data, this.regionColumns), `İlin regional idarələri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: Error) => {
                 this.isExportingExcel = false;

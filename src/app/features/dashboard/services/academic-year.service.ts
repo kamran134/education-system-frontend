@@ -19,12 +19,26 @@ export interface GradePromotionPreview {
     byGrade: GradeBucket[];
     promotableCount: number;
     ceilingCount: number;
+    currentYearClosed: boolean;
 }
 
 export interface GradePromotionResult {
     academicYear: number;
     promotedCount: number;
     ceilingCount: number;
+}
+
+export interface AcademicYearClosurePreview {
+    academicYear: number;
+    alreadyClosed: boolean;
+    closedAt: string | null;
+    closedBy: string | null;
+    closedReason: 'manual' | 'auto' | null;
+    counts: Record<string, { count: number; sumScore: number }>;
+}
+
+export interface AcademicYearClosureResult {
+    academicYear: number;
 }
 
 @Injectable({
@@ -42,6 +56,18 @@ export class AcademicYearService {
     executePromotion(): Observable<GradePromotionResult> {
         const url = `${this.configService.getApiUrl()}/academic-year/promotion`;
         return this.http.post<ApiResponse<GradePromotionResult>>(url, { confirm: true }, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    previewClosure(): Observable<AcademicYearClosurePreview> {
+        const url = `${this.configService.getApiUrl()}/academic-year/closure`;
+        return this.http.get<ApiResponse<AcademicYearClosurePreview>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    executeClosure(note?: string): Observable<AcademicYearClosureResult> {
+        const url = `${this.configService.getApiUrl()}/academic-year/closure`;
+        return this.http.post<ApiResponse<AcademicYearClosureResult>>(url, { confirm: true, note }, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

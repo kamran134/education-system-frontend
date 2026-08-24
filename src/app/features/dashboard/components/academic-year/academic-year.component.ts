@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, GraduationCap, Loader, CheckCircle, AlertTriangle } from 'lucide-angular';
-import { AcademicYearService, GradePromotionPreview } from '../../services/academic-year.service';
+import { LucideAngularModule, GraduationCap, Loader, CheckCircle, AlertTriangle, Lock } from 'lucide-angular';
+import { AcademicYearService, GradePromotionPreview, AcademicYearClosurePreview } from '../../services/academic-year.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
+import { academicYearLabel } from '../../../../core/utils/academic-year.util';
 
 @Component({
     selector: 'app-academic-year',
-    imports: [LucideAngularModule],
+    imports: [CommonModule, LucideAngularModule],
     templateUrl: './academic-year.component.html',
     styleUrl: './academic-year.component.scss'
 })
@@ -17,11 +19,17 @@ export class AcademicYearComponent implements OnInit {
     readonly Loader = Loader;
     readonly CheckCircle = CheckCircle;
     readonly AlertTriangle = AlertTriangle;
+    readonly Lock = Lock;
+    readonly academicYearLabel = academicYearLabel;
 
     preview: GradePromotionPreview | null = null;
     isLoading = false;
     isExecuting = false;
     lastPromotedCount: number | null = null;
+
+    closurePreview: AcademicYearClosurePreview | null = null;
+    isClosureLoading = false;
+    isClosureExecuting = false;
 
     constructor(
         private academicYearService: AcademicYearService,
@@ -31,6 +39,7 @@ export class AcademicYearComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadPreview();
+        this.loadClosurePreview();
     }
 
     loadPreview(): void {
@@ -44,6 +53,64 @@ export class AcademicYearComponent implements OnInit {
                 console.error('Sinif yüksəltmə preview xətası:', error);
                 this.snackBarService.show('Məlumat yüklənərkən xəta baş verdi', 'error');
                 this.isLoading = false;
+            }
+        });
+    }
+
+    loadClosurePreview(): void {
+        this.isClosureLoading = true;
+        this.academicYearService.previewClosure().subscribe({
+            next: (preview) => {
+                this.closurePreview = preview;
+                this.isClosureLoading = false;
+            },
+            error: (error) => {
+                console.error('Tədris ili bağlanması preview xətası:', error);
+                this.snackBarService.show('Məlumat yüklənərkən xəta baş verdi', 'error');
+                this.isClosureLoading = false;
+            }
+        });
+    }
+
+    get canCloseYear(): boolean {
+        return !!this.closurePreview && !this.closurePreview.alreadyClosed && !this.isClosureExecuting;
+    }
+
+    openCloseConfirm(): void {
+        if (!this.canCloseYear || !this.closurePreview) return;
+
+        const label = this.academicYearLabel(this.closurePreview.academicYear);
+        const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
+            width: '450px',
+            data: {
+                title: 'Tədris ilini bağla',
+                text: `${label} tədris ili bağlanacaq. Bundan sonra bu il üçün statistikanı yenidən hesablamaq mümkün olmayacaq. Davam edilsin?`,
+                confirmText: 'Bağla'
+            }
+        });
+
+        confirmRef.closed.subscribe((confirmed: boolean | undefined) => {
+            if (confirmed) {
+                this.executeClosure();
+            }
+        });
+    }
+
+    private executeClosure(): void {
+        this.isClosureExecuting = true;
+        this.academicYearService.executeClosure().subscribe({
+            next: () => {
+                this.snackBarService.show('Tədris ili bağlandı', 'success');
+                this.isClosureExecuting = false;
+                this.loadClosurePreview();
+                this.loadPreview();
+            },
+            error: (error) => {
+                console.error('Tədris ili bağlanması xətası:', error);
+                const message = error?.error?.message || 'Tədris ilini bağlamaq mümkün olmadı';
+                this.snackBarService.show(message, 'error');
+                this.isClosureExecuting = false;
+                this.loadClosurePreview();
             }
         });
     }

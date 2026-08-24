@@ -1,4 +1,88 @@
 <div class="max-w-4xl mx-auto">
+  <!-- ==================== Tədris ilinin bağlanması ==================== -->
+  <div class="mb-10">
+    <div class="flex items-center mb-2">
+      <lucide-icon [img]="Lock" class="w-7 h-7 text-primary-600 mr-3"></lucide-icon>
+      <h1 class="text-2xl font-bold text-gray-900">Tədris ilini bağla</h1>
+    </div>
+    <p class="text-gray-600 mb-4">
+      Düzgün ardıcıllıq: <strong>əvvəlcə tədris ilini bağlayın, sonra sinifləri yüksəldin</strong>.
+      Bağlama statistikanı son dəfə yeniləyir və dondurur — bundan sonra bu il üçün yenidən
+      hesablamaq mümkün olmayacaq.
+    </p>
+
+    @if (isClosureLoading) {
+      <div class="flex items-center justify-center py-10 text-gray-500">
+        <lucide-icon [img]="Loader" class="w-6 h-6 mr-2 animate-spin"></lucide-icon>
+        Yüklənir...
+      </div>
+    }
+
+    @if (!isClosureLoading && closurePreview) {
+      @if (closurePreview.alreadyClosed) {
+        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4 flex items-start">
+          <lucide-icon [img]="CheckCircle" class="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
+          <div>
+            <h3 class="text-sm font-medium text-green-800">Bağlanıb</h3>
+            <p class="text-sm text-green-700 mt-1">
+              {{ academicYearLabel(closurePreview.academicYear) }} tədris ili
+              @if (closurePreview.closedReason === 'auto') {
+                avtomatik (1 sentyabr) bağlanıb.
+              } @else {
+                bağlanıb{{ closurePreview.closedBy ? ' — ' + closurePreview.closedBy : '' }}.
+              }
+            </p>
+          </div>
+        </div>
+      } @else {
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 flex items-start">
+          <lucide-icon [img]="AlertTriangle" class="w-5 h-5 text-yellow-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
+          <div>
+            <h3 class="text-sm font-medium text-yellow-800">Hələ bağlanmayıb</h3>
+            <p class="text-sm text-yellow-700 mt-1">
+              {{ academicYearLabel(closurePreview.academicYear) }} tədris ili üçün statistika hələ açıqdır.
+            </p>
+          </div>
+        </div>
+      }
+
+      <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+              <th class="text-left px-4 py-3">Cədvəl</th>
+              <th class="text-left px-4 py-3">Sətir sayı</th>
+              <th class="text-left px-4 py-3">Balların cəmi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (entry of closurePreview.counts | keyvalue; track entry.key) {
+              <tr>
+                <td class="px-4 py-3 text-gray-900">{{ entry.key }}</td>
+                <td class="px-4 py-3 text-gray-700">{{ entry.value.count }}</td>
+                <td class="px-4 py-3 text-gray-700">{{ entry.value.sumScore | number:'1.0-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        type="button"
+        [disabled]="!canCloseYear"
+        (click)="openCloseConfirm()"
+        class="px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2">
+        @if (isClosureExecuting) {
+          <lucide-icon [img]="Loader" class="w-4 h-4 animate-spin"></lucide-icon>
+        }
+        Tədris ilini bağla
+      </button>
+    }
+  </div>
+
+  <hr class="border-gray-200 mb-10">
+
+  <!-- ==================== Sinif yüksəltmə ==================== -->
   <!-- Header -->
   <div class="mb-8">
     <div class="flex items-center mb-2">
@@ -38,6 +122,16 @@
           <p class="text-sm text-green-700 mt-1">
             {{ preview.targetAcademicYear }}/{{ preview.targetAcademicYear + 1 }} tədris ili üçün siniflər artıq yüksəldilib. Təkrar mümkün deyil.
           </p>
+        </div>
+      </div>
+    }
+    <!-- Current year not closed yet — warning, not a block -->
+    @if (canPromote && !preview.currentYearClosed) {
+      <div class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6 flex items-start">
+        <lucide-icon [img]="Lock" class="w-5 h-5 text-orange-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
+        <div>
+          <h3 class="text-sm font-medium text-orange-800">Diqqət</h3>
+          <p class="text-sm text-orange-700 mt-1">Cari tədris ili hələ bağlanmayıb. Əvvəlcə yuxarıdakı «Tədris ilini bağla» düyməsindən istifadə edin.</p>
         </div>
       </div>
     }

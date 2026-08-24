@@ -106,6 +106,12 @@
         </div>
       }
 
+      @if (['allStudents','allTeachers','allSchools','allDistricts','allRegions'].includes(selectedTab)) {
+        <div class="mb-3 text-sm text-[var(--ui-ink-2)]">
+          {{ academicYearLabel(selectedAcademicYear) }} tədris ili
+        </div>
+      }
+
       <!-- Students Year Tab -->
       @if (selectedTabIndex === 3) {
         <div>

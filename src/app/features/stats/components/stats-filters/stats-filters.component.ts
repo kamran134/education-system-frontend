@@ -7,6 +7,7 @@ import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { Exam } from '../../../../core/models/exam.model';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
+import { getCurrentAcademicYear, academicYearLabel, FIRST_TRACKED_ACADEMIC_YEAR } from '../../../../core/utils/academic-year.util';
 
 import { RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
@@ -82,12 +83,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     monthControl = new FormControl(Number(this.selectedMonth.substring(5))); // 0-11
     yearControl = new FormControl(new Date().getFullYear());
 
-    private getCurrentAcademicYear(): number {
-        const now = new Date();
-        return now.getMonth() + 1 >= 9 ? now.getFullYear() : now.getFullYear() - 1;
-    }
-
-    academicYearControl = new FormControl(this.getCurrentAcademicYear());
+    academicYearControl = new FormControl(Math.max(getCurrentAcademicYear(), FIRST_TRACKED_ACADEMIC_YEAR));
     academicYears: { value: number; label: string }[] = [];
     // examControl = new FormControl<Exam[] | undefined>(undefined);
 
@@ -178,9 +174,10 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     }
 
     setupAcademicYears() {
-        const current = this.getCurrentAcademicYear();
-        for (let y = current - 4; y <= current; y++) {
-            this.academicYears.push({ value: y, label: `${y}/${y + 1}` });
+        const current = Math.max(getCurrentAcademicYear(), FIRST_TRACKED_ACADEMIC_YEAR);
+        // от новейшего к старому: свежий год — первый в списке, он же значение по умолчанию
+        for (let y = current; y >= FIRST_TRACKED_ACADEMIC_YEAR; y--) {
+            this.academicYears.push({ value: y, label: academicYearLabel(y) });
         }
         this.academicYearControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
