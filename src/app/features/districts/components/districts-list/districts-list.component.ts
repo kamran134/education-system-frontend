@@ -1,5 +1,6 @@
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import { ProfileChangeService } from '../../../../core/services/profile-change.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { District, DistrictResponse } from '../../../../core/models/district.model';
 import { DistrictService } from '../../services/district.service';
@@ -52,12 +53,19 @@ export class DistrictsListComponent implements OnInit {
     backButton?: BackButton;
 
     // Table configuration
-    tableColumns: TableColumn[] = [
-        { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
-        { key: 'name', label: 'Adı', sortable: true, type: 'text' },
-        { key: 'regionName', label: 'Regional idarə', sortable: false, type: 'text' },
-        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
-    ];
+    @ViewChild('nameCell', { static: true }) nameCellTemplate!: TemplateRef<any>;
+
+    get tableColumns(): TableColumn[] {
+        return [
+            { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
+            { key: 'name', label: 'Adı', sortable: true, cellTemplate: this.nameCellTemplate },
+            { key: 'regionName', label: 'Regional idarə', sortable: false, type: 'text' },
+            { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
+        ];
+    }
+
+    /** Точка-маркер «есть неподтверждённые данные» (BASE_FIXES_TASK.md §2.7). */
+    pendingDistrictIds = new Set<number>();
 
     // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), всё редактирование
     // и удаление переехало на страницу профиля (DistrictProfileComponent::openEditDialog).
@@ -87,8 +95,17 @@ export class DistrictsListComponent implements OnInit {
         private districtService: DistrictService,
         private toastService: ToastService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private profileChangeService: ProfileChangeService
     ) {}
+
+    private loadPendingMarkers(): void {
+        if (!this.authService.isAdminOrSuperAdmin()) return;
+        this.profileChangeService.pendingIds('district').subscribe({
+            next: (ids) => { this.pendingDistrictIds = new Set(ids); },
+            error: () => {}
+        });
+    }
 
     ngOnInit(): void {
         // Проверяем, не смотрим ли мы районы конкретного региона (/regions/:id/districts)
@@ -99,6 +116,7 @@ export class DistrictsListComponent implements OnInit {
             }
             this.setupActionButtons();
             this.loadDistricts();
+            this.loadPendingMarkers();
         });
 
         // Restore state from query parameters if coming back

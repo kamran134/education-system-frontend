@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight, KeyRound } from 'lucide-angular';
 import { DistrictService } from '../../services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { District } from '../../../../core/models/district.model';
@@ -12,10 +12,14 @@ import { School } from '../../../../core/models/school.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 import { ConfigService } from '../../../../core/services/config.service';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
+import { ProfileChangeService } from '../../../../core/services/profile-change.service';
+import { ProfileChangeRequest } from '../../../../core/models/profile-change.model';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
-import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart, ProfileHeroMetric, ProfileHeroPlace } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
+import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
+import { ProfileChangeBannerComponent } from '../../../../shared/components/profile/profile-change-banner/profile-change-banner.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
@@ -23,7 +27,7 @@ import { DistrictEditingDialogComponent } from '../district-editing-dialog/distr
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
-import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
+import { getCurrentAcademicYear, academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
 
 const SCHOOLS_PAGE_SIZE = 12;
 
@@ -37,7 +41,7 @@ const SCHOOLS_PAGE_SIZE = 12;
     imports: [
         CommonModule, FormsModule, RouterModule, LucideAngularModule,
         ButtonComponent, InputComponent,
-        ProfileHeroComponent,
+        ProfileHeroComponent, ProfileChangeBannerComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
     ],
     templateUrl: './district-profile.component.html',
@@ -61,6 +65,10 @@ export class DistrictProfileComponent implements OnInit {
 
     isUploadingAvatar = false;
 
+    pendingChange: ProfileChangeRequest | null = null;
+    isProcessingChange = false;
+    private correctingPendingId: number | null = null;
+
     // Вычисляются явно, не через геттеры — см. подробный комментарий в
     // teacher-profile.component.ts. Геттер, возвращающий новый объект/массив на каждый вызов,
     // триггерит ngOnChanges у app-profile-stats-section на каждом цикле change detection и
@@ -73,15 +81,15 @@ export class DistrictProfileComponent implements OnInit {
     crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroFacts: ProfileHeroFact[] = [];
-    heroMetric: ProfileHeroMetric | null = null;
-    heroPlaces: ProfileHeroPlace[] = [];
     schoolCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
+    readonly periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
     readonly ChevronRight = ChevronRight;
+    readonly KeyRound = KeyRound;
 
     private destroyRef = inject(DestroyRef);
 
@@ -94,7 +102,9 @@ export class DistrictProfileComponent implements OnInit {
         public permissions: PermissionsService,
         private configService: ConfigService,
         private snackBarService: SnackBarService,
-        private dialog: Dialog
+        private dialog: Dialog,
+        private navigationHistory: NavigationHistoryService,
+        private profileChangeService: ProfileChangeService
     ) {}
 
     ngOnInit(): void {
@@ -116,11 +126,22 @@ export class DistrictProfileComponent implements OnInit {
                     this.district = district;
                     this.isLoading = false;
                     this.recomputeDerivedFields();
+                    this.loadPendingChange();
                 },
                 error: () => {
                     this.isLoading = false;
                     this.snackBarService.show('Rayon tapılmadı', 'error');
                 }
+            });
+    }
+
+    private loadPendingChange(): void {
+        if (!this.canEditFacts) return;
+        this.profileChangeService.current('district', parseInt(this.districtId, 10))
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (pending) => { this.pendingChange = pending; },
+                error: () => { this.pendingChange = null; }
             });
     }
 
@@ -173,9 +194,22 @@ export class DistrictProfileComponent implements OnInit {
         return this.authService.canEditDistricts();
     }
 
-    /** Фото — единственное, что владелец меняет сам. */
+    /** Факты профиля (BASE_FIXES_TASK.md §2.5/§2.6) — вернули владельцу через модерацию. */
+    get canEditFacts(): boolean {
+        return this.canEdit || this.isOwnHome;
+    }
+
+    /** Фото — единственное, что владелец меняет сам без модерации. */
     get canUploadPhoto(): boolean {
         return this.canEdit || this.isOwnHome;
+    }
+
+    readonly changeFieldLabels: Record<string, string> = {
+        educationHeadName: 'Təhsil sektorunun müdiri',
+    };
+
+    get currentFieldValues(): Record<string, any> {
+        return { educationHeadName: this.district?.educationHeadName ?? null };
     }
 
     /**
@@ -197,8 +231,6 @@ export class DistrictProfileComponent implements OnInit {
         if (!district) {
             this.heroSubtitleParts = [];
             this.heroFacts = [];
-            this.heroMetric = null;
-            this.heroPlaces = [];
             return;
         }
 
@@ -223,14 +255,6 @@ export class DistrictProfileComponent implements OnInit {
             { label: 'Layihə müəllimləri', value: String(district.teacherCount ?? 0) },
             { label: 'Şagird sayı', value: String(district.actualStudentCount ?? 0) },
         ];
-
-        this.heroMetric = {
-            label: 'Reytinq xalı',
-            value: district.score != null ? String(Math.round(district.score)) : '—',
-            caption: academicYearLabel(getCurrentAcademicYear()),
-        };
-
-        this.heroPlaces = district.place != null ? [{ label: 'Respublika', value: String(district.place) }] : [];
     }
 
     private recomputeSchoolCards(): void {
@@ -307,33 +331,108 @@ export class DistrictProfileComponent implements OnInit {
     }
 
     startEditFacts(): void {
+        this.correctingPendingId = null;
         this.editedEducationHeadName = this.district?.educationHeadName ?? null;
+        this.factsSaveFailed = false;
+        this.editingFacts = true;
+    }
+
+    startCorrectPendingChange(): void {
+        if (!this.pendingChange) return;
+        this.correctingPendingId = this.pendingChange.id;
+        this.editedEducationHeadName = this.pendingChange.payload['educationHeadName'] ?? this.district?.educationHeadName ?? null;
         this.factsSaveFailed = false;
         this.editingFacts = true;
     }
 
     cancelEditFacts(): void {
         this.editingFacts = false;
+        this.correctingPendingId = null;
     }
 
     saveFacts(): void {
         if (!this.district) return;
         this.isSavingFacts = true;
         this.factsSaveFailed = false;
+
+        if (this.correctingPendingId != null) {
+            this.profileChangeService.approve(this.correctingPendingId, { educationHeadName: this.editedEducationHeadName })
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: () => {
+                        this.isSavingFacts = false;
+                        this.editingFacts = false;
+                        this.correctingPendingId = null;
+                        this.pendingChange = null;
+                        this.loadDistrict();
+                        this.snackBarService.show('Məlumatlar düzəlişlə təsdiqləndi', 'success');
+                    },
+                    error: () => {
+                        this.isSavingFacts = false;
+                        this.factsSaveFailed = true;
+                        this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
+                    }
+                });
+            return;
+        }
+
         this.districtService.updateDistrictProfile(this.districtId, { educationHeadName: this.editedEducationHeadName })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (updated) => {
-                    this.district = { ...this.district, ...updated };
+                next: (result) => {
                     this.isSavingFacts = false;
                     this.editingFacts = false;
-                    this.recomputeDerivedFields();
-                    this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    if (result.applied) {
+                        this.district = { ...this.district, ...result.entity };
+                        this.recomputeDerivedFields();
+                        this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    } else {
+                        this.pendingChange = result.pendingRequest;
+                        this.profileChangeService.refreshPendingCount();
+                        this.snackBarService.show('Məlumatlar admin təsdiqinə göndərildi', 'success');
+                    }
                 },
                 error: () => {
                     this.isSavingFacts = false;
                     this.factsSaveFailed = true;
                     this.snackBarService.show('Profil yenilənərkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    approvePendingChange(): void {
+        if (!this.pendingChange) return;
+        this.isProcessingChange = true;
+        this.profileChangeService.approve(this.pendingChange.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.isProcessingChange = false;
+                    this.pendingChange = null;
+                    this.loadDistrict();
+                    this.snackBarService.show('Məlumatlar təsdiqləndi', 'success');
+                },
+                error: () => {
+                    this.isProcessingChange = false;
+                    this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    rejectPendingChange(reviewNote: string | null): void {
+        if (!this.pendingChange) return;
+        this.isProcessingChange = true;
+        this.profileChangeService.reject(this.pendingChange.id, reviewNote)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.isProcessingChange = false;
+                    this.pendingChange = null;
+                    this.snackBarService.show('Məlumatlar rədd edildi', 'success');
+                },
+                error: () => {
+                    this.isProcessingChange = false;
+                    this.snackBarService.show('Rədd edilərkən xəta baş verdi', 'error');
                 }
             });
     }
@@ -362,7 +461,16 @@ export class DistrictProfileComponent implements OnInit {
         this.snackBarService.show(message, 'error');
     }
 
+    /** Возврат туда, откуда пришли (BASE_FIXES_TASK.md §1.5); /panel — только фолбэк, когда
+     *  истории самого приложения нет (прямая ссылка, F5). */
     goBack(): void {
-        this.router.navigate(['/panel']);
+        if (this.navigationHistory.canGoBack()) this.navigationHistory.back();
+        else this.router.navigate(['/panel']);
+    }
+
+    /** «Şəxsi məlumatlar» ушёл из шапки для ролей-владельцев (BASE_FIXES_TASK.md §1.2) —
+     *  смена пароля теперь доступна отсюда. */
+    goToProfile(): void {
+        this.router.navigate(['/profile']);
     }
 }

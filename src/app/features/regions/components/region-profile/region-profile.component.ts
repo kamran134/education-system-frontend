@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight, KeyRound } from 'lucide-angular';
 import { RegionService } from '../../services/region.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { Region } from '../../../../core/models/region.model';
@@ -11,16 +11,17 @@ import { District } from '../../../../core/models/district.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 import { ConfigService } from '../../../../core/services/config.service';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart, ProfileHeroMetric, ProfileHeroPlace } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
+import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { getCurrentAcademicYear, academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
 import { RegionEditingDialogComponent } from '../region-editing-dialog/region-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
-import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 
 const DISTRICTS_PAGE_SIZE = 12;
 
@@ -59,15 +60,15 @@ export class RegionProfileComponent implements OnInit {
 
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroFacts: ProfileHeroFact[] = [];
-    heroMetric: ProfileHeroMetric | null = null;
-    heroPlaces: ProfileHeroPlace[] = [];
     districtCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
+    readonly periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
     readonly ChevronRight = ChevronRight;
+    readonly KeyRound = KeyRound;
 
     private destroyRef = inject(DestroyRef);
 
@@ -80,7 +81,8 @@ export class RegionProfileComponent implements OnInit {
         public permissions: PermissionsService,
         private configService: ConfigService,
         private snackBarService: SnackBarService,
-        private dialog: Dialog
+        private dialog: Dialog,
+        private navigationHistory: NavigationHistoryService
     ) {}
 
     ngOnInit(): void {
@@ -258,8 +260,6 @@ export class RegionProfileComponent implements OnInit {
         if (!region) {
             this.heroSubtitleParts = [];
             this.heroFacts = [];
-            this.heroMetric = null;
-            this.heroPlaces = [];
             return;
         }
 
@@ -271,14 +271,6 @@ export class RegionProfileComponent implements OnInit {
             { label: 'Layihə müəllimləri', value: String(region.teacherCount ?? 0) },
             { label: 'Şagird sayı', value: String(region.studentCount ?? 0) },
         ];
-
-        this.heroMetric = {
-            label: 'Reytinq xalı',
-            value: region.score != null ? String(Math.round(region.score)) : '—',
-            caption: academicYearLabel(getCurrentAcademicYear()),
-        };
-
-        this.heroPlaces = region.place != null ? [{ label: 'Respublika', value: String(region.place) }] : [];
     }
 
     private recomputeDistrictCards(): void {
@@ -319,7 +311,16 @@ export class RegionProfileComponent implements OnInit {
         this.snackBarService.show(message, 'error');
     }
 
+    /** Возврат туда, откуда пришли (BASE_FIXES_TASK.md §1.5); /panel — только фолбэк, когда
+     *  истории самого приложения нет (прямая ссылка, F5). */
     goBack(): void {
-        this.router.navigate(['/panel']);
+        if (this.navigationHistory.canGoBack()) this.navigationHistory.back();
+        else this.router.navigate(['/panel']);
+    }
+
+    /** «Şəxsi məlumatlar» ушёл из шапки для ролей-владельцев (BASE_FIXES_TASK.md §1.2) —
+     *  смена пароля теперь доступна отсюда. */
+    goToProfile(): void {
+        this.router.navigate(['/profile']);
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { SchoolService } from '../../services/school.service';
 
@@ -22,6 +22,7 @@ import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-t
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
+import { ProfileChangeService } from '../../../../core/services/profile-change.service';
 
 @Component({
     selector: 'app-schools-list',
@@ -60,12 +61,16 @@ export class SchoolsListComponent implements OnInit {
     districtOptions: SelectOption[] = [];
 
     // Table configuration
-    tableColumns: TableColumn[] = [
-        { key: 'code', label: 'Məktəb kodu', sortable: true, type: 'text' },
-        { key: 'name', label: 'Məktəb adı', sortable: true, type: 'text' },
-        { key: 'district.name', label: 'Rayon / şəhər', sortable: true, type: 'text' },
-        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
-    ];
+    @ViewChild('nameCell', { static: true }) nameCellTemplate!: TemplateRef<any>;
+
+    get tableColumns(): TableColumn[] {
+        return [
+            { key: 'code', label: 'Məktəb kodu', sortable: true, type: 'text' },
+            { key: 'name', label: 'Məktəb adı', sortable: true, cellTemplate: this.nameCellTemplate },
+            { key: 'district.name', label: 'Rayon / şəhər', sortable: true, type: 'text' },
+            { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
+        ];
+    }
 
     // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), редактирование
     // переехало на страницу профиля (SchoolProfileComponent::openEditDialog).
@@ -83,6 +88,10 @@ export class SchoolsListComponent implements OnInit {
 
     isUpdatingStats = false;
 
+    /** Точка-маркер «есть неподтверждённые данные» (BASE_FIXES_TASK.md §2.7) — только у
+     *  admin-подобных ролей, endpoint /pending-ids отдаёт 403 всем остальным. */
+    pendingSchoolIds = new Set<number>();
+
     constructor(
         private schoolService: SchoolService,
         private districtService: DistrictService,
@@ -90,8 +99,17 @@ export class SchoolsListComponent implements OnInit {
         private toastService: ToastService,
         private dialog: Dialog,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private profileChangeService: ProfileChangeService
     ) {}
+
+    private loadPendingMarkers(): void {
+        if (!this.authService.isAdminOrSuperAdmin()) return;
+        this.profileChangeService.pendingIds('school').subscribe({
+            next: (ids) => { this.pendingSchoolIds = new Set(ids); },
+            error: () => {}
+        });
+    }
 
     ngOnInit(): void {
         // Check if we're viewing schools for a specific district
@@ -121,6 +139,7 @@ export class SchoolsListComponent implements OnInit {
 
         this.loadDistricts();
         this.loadSchools();
+        this.loadPendingMarkers();
     }
 
     private setupActionButtons(): void {

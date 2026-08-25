@@ -39,6 +39,9 @@ export interface Teacher {
     // от grades[] (вычисляется из классов учеников). См. core/config/teacher-grade.config.ts.
     gradeLabel?: string | null;
     pedagogicalStartYear?: number | null;
+    // BASE_FIXES_TASK.md §2.3 — заменяет pedagogicalStartYear на профиле: стаж вводится
+    // числом лет, а не годом начала (мог работать не непрерывно).
+    pedagogicalExperienceYears?: number | null;
     achievements?: string | null;
 }
 

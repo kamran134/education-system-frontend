@@ -7,6 +7,8 @@ import { FilterParams } from '../../../core/models/filterParams.model';
 import { ApiResponse } from '../../../core/models/response.model';
 import { RepairingResults } from '../../../core/models/student.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { toProfileSaveResult } from '../../../core/utils/profile-save-result.util';
+import { ProfileSaveResult } from '../../../core/models/profile-change.model';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -87,10 +89,14 @@ export class SchoolService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateSchoolProfile(schoolId: string | number, data: { description?: string | null; history?: string | null; directorName?: string | null; foundedYear?: number | null; achievements?: string | null }): Observable<School> {
+    /**
+     * Owner (schoolDirector своей школы) уходит в очередь модерации, а не пишет напрямую —
+     * ответ 202 вместо 200 (BASE_FIXES_TASK.md §2.5). Различаем через observe:'response'.
+     */
+    updateSchoolProfile(schoolId: string | number, data: { description?: string | null; history?: string | null; directorName?: string | null; foundedYear?: number | null; achievements?: string | null }): Observable<ProfileSaveResult<School>> {
         const url: string = `${this.configService.getApiUrl()}/schools/${schoolId}/profile`;
-        return this.http.patch<ApiResponse<School>>(url, data, { withCredentials: true })
-            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+        return this.http.patch<ApiResponse<School>>(url, data, { withCredentials: true, observe: 'response' })
+            .pipe(map(response => toProfileSaveResult<School>(response)));
     }
 
     deleteSchool(schoolId: string | number): Observable<any> {

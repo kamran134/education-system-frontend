@@ -7,6 +7,7 @@ import { RolesColumnsComponent } from './components/roles-columns/roles-columns.
 import { AcademicYearComponent } from './components/academic-year/academic-year.component';
 import { CertificateTemplatesListComponent } from '../certificates/components/certificate-templates-list/certificate-templates-list.component';
 import { CertificateEditorComponent } from '../certificates/components/certificate-editor/certificate-editor.component';
+import { ProfileChangesComponent } from './components/profile-changes/profile-changes.component';
 import { adminGuard } from '../../core/guards/admin.guard';
 
 export const routes: Routes = [
@@ -16,6 +17,7 @@ export const routes: Routes = [
         children: [
             { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
             { path: 'rating-columns', component: StatsColumnsComponent, canActivate: [adminGuard] },
+            { path: 'profile-changes', component: ProfileChangesComponent, canActivate: [adminGuard] },
             { path: 'roles', component: RolesColumnsComponent, canActivate: [adminGuard] },
             { path: 'legacy-import', component: LegacyImportComponent, canActivate: [adminGuard] },
             { path: 'academic-year', component: AcademicYearComponent, canActivate: [adminGuard] },

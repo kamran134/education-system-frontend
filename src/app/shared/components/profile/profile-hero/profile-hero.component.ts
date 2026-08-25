@@ -16,22 +16,12 @@ export interface ProfileHeroFact {
     wide?: boolean;
 }
 
-export interface ProfileHeroMetric {
-    label: string;
-    value: string;
-    caption?: string;
-}
-
-export interface ProfileHeroPlace {
-    label: string;
-    value: string;
-}
-
 /**
  * Шапка профиля учителя/школы/района/региона (PROFILES_V3_TASK.md §4). Два варианта:
- * "person" — круглое фото слева, факты и метрика в одну строку (учитель); "entity" —
- * фото 16:9 слева, данные справа (школа/район/регион). Заменяет прежние "portrait"/"banner"
- * с chips/rank — теперь facts/metric/places, детали см. в задании.
+ * "person" — круглое фото слева, факты в одну строку (учитель); "entity" — фото 16:9 слева,
+ * данные справа (школа/район/регион). Reytinq xalı и места учебных заведений сюда больше не
+ * входят (BASE_FIXES_TASK.md §2.1, заказчик прямым текстом попросил убрать балл из шапки с
+ * фото) — они остаются только в отдельном блоке «Reytinqlər» и на карточках сущностей.
  *
  * Презентационный компонент — загрузку аватара делегирует наверх через avatarSelected
  * (сам только валидирует файл и открывает кроппер), сохранение — на странице.
@@ -50,12 +40,20 @@ export class ProfileHeroComponent {
     @Input() subtitleParts: ProfileHeroSubtitlePart[] = [];
     @Input() facts: ProfileHeroFact[] = [];
     @Input() avatarUrl: string | null = null;
-    @Input() metric: ProfileHeroMetric | null = null;
-    @Input() places: ProfileHeroPlace[] = [];
+    /** Полное редактирование сущности (диалог со всеми полями, включая code/district/...) —
+     *  только admin-подобные роли. */
     @Input() canEdit = false;
+    /** Самостоятельно заполняемые факты (BASE_FIXES_TASK.md §2.6) — admin-подобные роли ИЛИ
+     *  владелец сущности. Раньше это было тем же самым, что canEdit, — теперь может быть true
+     *  у владельца, когда canEdit (полный доступ) остаётся false. */
+    @Input() canEditFacts = false;
     /** Есть страницы (регион), где ни один факт не редактируется отдельной формой — там
      *  ссылка "Profil məlumatlarını redaktə et" была бы мёртвой кнопкой. */
     @Input() showEditFactsLink = true;
+    /** Заказчик просил разные подписи по типу сущности («Məktəb məlumatlarını yenilə» и т.п.,
+     *  BASE_FIXES_TASK.md §2.6) — общий дефолт остаётся для админского «Profil məlumatlarını
+     *  redaktə et». */
+    @Input() editFactsLabel = 'Profil məlumatlarını redaktə et';
     @Input() canUploadPhoto = false;
     @Input() isUploading = false;
 
@@ -89,7 +87,7 @@ export class ProfileHeroComponent {
      * иначе админ не поймёт, что поле вообще существует.
      */
     get visibleFacts(): ProfileHeroFact[] {
-        return this.canEdit ? this.facts : this.facts.filter((f) => f.value !== null);
+        return this.canEdit || this.canEditFacts ? this.facts : this.facts.filter((f) => f.value !== null);
     }
 
     get placeholderTone(): number {

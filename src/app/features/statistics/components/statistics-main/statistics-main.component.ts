@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { StatisticsService } from '../../services/statistics.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
@@ -48,6 +50,73 @@ export class StatisticsMainComponent implements OnInit {
 
     get isAdminUser(): boolean {
         return this.authService.isAdminOrSuperAdmin();
+    }
+
+    /**
+     * Роли-владельцы (BASE_FIXES_TASK.md §1.3): фильтры district/school/teacher прибиваются
+     * к их собственной сущности и блокируются — /statistics открыт им, но только на свою
+     * область видимости, не на всю республику. forced*Ids хранятся отдельно от selected*Ids,
+     * потому что onFilterReset() должен возвращать именно к ним, а не к пустому фильтру.
+     */
+    lockDistrictFilter = false;
+    lockSchoolFilter = false;
+    lockTeacherFilter = false;
+    private forcedDistrictIds: string[] = [];
+    private forcedSchoolIds: string[] = [];
+    private forcedTeacherIds: string[] = [];
+
+    /** У student своей области видимости для /statistics нет (BASE_FIXES_TASK.md §1.2) —
+     *  ему сюда попадать не полагается, roleGuard закрывает роут раньше этой проверки. */
+    private resolveOwnerScope$(): Observable<void> {
+        const role = this.authService.getRole();
+        const entityId = this.authService.getCurrentUserValue()?.profile?.entityId;
+        if (!entityId) return of(void 0);
+
+        switch (role) {
+            case 'districtRepresenter':
+                this.lockDistrictFilter = true;
+                this.forcedDistrictIds = [String(entityId)];
+                return of(void 0);
+
+            // Своего фильтра региона на этой странице нет — регион сводится к списку районов,
+            // входящих в него.
+            case 'regionRepresenter':
+                this.lockDistrictFilter = true;
+                return this.districtService.getDistricts({ regionIds: [String(entityId)], page: 1, size: 1000 }).pipe(
+                    map((response) => {
+                        const data = ResponseHandlerUtil.extractPaginatedData<District>(response);
+                        this.forcedDistrictIds = (data.data || []).map((d) => String(d.id));
+                    }),
+                    catchError(() => of(void 0))
+                );
+
+            case 'schoolDirector':
+                this.lockDistrictFilter = true;
+                this.lockSchoolFilter = true;
+                return this.schoolService.getSchoolById(entityId).pipe(
+                    map((school: School) => {
+                        this.forcedSchoolIds = [String(entityId)];
+                        this.forcedDistrictIds = school.district ? [String(school.district.id)] : [];
+                    }),
+                    catchError(() => of(void 0))
+                );
+
+            case 'teacher':
+                this.lockDistrictFilter = true;
+                this.lockSchoolFilter = true;
+                this.lockTeacherFilter = true;
+                return this.teacherService.getTeacherById(entityId).pipe(
+                    map((teacher: Teacher) => {
+                        this.forcedTeacherIds = [String(entityId)];
+                        this.forcedSchoolIds = teacher.school ? [String(teacher.school.id)] : [];
+                        this.forcedDistrictIds = teacher.district ? [String(teacher.district.id)] : [];
+                    }),
+                    catchError(() => of(void 0))
+                );
+
+            default:
+                return of(void 0);
+        }
     }
 
     get inkishafParticipationOptions(): { label: string; value: number }[] {
@@ -183,15 +252,24 @@ export class StatisticsMainComponent implements OnInit {
         // вообще не читала, фильтр молча терялся и открывалась статистика по всей республике.
         this.applyQueryParamFilters();
 
-        this.loadDistricts();
-        if (this.selectedDistrictIds.length > 0) {
-            this.loadSchools();
-        }
-        if (this.selectedSchoolIds.length > 0) {
-            this.loadTeachers();
-        }
-        this.loadStatistics();
-        this.loadInkishafStatistics();
+        // Область видимости роли-владельца всегда перекрывает queryParams (BASE_FIXES_TASK.md
+        // §1.3) — своя сущность и так ровно то, что «Ətraflı statistika» присылает в ссылке,
+        // а прямой заход на /statistics без queryParams иначе показал бы всю республику.
+        this.resolveOwnerScope$().subscribe(() => {
+            if (this.forcedDistrictIds.length > 0) this.selectedDistrictIds = this.forcedDistrictIds;
+            if (this.forcedSchoolIds.length > 0) this.selectedSchoolIds = this.forcedSchoolIds;
+            if (this.forcedTeacherIds.length > 0) this.selectedTeacherIds = this.forcedTeacherIds;
+
+            this.loadDistricts();
+            if (this.selectedDistrictIds.length > 0) {
+                this.loadSchools();
+            }
+            if (this.selectedSchoolIds.length > 0) {
+                this.loadTeachers();
+            }
+            this.loadStatistics();
+            this.loadInkishafStatistics();
+        });
     }
 
     private applyQueryParamFilters(): void {
@@ -346,15 +424,20 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     onFilterReset(): void {
-        this.selectedDistrictIds = [];
-        this.selectedSchoolIds = [];
-        this.selectedTeacherIds = [];
+        // Роль-владелец сбрасывается к своей области видимости, а не к пустому фильтру —
+        // иначе задизейбленные district/school/teacher-селекты после сброса показывали бы
+        // пустой выбор, а запрос молча ушёл бы по всей республике (BASE_FIXES_TASK.md §1.3).
+        this.selectedDistrictIds = [...this.forcedDistrictIds];
+        this.selectedSchoolIds = [...this.forcedSchoolIds];
+        this.selectedTeacherIds = [...this.forcedTeacherIds];
         this.selectedGrades = [];
         this.selectedMonth = null;
         this.selectedYear = this.currentAcademicYear;
         this.inkishafMinParticipations = 2;
         this.schools = [];
         this.teachers = [];
+        if (this.selectedDistrictIds.length > 0) this.loadSchools();
+        if (this.selectedSchoolIds.length > 0) this.loadTeachers();
         this.loadStatistics();
         this.loadInkishafStatistics();
     }

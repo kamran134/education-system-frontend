@@ -7,6 +7,8 @@ import { ConfigService } from '../../../core/services/config.service';
 import { ApiResponse } from '../../../core/models/response.model';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { toProfileSaveResult } from '../../../core/utils/profile-save-result.util';
+import { ProfileSaveResult } from '../../../core/models/profile-change.model';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -78,10 +80,12 @@ export class DistrictService {
             .pipe(map(response => response));
     }
 
-    updateDistrictProfile(districtId: string | number, data: DistrictProfileUpdate): Observable<District> {
+    /** Owner (districtRepresenter своего района) уходит в очередь модерации — ответ 202
+     *  (BASE_FIXES_TASK.md §2.5). */
+    updateDistrictProfile(districtId: string | number, data: DistrictProfileUpdate): Observable<ProfileSaveResult<District>> {
         const url: string = `${this.configService.getApiUrl()}/districts/${districtId}/profile`;
-        return this.http.patch<ApiResponse<District>>(url, data, { withCredentials: true })
-            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+        return this.http.patch<ApiResponse<District>>(url, data, { withCredentials: true, observe: 'response' })
+            .pipe(map(response => toProfileSaveResult<District>(response)));
     }
 
     deleteDistrict(districtId: string | number): Observable<any> {

@@ -1,4 +1,5 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
+import { ProfileChangeService } from '../../../../core/services/profile-change.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Teacher, TeacherResponse } from '../../../../core/models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
@@ -77,13 +78,20 @@ export class TeachersListComponent implements OnInit {
     sortDirection: 'asc' | 'desc' = 'asc';
 
     // Table configuration
-    tableColumns: TableColumn[] = [
-        { key: 'code', label: 'Müəllimənin kodu', sortable: true, type: 'text' },
-        { key: 'fullname', label: 'Soyadı, adı və ata adı', sortable: true, type: 'text' },
-        { key: 'school.name', label: 'Məktəbi', sortable: true, type: 'text' },
-        { key: 'district.name', label: 'Rayonu / şəhəri', sortable: true, type: 'text' },
-        { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
-    ];
+    @ViewChild('fullnameCell', { static: true }) fullnameCellTemplate!: TemplateRef<any>;
+
+    get tableColumns(): TableColumn[] {
+        return [
+            { key: 'code', label: 'Müəllimənin kodu', sortable: true, type: 'text' },
+            { key: 'fullname', label: 'Soyadı, adı və ata adı', sortable: true, cellTemplate: this.fullnameCellTemplate },
+            { key: 'school.name', label: 'Məktəbi', sortable: true, type: 'text' },
+            { key: 'district.name', label: 'Rayonu / şəhəri', sortable: true, type: 'text' },
+            { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
+        ];
+    }
+
+    /** Точка-маркер «есть неподтверждённые данные» (BASE_FIXES_TASK.md §2.7). */
+    pendingTeacherIds = new Set<number>();
 
     // Пусто: клик по строке ведёт на профиль (PROFILES_V2_TASK.md §3.1), редактирование
     // переехало на страницу профиля (TeacherProfileComponent::openEditDialog).
@@ -110,8 +118,17 @@ export class TeachersListComponent implements OnInit {
         private toastService: ToastService,
         private dialog: Dialog,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private profileChangeService: ProfileChangeService
     ) {}
+
+    private loadPendingMarkers(): void {
+        if (!this.authService.isAdminOrSuperAdmin()) return;
+        this.profileChangeService.pendingIds('teacher').subscribe({
+            next: (ids) => { this.pendingTeacherIds = new Set(ids); },
+            error: () => {}
+        });
+    }
 
     ngOnInit(): void {
         // Check if we're viewing teachers for a specific school
@@ -152,6 +169,7 @@ export class TeachersListComponent implements OnInit {
             }
 
             this.loadTeachers();
+            this.loadPendingMarkers();
         });
     }
 

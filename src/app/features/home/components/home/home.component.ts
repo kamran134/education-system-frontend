@@ -5,9 +5,7 @@ import { LucideAngularModule, Building2, Landmark, GraduationCap, Users, UserChe
 import { PermissionsService } from '../../../../core/services/permissions.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileHeaderComponent } from '../profile-header/profile-header.component';
-
-/** Роли с привязанной сущностью — им показываем profile-блок вместо заголовка İSİM. */
-const PROFILE_ROLES = ['student', 'teacher', 'schoolDirector', 'districtRepresenter', 'regionRepresenter'];
+import { isOwnerRole } from '../../../../core/config/owner-roles.config';
 
 /**
  * Роли, для которых домашняя страница — их собственный профиль (PROFILE_AS_HOME_TASK.md §2).
@@ -52,8 +50,7 @@ export class HomeComponent implements OnInit {
     ) {}
 
     get hasProfileHeader(): boolean {
-        const role = this.authService.getRole();
-        return !!role && PROFILE_ROLES.includes(role);
+        return isOwnerRole(this.authService.getRole());
     }
 
     /**

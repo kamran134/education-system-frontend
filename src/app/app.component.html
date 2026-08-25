@@ -3,14 +3,43 @@
   <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
       <!-- Logo -->
-      <div class="flex items-center cursor-pointer" routerLink="/">
+      <div class="flex items-center cursor-pointer" (click)="goHome()">
         <img src="assets/isim-tiles.png" alt="İSİM" class="h-8 sm:h-10 w-auto" />
       </div>
 
       <!-- Right side navigation -->
       <div class="flex items-center space-x-1 sm:space-x-4">
+        <!-- Owner-role menu (student/teacher/schoolDirector/districtRepresenter/regionRepresenter):
+             шапка сворачивается в одно меню с именем сущности (BASE_FIXES_TASK.md §1.2) -->
+        @if (isAuthorized() && isOwnerRole()) {
+          <app-dropdown position="right">
+            <div slot="trigger" class="flex items-center space-x-1">
+              <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
+              <span class="hidden sm:block max-w-[160px] truncate">{{ ownerDisplayName }}</span>
+              <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+            </div>
+            <div slot="content">
+              <app-dropdown-item (clicked)="goToStats()">
+                <lucide-icon [img]="BarChart3" class="mr-3 h-4 w-4"></lucide-icon>
+                Reytinqlər
+              </app-dropdown-item>
+              @if (showStatisticsMenuItem()) {
+                <app-dropdown-item (clicked)="goToStatistics()">
+                  <lucide-icon [img]="TrendingUp" class="mr-3 h-4 w-4"></lucide-icon>
+                  Statistika
+                </app-dropdown-item>
+              }
+              <app-dropdown-divider></app-dropdown-divider>
+              <app-dropdown-item (clicked)="logInOut()">
+                <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4 text-red-600"></lucide-icon>
+                <span class="text-red-600 font-medium">Çıxış et</span>
+              </app-dropdown-item>
+            </div>
+          </app-dropdown>
+        }
+
         <!-- Bölmələr Menu -->
-        @if (isAuthorized()) {
+        @if (isAuthorized() && !isOwnerRole()) {
           <app-dropdown position="right">
             <div slot="trigger" class="flex items-center space-x-1">
               <lucide-icon [img]="LayoutGrid" class="h-5 w-5"></lucide-icon>
@@ -74,7 +103,7 @@
         }
 
         <!-- Profil Menu -->
-        @if (isAuthorized()) {
+        @if (isAuthorized() && !isOwnerRole()) {
           <app-dropdown position="right">
             <div slot="trigger" class="flex items-center space-x-1">
               <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
@@ -114,6 +143,19 @@
                 <app-dropdown-item (clicked)="goToRatingColumns()">
                   <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
                   Reytinq sütunları
+                </app-dropdown-item>
+              }
+              @if (permissions.canAccessRoute('canAccessProfileChanges')) {
+                <app-dropdown-item (clicked)="goToProfileChanges()">
+                  <lucide-icon [img]="ClipboardCheck" class="mr-3 h-4 w-4"></lucide-icon>
+                  <span class="flex items-center gap-2">
+                    Təsdiq gözləyən məlumatlar
+                    @if (pendingChangesCount > 0) {
+                      <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                        {{ pendingChangesCount }}
+                      </span>
+                    }
+                  </span>
                 </app-dropdown-item>
               }
               @if (permissions.isAdmin()) {

@@ -30,6 +30,14 @@
             </div>
           </app-button>
         }
+        @if (isOwnHome) {
+          <app-button variant="outline" size="sm" (clicked)="goToProfile()">
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="KeyRound" class="w-4 h-4"></lucide-icon>
+              <span>Şifrəni dəyiş</span>
+            </div>
+          </app-button>
+        }
       </div>
 
       <app-profile-hero
@@ -39,9 +47,9 @@
         [subtitleParts]="heroSubtitleParts"
         [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
-        [metric]="heroMetric"
-        [places]="heroPlaces"
         [canEdit]="canEdit"
+        [canEditFacts]="canEditFacts"
+        editFactsLabel="Müəllim məlumatlarını yenilə"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
         (editClicked)="openEditDialog()"
@@ -49,6 +57,19 @@
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
+
+      @if (pendingChange) {
+        <app-profile-change-banner
+          [pending]="pendingChange"
+          [isAdminView]="canEdit"
+          [fieldLabels]="changeFieldLabels"
+          [current]="currentFieldValues"
+          [isProcessing]="isProcessingChange"
+          (approveClicked)="approvePendingChange()"
+          (correctClicked)="startCorrectPendingChange()"
+          (rejectClicked)="rejectPendingChange($event)">
+        </app-profile-change-banner>
+      }
 
       @if (editingFacts) {
         <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
@@ -64,11 +85,11 @@
               <p class="text-xs text-[var(--ui-muted)] mt-1">Məsələn: «5-ci sinif», «5–6-cı siniflər», «7A, 7B»</p>
             </div>
             <app-input
-              label="Pedaqoji stajın başlanğıc ili"
+              label="Rəsmi pedaqoji stajı (il)"
               type="number"
-              [(ngModel)]="editedPedagogicalStartYear"
-              name="pedagogicalStartYear"
-              placeholder="məs. 2011"
+              [(ngModel)]="editedPedagogicalExperienceYears"
+              name="pedagogicalExperienceYears"
+              placeholder="məs. 15"
             ></app-input>
           </div>
           <div class="flex gap-2 mt-4">
@@ -83,24 +104,24 @@
       <app-profile-achievements
         title="Uğurları"
         [text]="teacher.achievements ?? null"
-        [canEdit]="canEdit"
+        [canEdit]="canEditFacts"
         [isSaving]="isSavingAchievements"
         [saveFailed]="achievementsSaveFailed"
         (save)="saveAchievements($event)">
       </app-profile-achievements>
-
-      <app-profile-stats-section
-        periodLabel="cari tədris ili"
-        [filter]="statsFilter"
-        [showDetailsLink]="permissions.canAccessRoute('canAccessStatistics')"
-        [detailsQueryParams]="statsDetailsQueryParams">
-      </app-profile-stats-section>
 
       <app-profile-rating-section
         [ratings]="teacher.ratings ?? []"
         placeField="districtPlace"
         [placeColumnLabel]="ratingsPlaceLabel">
       </app-profile-rating-section>
+
+      <app-profile-stats-section
+        [periodLabel]="periodLabel"
+        [filter]="statsFilter"
+        [showDetailsLink]="permissions.canAccessRoute('canAccessStatistics')"
+        [detailsQueryParams]="statsDetailsQueryParams">
+      </app-profile-stats-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
         <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)] flex-wrap">
@@ -125,7 +146,11 @@
             [isLoadingMore]="studentsLoadingMore"
             moreLabel="Daha çox göstər"
             emptyLabel="Hələ şagird yoxdur"
-            (loadMore)="onLoadMoreStudents()">
+            [canManagePhoto]="canManageStudentPhotos"
+            (loadMore)="onLoadMoreStudents()"
+            (avatarSelected)="onStudentAvatarSelected($event)"
+            (avatarDeleteConfirmed)="onStudentAvatarDeleteConfirmed($event)"
+            (uploadRejected)="onAvatarRejected($event)">
           </app-entity-card-grid>
         </div>
       </div>

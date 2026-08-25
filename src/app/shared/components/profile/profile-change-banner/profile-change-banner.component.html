@@ -1,0 +1,77 @@
+@if (pending) {
+  @if (isAdminView) {
+    <div class="rounded-2xl border-2 p-5 sm:p-6 flex flex-col gap-4" style="background: var(--ui-gold-soft); border-color: var(--ui-gold-line)">
+      <div class="flex items-center gap-2.5">
+        <lucide-icon [img]="ShieldAlert" class="w-5 h-5" style="color: var(--ui-gold)"></lucide-icon>
+        <h3 class="text-[15px] font-bold text-[var(--ui-ink)]">Yeni məlumatlar təsdiq gözləyir</h3>
+      </div>
+
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+        @for (row of diffRows; track row.label) {
+          <div>
+            <dt class="text-[10.5px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-1">{{ row.label }}</dt>
+            <dd class="text-sm flex items-center gap-2 flex-wrap">
+              <span class="text-[var(--ui-faint)] line-through">{{ row.before }}</span>
+              <span class="text-[var(--ui-muted)]">→</span>
+              <span class="font-semibold text-[var(--ui-ink)]">{{ row.after }}</span>
+            </dd>
+          </div>
+        }
+      </dl>
+
+      @if (!showRejectForm) {
+        <div class="flex flex-wrap gap-2">
+          <app-button variant="primary" [disabled]="isProcessing" (clicked)="approveClicked.emit()">
+            <div class="flex items-center gap-1.5">
+              <lucide-icon [img]="Check" class="w-4 h-4"></lucide-icon>
+              <span>Təsdiqlə</span>
+            </div>
+          </app-button>
+          <app-button variant="outline" [disabled]="isProcessing" (clicked)="correctClicked.emit()">
+            <div class="flex items-center gap-1.5">
+              <lucide-icon [img]="Pencil" class="w-4 h-4"></lucide-icon>
+              <span>Düzəliş et</span>
+            </div>
+          </app-button>
+          <app-button variant="outline" [disabled]="isProcessing" (clicked)="toggleRejectForm()">
+            <div class="flex items-center gap-1.5">
+              <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
+              <span>Rədd et</span>
+            </div>
+          </app-button>
+        </div>
+      }
+
+      @if (showRejectForm) {
+        <div class="flex flex-col gap-2">
+          <textarea
+            [(ngModel)]="rejectNote"
+            rows="2"
+            placeholder="Rədd səbəbi (istəyə bağlı)"
+            class="w-full rounded-lg border px-3 py-2 text-sm border-[var(--ui-line)] bg-[var(--ui-surface)] text-[var(--ui-ink)] focus:outline-none focus:ring-2 focus:ring-red-400"
+          ></textarea>
+          <div class="flex gap-2">
+            <app-button variant="danger" [disabled]="isProcessing" (clicked)="confirmReject()">Rəddi təsdiqlə</app-button>
+            <app-button variant="outline" [disabled]="isProcessing" (clicked)="toggleRejectForm()">Ləğv et</app-button>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="rounded-2xl border p-4 sm:p-5 flex flex-col gap-2.5" style="background: var(--ui-surface-3); border-color: var(--ui-line)">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="Clock" class="w-4 h-4 text-[var(--ui-muted)]"></lucide-icon>
+        <h3 class="text-sm font-semibold text-[var(--ui-ink-2)]">Məlumatlarınız təsdiq gözləyir</h3>
+      </div>
+      <p class="text-xs text-[var(--ui-muted)]">Admin təsdiqləyənə qədər başqaları əvvəlki məlumatları görür.</p>
+      <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 mt-1">
+        @for (row of ownFields; track row.label) {
+          <div>
+            <dt class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-0.5">{{ row.label }}</dt>
+            <dd class="text-sm font-medium text-[var(--ui-ink)]">{{ row.after }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  }
+}

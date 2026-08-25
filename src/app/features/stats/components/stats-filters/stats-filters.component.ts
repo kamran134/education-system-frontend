@@ -6,7 +6,7 @@ import { Region } from '../../../../core/models/region.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
-import { getCurrentAcademicYear, academicYearLabel, FIRST_TRACKED_ACADEMIC_YEAR } from '../../../../core/utils/academic-year.util';
+import { getCurrentAcademicYear, academicYearLabel, FIRST_TRACKED_ACADEMIC_YEAR, FIRST_TRACKED_CALENDAR_YEAR } from '../../../../core/utils/academic-year.util';
 
 import { RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
@@ -156,9 +156,11 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         }
     }
 
+    /** 2024…текущий календарный год (BASE_FIXES_TASK.md §4.6) — заказчик, 25.08.2026: будущие
+     *  годы в этих трёх месячных вкладках бессмысленны. */
     setupYears() {
         const currentYear = new Date().getFullYear();
-        for (let i: number = currentYear - 5; i <= currentYear + 5; i++) {
+        for (let i = FIRST_TRACKED_CALENDAR_YEAR; i <= currentYear; i++) {
             this.years.push(i);
         }
     }

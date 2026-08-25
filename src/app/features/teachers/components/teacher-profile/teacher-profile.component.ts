@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, ArrowLeft, Loader, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Loader, ChevronRight, KeyRound } from 'lucide-angular';
 import { TeacherService } from '../../services/teacher.service';
 import { StudentService } from '../../../students/services/student.service';
 import { Teacher } from '../../../../core/models/teacher.model';
@@ -12,11 +12,15 @@ import { Student } from '../../../../core/models/student.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 import { ConfigService } from '../../../../core/services/config.service';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
+import { ProfileChangeService } from '../../../../core/services/profile-change.service';
+import { ProfileChangeRequest } from '../../../../core/models/profile-change.model';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
-import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart, ProfileHeroMetric, ProfileHeroPlace } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
+import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
+import { ProfileChangeBannerComponent } from '../../../../shared/components/profile/profile-change-banner/profile-change-banner.component';
 import { ProfileAchievementsComponent } from '../../../../shared/components/profile/profile-achievements/profile-achievements.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
@@ -25,8 +29,8 @@ import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editin
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
+import { getCurrentAcademicYear, academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
 import { resolveTeacherGradeLabel } from '../../../../core/config/teacher-grade.config';
-import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 
 const STUDENTS_PAGE_SIZE = 12;
 
@@ -35,7 +39,7 @@ const STUDENTS_PAGE_SIZE = 12;
     imports: [
         CommonModule, FormsModule, RouterModule, LucideAngularModule,
         ButtonComponent, InputComponent,
-        ProfileHeroComponent, ProfileAchievementsComponent,
+        ProfileHeroComponent, ProfileChangeBannerComponent, ProfileAchievementsComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
     ],
     templateUrl: './teacher-profile.component.html',
@@ -54,7 +58,7 @@ export class TeacherProfileComponent implements OnInit {
 
     editingFacts = false;
     editedGradeLabel = '';
-    editedPedagogicalStartYear: number | null = null;
+    editedPedagogicalExperienceYears: number | null = null;
     isSavingFacts = false;
     factsSaveFailed = false;
 
@@ -62,6 +66,10 @@ export class TeacherProfileComponent implements OnInit {
     achievementsSaveFailed = false;
 
     isUploadingAvatar = false;
+
+    pendingChange: ProfileChangeRequest | null = null;
+    isProcessingChange = false;
+    private correctingPendingId: number | null = null;
 
     // Вычисляются явно (не через геттеры) и переприсваиваются только когда реально меняются
     // исходные данные. Геттер, возвращающий новый массив/объект на каждый вызов, здесь опасен:
@@ -78,9 +86,8 @@ export class TeacherProfileComponent implements OnInit {
     crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroFacts: ProfileHeroFact[] = [];
-    heroMetric: ProfileHeroMetric | null = null;
-    heroPlaces: ProfileHeroPlace[] = [];
     ratingsPlaceLabel = 'Respublika üzrə yeri';
+    readonly periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
     studentCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
@@ -88,6 +95,7 @@ export class TeacherProfileComponent implements OnInit {
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
     readonly ChevronRight = ChevronRight;
+    readonly KeyRound = KeyRound;
 
     private destroyRef = inject(DestroyRef);
 
@@ -100,7 +108,9 @@ export class TeacherProfileComponent implements OnInit {
         public permissions: PermissionsService,
         private configService: ConfigService,
         private snackBarService: SnackBarService,
-        private dialog: Dialog
+        private dialog: Dialog,
+        private navigationHistory: NavigationHistoryService,
+        private profileChangeService: ProfileChangeService
     ) {}
 
     ngOnInit(): void {
@@ -121,11 +131,22 @@ export class TeacherProfileComponent implements OnInit {
                     this.teacher = teacher;
                     this.isLoading = false;
                     this.recomputeDerivedFields();
+                    this.loadPendingChange();
                 },
                 error: () => {
                     this.isLoading = false;
                     this.snackBarService.show('Müəllim tapılmadı', 'error');
                 }
+            });
+    }
+
+    private loadPendingChange(): void {
+        if (!this.canEditFacts) return;
+        this.profileChangeService.current('teacher', parseInt(this.teacherId, 10))
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (pending) => { this.pendingChange = pending; },
+                error: () => { this.pendingChange = null; }
             });
     }
 
@@ -171,6 +192,42 @@ export class TeacherProfileComponent implements OnInit {
         this.loadStudents();
     }
 
+    /** Учитель (себе) или директор его школы (тоже, per BASE_FIXES_TASK.md §3.1) — ставят/
+     *  убирают фото ученикам прямо с карточки, без модерации, публикуется сразу. */
+    get canManageStudentPhotos(): boolean {
+        return this.permissions.canShowUI('canManageStudentPhotos') && (this.canEdit || this.isOwnHome || this.isOwnSchool);
+    }
+
+    onStudentAvatarSelected(event: { id: number; blob: Blob }): void {
+        const formData = new FormData();
+        formData.append('avatar', event.blob, 'avatar.jpg');
+        this.studentService.uploadAvatar(event.id, formData)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (response) => {
+                    const student = this.students.find((s) => s.id === event.id);
+                    if (student) student.avatarUrl = response.avatarUrl;
+                    this.recomputeStudentCards();
+                    this.snackBarService.show('Şəkil uğurla yükləndi', 'success');
+                },
+                error: () => this.snackBarService.show('Şəkil yüklənərkən xəta baş verdi', 'error')
+            });
+    }
+
+    onStudentAvatarDeleteConfirmed(studentId: number): void {
+        this.studentService.deleteAvatar(studentId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    const student = this.students.find((s) => s.id === studentId);
+                    if (student) student.avatarUrl = undefined;
+                    this.recomputeStudentCards();
+                    this.snackBarService.show('Şəkil silindi', 'success');
+                },
+                error: () => this.snackBarService.show('Şəkil silinərkən xəta baş verdi', 'error')
+            });
+    }
+
     /** Правку данных сущности отдали только админ-ролям (PROFILES_V2_TASK.md §1): владелец
      *  больше не редактирует себя, ему остаётся только фото. Идём через RBAC-хелпер, а не через
      *  список ролей руками — moderator тоже должен попадать сюда, и матрица прав одна на всё
@@ -179,9 +236,31 @@ export class TeacherProfileComponent implements OnInit {
         return this.authService.canEditTeachers();
     }
 
-    /** Фото — единственное, что владелец меняет сам. */
+    /** Факты профиля (BASE_FIXES_TASK.md §2.5/§2.6) — вернули владельцу через модерацию. */
+    get canEditFacts(): boolean {
+        return this.canEdit || this.isOwnHome;
+    }
+
+    /** Фото — единственное, что владелец меняет сам без модерации. */
     get canUploadPhoto(): boolean {
         return this.canEdit || this.isOwnHome;
+    }
+
+    readonly changeFieldLabels: Record<string, string> = {
+        gradeLabel: 'Sinfi',
+        pedagogicalExperienceYears: 'Pedaqoji stajı',
+        achievements: 'Uğurları',
+    };
+
+    // pedagogicalExperienceYears — то же необформатированное число, что в payload заявки
+    // (banner сам решает, как показывать), иначе before/after сравнивались бы в разных
+    // единицах ("15 il" vs "12").
+    get currentFieldValues(): Record<string, any> {
+        return {
+            gradeLabel: this.teacher?.gradeLabel ?? null,
+            pedagogicalExperienceYears: this.teacher?.pedagogicalExperienceYears ?? null,
+            achievements: this.teacher?.achievements ?? null,
+        };
     }
 
     /**
@@ -195,15 +274,24 @@ export class TeacherProfileComponent implements OnInit {
         return user?.role === 'teacher' && String(user.profile?.entityId) === String(this.teacherId);
     }
 
+    /** Директор ЭТОЙ школы, просматривающий профиль своего учителя (не обязательно свой
+     *  «дом») — по спеке школьного директора студенческие фото на этой странице тоже его
+     *  зона (BASE_FIXES_TASK.md §3.1: «schoolDirector: … ученики своей школы»). */
+    get isOwnSchool(): boolean {
+        const user = this.authService.getCurrentUserValue();
+        return user?.role === 'schoolDirector' && String(user.profile?.entityId) === String(this.teacher?.school?.id ?? '');
+    }
+
     get avatarUrl(): string | null {
         return this.configService.resolveAssetUrl(this.teacher?.avatarUrl);
     }
 
+    /** Стаж вводится числом лет напрямую (BASE_FIXES_TASK.md §2.3) — раньше здесь считали
+     *  «сейчас минус pedagogicalStartYear», но человек мог работать не непрерывно, и это
+     *  завышало стаж. pedagogicalStartYear в БД остался, но из профиля больше не читается. */
     private pedagogicalYearsLabel(teacher: Teacher): string | null {
-        const startYear = teacher.pedagogicalStartYear;
-        if (!startYear) return null;
-        const years = new Date().getFullYear() - startYear;
-        return `${years} il`;
+        const years = teacher.pedagogicalExperienceYears;
+        return years != null ? `${years} il` : null;
     }
 
     private recomputeDerivedFields(): void {
@@ -211,8 +299,6 @@ export class TeacherProfileComponent implements OnInit {
         if (!teacher) {
             this.heroSubtitleParts = [];
             this.heroFacts = [];
-            this.heroMetric = null;
-            this.heroPlaces = [];
             return;
         }
 
@@ -247,20 +333,9 @@ export class TeacherProfileComponent implements OnInit {
 
         this.heroFacts = [
             { label: 'Sinfi', value: grades },
-            { label: 'Şagird sayı', value: String(teacher.actualStudentCount ?? 0) },
+            { label: 'Layihə şagirdlərinin sayı', value: String(teacher.actualStudentCount ?? 0) },
             { label: 'Pedaqoji stajı', value: pedStaj },
         ];
-
-        this.heroMetric = {
-            label: 'Reytinq xalı',
-            value: teacher.score != null ? String(Math.round(teacher.score)) : '—',
-            caption: academicYearLabel(getCurrentAcademicYear()),
-        };
-
-        const places: ProfileHeroPlace[] = [];
-        if (teacher.place != null) places.push({ label: 'Respublika', value: String(teacher.place) });
-        if (teacher.districtPlace != null) places.push({ label: 'Rayon', value: String(teacher.districtPlace) });
-        this.heroPlaces = places;
 
         // Заказчик (24.08.2026): в таблице «Reytinqlər» колонка "Yer" должна показывать место
         // в СВОЁМ районе, не по республике — «Gəncə üzrə yeri» (см. комментарий в
@@ -345,29 +420,71 @@ export class TeacherProfileComponent implements OnInit {
     }
 
     startEditFacts(): void {
+        this.correctingPendingId = null;
         this.editedGradeLabel = this.teacher?.gradeLabel ?? '';
-        this.editedPedagogicalStartYear = this.teacher?.pedagogicalStartYear ?? null;
+        this.editedPedagogicalExperienceYears = this.teacher?.pedagogicalExperienceYears ?? null;
+        this.factsSaveFailed = false;
+        this.editingFacts = true;
+    }
+
+    startCorrectPendingChange(): void {
+        if (!this.pendingChange) return;
+        this.correctingPendingId = this.pendingChange.id;
+        this.editedGradeLabel = this.pendingChange.payload['gradeLabel'] ?? this.teacher?.gradeLabel ?? '';
+        this.editedPedagogicalExperienceYears = this.pendingChange.payload['pedagogicalExperienceYears'] ?? this.teacher?.pedagogicalExperienceYears ?? null;
         this.factsSaveFailed = false;
         this.editingFacts = true;
     }
 
     cancelEditFacts(): void {
         this.editingFacts = false;
+        this.correctingPendingId = null;
     }
 
     saveFacts(): void {
         if (!this.teacher) return;
         this.isSavingFacts = true;
         this.factsSaveFailed = false;
-        this.teacherService.updateTeacherProfile(this.teacherId, { gradeLabel: this.editedGradeLabel.trim() || null, pedagogicalStartYear: this.editedPedagogicalStartYear })
+
+        if (this.correctingPendingId != null) {
+            this.profileChangeService.approve(this.correctingPendingId, {
+                gradeLabel: this.editedGradeLabel.trim() || null,
+                pedagogicalExperienceYears: this.editedPedagogicalExperienceYears,
+            })
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: () => {
+                        this.isSavingFacts = false;
+                        this.editingFacts = false;
+                        this.correctingPendingId = null;
+                        this.pendingChange = null;
+                        this.loadTeacher();
+                        this.snackBarService.show('Məlumatlar düzəlişlə təsdiqləndi', 'success');
+                    },
+                    error: () => {
+                        this.isSavingFacts = false;
+                        this.factsSaveFailed = true;
+                        this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
+                    }
+                });
+            return;
+        }
+
+        this.teacherService.updateTeacherProfile(this.teacherId, { gradeLabel: this.editedGradeLabel.trim() || null, pedagogicalExperienceYears: this.editedPedagogicalExperienceYears })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (updated) => {
-                    this.teacher = { ...this.teacher, ...updated };
+                next: (result) => {
                     this.isSavingFacts = false;
                     this.editingFacts = false;
-                    this.recomputeDerivedFields();
-                    this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    if (result.applied) {
+                        this.teacher = { ...this.teacher, ...result.entity };
+                        this.recomputeDerivedFields();
+                        this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    } else {
+                        this.pendingChange = result.pendingRequest;
+                        this.profileChangeService.refreshPendingCount();
+                        this.snackBarService.show('Məlumatlar admin təsdiqinə göndərildi', 'success');
+                    }
                 },
                 error: () => {
                     this.isSavingFacts = false;
@@ -384,15 +501,58 @@ export class TeacherProfileComponent implements OnInit {
         this.teacherService.updateTeacherProfile(this.teacherId, { achievements: text })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (updated) => {
-                    this.teacher = { ...this.teacher, ...updated };
+                next: (result) => {
                     this.isSavingAchievements = false;
-                    this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    if (result.applied) {
+                        this.teacher = { ...this.teacher, ...result.entity };
+                        this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    } else {
+                        this.pendingChange = result.pendingRequest;
+                        this.profileChangeService.refreshPendingCount();
+                        this.snackBarService.show('Məlumatlar admin təsdiqinə göndərildi', 'success');
+                    }
                 },
                 error: () => {
                     this.isSavingAchievements = false;
                     this.achievementsSaveFailed = true;
                     this.snackBarService.show('Profil yenilənərkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    approvePendingChange(): void {
+        if (!this.pendingChange) return;
+        this.isProcessingChange = true;
+        this.profileChangeService.approve(this.pendingChange.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.isProcessingChange = false;
+                    this.pendingChange = null;
+                    this.loadTeacher();
+                    this.snackBarService.show('Məlumatlar təsdiqləndi', 'success');
+                },
+                error: () => {
+                    this.isProcessingChange = false;
+                    this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    rejectPendingChange(reviewNote: string | null): void {
+        if (!this.pendingChange) return;
+        this.isProcessingChange = true;
+        this.profileChangeService.reject(this.pendingChange.id, reviewNote)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.isProcessingChange = false;
+                    this.pendingChange = null;
+                    this.snackBarService.show('Məlumatlar rədd edildi', 'success');
+                },
+                error: () => {
+                    this.isProcessingChange = false;
+                    this.snackBarService.show('Rədd edilərkən xəta baş verdi', 'error');
                 }
             });
     }
@@ -421,7 +581,16 @@ export class TeacherProfileComponent implements OnInit {
         this.snackBarService.show(message, 'error');
     }
 
+    /** Возврат туда, откуда пришли (BASE_FIXES_TASK.md §1.5); /panel — только фолбэк, когда
+     *  истории самого приложения нет (прямая ссылка, F5). */
     goBack(): void {
-        this.router.navigate(['/panel']);
+        if (this.navigationHistory.canGoBack()) this.navigationHistory.back();
+        else this.router.navigate(['/panel']);
+    }
+
+    /** «Şəxsi məlumatlar» ушёл из шапки для ролей-владельцев (BASE_FIXES_TASK.md §1.2) —
+     *  смена пароля теперь доступна отсюда. */
+    goToProfile(): void {
+        this.router.navigate(['/profile']);
     }
 }

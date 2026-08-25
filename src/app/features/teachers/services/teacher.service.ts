@@ -7,6 +7,8 @@ import { FilterParams } from '../../../core/models/filterParams.model';
 import { ApiResponse } from '../../../core/models/response.model';
 import { RepairingResults } from '../../../core/models/student.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
+import { toProfileSaveResult } from '../../../core/utils/profile-save-result.util';
+import { ProfileSaveResult } from '../../../core/models/profile-change.model';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -92,10 +94,11 @@ export class TeacherService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    updateTeacherProfile(teacherId: string | number, data: { biography?: string | null; pedagogicalStartYear?: number | null; achievements?: string | null; gradeLabel?: string | null }): Observable<Teacher> {
+    /** Owner (учитель сам) уходит в очередь модерации — ответ 202 (BASE_FIXES_TASK.md §2.5). */
+    updateTeacherProfile(teacherId: string | number, data: { biography?: string | null; pedagogicalExperienceYears?: number | null; achievements?: string | null; gradeLabel?: string | null }): Observable<ProfileSaveResult<Teacher>> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/profile`;
-        return this.http.patch<ApiResponse<Teacher>>(url, data, { withCredentials: true })
-            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+        return this.http.patch<ApiResponse<Teacher>>(url, data, { withCredentials: true, observe: 'response' })
+            .pipe(map(response => toProfileSaveResult<Teacher>(response)));
     }
 
     deleteTeacher(teacherId: string | number): Observable<any> {

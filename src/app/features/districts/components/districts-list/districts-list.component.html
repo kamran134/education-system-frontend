@@ -9,6 +9,14 @@
   [backButton]="backButton"
 >
   <div slot="content">
+    <ng-template #nameCell let-value let-row="row">
+      <span class="inline-flex items-center gap-1.5">
+        {{ value }}
+        @if (pendingDistrictIds.has(row.id)) {
+          <span class="inline-block w-2 h-2 rounded-full bg-amber-500" title="Təsdiq gözləyən məlumat var"></span>
+        }
+      </span>
+    </ng-template>
     <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Rayonlar / şəhərlər">
       <app-data-table
         [data]="districts"

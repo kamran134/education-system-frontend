@@ -30,6 +30,14 @@
             </div>
           </app-button>
         }
+        @if (isOwnHome) {
+          <app-button variant="outline" size="sm" (clicked)="goToProfile()">
+            <div class="flex items-center gap-2">
+              <lucide-icon [img]="KeyRound" class="w-4 h-4"></lucide-icon>
+              <span>Şifrəni dəyiş</span>
+            </div>
+          </app-button>
+        }
       </div>
 
       <app-profile-hero
@@ -38,9 +46,9 @@
         [subtitleParts]="heroSubtitleParts"
         [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
-        [metric]="heroMetric"
-        [places]="heroPlaces"
         [canEdit]="canEdit"
+        [canEditFacts]="canEditFacts"
+        editFactsLabel="Rayon məlumatlarını yenilə"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"
         (editClicked)="openEditDialog()"
@@ -48,6 +56,19 @@
         (avatarSelected)="onAvatarSelected($event)"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
+
+      @if (pendingChange) {
+        <app-profile-change-banner
+          [pending]="pendingChange"
+          [isAdminView]="canEdit"
+          [fieldLabels]="changeFieldLabels"
+          [current]="currentFieldValues"
+          [isProcessing]="isProcessingChange"
+          (approveClicked)="approvePendingChange()"
+          (correctClicked)="startCorrectPendingChange()"
+          (rejectClicked)="rejectPendingChange($event)">
+        </app-profile-change-banner>
+      }
 
       @if (editingFacts) {
         <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
@@ -66,16 +87,16 @@
         </div>
       }
 
+      <app-profile-rating-section
+        [ratings]="district.ratings ?? []">
+      </app-profile-rating-section>
+
       <app-profile-stats-section
-        periodLabel="cari tədris ili"
+        [periodLabel]="periodLabel"
         [filter]="statsFilter"
         [showDetailsLink]="permissions.canAccessRoute('canAccessStatistics')"
         [detailsQueryParams]="statsDetailsQueryParams">
       </app-profile-stats-section>
-
-      <app-profile-rating-section
-        [ratings]="district.ratings ?? []">
-      </app-profile-rating-section>
 
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
         <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)] flex-wrap">

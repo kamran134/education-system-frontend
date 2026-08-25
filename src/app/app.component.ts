@@ -5,8 +5,11 @@ import { filter } from 'rxjs';
 
 import { AuthService } from './core/services/auth.service';
 import { PermissionsService } from './core/services/permissions.service';
+import { NavigationHistoryService } from './core/services/navigation-history.service';
+import { ProfileChangeService } from './core/services/profile-change.service';
+import { isOwnerRole } from './core/config/owner-roles.config';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList, LayoutGrid, UserCog, UserCheck, Landmark } from 'lucide-angular';
+import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList, ClipboardCheck, LayoutGrid, UserCog, UserCheck, Landmark } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 import { ConfirmDialogComponent } from './shared/components/ui/confirm-dialog/confirm-dialog.component';
@@ -46,6 +49,10 @@ export class AppComponent implements OnInit {
     // читалось однозначно как «два хедера подряд».
     hideGlobalHeader: boolean = false;
 
+    /** Бейдж «Təsdiq gözləyən məlumatlar» в İdarəetmə (BASE_FIXES_TASK.md §2.7) — грузится
+     *  один раз здесь, дальше обновляется локально сервисом после approve/reject/submit. */
+    pendingChangesCount = 0;
+
     // Lucide Icons
     readonly User = User;
     readonly Settings = Settings;
@@ -61,6 +68,7 @@ export class AppComponent implements OnInit {
     readonly Shield = Shield;
     readonly BarChart3 = BarChart3;
     readonly ClipboardList = ClipboardList;
+    readonly ClipboardCheck = ClipboardCheck;
     readonly LayoutGrid = LayoutGrid;
     readonly UserCog = UserCog;
     readonly UserCheck = UserCheck;
@@ -70,6 +78,12 @@ export class AppComponent implements OnInit {
         private authService: AuthService,
         private router: Router,
         public permissions: PermissionsService,
+        // Инъекция здесь ничем не пользуется напрямую — но providedIn:'root' создаёт сервис
+        // лениво при первом обращении, а профильным страницам он нужен уже готовым, с живой
+        // подпиской на события роутера с самого первого NavigationEnd (BASE_FIXES_TASK.md §1.5).
+        // AppComponent конструируется раньше первой навигации, поэтому это надёжная точка входа.
+        navigationHistory: NavigationHistoryService,
+        private profileChangeService: ProfileChangeService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
         this.isLandingRoute = this.isLandingUrl(this.router.url);
@@ -93,6 +107,11 @@ export class AppComponent implements OnInit {
             this.userId = this.authService.getUserId();
             this.darkMode = localStorage.getItem('theme') === 'true';
             this.setMode();
+
+            this.profileChangeService.pendingCount$.subscribe((n) => { this.pendingChangesCount = n; });
+            if (this.isAuthorized() && this.permissions.canAccessRoute('canAccessProfileChanges')) {
+                this.profileChangeService.refreshPendingCount();
+            }
 
             // Проверяем и валидируем токен при старте приложения
             // Только если есть токен в localStorage
@@ -118,6 +137,30 @@ export class AppComponent implements OnInit {
 
     isAuthorized(): boolean {
         return this.authService.getToken() !== null;
+    }
+
+    /**
+     * Роли с привязанной сущностью (BASE_FIXES_TASK.md §1.2): вместо полной навигации
+     * («Bölmələr»/«Profil»/«İdarəetmə») в шапке — одно меню с именем сущности.
+     */
+    isOwnerRole(): boolean {
+        return isOwnerRole(this.authService.getRole());
+    }
+
+    /** У ученика нет своей области видимости для /statistics (BASE_FIXES_TASK.md §1.2) — ему в
+     *  сжатом меню оставляем только «Reytinqlər» и «Çıxış et». */
+    showStatisticsMenuItem(): boolean {
+        return this.authService.getRole() !== 'student';
+    }
+
+    get ownerDisplayName(): string {
+        const user = this.authService.getCurrentUserValue();
+        return user?.profile?.fullName ?? user?.profile?.name ?? user?.email ?? '';
+    }
+
+    /** Лого: залогиненный идёт в свой кабинет, гость — на лендинг (BASE_FIXES_TASK.md §1.1). */
+    goHome(): void {
+        this.router.navigate([this.isAuthorized() ? '/panel' : '/']);
     }
 
     /**
@@ -212,6 +255,18 @@ export class AppComponent implements OnInit {
             return;
         }
         this.router.navigate(['/admin/rating-columns']);
+    }
+
+    goToProfileChanges(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        if (!this.permissions.canAccessRoute('canAccessProfileChanges')) {
+            this.router.navigate(['/panel']);
+            return;
+        }
+        this.router.navigate(['/admin/profile-changes']);
     }
 
     goToStats(): void {

@@ -21,6 +21,7 @@ export interface RolePermissions {
         canAccessAdminPanel: boolean;          // /admin/*
         canAccessUserManagement: boolean;      // /admin/users
         canAccessRatingColumns: boolean;       // /admin/rating-columns
+        canAccessProfileChanges: boolean;      // /admin/profile-changes (BASE_FIXES_TASK.md §2.7)
         canAccessProfile: boolean;             // /profile
         canAccessStats: boolean;               // /stats
         canAccessStatistics: boolean;          // /statistics
@@ -102,6 +103,9 @@ export interface RolePermissions {
         showSchoolsTab: boolean;
         showTeachersTab: boolean;
         showStudentsTab: boolean;
+        // Фото прямо с карточки (BASE_FIXES_TASK.md §3.1/§3.3)
+        canManageTeacherPhotos: boolean; // schoolDirector — учителям своей школы
+        canManageStudentPhotos: boolean; // schoolDirector/teacher — ученикам своей школы/своим
     };
 }
 
@@ -118,6 +122,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: true,
             canAccessUserManagement: true,
             canAccessRatingColumns: true,
+            canAccessProfileChanges: true,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
@@ -189,6 +194,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: true,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: true,
+            canManageStudentPhotos: true,
         },
     },
 
@@ -201,6 +208,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: true,
             canAccessUserManagement: true,
             canAccessRatingColumns: true,
+            canAccessProfileChanges: true,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
@@ -272,6 +280,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: true,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: true,
+            canManageStudentPhotos: true,
         },
     },
 
@@ -284,6 +294,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
+            canAccessProfileChanges: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
@@ -355,6 +366,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: true,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: true,
+            canManageStudentPhotos: true,
         },
     },
 
@@ -367,9 +380,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
+            canAccessProfileChanges: false,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessStatistics: false,
+            canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): rayon dashboard-una öz statistikası
             canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: true,
@@ -439,6 +453,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: true,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: false,
+            canManageStudentPhotos: false,
         },
     },
 
@@ -451,9 +467,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
+            canAccessProfileChanges: false,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessStatistics: false,
+            canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): məktəb dashboard-una öz statistikası
             canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: false,
@@ -523,6 +540,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: true,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: true,
+            canManageStudentPhotos: true,
         },
     },
 
@@ -535,9 +554,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
+            canAccessProfileChanges: false,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessStatistics: false,
+            canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): müəllim dashboard-una öz statistikası
             canAccessRegions: false,
             canAccessDistricts: false,
             canAccessSchools: false,
@@ -607,6 +627,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: false,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: false,
+            canManageStudentPhotos: true,
         },
     },
 
@@ -619,6 +641,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
+            canAccessProfileChanges: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,
@@ -691,6 +714,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: false,
             showTeachersTab: false,
             showStudentsTab: true,
+            canManageTeacherPhotos: false,
+            canManageStudentPhotos: false,
         },
     },
 
@@ -704,9 +729,10 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessCertificates: false,
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
+            canAccessProfileChanges: false,
             canAccessProfile: true,
             canAccessStats: true,
-            canAccessStatistics: false,
+            canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): region dashboard-una öz statistikası
             canAccessRegions: false, // свой регион видит в кабинете, не в CRUD-разделе
             canAccessDistricts: true, // районы своего региона — просмотр, без CRUD (см. crud ниже)
             canAccessSchools: true,
@@ -777,6 +803,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             showSchoolsTab: true,
             showTeachersTab: true,
             showStudentsTab: true,
+            canManageTeacherPhotos: false,
+            canManageStudentPhotos: false,
         },
     },
 };
@@ -855,6 +883,7 @@ export class RbacService {
         if (permissions.routes.canAccessAdminPanel) routes.push('/admin');
         if (permissions.routes.canAccessUserManagement) routes.push('/admin/users');
         if (permissions.routes.canAccessRatingColumns) routes.push('/admin/rating-columns');
+        if (permissions.routes.canAccessProfileChanges) routes.push('/admin/profile-changes');
         if (permissions.routes.canAccessCertificates) routes.push('/admin/certificates');
 
         return routes;

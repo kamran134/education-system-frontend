@@ -1,7 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 import { Observable } from 'rxjs';
-import { LucideAngularModule, Camera } from 'lucide-angular';
+import { LucideAngularModule, Camera, KeyRound } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { ProfileSummary } from '../../../../core/models/auth.models';
@@ -19,7 +20,7 @@ const UPLOADABLE_ROLES = ['teacher', 'schoolDirector', 'districtRepresenter', 'r
 
 @Component({
     selector: 'app-profile-header',
-    imports: [LucideAngularModule, ImageCropModalComponent],
+    imports: [LucideAngularModule, RouterModule, ImageCropModalComponent],
     templateUrl: './profile-header.component.html',
     styleUrl: './profile-header.component.scss'
 })
@@ -27,6 +28,7 @@ export class ProfileHeaderComponent implements OnInit {
     @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
     readonly Camera = Camera;
+    readonly KeyRound = KeyRound;
 
     role: string | null = null;
     profile: ProfileSummary | null = null;

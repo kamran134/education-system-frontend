@@ -4,7 +4,7 @@
     <div class="p-5 sm:p-6 flex flex-col sm:flex-row gap-6 sm:gap-7 items-center sm:items-start">
 
       <!-- Фото-круг -->
-      <div class="relative w-[116px] h-[116px] sm:w-[168px] sm:h-[168px] shrink-0 rounded-full overflow-hidden group avatar-ring"
+      <div class="relative w-[144px] h-[144px] sm:w-[224px] sm:h-[224px] shrink-0 rounded-full overflow-hidden group avatar-ring"
            [class.cursor-pointer]="canUploadPhoto"
            (click)="openFilePicker()">
         @if (avatarUrl) {
@@ -43,26 +43,6 @@
           </p>
         }
 
-        <!-- Метрика + места: только на мобильном, между подзаголовком и фактами -->
-        @if (metric) {
-          <div class="w-full sm:hidden rounded-xl px-4 py-3 text-center mt-1" style="background: var(--ui-gold-soft); border: 1px solid var(--ui-gold-line)">
-            <div class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ metric.label }}</div>
-            <div class="text-[28px] font-extrabold leading-tight tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ metric.value }}</div>
-            @if (metric.caption) {
-              <div class="text-xs text-[var(--ui-muted)]">{{ metric.caption }}</div>
-            }
-          </div>
-        }
-        @if (places.length > 0) {
-          <div class="flex sm:hidden flex-wrap justify-center gap-2">
-            @for (place of places; track place.label) {
-              <span class="text-[11.5px] text-[var(--ui-muted)] bg-[var(--ui-surface-3)] border border-[var(--ui-line)] rounded-full px-2.5 py-1 tabular-nums">
-                {{ place.label }} <b class="text-[var(--ui-ink-2)] font-bold">{{ place.value }}</b>
-              </span>
-            }
-          </div>
-        }
-
         @if (visibleFacts.length > 0) {
           <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3.5 mt-2 sm:mt-1 pt-4 sm:pt-0 border-t sm:border-t-0 border-[var(--ui-line)] w-full text-left">
             @for (fact of visibleFacts; track fact.label) {
@@ -79,53 +59,39 @@
         }
       </div>
 
-      <!-- Метрика + места + редактирование: только на десктопе, отдельная колонка справа -->
-      <div class="hidden sm:flex flex-col items-stretch gap-2.5 shrink-0 w-[170px]">
-        @if (metric) {
-          <div class="rounded-xl px-4 py-3 text-center" style="background: var(--ui-gold-soft); border: 1px solid var(--ui-gold-line)">
-            <div class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ metric.label }}</div>
-            <div class="text-[30px] font-extrabold leading-tight tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ metric.value }}</div>
-            @if (metric.caption) {
-              <div class="text-xs text-[var(--ui-muted)]">{{ metric.caption }}</div>
-            }
-          </div>
-        }
-        @if (places.length > 0) {
-          <div class="flex flex-wrap justify-center gap-2">
-            @for (place of places; track place.label) {
-              <span class="text-[11.5px] text-[var(--ui-muted)] bg-[var(--ui-surface-3)] border border-[var(--ui-line)] rounded-full px-2.5 py-1 tabular-nums">
-                {{ place.label }} <b class="text-[var(--ui-ink-2)] font-bold">{{ place.value }}</b>
-              </span>
-            }
-          </div>
-        }
-        @if (canEdit) {
-          <button type="button" (click)="editClicked.emit()"
-            class="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors mt-1">
-            <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
-            Redaktə et
-          </button>
-          @if (facts.length > 0 && showEditFactsLink) {
-            <button type="button" (click)="editFactsClicked.emit()"
-              class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
-              Profil məlumatlarını redaktə et
+      <!-- Редактирование: только на десктопе, отдельная колонка справа -->
+      @if (canEdit || canEditFacts) {
+        <div class="hidden sm:flex flex-col items-stretch gap-2.5 shrink-0 w-[170px]">
+          @if (canEdit) {
+            <button type="button" (click)="editClicked.emit()"
+              class="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors mt-1">
+              <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+              Redaktə et
             </button>
           }
-        }
-      </div>
-
-      <!-- Кнопки редактирования на мобильном -->
-      @if (canEdit) {
-        <div class="flex sm:hidden flex-col items-center gap-1.5 w-full">
-          <button type="button" (click)="editClicked.emit()"
-            class="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors">
-            <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
-            Redaktə et
-          </button>
-          @if (facts.length > 0 && showEditFactsLink) {
+          @if (canEditFacts && facts.length > 0 && showEditFactsLink) {
             <button type="button" (click)="editFactsClicked.emit()"
               class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
-              Profil məlumatlarını redaktə et
+              {{ editFactsLabel }}
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Кнопки редактирования на мобильном -->
+      @if (canEdit || canEditFacts) {
+        <div class="flex sm:hidden flex-col items-center gap-1.5 w-full">
+          @if (canEdit) {
+            <button type="button" (click)="editClicked.emit()"
+              class="inline-flex items-center justify-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors">
+              <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+              Redaktə et
+            </button>
+          }
+          @if (canEditFacts && facts.length > 0 && showEditFactsLink) {
+            <button type="button" (click)="editFactsClicked.emit()"
+              class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+              {{ editFactsLabel }}
             </button>
           }
         </div>
@@ -189,34 +155,23 @@
           </dl>
         }
 
-        <div class="flex items-center gap-3 flex-wrap mt-1">
-          @if (metric) {
-            <div class="flex items-baseline gap-2 rounded-xl px-3.5 py-2" style="background: var(--ui-gold-soft); border: 1px solid var(--ui-gold-line)">
-              <span class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">{{ metric.label }}</span>
-              <span class="text-2xl font-extrabold tabular-nums tracking-tight" style="color: var(--ui-gold)">{{ metric.value }}</span>
-            </div>
-          }
-          @for (place of places; track place.label) {
-            <span class="text-[11.5px] text-[var(--ui-muted)] bg-[var(--ui-surface-3)] border border-[var(--ui-line)] rounded-full px-2.5 py-1 tabular-nums">
-              {{ place.label }} <b class="text-[var(--ui-ink-2)] font-bold">{{ place.value }}</b>
-            </span>
-          }
-          @if (canEdit) {
-            <div class="flex items-center gap-3 sm:ml-auto">
-              @if (facts.length > 0 && showEditFactsLink) {
-                <button type="button" (click)="editFactsClicked.emit()"
-                  class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
-                  Profil məlumatlarını redaktə et
-                </button>
-              }
+        @if (canEdit || canEditFacts) {
+          <div class="flex items-center gap-3 flex-wrap mt-1 sm:justify-end">
+            @if (canEditFacts && facts.length > 0 && showEditFactsLink) {
+              <button type="button" (click)="editFactsClicked.emit()"
+                class="text-xs text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
+                {{ editFactsLabel }}
+              </button>
+            }
+            @if (canEdit) {
               <button type="button" (click)="editClicked.emit()"
                 class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border border-[var(--ui-line)] text-[var(--ui-ink-2)] hover:bg-[var(--ui-surface-3)] transition-colors">
                 <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
                 Redaktə et
               </button>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        }
       </div>
     </div>
   }
