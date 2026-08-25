@@ -47,7 +47,6 @@ import { PermissionsService } from '../../../../core/services/permissions.servic
 // UI Components
 import { LucideAngularModule, RefreshCw, Loader, AlertCircle } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { HomeButtonComponent } from '../../../../shared/components/ui/home-button/home-button.component';
 
 @Component({
     selector: 'app-stats',
@@ -57,7 +56,6 @@ import { HomeButtonComponent } from '../../../../shared/components/ui/home-butto
         RouterModule,
         LucideAngularModule,
         ButtonComponent,
-        HomeButtonComponent,
         StatsFiltersComponent,
         DevelopingStudentsTabComponent,
         MonthStudentsTabComponent,

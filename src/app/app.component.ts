@@ -9,7 +9,7 @@ import { NavigationHistoryService } from './core/services/navigation-history.ser
 import { ProfileChangeService } from './core/services/profile-change.service';
 import { isOwnerRole } from './core/config/owner-roles.config';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList, ClipboardCheck, LayoutGrid, UserCog, UserCheck, Landmark } from 'lucide-angular';
+import { LucideAngularModule, User, Settings, BarChart3, Building2, GraduationCap, Users, LogOut, LogIn, Sun, Moon, ChevronDown, Shield, TrendingUp, ClipboardList, ClipboardCheck, LayoutGrid, UserCog, UserCheck, Landmark, Home } from 'lucide-angular';
 import { DropdownComponent, DropdownItemComponent, DropdownDividerComponent } from './shared/components/ui/dropdown/dropdown.component';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 import { ConfirmDialogComponent } from './shared/components/ui/confirm-dialog/confirm-dialog.component';
@@ -73,6 +73,7 @@ export class AppComponent implements OnInit {
     readonly UserCog = UserCog;
     readonly UserCheck = UserCheck;
     readonly Landmark = Landmark;
+    readonly Home = Home;
 
     constructor(
         private authService: AuthService,

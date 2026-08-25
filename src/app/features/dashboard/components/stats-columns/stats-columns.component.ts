@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LucideAngularModule, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
-import { HomeButtonComponent } from '../../../../shared/components/ui/home-button/home-button.component';
 import { Router } from '@angular/router';
 import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TabsComponent, TabItem } from '../../../../shared/components/ui/tabs/tabs.component';
@@ -23,7 +22,6 @@ interface Column {
     imports: [
     FormsModule,
     LucideAngularModule,
-    HomeButtonComponent,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,

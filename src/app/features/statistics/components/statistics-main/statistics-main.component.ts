@@ -17,11 +17,10 @@ import { SelectComponent } from '../../../../shared/components/ui/form-controls/
 import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
-import { HomeButtonComponent } from '../../../../shared/components/ui/home-button/home-button.component';
 
 @Component({
     selector: 'app-statistics-main',
-    imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule, FullscreenPanelComponent, HomeButtonComponent],
+    imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule, FullscreenPanelComponent],
     templateUrl: './statistics-main.component.html',
     styleUrl: './statistics-main.component.scss'
 })

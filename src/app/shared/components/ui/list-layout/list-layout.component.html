@@ -1,11 +1,8 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-6">
   <div class="mx-auto w-full px-4 sm:px-6 lg:px-8">
-    <!-- Breadcrumbs -->
-    <nav class="mb-6 flex items-center gap-3">
-      <app-home-button></app-home-button>
-
-      <!-- Back Button -->
-      @if (backButton && backButton.show) {
+    <!-- Back Button -->
+    @if (backButton && backButton.show) {
+      <nav class="mb-6 flex items-center gap-3">
         <button
           type="button"
           class="inline-flex items-center space-x-2 rounded-lg bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
@@ -14,8 +11,8 @@
           <lucide-icon [img]="ArrowLeft" class="h-4 w-4"></lucide-icon>
           <span>Geri</span>
         </button>
-      }
-    </nav>
+      </nav>
+    }
 
     <!-- Page Header -->
     <div class="mb-8">

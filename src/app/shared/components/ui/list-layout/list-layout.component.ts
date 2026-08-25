@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Plus, RefreshCw, ArrowLeft } from 'lucide-angular';
 import { ButtonComponent } from '../button/button.component';
 import { CardComponent } from '../card/card.component';
-import { HomeButtonComponent } from '../home-button/home-button.component';
 
 export interface ActionButton {
   label: string;
@@ -23,7 +22,7 @@ export interface BackButton {
 
 @Component({
     selector: 'app-list-layout',
-    imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent, CardComponent, HomeButtonComponent],
+    imports: [CommonModule, RouterModule, LucideAngularModule, ButtonComponent, CardComponent],
     templateUrl: './list-layout.component.html',
     styleUrls: ['./list-layout.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush

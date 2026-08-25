@@ -2,9 +2,22 @@
 <header class="bg-white border-b border-gray-200 shadow-sm">
   <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center cursor-pointer" (click)="goHome()">
-        <img src="assets/isim-tiles.png" alt="İSİM" class="h-8 sm:h-10 w-auto" />
+      <!-- Logo + "ev" ikonu (BASE_FIXES_TASK.md, əlavə: 26.08.2026) — hər ikisi eyni yerə,
+           kabinetin ön səhifəsinə aparır. Ayrıca "Kabinetim" düyməsi hər səhifədə təkrarlanırdı,
+           bunun əvəzinə bura, loqonun yanına qoyulub. -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center cursor-pointer" (click)="goHome()">
+          <img src="assets/isim-tiles.png" alt="İSİM" class="h-8 sm:h-10 w-auto" />
+        </div>
+        @if (isAuthorized()) {
+          <button
+            type="button"
+            (click)="goHome()"
+            title="Kabinetim"
+            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors">
+            <lucide-icon [img]="Home" class="h-5 w-5"></lucide-icon>
+          </button>
+        }
       </div>
 
       <!-- Right side navigation -->

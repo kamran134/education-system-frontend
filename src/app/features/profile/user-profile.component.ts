@@ -10,7 +10,6 @@ import { UserSessionsComponent } from '../../shared/components/user-sessions.com
 import { CardComponent } from '../../shared/components/ui/card/card.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../shared/components/ui/form-controls/input/input.component';
-import { HomeButtonComponent } from '../../shared/components/ui/home-button/home-button.component';
 import { TabsComponent, TabItem } from '../../shared/components/ui/tabs/tabs.component';
 
 @Component({
@@ -22,7 +21,6 @@ import { TabsComponent, TabItem } from '../../shared/components/ui/tabs/tabs.com
         CardComponent,
         ButtonComponent,
         InputComponent,
-        HomeButtonComponent,
         TabsComponent
     ],
     templateUrl: './user-profile.component.html'
