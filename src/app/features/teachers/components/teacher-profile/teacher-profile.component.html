@@ -30,6 +30,9 @@
             </div>
           </app-button>
         }
+        <!-- Скрыто по требованию заказчика 26.08.2026 (п.6): «hələlik gizlədin, sonra
+             müzakirə edərik». Это единственный вход на /profile для ролей-владельцев —
+             вернуть, когда заказчик решит, как должна работать смена пароля.
         @if (isOwnHome) {
           <app-button variant="outline" size="sm" (clicked)="goToProfile()">
             <div class="flex items-center gap-2">
@@ -38,6 +41,7 @@
             </div>
           </app-button>
         }
+        -->
       </div>
 
       <app-profile-hero
@@ -55,6 +59,7 @@
         (editClicked)="openEditDialog()"
         (editFactsClicked)="startEditFacts()"
         (avatarSelected)="onAvatarSelected($event)"
+        (avatarDeleteConfirmed)="onAvatarDeleteConfirmed()"
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
 
@@ -92,6 +97,16 @@
               placeholder="məs. 15"
             ></app-input>
           </div>
+          <div class="mt-4">
+            <app-input
+              label="Uğurları"
+              [(ngModel)]="editedAchievements"
+              name="achievements"
+              [multiline]="true"
+              [rows]="5"
+              placeholder="Hər nailiyyəti yeni sətirdən yazın"
+            ></app-input>
+          </div>
           <div class="flex gap-2 mt-4">
             <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
               {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
@@ -104,10 +119,7 @@
       <app-profile-achievements
         title="Uğurları"
         [text]="teacher.achievements ?? null"
-        [canEdit]="canEditFacts"
-        [isSaving]="isSavingAchievements"
-        [saveFailed]="achievementsSaveFailed"
-        (save)="saveAchievements($event)">
+        [canEdit]="false">
       </app-profile-achievements>
 
       <app-profile-rating-section
@@ -146,11 +158,7 @@
             [isLoadingMore]="studentsLoadingMore"
             moreLabel="Daha çox göstər"
             emptyLabel="Hələ şagird yoxdur"
-            [canManagePhoto]="canManageStudentPhotos"
-            (loadMore)="onLoadMoreStudents()"
-            (avatarSelected)="onStudentAvatarSelected($event)"
-            (avatarDeleteConfirmed)="onStudentAvatarDeleteConfirmed($event)"
-            (uploadRejected)="onAvatarRejected($event)">
+            (loadMore)="onLoadMoreStudents()">
           </app-entity-card-grid>
         </div>
       </div>

@@ -58,11 +58,11 @@ export class SchoolProfileComponent implements OnInit {
     editingFacts = false;
     editedDirectorName: string | null = null;
     editedFoundedYear: number | null = null;
+    // Успехи редактируются в этой же форме, вместе с фактами (26.08.2026, п.4) — отдельной
+    // кнопки/формы у app-profile-achievements для этой сущности больше нет.
+    editedAchievements: string | null = null;
     isSavingFacts = false;
     factsSaveFailed = false;
-
-    isSavingAchievements = false;
-    achievementsSaveFailed = false;
 
     isUploadingAvatar = false;
 
@@ -194,44 +194,6 @@ export class SchoolProfileComponent implements OnInit {
         this.loadTeachers();
     }
 
-    /** Директор школы (на своей школе) или админ — ставят/убирают фото учителям прямо с
-     *  карточки, без модерации, публикуется сразу (BASE_FIXES_TASK.md §3.1/§3.3). Та же
-     *  логика canEdit||isOwnHome, что и у canUploadPhoto выше, плюс сама возможность вообще
-     *  видна только тем ролям, кому это разрешено (rbac ui-флаг). */
-    get canManageTeacherPhotos(): boolean {
-        return this.permissions.canShowUI('canManageTeacherPhotos') && (this.canEdit || this.isOwnHome);
-    }
-
-    onTeacherAvatarSelected(event: { id: number; blob: Blob }): void {
-        const formData = new FormData();
-        formData.append('avatar', event.blob, 'avatar.jpg');
-        this.teacherService.uploadAvatar(event.id, formData)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (response) => {
-                    const teacher = this.teachers.find((t) => t.id === event.id);
-                    if (teacher) teacher.avatarUrl = response.avatarUrl;
-                    this.recomputeTeacherCards();
-                    this.snackBarService.show('Şəkil uğurla yükləndi', 'success');
-                },
-                error: () => this.snackBarService.show('Şəkil yüklənərkən xəta baş verdi', 'error')
-            });
-    }
-
-    onTeacherAvatarDeleteConfirmed(teacherId: number): void {
-        this.teacherService.deleteAvatar(teacherId)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: () => {
-                    const teacher = this.teachers.find((t) => t.id === teacherId);
-                    if (teacher) teacher.avatarUrl = undefined;
-                    this.recomputeTeacherCards();
-                    this.snackBarService.show('Şəkil silindi', 'success');
-                },
-                error: () => this.snackBarService.show('Şəkil silinərkən xəta baş verdi', 'error')
-            });
-    }
-
     /** Правку данных сущности отдали только админ-ролям (PROFILES_V2_TASK.md §1): владелец
      *  больше не редактирует себя, ему остаётся только фото. Идём через RBAC-хелпер, а не через
      *  список ролей руками — moderator тоже должен попадать сюда, и матрица прав одна на всё
@@ -309,12 +271,13 @@ export class SchoolProfileComponent implements OnInit {
 
         this.heroSubtitleParts = [{ text: 'Kod ' + school.code }];
 
+        // «Ünvan» убран по требованию заказчика (26.08.2026, п.3) — поле address в модели/БД
+        // осталось нетронутым, просто больше не выводится в профиле.
         this.heroFacts = [
             { label: 'Direktor', value: school.directorName ?? null },
             { label: 'Yaranma tarixi', value: school.foundedYear ? String(school.foundedYear) : null },
             { label: 'Layihə şagirdlərinin sayı', value: String(school.actualStudentCount ?? 0) },
             { label: 'Layihə müəllimlərinin sayı', value: String(school.teacherCount ?? 0) },
-            { label: 'Ünvan', value: school.address || null, wide: true },
         ];
 
         // Заказчик (24.08.2026): в таблице «Reytinqlər» колонка "Yer" должна показывать место
@@ -405,6 +368,7 @@ export class SchoolProfileComponent implements OnInit {
         this.correctingPendingId = null;
         this.editedDirectorName = this.school?.directorName ?? null;
         this.editedFoundedYear = this.school?.foundedYear ?? null;
+        this.editedAchievements = this.school?.achievements ?? null;
         this.factsSaveFailed = false;
         this.editingFacts = true;
     }
@@ -416,6 +380,7 @@ export class SchoolProfileComponent implements OnInit {
         this.correctingPendingId = this.pendingChange.id;
         this.editedDirectorName = this.pendingChange.payload['directorName'] ?? this.school?.directorName ?? null;
         this.editedFoundedYear = this.pendingChange.payload['foundedYear'] ?? this.school?.foundedYear ?? null;
+        this.editedAchievements = this.pendingChange.payload['achievements'] ?? this.school?.achievements ?? null;
         this.factsSaveFailed = false;
         this.editingFacts = true;
     }
@@ -425,6 +390,9 @@ export class SchoolProfileComponent implements OnInit {
         this.correctingPendingId = null;
     }
 
+    /** Данные и успехи сохраняются одной заявкой/запросом (26.08.2026, п.4) — раньше успехи
+     *  редактировались отдельно через app-profile-achievements, что для владельца означало
+     *  две заявки на модерацию вместо одной. */
     saveFacts(): void {
         if (!this.school) return;
         this.isSavingFacts = true;
@@ -434,6 +402,7 @@ export class SchoolProfileComponent implements OnInit {
             this.profileChangeService.approve(this.correctingPendingId, {
                 directorName: this.editedDirectorName,
                 foundedYear: this.editedFoundedYear,
+                achievements: this.editedAchievements,
             })
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
@@ -457,6 +426,7 @@ export class SchoolProfileComponent implements OnInit {
         this.schoolService.updateSchoolProfile(this.schoolId, {
             directorName: this.editedDirectorName,
             foundedYear: this.editedFoundedYear,
+            achievements: this.editedAchievements,
         })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
@@ -476,32 +446,6 @@ export class SchoolProfileComponent implements OnInit {
                 error: () => {
                     this.isSavingFacts = false;
                     this.factsSaveFailed = true;
-                    this.snackBarService.show('Profil yenilənərkən xəta baş verdi', 'error');
-                }
-            });
-    }
-
-    saveAchievements(text: string | null): void {
-        if (!this.school) return;
-        this.isSavingAchievements = true;
-        this.achievementsSaveFailed = false;
-        this.schoolService.updateSchoolProfile(this.schoolId, { achievements: text })
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (result) => {
-                    this.isSavingAchievements = false;
-                    if (result.applied) {
-                        this.school = { ...this.school, ...result.entity };
-                        this.snackBarService.show('Profil uğurla yeniləndi', 'success');
-                    } else {
-                        this.pendingChange = result.pendingRequest;
-                        this.profileChangeService.refreshPendingCount();
-                        this.snackBarService.show('Məlumatlar admin təsdiqinə göndərildi', 'success');
-                    }
-                },
-                error: () => {
-                    this.isSavingAchievements = false;
-                    this.achievementsSaveFailed = true;
                     this.snackBarService.show('Profil yenilənərkən xəta baş verdi', 'error');
                 }
             });

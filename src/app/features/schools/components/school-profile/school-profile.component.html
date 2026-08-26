@@ -30,6 +30,9 @@
             </div>
           </app-button>
         }
+        <!-- Скрыто по требованию заказчика 26.08.2026 (п.6): «hələlik gizlədin, sonra
+             müzakirə edərik». Это единственный вход на /profile для ролей-владельцев —
+             вернуть, когда заказчик решит, как должна работать смена пароля.
         @if (isOwnHome) {
           <app-button variant="outline" size="sm" (clicked)="goToProfile()">
             <div class="flex items-center gap-2">
@@ -38,6 +41,7 @@
             </div>
           </app-button>
         }
+        -->
       </div>
 
       <app-profile-hero
@@ -87,6 +91,16 @@
               placeholder="məs. 1967"
             ></app-input>
           </div>
+          <div class="mt-4">
+            <app-input
+              label="Məktəbin uğurları"
+              [(ngModel)]="editedAchievements"
+              name="achievements"
+              [multiline]="true"
+              [rows]="5"
+              placeholder="Hər nailiyyəti yeni sətirdən yazın"
+            ></app-input>
+          </div>
           <div class="flex gap-2 mt-4">
             <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
               {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
@@ -99,10 +113,7 @@
       <app-profile-achievements
         title="Məktəbin uğurları"
         [text]="school.achievements ?? null"
-        [canEdit]="canEditFacts"
-        [isSaving]="isSavingAchievements"
-        [saveFailed]="achievementsSaveFailed"
-        (save)="saveAchievements($event)">
+        [canEdit]="false">
       </app-profile-achievements>
 
       <app-profile-rating-section
@@ -141,11 +152,7 @@
             [isLoadingMore]="teachersLoadingMore"
             moreLabel="Daha çox göstər"
             emptyLabel="Hələ müəllim yoxdur"
-            [canManagePhoto]="canManageTeacherPhotos"
-            (loadMore)="onLoadMoreTeachers()"
-            (avatarSelected)="onTeacherAvatarSelected($event)"
-            (avatarDeleteConfirmed)="onTeacherAvatarDeleteConfirmed($event)"
-            (uploadRejected)="onAvatarRejected($event)">
+            (loadMore)="onLoadMoreTeachers()">
           </app-entity-card-grid>
         </div>
       </div>
