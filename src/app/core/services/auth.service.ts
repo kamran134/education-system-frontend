@@ -193,6 +193,17 @@ export class AuthService {
         return this.http.post(`${this.configService.getAuthUrl()}/register`, credentials, { withCredentials: true });
     }
 
+    /** Самостоятельная смена пароля (/profile) — раньше user-profile.component.ts вообще не
+     *  дёргал сеть здесь, просто ждал 1.5с и показывал успех (никакой запрос не уходил,
+     *  пароль не менялся). Бэкенд сам сверяет currentPassword, здесь только транспорт. */
+    changePassword(currentPassword: string, newPassword: string): Observable<AuthResponse> {
+        return this.http.put<AuthResponse>(
+            `${this.configService.getAuthUrl()}/change-password`,
+            { currentPassword, newPassword },
+            { withCredentials: true }
+        );
+    }
+
     refreshToken(): Observable<AuthResponse<RefreshResponse>> {
         // Кука refreshToken общая для всех вкладок одного браузера, а бэкенд ротирует её
         // при каждом /refresh (старая запись в user_refresh_tokens заменяется новой). Если

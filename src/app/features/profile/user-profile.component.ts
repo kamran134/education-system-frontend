@@ -31,6 +31,9 @@ export class UserProfileComponent implements OnInit {
     editMode = false;
     activeTab: number = 0;
     passwordForm: FormGroup;
+    /** Ошибка от сервера (напр. неверный текущий пароль) — отдельно от валидаторов формы,
+     *  которые проверяют только заполненность/длину/совпадение полей. */
+    passwordChangeError: string | null = null;
 
     readonly tabs: TabItem[] = [
         { label: 'Şəxsi məlumatlar', icon: User },
@@ -90,6 +93,7 @@ export class UserProfileComponent implements OnInit {
 
     toggleEditMode(): void {
         this.editMode = !this.editMode;
+        this.passwordChangeError = null;
         if (!this.editMode) {
             this.passwordForm.reset();
         }
@@ -99,19 +103,29 @@ export class UserProfileComponent implements OnInit {
         if (!this.passwordForm.valid) return;
 
         this.loading = true;
-        const formData = this.passwordForm.value;
+        this.passwordChangeError = null;
+        const { currentPassword, newPassword } = this.passwordForm.value;
 
-        // Здесь будет вызов API для смены пароля
-        // Пока что просто имитируем успешную смену
-        setTimeout(() => {
-            this.loading = false;
-            this.editMode = false;
-            this.passwordForm.reset();
-            this.toastService.show('Şifrə uğurla dəyişdirildi', 'success', 3000);
-        }, 1500);
+        this.authService.changePassword(currentPassword, newPassword).subscribe({
+            next: (response) => {
+                this.loading = false;
+                if (response.success) {
+                    this.editMode = false;
+                    this.passwordForm.reset();
+                    this.toastService.show(response.message || 'Şifrə uğurla dəyişdirildi', 'success', 3000);
+                } else {
+                    this.passwordChangeError = response.message || 'Şifrə dəyişdirilə bilmədi';
+                }
+            },
+            error: (error) => {
+                this.loading = false;
+                this.passwordChangeError = error?.error?.message || 'Şifrə dəyişdirilə bilmədi';
+            }
+        });
     }
 
     get currentPasswordError(): string {
+        if (this.passwordChangeError) return this.passwordChangeError;
         return this.passwordForm.get('currentPassword')?.hasError('required') ? 'Cari şifrə tələb olunur' : '';
     }
 
