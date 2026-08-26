@@ -24,6 +24,9 @@
           </app-button>
         </div>
       }
+      <!-- Скрыто по требованию заказчика 26.08.2026 (п.6): «hələlik gizlədin, sonra
+           müzakirə edərik». Это единственный вход на /profile для ролей-владельцев —
+           вернуть, когда заказчик решит, как должна работать смена пароля.
       @if (isOwnHome) {
         <div class="flex items-center justify-end gap-3 flex-wrap">
           <app-button variant="outline" size="sm" (clicked)="goToProfile()">
@@ -34,6 +37,7 @@
           </app-button>
         </div>
       }
+      -->
 
       <app-profile-hero
         variant="entity"
