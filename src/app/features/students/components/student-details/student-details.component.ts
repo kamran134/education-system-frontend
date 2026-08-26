@@ -15,6 +15,8 @@ import { ResultEditingDialogComponent } from '../result-editing/result-editing-d
 import { ExamResult } from '../../../../core/models/examResult.model';
 import { ImageCropModalComponent } from '../../../../shared/components/modals/image-crop-modal/image-crop-modal.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { PermissionsService } from '../../../../core/services/permissions.service';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
 import { ConfigService } from '../../../../core/services/config.service';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -109,6 +111,8 @@ export class StudentDetailsComponent implements OnInit {
         private excelService: ExcelService,
         private dialog: Dialog,
         private authService: AuthService,
+        public permissions: PermissionsService,
+        private navigationHistory: NavigationHistoryService,
         private snackBarService: SnackBarService,
         private configService: ConfigService,
         private certificateService: CertificateService
@@ -195,7 +199,14 @@ export class StudentDetailsComponent implements OnInit {
         });
     }
 
+    /** Возврат туда, откуда пришли (26.08.2026, п.2) — раньше всегда падал на общий список
+     *  учеников/статистики, даже если пришли с главной учителя/директора. filterParams/source
+     *  остаются фолбэком на случай прямого захода по ссылке или F5, когда истории SPA нет. */
     goBack(): void {
+        if (this.navigationHistory.canGoBack()) {
+            this.navigationHistory.back();
+            return;
+        }
         const backUrl = this.source === 'stats' ? '/stats' : '/students';
         this.router.navigate([backUrl], { queryParams: this.filterParams });
     }
@@ -302,9 +313,22 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     // Avatar methods
+    /** Ставить/убирать фото ученику: админ-роли, его учитель, директор его школы. Раньше это
+     *  делалось с карточки в сетке на главной учителя/директора — переехало сюда
+     *  (26.08.2026, п.1). Права проверяются через RBAC-хелпер, а не списком ролей руками —
+     *  матрица прав одна на всё приложение (core/config/rbac.config.ts). */
     get canEditAvatar(): boolean {
-        const currentUser = this.authService.getCurrentUserValue();
-        return currentUser?.role === 'admin' || currentUser?.role === 'superadmin';
+        if (this.permissions.isAdmin()) return true;
+        if (!this.permissions.canShowUI('canManageStudentPhotos')) return false;
+
+        const user = this.authService.getCurrentUserValue();
+        if (user?.role === 'teacher') {
+            return String(user.profile?.entityId) === String(this.student?.teacher?.id ?? '');
+        }
+        if (user?.role === 'schoolDirector') {
+            return String(user.profile?.entityId) === String(this.student?.school?.id ?? '');
+        }
+        return false;
     }
 
     get avatarUrl(): string | null {
