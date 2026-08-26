@@ -206,7 +206,9 @@ export class StudentDetailsComponent implements OnInit {
         let result: XLSX.WorkSheet = {};
 
         result = XLSX.utils.json_to_sheet(this.excelService.formatStudentDetailsData(this.student!));
-        sheetName = `${this.student?.lastName} ${this.student?.firstName}`;
+        // OOXML запрещает : \ / ? * [ ] в имени листа и ограничивает его 31 символом —
+        // без этого длинная фамилия+имя валит book_append_sheet исключением (26.08.2026, п.5).
+        sheetName = `${this.student?.lastName} ${this.student?.firstName}`.replace(/[:\\/?*[\]]/g, '-').slice(0, 31);
 
         if (!result) {
             console.error('Xəta: Excel cədvəli yaradılmadı!');

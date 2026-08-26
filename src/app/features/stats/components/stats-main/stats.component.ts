@@ -1232,14 +1232,23 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
     }
 
+    /** OOXML запрещает : \ / ? * [ ] в имени листа — учебный год приходит как «2025/2026», а
+     *  у таба районов слэш есть и в самом названии («İlin rayonları / şəhərləri»). Без этого
+     *  book_append_sheet кидает исключение прямо внутри subscribe(next), и экспорт молча
+     *  ничего не скачивает (док. 26.08.2026, п.5). */
+    private sanitizeSheetName(name: string): string {
+        return name.replace(/[:\\/?*[\]]/g, '-');
+    }
+
     private downloadExcelSheet(rows: any[], sheetName: string): void {
+        const safeName = this.sanitizeSheetName(sheetName);
         const workbook = XLSX.utils.book_new();
         const sheet = XLSX.utils.json_to_sheet(rows);
         this.excelService.formatHeaders(sheet);
         // XLSX внутренние имена листов ограничены 31 символом (спецификация OOXML) — полное
         // имя всё равно становится именем файла ниже, обрезаем только вкладку.
-        XLSX.utils.book_append_sheet(workbook, sheet, sheetName.slice(0, 31));
-        XLSX.writeFile(workbook, `${sheetName}.xlsx`);
+        XLSX.utils.book_append_sheet(workbook, sheet, safeName.slice(0, 31));
+        XLSX.writeFile(workbook, `${safeName}.xlsx`);
     }
 
     /** Same filters/sort as the on-screen page, but page 1 at export size — see TABLE_EXPORT_PAGE_SIZE. */
@@ -1270,9 +1279,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const data = ResponseHandlerUtil.extractPaginatedData<Student>(response).data || [];
                 this.downloadExcelSheet(this.excelService.formatAllStudentData(data, this.studentColumns), `İlin şagirdləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
-            error: (error: Error) => {
+            error: (error: any) => {
                 this.isExportingExcel = false;
-                this.toastService.show(error.error.message, 'error');
+                this.toastService.show(error?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
             }
         });
     }
@@ -1293,9 +1302,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
                 this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.teacherColumns), `İlin müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
-            error: (error: Error) => {
+            error: (error: any) => {
                 this.isExportingExcel = false;
-                this.toastService.show(error.error.message, 'error');
+                this.toastService.show(error?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
             }
         });
     }
@@ -1316,9 +1325,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const data = ResponseHandlerUtil.extractPaginatedData<School>(response).data || [];
                 this.downloadExcelSheet(this.excelService.formatSchoolData(data, this.schoolColumns), `İlin məktəbləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
-            error: (error: Error) => {
+            error: (error: any) => {
                 this.isExportingExcel = false;
-                this.toastService.show(error.error.message, 'error');
+                this.toastService.show(error?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
             }
         });
     }
@@ -1335,9 +1344,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const data = ResponseHandlerUtil.extractPaginatedData<District>(response).data || [];
                 this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), `İlin rayonları / şəhərləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
-            error: (error: Error) => {
+            error: (error: any) => {
                 this.isExportingExcel = false;
-                this.toastService.show(error.error.message, 'error');
+                this.toastService.show(error?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
             }
         });
     }
@@ -1351,9 +1360,9 @@ export class StatsComponent implements OnInit, OnDestroy {
                 const data = ResponseHandlerUtil.extractPaginatedData<Region>(response).data || [];
                 this.downloadExcelSheet(this.excelService.formatRegionData(data, this.regionColumns), `İlin regional idarələri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
-            error: (error: Error) => {
+            error: (error: any) => {
                 this.isExportingExcel = false;
-                this.toastService.show(error.error.message, 'error');
+                this.toastService.show(error?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
             }
         });
     }
