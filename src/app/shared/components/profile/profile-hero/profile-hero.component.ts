@@ -1,8 +1,10 @@
 import { Component, ChangeDetectionStrategy, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule, Camera, Edit2 } from 'lucide-angular';
+import { Dialog } from '@angular/cdk/dialog';
+import { LucideAngularModule, Camera, Edit2, Trash2 } from 'lucide-angular';
 import { ImageCropModalComponent } from '../../modals/image-crop-modal/image-crop-modal.component';
+import { ConfirmDialogComponent } from '../../dialogs/confirm-dialog/confirm-dialog.component';
 
 export interface ProfileHeroSubtitlePart {
     text: string;
@@ -61,14 +63,20 @@ export class ProfileHeroComponent {
     @Output() editFactsClicked = new EventEmitter<void>();
     @Output() avatarSelected = new EventEmitter<Blob>();
     @Output() uploadRejected = new EventEmitter<string>();
+    /** Подтверждено пользователем в диалоге — страница делает сам HTTP-запрос на удаление
+     *  (та же схема делегирования, что и у avatarSelected). */
+    @Output() avatarDeleteConfirmed = new EventEmitter<void>();
 
     @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
     readonly Camera = Camera;
     readonly Edit2 = Edit2;
+    readonly Trash2 = Trash2;
 
     isCropModalOpen = false;
     imageChangedEvent: any = null;
+
+    constructor(private dialog: Dialog) {}
 
     get initials(): string {
         return this.title
@@ -142,5 +150,28 @@ export class ProfileHeroComponent {
     onAvatarSave(croppedImage: Blob): void {
         this.avatarSelected.emit(croppedImage);
         this.closeCropModal();
+    }
+
+    /** Раньше удаление фото жило только в сетке карточек нижнего уровня; после переноса
+     *  управления фото в сам профиль (26.08.2026, п.1) владельцу/директору нужен способ
+     *  снять уже поставленное фото и отсюда. */
+    requestDeleteAvatar(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.canUploadPhoto || !this.avatarUrl) return;
+
+        const confirmRef = this.dialog.open<boolean>(ConfirmDialogComponent, {
+            width: '350px',
+            data: {
+                title: 'Şəkli silmək',
+                text: `"${this.title}" üçün şəkli silmək istədiyinizdən əminsiniz?`,
+                confirmText: 'Sil',
+                cancelText: 'İmtina'
+            }
+        });
+
+        confirmRef.closed.subscribe((confirmed) => {
+            if (confirmed) this.avatarDeleteConfirmed.emit();
+        });
     }
 }

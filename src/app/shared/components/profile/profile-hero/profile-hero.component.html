@@ -19,6 +19,12 @@
             <lucide-icon [img]="Camera" class="w-3.5 h-3.5 text-[var(--ui-ink-2)]"></lucide-icon>
           </span>
         }
+        @if (canUploadPhoto && avatarUrl) {
+          <button type="button" (click)="requestDeleteAvatar($event)"
+            class="absolute right-0 top-0 w-8 h-8 rounded-full bg-black/60 hover:bg-red-600 flex items-center justify-center transition-colors">
+            <lucide-icon [img]="Trash2" class="w-3.5 h-3.5 text-white"></lucide-icon>
+          </button>
+        }
       </div>
 
       <!-- Заголовок + факты -->
@@ -115,6 +121,12 @@
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-colors">
             <lucide-icon [img]="Camera" class="w-7 h-7 text-white opacity-0 group-hover:opacity-100 transition-opacity"></lucide-icon>
           </div>
+        }
+        @if (canUploadPhoto && avatarUrl) {
+          <button type="button" (click)="requestDeleteAvatar($event)"
+            class="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-red-600 flex items-center justify-center transition-colors">
+            <lucide-icon [img]="Trash2" class="w-4 h-4 text-white"></lucide-icon>
+          </button>
         }
       </div>
 
