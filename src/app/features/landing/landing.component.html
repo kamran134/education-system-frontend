@@ -65,16 +65,13 @@
 
   <!-- ===== Полоса цифр (ТЗ, п. 1) ===== -->
   <section class="bg-brand-blue">
-    <div class="max-w-7xl mx-auto px-6 md:px-10 py-[34px]">
-      <p class="text-[12.5px] font-semibold text-[#B7BEE4] mb-6">Son 2 tədris ilində adı reytinqdə çıxanlar</p>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-        @for (stat of stats; track stat.label) {
-          <div>
-            <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(stat.value) }}</b>
-            <span class="text-[12.5px] text-[#B7BEE4]">{{ stat.label }}</span>
-          </div>
-        }
-      </div>
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-[34px] grid grid-cols-2 md:grid-cols-4 gap-8">
+      @for (stat of stats; track stat.label) {
+        <div>
+          <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(stat.value) }}</b>
+          <span class="text-[12.5px] text-[#B7BEE4]">{{ stat.label }}</span>
+        </div>
+      }
     </div>
   </section>
 
