@@ -11,84 +11,69 @@
 
   <!-- ===== Герой ===== -->
   <section class="notebook-grid">
-    <div class="max-w-7xl mx-auto px-6 md:px-10 py-16 grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-12 items-center">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-14 md:py-16 grid grid-cols-1 lg:grid-cols-[1fr_0.95fr] gap-10 lg:gap-12 items-center">
 
+      <!-- Передний план по ТЗ (п. 3): подпись центра → логотип → расшифровка → заголовок → кнопки -->
       <div>
-        <span class="inline-block rounded-full bg-[#FAE3F1] text-brand-magentaInk text-xs font-bold px-[14px] py-[6px] mb-5">
-          1–4-cü siniflər üçün
-        </span>
-
-        <h1 class="text-balance text-[42px] md:text-[50px] leading-[1.02] tracking-[-0.03em] font-bold mb-[18px] max-w-[13ch]">
-          Balaca addımlar. <span class="marker">Böyük nəticələr.</span>
-        </h1>
-
-        <p class="text-[16.5px] leading-[1.62] text-[#454C6B] max-w-[44ch] mb-7">
-          İSİM hər şagirdin biliyini aylıq imtahanlarla ölçür, müəllimə isə hansı mövzunun axsadığını dəqiq göstərir.
+        <p class="text-[13px] md:text-[13.5px] font-semibold text-[#454C6B] mb-[14px]">
+          Karyera və Psixologiya Mərkəzinin İSİM layihəsi
         </p>
 
+        <!-- Плитки собраны вёрсткой, а не взяты из assets/isim-tiles.png: заказчик просит
+             «hərfləri bitişdirmək», а в растре зазоры между буквами уже запечены. -->
+        <div class="isim-tiles flex mb-[9px]" aria-hidden="true">
+          <span class="bg-brand-red">İ</span>
+          <span class="bg-brand-blue">S</span>
+          <span class="bg-brand-green">İ</span>
+          <span class="bg-brand-magenta">M</span>
+        </div>
+        <p class="font-landing-serif text-[13px] md:text-[14px] text-[#454C6B] mb-7">
+          <span class="sr-only">İSİM — </span>İbtidai Siniflərin İnkişaf Metodikası
+        </p>
+
+        <h1 class="text-balance text-[30px] md:text-[40px] leading-[1.1] tracking-[-0.02em] font-bold mb-8 max-w-[17ch]">
+          İBTİDAİ TƏHSİL ÜZRƏ <span class="marker">İNKİŞAF VƏ REYTİNQ</span> PLATFORMASI
+        </h1>
+
         <div class="flex flex-wrap items-center gap-3">
-          <a [routerLink]="isAuthorized ? '/panel' : '/login'"
-             class="hero-cta inline-flex items-center rounded-full bg-brand-redInk px-[30px] py-[14px] text-[14.5px] font-bold text-brand-off hover:opacity-90 transition-opacity">
-            {{ isAuthorized ? 'Sistemə keç' : 'Sistemə giriş' }}
-          </a>
           <a href="#metodika"
              class="inline-flex items-center rounded-full border-2 border-brand-ink px-[26px] py-[12px] text-[14.5px] font-bold text-brand-ink hover:bg-brand-ink hover:text-brand-off transition-colors">
-            Metodika ilə tanış ol
+            İSİM Metodikası ilə tanış ol
+          </a>
+          <a [routerLink]="isAuthorized ? '/panel' : '/login'"
+             class="hero-cta inline-flex items-center rounded-full bg-brand-redInk px-[30px] py-[14px] text-[14.5px] font-bold text-brand-off hover:opacity-90 transition-opacity">
+            {{ isAuthorized ? 'Sistemə keç' : 'Platformaya daxil ol' }}
           </a>
         </div>
       </div>
 
-      <div>
-        <div class="hard-shadow bg-white border-2 border-brand-ink rounded-[18px] px-6 py-[22px]">
-          <h4 class="flex items-center justify-between text-[13.5px] font-bold text-[#4C525B] mb-4">
-            <span>3-cü sinif · Oktyabr imtahanı</span>
-            <span class="font-semibold text-[#8A90A8]">yoxlanıldı</span>
-          </h4>
-
-          <div class="flex items-center gap-3 py-[11px] border-b border-dashed border-[#D9DBE4] text-[14.5px] font-semibold">
-            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-red text-brand-off flex items-center justify-center text-[13px] font-extrabold">✓</span>
-            <span>Riyaziyyat</span>
-            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">24 / 25</span>
-          </div>
-          <div class="flex items-center gap-3 py-[11px] border-b border-dashed border-[#D9DBE4] text-[14.5px] font-semibold">
-            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-blue text-brand-off flex items-center justify-center text-[13px] font-extrabold">✓</span>
-            <span>Azərbaycan dili</span>
-            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">23 / 25</span>
-          </div>
-          <div class="flex items-center gap-3 py-[11px] border-b border-dashed border-[#D9DBE4] text-[14.5px] font-semibold">
-            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-green text-brand-off flex items-center justify-center text-[13px] font-extrabold">✓</span>
-            <span>Həyat bilgisi</span>
-            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">25 / 25</span>
-          </div>
-          <div class="flex items-center gap-3 py-[11px] text-[14.5px] font-semibold">
-            <span class="flex-none w-[25px] h-[25px] rounded-[8px] bg-brand-magenta text-brand-off flex items-center justify-center text-[13px] font-extrabold">!</span>
-            <span>İnformatika</span>
-            <span class="ml-auto font-mono tabular-nums text-[#4C525B]">18 / 25</span>
-          </div>
-        </div>
+      <!-- Правая колонка по ТЗ (п. 2): Hədəf kürsüsü с подписью над ним -->
+      <div class="text-center">
+        <p class="text-[15px] md:text-[17px] font-bold tracking-[-0.01em] mb-4">
+          Kiçik pillələr – Böyük addımlar!
+        </p>
+        <!-- width/height = viewBox: держат соотношение сторон до загрузки файла, иначе
+             при 48 КБ SVG страница дёргается на первом рендере. -->
+        <img src="assets/hedef-kursusu.svg"
+             alt="Hədəf kürsüsü: E, D, C, B, A və Lisey pillələri — 1 baldan 6 bala qədər"
+             width="2108" height="1639"
+             class="w-full h-auto max-w-[520px] mx-auto" />
       </div>
 
     </div>
   </section>
 
-  <!-- ===== Полоса цифр ===== -->
+  <!-- ===== Полоса цифр (ТЗ, п. 1) ===== -->
   <section class="bg-brand-blue">
-    <div class="max-w-7xl mx-auto px-6 md:px-10 py-[34px] grid grid-cols-2 md:grid-cols-4 gap-8">
-      <div>
-        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.regions) }}</b>
-        <span class="text-[12.5px] text-[#B7BEE4]">Regional Təhsil İdarəsi</span>
-      </div>
-      <div>
-        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.schools) }}</b>
-        <span class="text-[12.5px] text-[#B7BEE4]">Məktəb</span>
-      </div>
-      <div>
-        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.teachers) }}</b>
-        <span class="text-[12.5px] text-[#B7BEE4]">Müəllim</span>
-      </div>
-      <div>
-        <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(summary.students) }}</b>
-        <span class="text-[12.5px] text-[#B7BEE4]">Şagird</span>
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-[34px]">
+      <p class="text-[12.5px] font-semibold text-[#B7BEE4] mb-6">Son 2 tədris ilində adı reytinqdə çıxanlar</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        @for (stat of stats; track stat.label) {
+          <div>
+            <b class="block text-[32px] font-bold tracking-[-0.02em] tabular-nums text-white">{{ formatNumber(stat.value) }}</b>
+            <span class="text-[12.5px] text-[#B7BEE4]">{{ stat.label }}</span>
+          </div>
+        }
       </div>
     </div>
   </section>

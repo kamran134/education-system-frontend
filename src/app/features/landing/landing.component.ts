@@ -1,18 +1,37 @@
-import { Component, DestroyRef, OnInit, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { LandingService, PublicSummary } from './services/landing.service';
 
-/** Показывается сразу, пока не пришёл живой ответ /api/public/summary (см. landing.service.ts). */
-const SUMMARY_FALLBACK: PublicSummary = {
-    regions: 12,
-    districts: 78,
-    schools: 1240,
-    teachers: 8600,
-    students: 196000,
-};
+interface HeroStat {
+    value: number;
+    label: string;
+}
+
+/**
+ * Полоса цифр в герое (ТЗ «Baş səhifə məlumatları və dizaynı», п. 1).
+ *
+ * Константы, а не живой /api/public/summary — сознательное решение заказчика.
+ * Что говорят реальные данные на 27.08.2026 (проверено по проду и по mongodump'ам с сервера):
+ *
+ *   попали в рейтинг (есть хотя бы один результат экзамена)
+ *     2024/2025 — 243 школы, 405 учителей, 1 720 учеников
+ *     2025/2026 — 412 школ,  783 учителя,  5 476 учеников
+ *     уникальных за два года — 412 / 783 / 5 476 (состав только рос, никто не выбыл)
+ *   реестр сегодня — 720 школ, 927 учителей, 5 482 ученика
+ *   пик реестра (бэкап /root/isim/db_backup_new.gz, 26.02.2026) — 901 / 2 994 / 14 371,
+ *     из них 9 872 ученика без единого результата; позже вычищены
+ *
+ * Цифры ниже — округлённый пик реестра. Заказчику нужен масштаб охвата, а не число
+ * участников рейтинга. Вернуть живые данные — снова заинжектить LandingService
+ * (удалён вместе с этим коммитом, бэкендовый GET /api/public/summary на месте).
+ */
+const HERO_STATS: readonly HeroStat[] = [
+    { value: 12, label: 'Regional Təhsil İdarəsi' },
+    { value: 900, label: 'Məktəb' },
+    { value: 2900, label: 'Layihə müəllimi' },
+    { value: 14000, label: 'Layihə şagirdi' },
+];
 
 @Component({
     selector: 'app-landing',
@@ -22,19 +41,16 @@ const SUMMARY_FALLBACK: PublicSummary = {
     styleUrl: './landing.component.scss',
 })
 export class LandingComponent implements OnInit {
-    private landingService = inject(LandingService);
     private authService = inject(AuthService);
     private title = inject(Title);
     private meta = inject(Meta);
-    private destroyRef = inject(DestroyRef);
-    private platformId = inject(PLATFORM_ID);
 
-    summary: PublicSummary = SUMMARY_FALLBACK;
+    readonly stats = HERO_STATS;
 
-    // На сервере при пререндере всегда false (аноним) — три "Sistemə giriş" ведут на /login,
-    // тот же вид, что и раньше. В браузере, если пользователь уже авторизован (зашёл сюда по
-    // клику на лого, единственный путь для него — см. app.component.ts), кнопки переключаются
-    // на "Sistemə keç" → /panel: незачем гнать его обратно на форму входа, он уже внутри.
+    // На сервере при пререндере всегда false (аноним) — кнопки ведут на /login, тот же вид,
+    // что и раньше. В браузере, если пользователь уже авторизован (зашёл сюда по клику на лого,
+    // единственный путь для него — см. app.component.ts), они переключаются на /panel:
+    // незачем гнать его обратно на форму входа, он уже внутри.
     get isAuthorized(): boolean {
         return this.authService.isAuthorized;
     }
@@ -49,14 +65,6 @@ export class LandingComponent implements OnInit {
             name: 'description',
             content: 'İSİM 1–4-cü siniflərin biliyini aylıq imtahanlarla ölçür və şagird, müəllim, məktəb, rayon üzrə reytinq hesablayır.',
         });
-
-        // apiUrl относительный ('/api') в проде — во время SSR-пререндера запрос не резолвится,
-        // поэтому живые цифры подтягиваем только в браузере; на сервере остаются fallback-константы.
-        if (isPlatformBrowser(this.platformId)) {
-            this.landingService.getSummary(this.destroyRef).subscribe((summary) => {
-                this.summary = summary;
-            });
-        }
     }
 
     /**
@@ -66,6 +74,6 @@ export class LandingComponent implements OnInit {
      * неразрывным пробелом — детерминировано и совпадает с примерами из LANDING_TASK.md §4.3.
      */
     formatNumber(value: number): string {
-        return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     }
 }

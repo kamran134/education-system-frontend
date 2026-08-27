@@ -8,8 +8,29 @@
     background-size: 26px 26px;
 }
 
-.hard-shadow {
-    box-shadow: 9px 9px 0 rgba(28, 35, 64, .10);
+// Плитки İSİM в герое (ТЗ, п. 3: «hərfləri bitişdirmək və xeyli balacalaşdırmaq»).
+// Вёрсткой, а не assets/isim-tiles.png: в растре зазоры между буквами уже запечены,
+// сдвинуть их вплотную можно только пересобрав логотип.
+.isim-tiles {
+    span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        // Строчный бокс ровно в размер кегля — иначе точка над «İ» уводит букву вниз
+        // и четыре плитки перестают выглядеть одинаково.
+        line-height: 1;
+        font-size: 30px;
+        font-weight: 800;
+        color: #F1F1F2;
+
+        @media (min-width: 768px) {
+            width: 54px;
+            height: 54px;
+            font-size: 35px;
+        }
+    }
 }
 
 // «Маркерное» подчёркивание — градиент по фону текста, не text-decoration (§4.2).
