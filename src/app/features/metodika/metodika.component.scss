@@ -1,0 +1,39 @@
+// Те же приёмы, что на лендинге (LANDING_TASK.md §4): тетрадная сетка фона и маркерное
+// подчёркивание — градиенты, которые через Tailwind arbitrary values нечитаемы.
+
+.notebook-grid {
+    background-image:
+        linear-gradient(rgba(44, 56, 143, .10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(44, 56, 143, .10) 1px, transparent 1px);
+    background-size: 26px 26px;
+}
+
+.marker {
+    background-image: linear-gradient(transparent 64%, rgba(19, 166, 78, .42) 64%, rgba(19, 166, 78, .42) 94%, transparent 94%);
+    padding: 0 3px;
+}
+
+// Карточка автора методики — «наклейка» с жёсткой тенью, как карточки на лендинге.
+.author-card {
+    box-shadow: 9px 9px 0 rgba(28, 35, 64, .10);
+}
+
+// Сквозной рефрен «Nə əldə edirik?» — в PDF он повторяется трижды, поэтому у него
+// один узнаваемый вид: зелёная заливка с толстой левой полосой.
+.outcome {
+    background: rgba(19, 166, 78, .09);
+    border-left: 6px solid #13A64E;
+}
+
+// Плитки уровней в списке шкалы: фиксированный квадрат, чтобы «E» и «Lisey»
+// не разъезжали колонку с процентами.
+.level-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 62px;
+    height: 32px;
+    padding: 0 10px;
+    // Строчный бокс в размер кегля — иначе точка над «i» в «Lisey» смещает букву вниз.
+    line-height: 1;
+}

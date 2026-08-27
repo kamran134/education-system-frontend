@@ -8,44 +8,15 @@
     background-size: 26px 26px;
 }
 
-// Плитки İSİM в герое (ТЗ, п. 3: «hərfləri bitişdirmək və xeyli balacalaşdırmaq»).
-// Вёрсткой, а не assets/isim-tiles.png: в растре зазоры между буквами уже запечены,
-// сдвинуть их вплотную можно только пересобрав логотип.
-.isim-tiles {
-    span {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 46px;
-        height: 46px;
-        // Строчный бокс ровно в размер кегля — иначе точка над «İ» уводит букву вниз
-        // и четыре плитки перестают выглядеть одинаково.
-        line-height: 1;
-        font-size: 30px;
-        font-weight: 800;
-        color: #F1F1F2;
-
-        @media (min-width: 768px) {
-            width: 54px;
-            height: 54px;
-            font-size: 35px;
-        }
-    }
-}
-
 // «Маркерное» подчёркивание — градиент по фону текста, не text-decoration (§4.2).
 .marker {
     background-image: linear-gradient(transparent 64%, rgba(19, 166, 78, .42) 64%, rgba(19, 166, 78, .42) 94%, transparent 94%);
     padding: 0 3px;
 }
 
-// Кнопки-«наклейки» (§4.2, §4.7): жёсткая тень без размытия, свой цвет под каждый фон.
+// Кнопка-«наклейка» (§4.2, §4.7): жёсткая тень без размытия под красной заливкой.
 .hero-cta {
     box-shadow: 0 4px 0 #8E0C11;
-}
-
-.final-cta {
-    box-shadow: 0 4px 0 #0A7A38;
 }
 
 // Пунктирный «рельс», соединяющий кружки шагов процесса (§4.5). Только на одной строке
@@ -62,27 +33,6 @@
             top: 13px;
             height: 3px;
             background-image: repeating-linear-gradient(90deg, #13A64E 0 12px, transparent 12px 20px);
-        }
-    }
-}
-
-// Тонкий разделитель между призывом и подвалом внутри одного тёмного блока (§4.7) —
-// не бордер во всю ширину секции, а линия с теми же боковыми отступами, что и контент.
-.footer-divider {
-    position: relative;
-
-    &::before {
-        content: '';
-        position: absolute;
-        left: 24px;
-        right: 24px;
-        top: 0;
-        height: 1px;
-        background: rgba(241, 241, 242, .14);
-
-        @media (min-width: 768px) {
-            left: 40px;
-            right: 40px;
         }
     }
 }

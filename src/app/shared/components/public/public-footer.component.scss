@@ -1,0 +1,26 @@
+// Кнопка-«наклейка»: жёсткая тень без размытия, цвет подобран под зелёную заливку
+// (см. LANDING_TASK.md §4.2, §4.7).
+.final-cta {
+    box-shadow: 0 4px 0 #0A7A38;
+}
+
+// Тонкий разделитель между призывом и подвалом внутри одного тёмного блока (§4.7) —
+// не бордер во всю ширину секции, а линия с теми же боковыми отступами, что и контент.
+.footer-divider {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        top: 0;
+        height: 1px;
+        background: rgba(241, 241, 242, .14);
+
+        @media (min-width: 768px) {
+            left: 40px;
+            right: 40px;
+        }
+    }
+}

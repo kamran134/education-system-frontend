@@ -1,42 +1,28 @@
 <div class="font-landing text-brand-ink">
 
-  <!-- ===== Шапка ===== -->
-  <header class="h-[74px] flex items-center justify-between px-6 md:px-10 bg-[#FBFBFA] border-b-2 border-brand-ink">
-    <img src="assets/isim-tiles.png" alt="İSİM" width="480" height="120" class="h-[42px] w-auto" />
-    <a [routerLink]="isAuthorized ? '/panel' : '/login'"
-       class="inline-flex items-center rounded-full bg-brand-redInk px-[22px] py-[10px] text-sm font-bold text-brand-off hover:opacity-90 transition-opacity">
-      {{ isAuthorized ? 'Sistemə keç' : 'Sistemə giriş' }}
-    </a>
-  </header>
+  <app-public-header />
 
   <!-- ===== Герой ===== -->
   <section class="notebook-grid">
     <div class="max-w-7xl mx-auto px-6 md:px-10 py-14 md:py-16 grid grid-cols-1 lg:grid-cols-[1fr_0.95fr] gap-10 lg:gap-12 items-center">
 
-      <!-- Передний план по ТЗ (п. 3): подпись центра → логотип → расшифровка → заголовок → кнопки -->
+      <!-- Передний план по ТЗ (п. 3): логотип → заголовок → кнопки -->
       <div>
-        <p class="text-[13px] md:text-[13.5px] font-semibold text-[#454C6B] mb-[14px]">
-          Karyera və Psixologiya Mərkəzinin İSİM layihəsi
-        </p>
-
-        <!-- Плитки собраны вёрсткой, а не взяты из assets/isim-tiles.png: заказчик просит
-             «hərfləri bitişdirmək», а в растре зазоры между буквами уже запечены. -->
-        <div class="isim-tiles flex mb-[9px]" aria-hidden="true">
-          <span class="bg-brand-red">İ</span>
-          <span class="bg-brand-blue">S</span>
-          <span class="bg-brand-green">İ</span>
-          <span class="bg-brand-magenta">M</span>
-        </div>
-        <p class="font-landing-serif text-[13px] md:text-[14px] text-[#454C6B] mb-7">
-          <span class="sr-only">İSİM — </span>İbtidai Siniflərin İnkişaf Metodikası
-        </p>
+        <!-- Полная версия логотипа: эмблема центра + плитки + расшифровка под каждой буквой.
+             Она несёт и «Karyera və Psixologiya Mərkəzi», и «İbtidai Siniflərin İnkişaf
+             Metodikası», поэтому отдельные строки текста над и под ней не нужны.
+             Ужат из assets/isim.png (13514x6574, 2.6 МБ) до 1200px / 85 КБ. -->
+        <img src="assets/isim-logo-full.png"
+             alt="Karyera və Psixologiya Mərkəzi — İSİM, İbtidai Siniflərin İnkişaf Metodikası"
+             width="1200" height="584"
+             class="w-full h-auto max-w-[400px] md:max-w-[440px] mb-8" />
 
         <h1 class="text-balance text-[30px] md:text-[40px] leading-[1.1] tracking-[-0.02em] font-bold mb-8 max-w-[17ch]">
           İBTİDAİ TƏHSİL ÜZRƏ <span class="marker">İNKİŞAF VƏ REYTİNQ</span> PLATFORMASI
         </h1>
 
         <div class="flex flex-wrap items-center gap-3">
-          <a href="#metodika"
+          <a routerLink="/metodika"
              class="inline-flex items-center rounded-full border-2 border-brand-ink px-[26px] py-[12px] text-[14.5px] font-bold text-brand-ink hover:bg-brand-ink hover:text-brand-off transition-colors">
             İSİM Metodikası ilə tanış ol
           </a>
@@ -75,74 +61,64 @@
     </div>
   </section>
 
-  <!-- ===== Necə işləyir ===== -->
-  <section id="metodika" class="bg-[#F4F5F8] scroll-mt-6">
+  <!-- ===== Выжимка методики (PDF «İSİM layihəsi barədə məlumat») ===== -->
+  <section class="bg-[#F4F5F8]">
     <div class="max-w-7xl mx-auto px-6 md:px-10 py-16">
-      <h3 class="text-[26px] font-bold tracking-[-0.025em] mb-8">Necə işləyir</h3>
+      <h3 class="text-balance text-[26px] md:text-[30px] font-bold tracking-[-0.03em] mb-2">Metodika necə işləyir</h3>
+      <p class="text-[15.5px] leading-[1.62] text-[#454C6B] max-w-[58ch] mb-10">
+        İSİM iki işi görür: şagirdin hədəfini formalaşdırır və onun qavrama üslubunu müəllimin
+        öyrətmə üslubu ilə uzlaşdırır.
+      </p>
 
-      <div class="process-rail grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-0">
+      <div class="process-rail grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-0 mb-11">
         <div class="pr-6">
           <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">1</div>
-          <b class="block text-base mb-[6px]">Aylıq imtahan</b>
-          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Hər ay bütün respublika üzrə eyni imtahan keçirilir.</p>
+          <b class="block text-base mb-[6px]">Müəllim təlimi</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">İbtidai sinif müəllimləri üçün əyani və ya onlayn təlim keçirilir.</p>
         </div>
         <div class="pr-6">
           <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">2</div>
-          <b class="block text-base mb-[6px]">Nəticələr</b>
-          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Cavablar sistemə yüklənir və avtomatik yoxlanılır.</p>
+          <b class="block text-base mb-[6px]">Mərkəzləşmiş İmtahan</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">50 sual: Azərbaycan dili, Riyaziyyat, Həyat Bilgisi və Məntiq.</p>
         </div>
         <div class="pr-6">
           <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">3</div>
-          <b class="block text-base mb-[6px]">Reytinq</b>
-          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Şagird, müəllim, məktəb və rayon reytinqi hesablanır.</p>
+          <b class="block text-base mb-[6px]">6 səviyyə, canlı yayım</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Nəticələr youtube üzərindən canlı yayımda açıqlanır.</p>
         </div>
         <div class="pr-6">
           <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">4</div>
-          <b class="block text-base mb-[6px]">İnkişaf</b>
-          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">Dinamika aydan aya izlənir, zəif mövzular aşkarlanır.</p>
+          <b class="block text-base mb-[6px]">İnkişaf və adlar</b>
+          <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">İNKİŞAF EDƏN ŞAGİRD, sonra İLİN ŞAGİRDLƏRİ, MÜƏLLİMLƏRİ və MƏKTƏBLƏRİ.</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ===== Roller ===== -->
-  <section class="bg-[#FBFBFA]">
-    <div class="max-w-7xl mx-auto px-6 md:px-10 py-16 grid grid-cols-1 md:grid-cols-3 gap-5">
-      <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
-        <span class="inline-block rounded-full bg-brand-red text-brand-off text-[12.5px] font-bold px-[14px] py-[5px] mb-4">Şagird</span>
-        <b class="block text-lg tracking-[-0.015em] mb-[9px]">Öz nəticəsini görür</b>
-        <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">Sinif və məktəb üzrə yerini bilir, hansı mövzunu təkrarlamalı olduğunu görür.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-9">
+        <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-green text-white text-[13px] font-extrabold mb-4">1</span>
+          <b class="block text-lg tracking-[-0.015em] mb-[9px]">Düzgün hədəf</b>
+          <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">
+            Şagirdin hədəfi formalaşanda dərslərə köklənməsi artır. Bunun üçün həm reytinq, həm də
+            PSİXOLOJİ-KARYERA TESTİ işləyir.
+          </p>
+        </div>
+        <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-green text-white text-[13px] font-extrabold mb-4">2</span>
+          <b class="block text-lg tracking-[-0.015em] mb-[9px]">Uyğun öyrənmə üslubu</b>
+          <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">
+            ÖYRƏNMƏ ÜSLUBU TESTİ göstərir, kim necə daha yaxşı qavrayır — müəllim hər şagirdə
+            individual yanaşır.
+          </p>
+        </div>
       </div>
-      <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
-        <span class="inline-block rounded-full bg-brand-blue text-brand-off text-[12.5px] font-bold px-[14px] py-[5px] mb-4">Müəllim</span>
-        <b class="block text-lg tracking-[-0.015em] mb-[9px]">Sinfi bir cədvəldə</b>
-        <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">Zəif mövzular, hər şagirdin dinamikası. İmtahan nəticələri əl ilə hesablanmır.</p>
-      </div>
-      <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
-        <span class="inline-block rounded-full bg-brand-magenta text-brand-off text-[12.5px] font-bold px-[14px] py-[5px] mb-4">Məktəb və RTİ</span>
-        <b class="block text-lg tracking-[-0.015em] mb-[9px]">Reytinq və hesabat</b>
-        <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">Sinif, müəllim, məktəb və rayon kəsimində reytinq, il ərzində dinamika ilə birlikdə.</p>
-      </div>
-    </div>
-  </section>
 
-  <!-- ===== Финальный призыв + подвал — один сплошной тёмный блок ===== -->
-  <footer class="bg-brand-ink">
-    <div class="max-w-7xl mx-auto px-6 md:px-10 pt-14 pb-11 flex flex-wrap items-center justify-between gap-8">
-      <div>
-        <h3 class="text-[30px] font-bold tracking-[-0.03em] text-white mb-2 max-w-[18ch]">{{ isAuthorized ? 'Yenidən xoş gəldiniz' : 'Sisteminizə daxil olun' }}</h3>
-        <p class="text-[15px] leading-[1.6] text-[#A8AEC8] max-w-[44ch]">{{ isAuthorized ? 'Panelinizə keçərək işinizə davam edin.' : 'Məktəb rəhbərləri, müəllimlər və rayon nümayəndələri üçün giriş.' }}</p>
-      </div>
-      <a [routerLink]="isAuthorized ? '/panel' : '/login'"
-         class="final-cta inline-flex items-center rounded-full bg-brand-green px-[34px] py-[15px] text-[15px] font-bold text-white hover:opacity-90 transition-opacity">
-        {{ isAuthorized ? 'Sistemə keç' : 'Sistemə giriş' }}
+      <a routerLink="/metodika"
+         class="inline-flex items-center gap-2 rounded-full border-2 border-brand-ink px-[26px] py-[12px] text-[14.5px] font-bold text-brand-ink hover:bg-brand-ink hover:text-brand-off transition-colors">
+        Ətraflı <span aria-hidden="true">→</span>
       </a>
     </div>
+  </section>
 
-    <div class="footer-divider max-w-7xl mx-auto px-6 md:px-10 pt-[26px] pb-[30px] flex flex-wrap items-center justify-between gap-6">
-      <img src="assets/isim-lockup.png" alt="İSİM — İbtidai Siniflərin İnkişaf Metodikası" width="720" height="233" class="h-[60px] w-auto" />
-      <span class="text-[13px] text-[#8C93B0]">© 2026 İSİM · Bütün hüquqlar qorunur</span>
-    </div>
-  </footer>
+  <app-public-footer />
 
 </div>

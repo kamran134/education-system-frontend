@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
     animationState: string = 'default';
     userId: string | null = null;
     // Лендинг ('/') рисует свою шапку — глобальная на нём скрыта.
-    isLandingRoute: boolean = false;
+    isPublicBrandRoute: boolean = false;
     // '/admin/*' (свой topbar+сайдбар) и '/sertifikat/:token' (публичная страница проверки,
     // своя мини-шапка с лого) тоже рисуют собственную шапку. Без этого флага глобальная
     // накладывалась поверх неё — на десктопе выглядело как toolbar над toolbar, на мобильном
@@ -87,12 +87,12 @@ export class AppComponent implements OnInit {
         private profileChangeService: ProfileChangeService,
         @Inject(PLATFORM_ID) private platformId: Object
     ) {
-        this.isLandingRoute = this.isLandingUrl(this.router.url);
+        this.isPublicBrandRoute = this.isPublicBrandUrl(this.router.url);
         this.hideGlobalHeader = this.hasOwnHeader(this.router.url);
         this.router.events
             .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
             .subscribe((event) => {
-                this.isLandingRoute = this.isLandingUrl(event.urlAfterRedirects);
+                this.isPublicBrandRoute = this.isPublicBrandUrl(event.urlAfterRedirects);
                 this.hideGlobalHeader = this.hasOwnHeader(event.urlAfterRedirects);
                 // Лендинг темонезависим (см. LANDING_TASK.md): без этого пересчёта переход
                 // на / внутри SPA (клик по лого) сохранял бы .dark-mode на body/html с
@@ -165,16 +165,19 @@ export class AppComponent implements OnInit {
     }
 
     /**
-     * Сравнение только по пути, без query/fragment. Якорь "Metodika ilə tanış ol" на
-     * лендинге — обычный <a href="#metodika">, не routerLink, но Router всё равно ловит
-     * смену фрагмента через hashchange и гоняет полный цикл навигации: urlAfterRedirects
-     * при этом становится строкой "/#metodika", а не "/". Без обрезки фрагмента строгое
-     * сравнение ложно проваливалось, isLandingRoute сбрасывался в false прямо на лендинге,
-     * и вылезала глобальная шапка поверх собственной шапки лендинга + возвращалась тёмная
-     * тема (см. setMode()).
+     * Публичные брендовые страницы: лендинг и «İSİM metodikası». У обеих своя шапка и подвал
+     * (PublicHeaderComponent / PublicFooterComponent), поэтому глобальная шапка на них скрыта,
+     * а тема всегда светлая — это витрина с фиксированным бренд-видом (см. setMode()).
+     *
+     * Сравнение только по пути, без query/fragment: якоря внутри страницы («#hedef», «#uslub»
+     * на /metodika) — обычные <a href="#...">, но Router всё равно ловит смену фрагмента через
+     * hashchange и гоняет полный цикл навигации, где urlAfterRedirects становится строкой вида
+     * "/metodika#hedef". Без обрезки фрагмента сравнение ложно проваливалось бы прямо на
+     * странице, и поверх собственной шапки вылезала бы глобальная плюс тёмная тема.
      */
-    private isLandingUrl(url: string): boolean {
-        return url.split('#')[0].split('?')[0] === '/';
+    private isPublicBrandUrl(url: string): boolean {
+        const path = url.split('#')[0].split('?')[0];
+        return path === '/' || path === '/metodika';
     }
 
     private hasOwnHeader(url: string): boolean {
@@ -197,7 +200,7 @@ export class AppComponent implements OnInit {
         // держит фиксированный бренд-вид, тумблер темы на ней физически недоступен (шапка
         // скрыта). darkMode при этом не сбрасываем: вернувшись в панель, пользователь должен
         // получить свою тему обратно, а не потерять выбор из-за визита на /.
-        const applyDark = this.darkMode && !this.isLandingRoute;
+        const applyDark = this.darkMode && !this.isPublicBrandRoute;
 
         if (applyDark) {
             document.body.classList.add('dark-mode');

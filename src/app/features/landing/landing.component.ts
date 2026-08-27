@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { PublicHeaderComponent } from '../../shared/components/public/public-header.component';
+import { PublicFooterComponent } from '../../shared/components/public/public-footer.component';
 
 interface HeroStat {
     value: number;
@@ -36,7 +38,7 @@ const HERO_STATS: readonly HeroStat[] = [
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule],
+    imports: [RouterModule, PublicHeaderComponent, PublicFooterComponent],
     templateUrl: './landing.component.html',
     styleUrl: './landing.component.scss',
 })
