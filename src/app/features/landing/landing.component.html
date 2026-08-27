@@ -22,17 +22,21 @@
         <!-- max-w в ch, а не text-balance: балансировщик рвал «İNKİŞAF VƏ REYTİNQ» между
              строками, и маркерная подсветка ложилась через перенос кусками. Ширины хватает
              ровно на «İBTİDAİ TƏHSİL ÜZRƏ» в первой строке — маркер остаётся на своей. -->
-        <h1 class="text-[30px] md:text-[40px] leading-[1.1] tracking-[-0.02em] font-bold mb-8 max-w-[23ch]">
+        <!-- Цвет CC0066 и синий 00B0F0 ниже — точные hex из мокапа заказчика
+             (Word-документ «Baş səhifə məlumatları və dizaynı», 28.08.2026: правка после
+             первой публикации). Не brand-magenta/-blue — другие оттенки, заказчик прислал
+             конкретные коды и попросил именно их. -->
+        <h1 class="text-[#CC0066] text-[30px] md:text-[40px] leading-[1.1] tracking-[-0.02em] font-bold mb-8 max-w-[23ch]">
           İBTİDAİ TƏHSİL ÜZRƏ <span class="marker">İNKİŞAF VƏ REYTİNQ</span> PLATFORMASI
         </h1>
 
         <div class="flex flex-wrap items-center gap-3">
           <a routerLink="/metodika"
-             class="inline-flex items-center rounded-full border-2 border-brand-ink px-[26px] py-[12px] text-[14.5px] font-bold text-brand-ink hover:bg-brand-ink hover:text-brand-off transition-colors">
+             class="inline-flex items-center rounded-full border-2 border-[#00B0F0] px-[26px] py-[12px] text-[14.5px] font-bold text-[#00B0F0] hover:bg-[#00B0F0] hover:text-white transition-colors">
             İSİM Metodikası ilə tanış ol
           </a>
           <a [routerLink]="isAuthorized ? '/panel' : '/login'"
-             class="hero-cta inline-flex items-center rounded-full bg-brand-redInk px-[30px] py-[14px] text-[14.5px] font-bold text-brand-off hover:opacity-90 transition-opacity">
+             class="hero-cta inline-flex items-center rounded-full bg-[#CC0066] px-[30px] py-[14px] text-[14.5px] font-bold text-brand-off hover:opacity-90 transition-opacity">
             {{ isAuthorized ? 'Sistemə keç' : 'Platformaya daxil ol' }}
           </a>
         </div>
@@ -40,7 +44,7 @@
 
       <!-- Правая колонка по ТЗ (п. 2): Hədəf kürsüsü с подписью над ним -->
       <div class="text-center">
-        <p class="text-[15px] md:text-[17px] font-bold tracking-[-0.01em] mb-4">
+        <p class="text-[19px] md:text-[24px] font-bold tracking-[-0.01em] text-[#00B0F0] mb-4">
           Kiçik pillələr – Böyük addımlar!
         </p>
         <!-- width/height = viewBox: держат соотношение сторон до загрузки файла, иначе
