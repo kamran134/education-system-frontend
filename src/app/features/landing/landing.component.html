@@ -11,13 +11,18 @@
         <!-- Полная версия логотипа: эмблема центра + плитки + расшифровка под каждой буквой.
              Она несёт и «Karyera və Psixologiya Mərkəzi», и «İbtidai Siniflərin İnkişaf
              Metodikası», поэтому отдельные строки текста над и под ней не нужны.
-             Ужат из assets/isim.png (13514x6574, 2.6 МБ) до 1200px / 85 КБ. -->
+             Ужат из assets/isim.png (13514x6574, 2.6 МБ) до 1100px / 91 КБ и обрезан по
+             границам непрозрачной части: в исходнике ~9% ширины занимали прозрачные поля,
+             из-за них логотип визуально уезжал вправо от заголовка. -->
         <img src="assets/isim-logo-full.png"
              alt="Karyera və Psixologiya Mərkəzi — İSİM, İbtidai Siniflərin İnkişaf Metodikası"
-             width="1200" height="584"
-             class="w-full h-auto max-w-[400px] md:max-w-[440px] mb-8" />
+             width="1100" height="537"
+             class="w-full h-auto max-w-[360px] md:max-w-[400px] mb-8" />
 
-        <h1 class="text-balance text-[30px] md:text-[40px] leading-[1.1] tracking-[-0.02em] font-bold mb-8 max-w-[17ch]">
+        <!-- max-w в ch, а не text-balance: балансировщик рвал «İNKİŞAF VƏ REYTİNQ» между
+             строками, и маркерная подсветка ложилась через перенос кусками. Ширины хватает
+             ровно на «İBTİDAİ TƏHSİL ÜZRƏ» в первой строке — маркер остаётся на своей. -->
+        <h1 class="text-[30px] md:text-[40px] leading-[1.1] tracking-[-0.02em] font-bold mb-8 max-w-[23ch]">
           İBTİDAİ TƏHSİL ÜZRƏ <span class="marker">İNKİŞAF VƏ REYTİNQ</span> PLATFORMASI
         </h1>
 
@@ -90,25 +95,6 @@
           <div class="w-7 h-7 rounded-full bg-brand-green border-[3px] border-[#F4F5F8] flex items-center justify-center text-[13px] font-extrabold text-brand-off mb-4 relative">4</div>
           <b class="block text-base mb-[6px]">İnkişaf və adlar</b>
           <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">İNKİŞAF EDƏN ŞAGİRD, sonra İLİN ŞAGİRDLƏRİ, MÜƏLLİMLƏRİ və MƏKTƏBLƏRİ.</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-9">
-        <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
-          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-green text-white text-[13px] font-extrabold mb-4">1</span>
-          <b class="block text-lg tracking-[-0.015em] mb-[9px]">Düzgün hədəf</b>
-          <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">
-            Şagirdin hədəfi formalaşanda dərslərə köklənməsi artır. Bunun üçün həm reytinq, həm də
-            PSİXOLOJİ-KARYERA TESTİ işləyir.
-          </p>
-        </div>
-        <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
-          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-green text-white text-[13px] font-extrabold mb-4">2</span>
-          <b class="block text-lg tracking-[-0.015em] mb-[9px]">Uyğun öyrənmə üslubu</b>
-          <p class="text-[14.2px] leading-[1.58] text-[#454C6B]">
-            ÖYRƏNMƏ ÜSLUBU TESTİ göstərir, kim necə daha yaxşı qavrayır — müəllim hər şagirdə
-            individual yanaşır.
-          </p>
         </div>
       </div>
 

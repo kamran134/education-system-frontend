@@ -55,9 +55,16 @@ module.exports = {
       },
       fontFamily: {
         'sans': ['Inter', 'ui-sans-serif', 'system-ui'],
-        // Только для features/landing — Inter выше остаётся шрифтом внутренней панели.
-        'landing': ['"Trebuchet MS"', '"Segoe UI"', 'system-ui', 'sans-serif'],
-        'landing-serif': ['"Iowan Old Style"', '"Palatino Linotype"', 'Palatino', 'Georgia', 'serif'],
+        // Только для публичных страниц (лендинг, /metodika) — Inter выше остаётся шрифтом
+        // внутренней панели.
+        //
+        // В стеке НЕ ДОЛЖНО быть шрифтов без «ə»/«Ə» (U+0259 / U+018F). Раньше первым стоял
+        // Trebuchet MS: в нём есть ğ, ş, İ, но нет ə — а это одна из самых частых букв
+        // азербайджанского. Браузер рисовал слово в Trebuchet и подставлял ə из следующего
+        // шрифта, так что внутри одного слова прыгали ширина и вес букв.
+        // Каждый шрифт ниже проверен на полный азербайджанский набор ə Ə ğ ş ç ı İ ö ü.
+        // Осторожно с заменами: Georgia и Tahoma эту проверку не проходят.
+        'landing': ['"Segoe UI"', 'system-ui', 'Verdana', 'Arial', 'sans-serif'],
       },
     },
   },
