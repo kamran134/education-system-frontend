@@ -235,11 +235,6 @@ export class StatisticsMainComponent implements OnInit {
         return (this.displayedStats as any).totalStudents || 0;
     }
 
-    get averageScore(): number {
-        if (!this.displayedStats || this.selectedMonth !== null) return 0;
-        return (this.displayedStats as any).averageScore || 0;
-    }
-
     ngOnInit(): void {
         if (!this.isAdminUser) {
             this.inkishafMinParticipations = 3;

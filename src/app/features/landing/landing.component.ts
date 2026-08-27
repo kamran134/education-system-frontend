@@ -24,15 +24,16 @@ interface HeroStat {
  *   пик реестра (бэкап /root/isim/db_backup_new.gz, 26.02.2026) — 901 / 2 994 / 14 371,
  *     из них 9 872 ученика без единого результата; позже вычищены
  *
- * Цифры ниже — округлённый пик реестра. Заказчику нужен масштаб охвата, а не число
- * участников рейтинга. Вернуть живые данные — снова заинжектить LandingService
+ * Цифры ниже — точный пик реестра, без округления (заказчик прямо просил точные числа,
+ * 28.08.2026). Заказчику нужен масштаб охвата, а не число участников рейтинга. Вернуть
+ * живые данные — снова заинжектить LandingService
  * (удалён вместе с этим коммитом, бэкендовый GET /api/public/summary на месте).
  */
 const HERO_STATS: readonly HeroStat[] = [
     { value: 12, label: 'Regional Təhsil İdarəsi' },
-    { value: 900, label: 'Məktəb' },
-    { value: 2900, label: 'Layihə müəllimi' },
-    { value: 14000, label: 'Layihə şagirdi' },
+    { value: 901, label: 'Məktəb' },
+    { value: 2994, label: 'Layihə müəllimi' },
+    { value: 14371, label: 'Layihə şagirdi' },
 ];
 
 @Component({
