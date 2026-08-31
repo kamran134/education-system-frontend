@@ -67,7 +67,7 @@ export class SchoolsListComponent implements OnInit {
         return [
             { key: 'code', label: 'Məktəb kodu', sortable: true, type: 'text' },
             { key: 'name', label: 'Məktəb adı', sortable: true, cellTemplate: this.nameCellTemplate },
-            { key: 'district.name', label: 'Rayon / şəhər', sortable: true, type: 'text' },
+            { key: 'district.name', label: 'Təhsil sektoru', sortable: true, type: 'text' },
             { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
         ];
     }

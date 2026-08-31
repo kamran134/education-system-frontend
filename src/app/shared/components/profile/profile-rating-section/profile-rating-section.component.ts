@@ -45,4 +45,13 @@ export class ProfileRatingSectionComponent {
     yearLabel(year: number): string {
         return academicYearLabel(year);
     }
+
+    /**
+     * Балл без разделителя тысяч: DecimalPipe под дефолтной локалью en-US превращал 6576 в "6,576"
+     * (П.5). Локаль ради одной ячейки не переключаем — это потянуло бы форматы дат/валют по всему
+     * приложению. tabular-nums на элементе сохранён.
+     */
+    scoreLabel(score: number | null | undefined): string {
+        return score != null ? String(Math.round(score)) : '—';
+    }
 }

@@ -11,6 +11,7 @@ export interface StatisticsFilter {
 export interface InkishafFilter {
     districtIds?: string[];
     schoolIds?: string[];
+    teacherIds?: string[];
     grades?: number[];
     year?: number;
     minParticipations?: number;

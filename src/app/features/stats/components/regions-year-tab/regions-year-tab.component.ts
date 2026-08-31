@@ -43,7 +43,7 @@ export class RegionsYearTabComponent {
         { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
         { key: 'code', label: 'Regional idarə kodu', sortable: true },
         { key: 'name', label: 'Adı', sortable: true },
-        { key: 'districtCount', label: 'Rayon sayı', sortable: true, formatter: COUNT_FORMATTER },
+        { key: 'districtCount', label: 'Təhsil sektorlarının sayı', sortable: true, formatter: COUNT_FORMATTER },
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, formatter: COUNT_FORMATTER },
         { key: 'score', label: 'Reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },
         { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) }

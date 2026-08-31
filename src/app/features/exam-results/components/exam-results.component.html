@@ -72,12 +72,12 @@
         </app-select>
         <!-- District filter -->
         <app-select
-          label="Rayonlar"
+          label="Təhsil sektorları"
           [options]="districtOptions"
           [multiple]="true"
           [(ngModel)]="selectedDistrictIds"
           (ngModelChange)="onDistrictChange($event)"
-          placeholder="Rayonları seçin">
+          placeholder="Təhsil sektorlarını seçin">
         </app-select>
         <!-- School filter -->
         <app-select

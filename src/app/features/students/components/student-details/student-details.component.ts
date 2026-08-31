@@ -5,8 +5,11 @@ import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { StudentWithResult } from '../../../../core/models/student.model';
 import { Error } from '../../../../core/models/error.model';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
+import { getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
+import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2, User, Trash2, ChevronDown, ChevronUp } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -32,10 +35,12 @@ import {
     selector: 'app-student-details',
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule,
         LucideAngularModule,
         ButtonComponent,
-        ImageCropModalComponent
+        ImageCropModalComponent,
+        SelectComponent
     ],
     templateUrl: './student-details.component.html',
     styleUrl: './student-details.component.scss'
@@ -57,8 +62,9 @@ export class StudentDetailsComponent implements OnInit {
     imageChangedEvent: any;
     isUploadingAvatar = false;
 
-    // Previous results toggle
-    showPreviousResults = false;
+    // Фильтр «Əvvəlki siniflərin nəticələrinin göstər» — раскрываемые классы вместо старого
+    // тоггла show/hide (П.10b). Можно раскрыть один класс, можно несколько.
+    selectedPreviousGrades: number[] = [];
 
     // Sertifikat yükləmə — CERTIFICATES_TASK.md §9. Giriş = /students/:id-ə giriş,
     // ayrıca RBAC gate yoxdur (baxın certificate.model.ts).
@@ -68,26 +74,50 @@ export class StudentDetailsComponent implements OnInit {
     downloadingKey: string | null = null;
     readonly certificateAwards = CERTIFICATE_AWARDS;
 
-    private get currentAcademicYearStart(): Date {
-        const now = new Date();
-        // Academic year starts September 1
-        // If current month is before September (0-7), we're still in the year that started last Sept
-        const startYear = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
-        return new Date(startYear, 8, 1); // Sept 1
+    private get currentAcademicYear(): number {
+        return getCurrentAcademicYear();
     }
 
+    /** Результаты текущего учебного года — по полю result.year (год начала уч. года),
+     *  а не по exam.date (П.10a: поле year уже приходит с бэка). */
     get currentResults(): ExamResult[] {
-        const cutoff = this.currentAcademicYearStart;
+        return (this.student?.results ?? []).filter(r => r.year === this.currentAcademicYear);
+    }
+
+    /**
+     * Классы для раскрытия: уникальные result.grade по строкам ВНЕ текущего учебного года,
+     * по убыванию (П.10b).
+     *
+     * Критерий именно «год результата не текущий», а не «класс не равен текущему классу
+     * ученика»: второгодник сидит в том же классе два года подряд, и при отборе по классу
+     * его прошлогодние результаты выпадали разом отовсюду — в currentResults не попадали
+     * (другой год), а в список раскрытия не предлагались (класс совпадает с текущим).
+     * Здесь тот же предикат, что и в expandedResults, — списки обязаны сходиться.
+     */
+    get previousGradeOptions(): number[] {
+        const grades = new Set<number>();
+        for (const r of this.student?.results ?? []) {
+            if (r.grade != null && r.year !== this.currentAcademicYear) grades.add(r.grade);
+        }
+        return [...grades].sort((a, b) => b - a);
+    }
+
+    get previousGradeSelectOptions(): { label: string; value: number }[] {
+        return this.previousGradeOptions.map(g => ({ label: `${g}. sinif`, value: g }));
+    }
+
+    /** Строки раскрытых классов (кроме текущего года — он и так показан выше). */
+    get expandedResults(): ExamResult[] {
+        if (this.selectedPreviousGrades.length === 0) return [];
+        const currentYear = this.currentAcademicYear;
         return (this.student?.results ?? []).filter(r =>
-            r.exam && new Date(r.exam.date) >= cutoff
+            r.grade != null && this.selectedPreviousGrades.includes(r.grade) && r.year !== currentYear
         );
     }
 
-    get previousResults(): ExamResult[] {
-        const cutoff = this.currentAcademicYearStart;
-        return (this.student?.results ?? []).filter(r =>
-            !r.exam || new Date(r.exam.date) < cutoff
-        );
+    /** Всё, что сейчас видно на странице: текущий год + раскрытые классы (П.10c). */
+    get visibleResults(): ExamResult[] {
+        return [...this.currentResults, ...this.expandedResults];
     }
 
     trackByResultId(_: number, result: ExamResult): number { return result.id; }
@@ -211,24 +241,25 @@ export class StudentDetailsComponent implements OnInit {
         this.router.navigate([backUrl], { queryParams: this.filterParams });
     }
 
+    /** Основная кнопка — только текущий учебный год (П.10a). */
     exportToExcel() {
-        const workbook = XLSX.utils.book_new();
-        let sheetName: string = '';
-        let result: XLSX.WorkSheet = {};
+        this.downloadStudentDetails(this.currentResults, `${this.student?.code}`);
+    }
 
-        result = XLSX.utils.json_to_sheet(this.excelService.formatStudentDetailsData(this.student!));
+    /** Вторая кнопка (рядом с фильтром классов) — ровно то, что сейчас видно на странице:
+     *  текущий год + раскрытые классы (П.10c). Имя файла отличается, чтобы не перетирать первый. */
+    exportVisibleToExcel() {
+        this.downloadStudentDetails(this.visibleResults, `${this.student?.code}-secilmish-sinifler`);
+    }
+
+    private downloadStudentDetails(results: ExamResult[], fileBaseName: string): void {
+        const workbook = XLSX.utils.book_new();
+        const sheet = XLSX.utils.json_to_sheet(this.excelService.formatStudentDetailsData(this.student!, results));
         // OOXML запрещает : \ / ? * [ ] в имени листа и ограничивает его 31 символом —
         // без этого длинная фамилия+имя валит book_append_sheet исключением (26.08.2026, п.5).
-        sheetName = `${this.student?.lastName} ${this.student?.firstName}`.replace(/[:\\/?*[\]]/g, '-').slice(0, 31);
-
-        if (!result) {
-            console.error('Xəta: Excel cədvəli yaradılmadı!');
-            return;
-        }
-
-        // this.excelService.formatHeaders(result);
-        XLSX.utils.book_append_sheet(workbook, result, sheetName);
-        XLSX.writeFile(workbook, `${this.student?.code}.xlsx`);
+        const sheetName = `${this.student?.lastName} ${this.student?.firstName}`.replace(/[:\\/?*[\]]/g, '-').slice(0, 31);
+        XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+        XLSX.writeFile(workbook, `${fileBaseName}.xlsx`);
     }
 
     /**

@@ -41,7 +41,7 @@ export class DistrictsYearTabComponent {
     private readonly allColumns: TableColumn[] = [
         { key: 'place', label: 'Respublika üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
         { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
-        { key: 'code', label: 'Rayon / şəhər kodu', sortable: true },
+        { key: 'code', label: 'Təhsil sektorunun kodu', sortable: true },
         { key: 'name', label: 'Adı', sortable: true },
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, formatter: COUNT_FORMATTER },
         { key: 'score', label: 'Reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },

@@ -237,7 +237,7 @@ export class RegionProfileComponent implements OnInit {
             width: '350px',
             data: {
                 title: 'Silinməyə razılıq',
-                text: 'Regional Təhsil İdarəsini silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Bu idarəyə bağlı rayonlar silinmir, sadəcə idarə ilə əlaqələri kəsilir.'
+                text: 'Regional Təhsil İdarəsini silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Bu idarəyə bağlı təhsil sektorları silinmir, sadəcə idarə ilə əlaqələri kəsilir.'
             }
         });
 
@@ -266,7 +266,7 @@ export class RegionProfileComponent implements OnInit {
         this.heroSubtitleParts = [{ text: 'Kod ' + region.code }];
 
         this.heroFacts = [
-            { label: 'Rayon / şəhər sayı', value: String(region.districtCount ?? 0) },
+            { label: 'Təhsil sektorlarının sayı', value: String(region.districtCount ?? 0) },
             { label: 'Məktəb sayı', value: String(region.schoolCount ?? 0) },
             { label: 'Layihə müəllimləri', value: String(region.teacherCount ?? 0) },
             { label: 'Şagird sayı', value: String(region.studentCount ?? 0) },

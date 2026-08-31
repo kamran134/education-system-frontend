@@ -46,7 +46,7 @@ export class RegionsListComponent implements OnInit {
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'Regional idarə kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'Adı', sortable: true, type: 'text' },
-        { key: 'districtCount', label: 'Rayon sayı', sortable: false, type: 'number', align: 'center' },
+        { key: 'districtCount', label: 'Təhsil sektorlarının sayı', sortable: false, type: 'number', align: 'center' },
         { key: 'studentCount', label: 'Şagird sayı', sortable: false, type: 'number', align: 'center' }
     ];
 

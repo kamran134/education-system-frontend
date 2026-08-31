@@ -132,6 +132,9 @@ export class StatisticsService {
             if (filters.schoolIds && filters.schoolIds.length > 0) {
                 params = params.set('schoolIds', filters.schoolIds.join(','));
             }
+            if (filters.teacherIds && filters.teacherIds.length > 0) {
+                params = params.set('teacherIds', filters.teacherIds.join(','));
+            }
             if (filters.grades && filters.grades.length > 0) {
                 params = params.set('grades', filters.grades.join(','));
             }

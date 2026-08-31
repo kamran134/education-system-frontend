@@ -12,7 +12,7 @@ import { FullscreenPanelComponent } from '../../../../shared/components/ui/fulls
 const ENTITY_TYPE_LABELS: Record<ProfileChangeEntityType, string> = {
     school: 'Məktəb',
     teacher: 'Müəllim',
-    district: 'Rayon',
+    district: 'Təhsil sektoru',
 };
 
 const ENTITY_PROFILE_ROUTE: Record<ProfileChangeEntityType, string> = {

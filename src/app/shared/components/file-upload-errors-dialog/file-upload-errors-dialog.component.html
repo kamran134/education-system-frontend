@@ -87,7 +87,7 @@
           <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
               <lucide-icon [img]="Building2" class="h-5 w-5 text-red-500"></lucide-icon>
-              Bazada olmayan rayon / şəhər kodları
+              Bazada olmayan təhsil sektoru kodları
             </h3>
             <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.missingDistrictCodes; track code) {
@@ -100,7 +100,7 @@
           <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
               <lucide-icon [img]="Info" class="h-5 w-5 text-red-500"></lucide-icon>
-              Faylda rayon kodu olmayan məktəblər
+              Faylda təhsil sektoru kodu olmayan məktəblər
             </h3>
             <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.schoolCodesWithoutDistrictCodes; track code) {

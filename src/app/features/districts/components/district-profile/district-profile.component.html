@@ -46,12 +46,13 @@
 
       <app-profile-hero
         variant="entity"
-        [title]="district.name"
+        [title]="heroTitle"
         [subtitleParts]="heroSubtitleParts"
         [facts]="heroFacts"
         [avatarUrl]="avatarUrl"
         [canEdit]="canEdit"
         [canEditFacts]="canEditFacts"
+        [showEditFactsLink]="canEdit"
         editFactsLabel="Rayon məlumatlarını yenilə"
         [canUploadPhoto]="canUploadPhoto"
         [isUploading]="isUploadingAvatar"

@@ -85,7 +85,7 @@ export class TeachersListComponent implements OnInit {
             { key: 'code', label: 'Müəllimənin kodu', sortable: true, type: 'text' },
             { key: 'fullname', label: 'Soyadı, adı və ata adı', sortable: true, cellTemplate: this.fullnameCellTemplate },
             { key: 'school.name', label: 'Məktəbi', sortable: true, type: 'text' },
-            { key: 'district.name', label: 'Rayonu / şəhəri', sortable: true, type: 'text' },
+            { key: 'district.name', label: 'Təhsil sektoru', sortable: true, type: 'text' },
             { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
         ];
     }

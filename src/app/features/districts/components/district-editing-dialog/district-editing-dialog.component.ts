@@ -39,11 +39,11 @@ export class DistrictEditingDialogComponent implements OnInit {
     }
 
     get modalTitle(): string {
-        return this.data.isEditing ? 'Rayonun / şəhərin redaktə edilməsi' : 'Yeni rayon / şəhər əlavə et';
+        return this.data.isEditing ? 'Təhsil sektorunun redaktə edilməsi' : 'Yeni təhsil sektoru əlavə et';
     }
 
     get modalSubtitle(): string {
-        return 'Rayonun və ya şəhərin məlumatlarını daxil edin';
+        return 'Təhsil sektorunun məlumatlarını daxil edin';
     }
 
     get isValid(): boolean {

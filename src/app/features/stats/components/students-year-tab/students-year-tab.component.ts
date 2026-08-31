@@ -40,7 +40,7 @@ export class StudentsYearTabComponent {
 
     private readonly allColumns: TableColumn[] = [
         { key: 'place', label: 'Respublika üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
-        { key: 'districtPlace', label: 'Rayon/şəhər üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
+        { key: 'districtPlace', label: 'Təhsil sektoru üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
         { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
         { key: 'code', label: 'Şagirdin kodu', sortable: true },
         { key: 'lastName', label: 'Soyadı', sortable: true },
@@ -49,7 +49,7 @@ export class StudentsYearTabComponent {
         { key: 'grade', label: 'Sinfi', sortable: true },
         { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'teacher.fullname', formatter: (v) => v || 'Müəllim tapılmadı' },
         { key: 'school', label: 'Məktəbi', sortable: true, field: 'school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
-        { key: 'district', label: 'Rayonu / şəhəri', sortable: true, field: 'district.name', formatter: (v) => v || 'Rayon / şəhər tapılmadı' },
+        { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'district.name', formatter: (v) => v || 'Təhsil sektoru tapılmadı' },
         // No rounding here — matches the original, unlike averageScore below.
         { key: 'score', label: 'Reytinq xalı', sortable: true, formatter: COUNT_FORMATTER },
         { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },

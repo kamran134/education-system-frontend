@@ -99,7 +99,7 @@ export class ExamResultsComponent implements OnInit {
             { key: 'grade', label: 'Sinif', sortable: true },
             { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
             { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
-            { key: 'studentData.district.name', label: 'Rayon', sortable: true },
+            { key: 'studentData.district.name', label: 'Təhsil sektoru', sortable: true },
             { key: 'totalScore', label: 'Ümumi bal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
             { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate }
         ];

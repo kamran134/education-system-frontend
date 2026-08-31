@@ -47,7 +47,7 @@ export class MonthStudentRatingTableComponent {
         ['grade', { key: 'grade', label: 'Sinifi', sortable: true, field: 'studentData.grade' }],
         ['teacher', { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'studentData.teacher.fullname' }],
         ['school', { key: 'school', label: 'Məktəbi', sortable: true, field: 'studentData.school.name' }],
-        ['district', { key: 'district', label: 'Rayonu / şəhəri', sortable: true, field: 'studentData.district.name' }],
+        ['district', { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'studentData.district.name' }],
         ['averageScore', { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, field: 'studentData.averageScore' }],
         ['place', { key: 'place', label: 'Yer', sortable: true, field: 'place' }],
         ['score', { key: 'score', label: 'Reytinq xalı', sortable: true, field: 'score' }]

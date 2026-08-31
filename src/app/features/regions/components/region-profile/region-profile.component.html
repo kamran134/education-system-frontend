@@ -12,8 +12,6 @@
       @if (!isOwnHome) {
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <nav class="flex items-center gap-2 text-sm text-[var(--ui-muted)] flex-wrap">
-            <a routerLink="/panel" class="hover:text-[var(--ui-accent)] transition-colors">Kabinetim</a>
-            <span class="opacity-50">/</span>
             <span class="font-semibold text-[var(--ui-ink-2)]">{{ region.name }}</span>
           </nav>
           <app-button variant="outline" size="sm" (clicked)="goBack()">
@@ -68,7 +66,7 @@
       <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm">
         <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-[var(--ui-line)] flex-wrap">
           <h2 class="flex items-center gap-2.5 text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">
-            Rayonlar / şəhərlər
+            Təhsil sektorları
             <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ districtsTotal }}, reytinq üzrə</span>
           </h2>
           @if (permissions.canAccessRoute('canAccessRegions')) {
@@ -87,7 +85,7 @@
             [isLoading]="districtsLoading"
             [isLoadingMore]="districtsLoadingMore"
             moreLabel="Daha çox göstər"
-            emptyLabel="Hələ rayon yoxdur"
+            emptyLabel="Hələ təhsil sektoru yoxdur"
             (loadMore)="onLoadMoreDistricts()">
           </app-entity-card-grid>
         </div>

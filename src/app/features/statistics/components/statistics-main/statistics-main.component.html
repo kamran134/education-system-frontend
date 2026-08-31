@@ -1,10 +1,18 @@
 <div class="statistics-container p-6">
   <!-- Заголовок -->
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Statistika</h1>
-    <p class="text-gray-600 mt-2">
-      Cari tədris ili üzrə ümumi statistika
-    </p>
+  <div class="mb-6 flex items-start justify-between gap-3 flex-wrap">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Statistika</h1>
+      <p class="text-gray-600 mt-2">
+        {{ selectedYearSubtitle }}
+      </p>
+    </div>
+    <app-button variant="outline" size="sm" (clicked)="goBack()">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+        <span>Geri</span>
+      </div>
+    </app-button>
   </div>
 
   <!-- Фильтры -->
@@ -27,15 +35,13 @@
     <!-- Filters Grid -->
     <div [class]="filtersExpanded ? 'block' : 'hidden'">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
-        <!-- Фильтр по году -->
-        @if (isAdminUser) {
-          <app-select
-            label="İl"
-            [(ngModel)]="selectedYear"
-            [options]="yearOptions"
-            (ngModelChange)="onYearChange()">
-          </app-select>
-        }
+        <!-- Фильтр по году — открыт всем ролям (П.8b) -->
+        <app-select
+          label="İl"
+          [(ngModel)]="selectedYear"
+          [options]="yearOptions"
+          (ngModelChange)="onYearChange()">
+        </app-select>
 
         <!-- Фильтр по месяцам -->
         <div class="flex flex-col gap-1">
@@ -58,7 +64,7 @@
 
         <!-- Фильтр по районам -->
         <app-select
-          label="Rayonlar / şəhərlər"
+          label="Təhsil sektorları"
           [multiple]="true"
           [(ngModel)]="selectedDistrictIds"
           [options]="districtOptions"

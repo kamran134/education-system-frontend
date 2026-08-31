@@ -130,7 +130,7 @@ export class DistrictProfileComponent implements OnInit {
                 },
                 error: () => {
                     this.isLoading = false;
-                    this.snackBarService.show('Rayon tapılmadı', 'error');
+                    this.snackBarService.show('Təhsil sektoru tapılmadı', 'error');
                 }
             });
     }
@@ -226,6 +226,15 @@ export class DistrictProfileComponent implements OnInit {
         return this.configService.resolveAssetUrl(this.district?.avatarUrl);
     }
 
+    /**
+     * Заголовок шапки профиля — с суффиксом «üzrə təhsil sektoru» для всех ролей (решение
+     * заказчика, чисто отображение). Крошки и карточки районов на главной РТИ остаются
+     * коротким именем: с суффиксом строка крошек разъезжается.
+     */
+    get heroTitle(): string {
+        return this.district ? `${this.district.name} üzrə təhsil sektoru` : '';
+    }
+
     private recomputeDerivedFields(): void {
         const district = this.district;
         if (!district) {
@@ -236,7 +245,7 @@ export class DistrictProfileComponent implements OnInit {
 
         const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
-        if (!this.isOwnHome) crumbs.push({ text: 'Kabinetim', link: ['/panel'] });
+        // Крошку «Kabinetim» убрали (П.3) — домашняя кнопка в шапке и «Geri» на профиле остаются.
         // Регион — ссылкой на его профиль, если привязка есть (districts.region_id заполнен
         // у всех с миграции 006, но regionName приходит только когда джойн отработал) И
         // текущий пользователь вправе его увидеть (см. canViewAncestorCrumb).
@@ -299,7 +308,7 @@ export class DistrictProfileComponent implements OnInit {
             } else if (result?.action === 'save') {
                 this.districtService.updateDistrict(this.districtId, result.data).subscribe({
                     next: (response: any) => {
-                        this.snackBarService.show(response.message || 'Rayon / şəhər uğurla yeniləndi', 'success');
+                        this.snackBarService.show(response.message || 'Təhsil sektoru uğurla yeniləndi', 'success');
                         this.loadDistrict();
                     },
                     error: (error: any) => {
@@ -313,14 +322,14 @@ export class DistrictProfileComponent implements OnInit {
     private handleDistrictDelete(): void {
         const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
-            data: { title: 'Silinməyə razılıq', text: 'Rayonu / şəhəri silmək istədiyinizdən əminsiniz mi?' }
+            data: { title: 'Silinməyə razılıq', text: 'Təhsil sektorunu silmək istədiyinizdən əminsiniz mi?' }
         });
 
         confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {
             if (!result) return;
             this.districtService.deleteDistrict(this.districtId).subscribe({
                 next: () => {
-                    this.snackBarService.show('Rayon / şəhər uğurla silindi', 'success');
+                    this.snackBarService.show('Təhsil sektoru uğurla silindi', 'success');
                     this.router.navigate(['/districts']);
                 },
                 error: (error: any) => {

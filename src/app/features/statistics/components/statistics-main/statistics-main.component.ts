@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { StatisticsService } from '../../services/statistics.service';
@@ -14,13 +14,16 @@ import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
-import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X } from 'lucide-angular';
+import { LucideAngularModule, Filter, ChevronDown, ChevronUp, X, ArrowLeft } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
+import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
+import { academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
 
 @Component({
     selector: 'app-statistics-main',
-    imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule, FullscreenPanelComponent],
+    imports: [CommonModule, FormsModule, SelectComponent, LucideAngularModule, FullscreenPanelComponent, ButtonComponent],
     templateUrl: './statistics-main.component.html',
     styleUrl: './statistics-main.component.scss'
 })
@@ -29,6 +32,7 @@ export class StatisticsMainComponent implements OnInit {
     readonly ChevronDown = ChevronDown;
     readonly ChevronUp = ChevronUp;
     readonly X = X;
+    readonly ArrowLeft = ArrowLeft;
 
     private statisticsService = inject(StatisticsService);
     private districtService = inject(DistrictService);
@@ -36,6 +40,8 @@ export class StatisticsMainComponent implements OnInit {
     private teacherService = inject(TeacherService);
     private authService = inject(AuthService);
     private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private navigationHistory = inject(NavigationHistoryService);
 
     statistics: StatisticsResponse | null = null;
     isLoading = false;
@@ -162,8 +168,22 @@ export class StatisticsMainComponent implements OnInit {
     private readonly currentAcademicYear = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
     years = Array.from({ length: 6 }, (_, i) => this.currentAcademicYear - i);
 
+    /** Фильтр по учебному году открыт всем ролям, имеющим доступ к странице (П.8b) — раньше
+     *  неадминам отдавался только текущий год. Глубина истории (6 лет) не меняется. */
     get availableYears(): number[] {
-        return this.isAdminUser ? this.years : [this.currentAcademicYear];
+        return this.years;
+    }
+
+    /** Подзаголовок собирается из выбранного года (П.8a) — при смене года в фильтре меняется. */
+    get selectedYearSubtitle(): string {
+        return `${academicYearPeriodLabel(this.selectedYear)} üzrə ətraflı statistika`;
+    }
+
+    /** Возврат туда, откуда пришли (П.9a); /panel — фолбэк на прямой заход/F5. Точная копия
+     *  goBack() из region-profile.component.ts. Показывается всегда — на страницу приходят откуда-то. */
+    goBack(): void {
+        if (this.navigationHistory.canGoBack()) this.navigationHistory.back();
+        else this.router.navigate(['/panel']);
     }
 
     // Options для select компонентов
@@ -236,9 +256,10 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        // inkishafMinParticipations = 3 для неадминов — отдельное продуктовое правило, к году
+        // отношения не имеет (П.8b). Принудительный сброс года для неадминов убран — фильтр открыт всем.
         if (!this.isAdminUser) {
             this.inkishafMinParticipations = 3;
-            this.selectedYear = this.currentAcademicYear;
         }
 
         // Ссылка «Ətraflı statistika» с профилей учителя/школы/района (PROFILES_V2_TASK.md §4.4)
@@ -277,7 +298,7 @@ export class StatisticsMainComponent implements OnInit {
         if (params['teacherIds']) {
             this.selectedTeacherIds = String(params['teacherIds']).split(',').filter((id: string) => id.trim() !== '');
         }
-        if (params['year'] && this.isAdminUser) {
+        if (params['year']) {
             const year = parseInt(params['year'], 10);
             if (!isNaN(year)) this.selectedYear = year;
         }
@@ -356,6 +377,7 @@ export class StatisticsMainComponent implements OnInit {
         this.statisticsService.getInkishafStatistics({
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
+            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined,
             year: this.selectedYear,
             minParticipations: this.inkishafMinParticipations
@@ -391,11 +413,12 @@ export class StatisticsMainComponent implements OnInit {
         this.loadInkishafStatistics();
     }
 
-    /** Inkişaf statistikası (getInkishafStatistics) teacherIds не поддерживает — только
-     *  districtIds/schoolIds/grades/year (InkishafFilter, statistics.model.ts). Учитель — самый
-     *  узкий фильтр, statistics.service.pg.ts::applyStudentFilters уже AND'ит его со schoolIds. */
     onTeacherChange(): void {
         this.loadStatistics();
+        // Блок «İnkişaf» тоже сужается по учителю: без teacherIds цифра развивающихся считалась
+        // по всей школе, а не по конкретному учителю (П.9b). Бэкенд teacherIds здесь поддерживает
+        // (applyStudentFilters в statistics.service.pg.ts).
+        this.loadInkishafStatistics();
     }
 
     onGradeChange(): void {

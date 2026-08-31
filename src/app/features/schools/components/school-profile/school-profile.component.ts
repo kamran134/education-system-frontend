@@ -253,7 +253,7 @@ export class SchoolProfileComponent implements OnInit {
 
         const user = this.authService.getCurrentUserValue();
         const crumbs: { text: string; link?: any[] }[] = [];
-        if (!this.isOwnHome) crumbs.push({ text: 'Kabinetim', link: ['/panel'] });
+        // Крошку «Kabinetim» убрали (П.3) — домашняя кнопка в шапке и «Geri» на профиле остаются.
         if (school.district) {
             const canViewDistrict = canViewAncestorCrumb(user, 'district', school.district.id);
             crumbs.push({ text: school.district.name, link: canViewDistrict ? ['/districts', school.district.id, 'profile'] : undefined });

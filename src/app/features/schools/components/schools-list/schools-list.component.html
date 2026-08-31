@@ -16,14 +16,14 @@
       <div class="flex items-center space-x-2 mb-4">
         <h3 class="text-sm font-medium text-gray-900">Filtrlər</h3>
         @if (districts.length === 0) {
-          <span class="text-xs text-gray-500">(Rayonlar yüklənir...)</span>
+          <span class="text-xs text-gray-500">(Təhsil sektorları yüklənir...)</span>
         }
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <app-select
-            label="Rayon / şəhər seçin"
+            label="Təhsil sektorlarını seçin"
             [multiple]="true"
             [(ngModel)]="selectedDistrictIds"
             [options]="districtOptions"

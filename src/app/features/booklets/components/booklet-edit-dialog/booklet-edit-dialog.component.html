@@ -1,6 +1,6 @@
 <app-modal
   title="Kitabçanı redaktə et"
-  subtitle="Adı və rayonu dəyişə bilərsiniz"
+  subtitle="Adı və təhsil sektorunu dəyişə bilərsiniz"
   size="md"
   [buttons]="modalButtons"
   (closed)="dialogRef.close(null)"
@@ -16,12 +16,12 @@
 
     <!-- District -->
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Rayon</label>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Təhsil sektoru</label>
       <select
         [(ngModel)]="selectedDistrictId"
         name="district"
         class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
-        <option value="">— Rayon seçilməyib —</option>
+        <option value="">— Təhsil sektoru seçilməyib —</option>
         @for (d of districts; track d) {
           <option [value]="d.id">{{ d.name }}</option>
         }

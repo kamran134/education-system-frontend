@@ -627,7 +627,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         }
 
         if (this.needsDistrictSelection && !this.dataSource.districtId) {
-            this.toastService.show('Rayon nümayəndəsi üçün rayon seçilməlidir!', 'error');
+            this.toastService.show('Rayon nümayəndəsi üçün təhsil sektoru seçilməlidir!', 'error');
             return;
         }
 

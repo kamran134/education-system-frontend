@@ -1,10 +1,10 @@
 <app-list-layout
-  title="Rayonlar / şəhərlər"
-  description="Bütün rayonlar və şəhərlərin siyahısı"
+  title="Təhsil sektorları"
+  description="Bütün təhsil sektorlarının siyahısı"
   [isLoading]="isLoading"
   [hasError]="hasError"
   [errorMessage]="errorMessage"
-  loadingText="Rayonlar yüklənir..."
+  loadingText="Təhsil sektorları yüklənir..."
   [actionButtons]="actionButtons"
   [backButton]="backButton"
 >
@@ -17,7 +17,7 @@
         }
       </span>
     </ng-template>
-    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Rayonlar / şəhərlər">
+    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Təhsil sektorları">
       <app-data-table
         [data]="districts"
         [columns]="tableColumns"

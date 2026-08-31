@@ -142,7 +142,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         { label: 'İlin şagirdləri', key: 'allStudents', permission: 'showStudentsTab' },
         { label: 'İlin müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
         { label: 'İlin məktəbləri', key: 'allSchools', permission: 'showSchoolsTab' },
-        { label: 'İlin rayonları / şəhərləri', key: 'allDistricts', permission: 'showDistrictsTab' },
+        { label: 'İlin təhsil sektorları', key: 'allDistricts', permission: 'showDistrictsTab' },
         { label: 'İlin regional idarələri', key: 'allRegions', permission: 'showRegionsTab' }
     ];
 
@@ -184,10 +184,6 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     // Данные текущего пользователя
     currentUser: any = null;
-    currentUserName: string = '';
-    currentSchoolName: string = '';
-    currentDistrictName: string = '';
-    currentRegionName: string = '';
 
     constructor(
         private authService: AuthService,
@@ -381,10 +377,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             // Для директора школы - загружаем данные школы
             this.schoolService.getSchoolById(this.currentUser.schoolId).subscribe({
                 next: (school) => {
-                    this.currentSchoolName = school.name;
-                    if (school.district) {
-                        this.currentDistrictName = school.district.name;
-                    }
                     // Автоматически устанавливаем фильтры для директора
                     this.selectedSchoolIds = [this.currentUser.schoolId];
                     if (school.district?.id) {
@@ -399,7 +391,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             // Для представителя региона - загружаем данные региона
             this.regionService.getRegionById(this.currentUser.regionId).subscribe({
                 next: (region) => {
-                    this.currentRegionName = region.name;
                     // Автоматически устанавливаем фильтр для представителя региона
                     this.selectedRegionIds = [this.currentUser.regionId];
                     this.loadDistricts();
@@ -412,7 +403,6 @@ export class StatsComponent implements OnInit, OnDestroy {
             // Для представителя района - загружаем данные района
             this.districtService.getDistrictById(this.currentUser.districtId).subscribe({
                 next: (district) => {
-                    this.currentDistrictName = district.name;
                     // Автоматически устанавливаем фильтр для представителя района
                     this.selectedDistrictIds = [this.currentUser.districtId];
                     // Reload current tab now that filters are set
@@ -424,16 +414,13 @@ export class StatsComponent implements OnInit, OnDestroy {
             // Для учителя - загружаем данные учителя
             this.teacherService.getTeacherById(this.currentUser.teacherId).subscribe({
                 next: (teacher) => {
-                    this.currentUserName = teacher.fullname;
                     // Автоматически устанавливаем фильтры для учителя
                     this.selectedTeacherIds = [this.currentUser.teacherId];
                     if (teacher.school?.id) {
                         this.selectedSchoolIds = [teacher.school.id];
-                        this.currentSchoolName = teacher.school.name;
                     }
                     if (teacher.district?.id) {
                         this.selectedDistrictIds = [teacher.district.id];
-                        this.currentDistrictName = teacher.district.name;
                     }
                     // Reload current tab now that filters are set
                     this.reloadCurrentTab();
@@ -457,30 +444,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    // Геттеры для отображения заголовков страницы
-    get pageTitle(): string {
-        const role = this.authorizedUserRole;
-
-        if (role === 'schoolDirector') {
-            return this.currentDistrictName && this.currentSchoolName
-                ? `${this.currentDistrictName} rayon ${this.currentSchoolName}`
-                : 'Məktəb direktoru';
-        } else if (role === 'teacher') {
-            return this.currentUserName
-                ? `Layihə müəllimi: ${this.currentUserName}`
-                : 'Müəllim';
-        } else if (role === 'districtRepresenter') {
-            return this.currentDistrictName
-                ? `${this.currentDistrictName} rayon`
-                : 'Rayon nümayəndəsi';
-        } else if (role === 'regionRepresenter') {
-            return this.currentRegionName
-                ? this.currentRegionName
-                : 'Regional təhsil idarəsi nümayəndəsi';
-        }
-
-        return '';
-    }
+    // pageTitle со всей ролевой логикой удалён (П.7): заголовок теперь единый статический
+    // в шаблоне. Поля current*Name больше нигде не читались — тоже убраны.
 
     // Фильтр бесполезен для роли, если его значение и так жёстко зафиксировано контекстом
     // роли (например, у представителя района всегда выбран его единственный район) —
@@ -1232,10 +1197,10 @@ export class StatsComponent implements OnInit, OnDestroy {
         }
     }
 
-    /** OOXML запрещает : \ / ? * [ ] в имени листа — учебный год приходит как «2025/2026», а
-     *  у таба районов слэш есть и в самом названии («İlin rayonları / şəhərləri»). Без этого
-     *  book_append_sheet кидает исключение прямо внутри subscribe(next), и экспорт молча
-     *  ничего не скачивает (док. 26.08.2026, п.5). */
+    /** OOXML запрещает : \ / ? * [ ] в имени листа — учебный год приходит как «2025/2026»,
+     *  слэш из него нужно вычистить. Без этого book_append_sheet кидает исключение прямо
+     *  внутри subscribe(next), и экспорт молча ничего не скачивает (док. 26.08.2026, п.5).
+     *  (После П.4 в самих названиях табов слэша больше нет, но год его всё ещё содержит.) */
     private sanitizeSheetName(name: string): string {
         return name.replace(/[:\\/?*[\]]/g, '-');
     }
@@ -1342,7 +1307,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<District>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), `İlin rayonları / şəhərləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), `İlin təhsil sektorları ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;

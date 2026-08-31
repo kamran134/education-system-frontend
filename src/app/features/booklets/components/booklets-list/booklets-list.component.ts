@@ -98,7 +98,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         { key: 'name',         label: 'Ad',       sortable: false, type: 'text' },
         { key: 'variant',      label: 'Variant',  sortable: true,  type: 'text' },
         { key: 'grade',        label: 'Sinif',    sortable: true,  type: 'number' },
-        { key: 'districtName', label: 'Rayon',    sortable: false, type: 'text' },
+        { key: 'districtName', label: 'Təhsil sektoru',    sortable: false, type: 'text' },
         { key: 'examName',     label: 'İmtahan',  sortable: false, type: 'text' },
     ];
 

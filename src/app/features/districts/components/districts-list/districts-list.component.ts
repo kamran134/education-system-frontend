@@ -57,7 +57,7 @@ export class DistrictsListComponent implements OnInit {
 
     get tableColumns(): TableColumn[] {
         return [
-            { key: 'code', label: 'Rayon / şəhər kodu', sortable: true, type: 'text' },
+            { key: 'code', label: 'Təhsil sektorunun kodu', sortable: true, type: 'text' },
             { key: 'name', label: 'Adı', sortable: true, cellTemplate: this.nameCellTemplate },
             { key: 'regionName', label: 'Regional idarə', sortable: false, type: 'text' },
             { key: 'studentCount', label: 'Şagird sayı', sortable: true, type: 'number', align: 'center' }
@@ -143,7 +143,7 @@ export class DistrictsListComponent implements OnInit {
 
         if (this.authService.canCreateDistricts()) {
             this.actionButtons.push({
-                label: 'Yeni rayon / şəhər əlavə et',
+                label: 'Yeni təhsil sektoru əlavə et',
                 icon: this.Plus,
                 action: () => this.openAddDistrictDialog(),
                 variant: 'primary'
@@ -186,7 +186,7 @@ export class DistrictsListComponent implements OnInit {
                         this.districts = [newDistrict, ...this.districts];
                         this.totalCount++;
                         this.isLoading = false;
-                        this.toastService.show(response.message || 'Rayon / şəhər uğurla yaradıldı', 'success');
+                        this.toastService.show(response.message || 'Təhsil sektoru uğurla yaradıldı', 'success');
                     },
                     error: (error) => {
                         this.isLoading = false;

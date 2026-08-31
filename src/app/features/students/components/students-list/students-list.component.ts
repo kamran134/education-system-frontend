@@ -107,7 +107,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         { key: 'grade', label: 'Sinif', sortable: true, type: 'number' },
         { key: 'teacher.fullname', label: 'Müəllimi', sortable: false, type: 'text' },
         { key: 'school.name', label: 'Məktəbi', sortable: false, type: 'text' },
-        { key: 'district.name', label: 'Rayonu / şəhəri', sortable: false, type: 'text' }
+        { key: 'district.name', label: 'Təhsil sektoru', sortable: false, type: 'text' }
     ];
 
     tableActions: TableAction[] = [

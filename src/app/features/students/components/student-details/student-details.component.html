@@ -93,7 +93,7 @@
               <span class="ml-2 text-gray-900">{{ student.school?.name }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700">Rayonu / şəhəri:</span>
+              <span class="font-medium text-gray-700">Təhsil sektoru:</span>
               <span class="ml-2 text-gray-900">{{ student.district?.name }}</span>
             </div>
           </div>
@@ -115,7 +115,7 @@
           </div>
         </div>
         <div class="p-6">
-          @if (currentResults.length === 0 && previousResults.length === 0) {
+          @if (student.results.length === 0) {
             <div class="text-center py-8">
               <p class="text-gray-500">İmtahan nəticələri tapılmadı</p>
             </div>
@@ -237,20 +237,28 @@
               </table>
             </div>
           }
-          <!-- Previous year results toggle -->
-          @if (previousResults.length > 0) {
+          <!-- Əvvəlki siniflərin nəticələri — фильтр по классам вместо старого тоггла (П.10b) -->
+          @if (previousGradeOptions.length > 0) {
             <div class="mt-6">
-              <button
-                (click)="showPreviousResults = !showPreviousResults"
-                class="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-                <lucide-icon
-                  [img]="showPreviousResults ? ChevronUp : ChevronDown"
-                  class="w-4 h-4">
-                </lucide-icon>
-                {{ showPreviousResults ? 'Əvvəlki illərin nəticələrini gizlət' : 'Əvvəlki illərin nəticələrini göstər' }}
-                <span class="text-gray-400 font-normal">({{ previousResults.length }})</span>
-              </button>
-              @if (showPreviousResults) {
+              <div class="flex items-end gap-3 flex-wrap">
+                <div class="w-72">
+                  <app-select
+                    label="Əvvəlki siniflərin nəticələrinin göstər"
+                    [multiple]="true"
+                    [(ngModel)]="selectedPreviousGrades"
+                    [options]="previousGradeSelectOptions">
+                  </app-select>
+                </div>
+                @if (selectedPreviousGrades.length > 0) {
+                  <app-button variant="outline" (clicked)="exportVisibleToExcel()">
+                    <div class="flex items-center space-x-2">
+                      <lucide-icon [img]="Download" class="w-4 h-4"></lucide-icon>
+                      <span>Seçilmiş sinifləri eksport et</span>
+                    </div>
+                  </app-button>
+                }
+              </div>
+              @if (expandedResults.length > 0) {
                 <div class="mt-3 overflow-x-auto">
                   <table class="w-full border-collapse">
                     <thead>
@@ -259,13 +267,13 @@
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
-                        @if (previousResults[0]?.status) {
+                        @if (expandedResults[0]?.status) {
                           <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Status</th>
                         }
                       </tr>
                     </thead>
                     <tbody>
-                      @for (result of previousResults; track trackByResultId($index, result)) {
+                      @for (result of expandedResults; track trackByResultId($index, result)) {
                         <tr class="hover:bg-blue-50 transition-colors">
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.yyyy') : '—' }}
@@ -315,7 +323,7 @@
                               }
                             </div>
                           </td>
-                          @if (previousResults[0]?.status) {
+                          @if (expandedResults[0]?.status) {
                             <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                               <div class="space-y-1">
                                 <div>{{ result.status || '—' }}</div>

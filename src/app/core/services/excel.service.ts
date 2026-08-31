@@ -26,7 +26,7 @@ export class ExcelService {
         ['grade',             { label: 'Sinfi',            accessor: (r: any) => r.studentData?.grade }],
         ['teacher',           { label: 'Müəllimi',         accessor: (r: any) => r.studentData?.teacher?.fullname || 'Müəllim tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (r: any) => r.studentData?.school?.name || 'Məktəb tapılmadı' }],
-        ['district',          { label: 'Rayonu / şəhəri', accessor: (r: any) => r.studentData?.district?.name || 'Rayon / şəhər tapılmadı' }],
+        ['district',          { label: 'Təhsil sektoru', accessor: (r: any) => r.studentData?.district?.name || 'Təhsil sektoru tapılmadı' }],
         ['totalScore',        { label: 'İmtahan balı',    accessor: (r: any) => r.totalScore ?? 0 }],
         ['score',             { label: 'Reytinq xalı',             accessor: (r: any) => r.score ?? 0 }],
         ['averageScore',      { label: 'Orta reytinq xalı',        accessor: (r: any) => r.studentData?.averageScore ?? 0 }],
@@ -35,7 +35,7 @@ export class ExcelService {
 
     private readonly studentColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
         ['place',             { label: 'Respublika üzrə yer', accessor: (s: any) => s.place || '' }],
-        ['districtPlace',     { label: 'Rayon/şəhər üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
+        ['districtPlace',     { label: 'Təhsil sektoru üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
         ['filterPlace',       { label: 'Filtr üzrə yer',    accessor: (s: any) => s.filterPlace || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (s: any) => s.code }],
         ['lastName',          { label: 'Soyadı',           accessor: (s: any) => s.lastName }],
@@ -44,7 +44,7 @@ export class ExcelService {
         ['grade',             { label: 'Sinfi',            accessor: (s: any) => s.grade }],
         ['teacher',           { label: 'Müəllimi',         accessor: (s: any) => s.teacher?.fullname || 'Müəllim tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (s: any) => s.school?.name || 'Məktəb tapılmadı' }],
-        ['district',          { label: 'Rayonu / şəhəri', accessor: (s: any) => s.district?.name || 'Rayon / şəhər tapılmadı' }],
+        ['district',          { label: 'Təhsil sektoru', accessor: (s: any) => s.district?.name || 'Təhsil sektoru tapılmadı' }],
         ['score',             { label: 'Reytinq xalı',     accessor: (s: any) => s.score ?? 0 }],
         ['averageScore',      { label: 'Orta reytinq xalı',        accessor: (s: any) => s.averageScore ?? 0 }],
         ['participationCount',{ label: 'İştirak sayı',    accessor: (s: any) => s.participationCount ?? 0 }],
@@ -52,12 +52,12 @@ export class ExcelService {
 
     private readonly teacherColumnMap = new Map<string, { label: string; accessor: (t: any) => any }>([
         ['place',        { label: 'Respublika üzrə yer',   accessor: (t: any) => t.place || '' }],
-        ['districtPlace',{ label: 'Şəhər/rayon üzrə yer',  accessor: (t: any) => t.districtPlace || '' }],
+        ['districtPlace',{ label: 'Təhsil sektoru üzrə yer',  accessor: (t: any) => t.districtPlace || '' }],
         ['filterPlace',  { label: 'Filtr üzrə yer',        accessor: (t: any) => t.filterPlace || '' }],
         ['code',         { label: 'Müəllimin kodu',        accessor: (t: any) => t.code }],
         ['fullName',     { label: 'Soyadı, adı, ata adı', accessor: (t: any) => t.fullname }],
         ['school',       { label: 'Məktəbi',               accessor: (t: any) => t.school?.name || '' }],
-        ['district',     { label: 'Rayonu / şəhəri',       accessor: (t: any) => t.district?.name || 'Rayon / şəhər tapılmadı' }],
+        ['district',     { label: 'Təhsil sektoru',       accessor: (t: any) => t.district?.name || 'Təhsil sektoru tapılmadı' }],
         ['studentCount', { label: 'Şagird sayı',           accessor: (t: any) => t.studentCount ?? 0 }],
         ['score',        { label: 'Reytinq xalı',            accessor: (t: any) => t.score ?? 0 }],
         ['averageScore', { label: 'Orta reytinq xalı',             accessor: (t: any) => t.averageScore ?? 0 }],
@@ -65,11 +65,11 @@ export class ExcelService {
 
     private readonly schoolColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
         ['place',        { label: 'Respublika üzrə yer', accessor: (s: any) => s.place || '' }],
-        ['districtPlace',{ label: 'Şəhər/rayon üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
+        ['districtPlace',{ label: 'Təhsil sektoru üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
         ['filterPlace',  { label: 'Filtr üzrə yer',      accessor: (s: any) => s.filterPlace || '' }],
         ['code',         { label: 'Məktəbin kodu',     accessor: (s: any) => s.code }],
         ['name',         { label: 'Adı',               accessor: (s: any) => s.name }],
-        ['district',     { label: 'Rayonu / şəhəri',  accessor: (s: any) => s.district?.name || 'Rayon / şəhər tapılmadı' }],
+        ['district',     { label: 'Təhsil sektoru',  accessor: (s: any) => s.district?.name || 'Təhsil sektoru tapılmadı' }],
         ['studentCount', { label: 'Şagird sayı',       accessor: (s: any) => s.studentCount ?? 0 }],
         ['score',        { label: 'Reytinq xalı',        accessor: (s: any) => s.score ?? 0 }],
         ['averageScore', { label: 'Orta reytinq xalı',         accessor: (s: any) => s.averageScore ?? 0 }],
@@ -78,7 +78,7 @@ export class ExcelService {
     private readonly districtColumnMap = new Map<string, { label: string; accessor: (d: any) => any }>([
         ['place',        { label: 'Respublika üzrə yer', accessor: (d: any) => d.place || '' }],
         ['filterPlace',  { label: 'Filtr üzrə yer',       accessor: (d: any) => d.filterPlace || '' }],
-        ['code',         { label: 'Rayon / şəhər kodu', accessor: (d: any) => d.code }],
+        ['code',         { label: 'Təhsil sektorunun kodu', accessor: (d: any) => d.code }],
         ['name',         { label: 'Adı',                 accessor: (d: any) => d.name }],
         ['studentCount', { label: 'Şagird sayı',         accessor: (d: any) => d.studentCount ?? 0 }],
         ['score',        { label: 'Reytinq xalı',          accessor: (d: any) => d.score ?? 0 }],
@@ -90,7 +90,7 @@ export class ExcelService {
         ['filterPlace',   { label: 'Filtr üzrə yer',       accessor: (r: any) => r.filterPlace || '' }],
         ['code',          { label: 'Regional idarə kodu', accessor: (r: any) => r.code }],
         ['name',          { label: 'Adı',                 accessor: (r: any) => r.name }],
-        ['districtCount', { label: 'Rayon sayı',          accessor: (r: any) => r.districtCount ?? 0 }],
+        ['districtCount', { label: 'Təhsil sektorlarının sayı',          accessor: (r: any) => r.districtCount ?? 0 }],
         ['studentCount',  { label: 'Şagird sayı',         accessor: (r: any) => r.studentCount ?? 0 }],
         ['score',         { label: 'Reytinq xalı',          accessor: (r: any) => r.score ?? 0 }],
         ['averageScore',  { label: 'Orta reytinq xalı',           accessor: (r: any) => r.averageScore ?? 0 }],
@@ -196,50 +196,57 @@ export class ExcelService {
         XLSX.writeFile(wb, `istifadeci-${safeEmail}.xlsx`);
     }
 
-    formatStudentDetailsData(student: StudentWithResult): any[] {
-        return student.results.map(result => (
-            student.grade < 5 ? {
-                'Şagirdin kodu': student.code,
+    /** Полные азербайджанские подписи предметов (не сокращения из стилизованного экспорта). */
+    private readonly studentDetailDisciplines: Array<{ key: 'az' | 'math' | 'lifeKnowledge' | 'logic' | 'english'; label: string }> = [
+        { key: 'az',            label: 'Azərbaycan dili' },
+        { key: 'math',          label: 'Riyaziyyat' },
+        { key: 'lifeKnowledge', label: 'Həyat bilgisi' },
+        { key: 'logic',         label: 'Məntiq' },
+        { key: 'english',       label: 'İngilis dili' },
+    ];
+
+    /**
+     * Экспорт результатов ученика. `results` — уже отфильтрованный набор строк (текущий год для
+     * основной кнопки, выбранные классы для второй) — сам метод историю не режет.
+     * Одна ветка вместо прежних grade<5 / grade>=5: единственное отличие было в наличии
+     * «Həyat bilgisi», а это теперь решает динамический список предметов.
+     */
+    formatStudentDetailsData(student: StudentWithResult, results?: ExamResult[]): any[] {
+        const rows = results ?? student.results ?? [];
+
+        // Предметная колонка выводится, только если хотя бы в одной экспортируемой строке по ней
+        // есть ненулевой балл (П.10e). Тот же подход, что в exportExamResultsStyled.
+        const activeDisciplines = this.studentDetailDisciplines.filter(d =>
+            rows.some(r => {
+                const v = (r.disciplines as any)?.[d.key];
+                return v != null && v !== 0;
+            })
+        );
+
+        return rows.map(result => {
+            const row: Record<string, any> = {
+                // Код строкой: 10-значное число Excel сворачивает в «1.2E+09» (П.10f).
+                'Şagirdin kodu': String(student.code),
                 'Soyadı': student.lastName,
                 'Adı': student.firstName,
                 'Atasının adı': student.middleName,
-                'Sinfi': student.grade,
+                // Класс на момент экзамена, а не текущий класс ученика (тот растёт каждый год) — П.10d.
+                'Sinfi': result.grade,
                 'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
                 'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
-                'Rayonu / şəhəri': student.district?.name || 'Rayon / şəhər tapılmadı',
+                'Təhsil sektoru': student.district?.name || 'Təhsil sektoru tapılmadı',
                 'İmtahanın adı': result.exam?.name,
-                'Balı': result.score,
+                'Reytinq xalı': result.score,
                 'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
-                'Azərbaycan dili': result.disciplines?.az || 0,
-                'Riyaziyyat': result.disciplines?.math || 0,
-                'Həyat bilgisi': result.disciplines?.lifeKnowledge || 0,
-                'Məntiq': result.disciplines?.logic || 0,
-                'Ümumi balı': result.totalScore || 0,
-                'Pilləsi': result.level || 'Pillə tapılmadı',
-                'Statusu': this.formatStudentAchievements(result),
+            };
+            for (const d of activeDisciplines) {
+                row[d.label] = result.disciplines?.[d.key] ?? 0;
             }
-            :
-            {
-                'Şagirdin kodu': student.code,
-                'Soyadı': student.lastName,
-                'Adı': student.firstName,
-                'Atasının adı': student.middleName,
-                'Sinfi': student.grade,
-                'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
-                'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
-                'Rayonu / şəhəri': student.district?.name || 'Rayon / şəhər tapılmadı',
-                'İmtahanın adı': result.exam?.name,
-                'Balı': result.score,
-                'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
-                //'Tarixi': result.exam.date ? new Date(result.exam.date).toLocaleDateString() : 'Tarix tapılmadı',
-                'Azərbaycan dili': result.disciplines?.az || 0,
-                'Riyaziyyat': result.disciplines?.math || 0,
-                'Məntiq': result.disciplines?.logic || 0,
-                'Ümumi balı': result.totalScore || 0,
-                'Pilləsi': result.level || 'Pillə tapılmadı',
-                'Statusu': this.formatStudentAchievements(result),
-            }
-        ));
+            row['İmtahan balı'] = result.totalScore || 0;
+            row['Pilləsi'] = result.level || 'Pillə tapılmadı';
+            row['Statusu'] = this.formatStudentAchievements(result);
+            return row;
+        });
     }
 
     formatHeaders(ws: XLSX.WorkSheet) {

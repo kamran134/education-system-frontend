@@ -39,7 +39,7 @@ export class SchoolsYearTabComponent {
     private readonly roundPipe = new RoundNumberPipe();
 
     private readonly allColumns: TableColumn[] = [
-        { key: 'districtPlace', label: 'Şəhər/rayon üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
+        { key: 'districtPlace', label: 'Təhsil sektoru üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
         { key: 'place', label: 'Respublika üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
         { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
         { key: 'code', label: 'Məktəbin kodu', sortable: true },
@@ -47,7 +47,7 @@ export class SchoolsYearTabComponent {
         { key: 'studentCount', label: 'Şagird sayı', sortable: true, formatter: COUNT_FORMATTER },
         { key: 'score', label: 'Reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },
         { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, formatter: (v) => this.roundPipe.transform(v) },
-        { key: 'district', label: 'Rayonu / şəhəri', sortable: true, field: 'district.name' }
+        { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'district.name' }
     ];
 
     get columns(): TableColumn[] {

@@ -31,7 +31,7 @@
               {{ yearLabel(rating.year) }}
             </span>
             <span class="text-sm font-bold text-right tabular-nums tracking-tight" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink)'">
-              {{ rating.score != null ? (rating.score | number:'1.0-0') : '—' }}
+              {{ scoreLabel(rating.score) }}
             </span>
             <span class="text-xs font-bold text-right tabular-nums text-[var(--ui-muted)]">
               {{ placeValue(rating) ?? '—' }}

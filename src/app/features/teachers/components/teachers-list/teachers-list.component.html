@@ -16,7 +16,7 @@
       <div class="flex items-center space-x-2 mb-4">
         <h3 class="text-sm font-medium text-gray-900">Filtrlər</h3>
         @if (districts.length === 0) {
-          <span class="text-xs text-gray-500">(Rayonlar yüklənir...)</span>
+          <span class="text-xs text-gray-500">(Təhsil sektorları yüklənir...)</span>
         }
       </div>
 
@@ -24,7 +24,7 @@
         <!-- District Filter -->
         <div>
           <app-select
-            label="Rayonlar / şəhərlər"
+            label="Təhsil sektorları"
             [multiple]="true"
             [(ngModel)]="selectedDistrictIds"
             [options]="districtOptions"
@@ -141,7 +141,7 @@
       @if ((repairingResults.missedDistricts || []).length > 0) {
         <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
           <h3 class="text-lg font-medium text-purple-800 mb-3">
-            Rayonları / şəhərləri tapılmayan müəllimlərin kodları
+            Təhsil sektoru tapılmayan müəllimlərin kodları
           </h3>
           <div class="text-sm text-purple-700 space-y-1">
             @for (teacher of repairingResults.missedDistricts; track teacher) {

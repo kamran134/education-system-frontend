@@ -29,7 +29,7 @@
             <!-- District Filter -->
             <div>
               <app-select
-                label="Rayonlar / şəhərlər"
+                label="Təhsil sektorları"
                 [multiple]="true"
                 [(ngModel)]="selectedDistrictIds"
                 [options]="districtOptions"
@@ -45,7 +45,7 @@
                 [(ngModel)]="selectedSchoolIds"
                 [options]="schoolOptions"
                 [disabled]="schools.length === 0"
-                placeholder="Əvvəl rayon seçin"
+                placeholder="Əvvəl təhsil sektoru seçin"
                 (ngModelChange)="onFilterChange({schools: $event})">
               </app-select>
             </div>
@@ -107,7 +107,7 @@
           @if (!filtersExpanded) {
             <div class="text-sm text-gray-600">
               @if (selectedDistrictIds.length > 0) {
-                <span>{{ selectedDistrictIds.length }} rayon, </span>
+                <span>{{ selectedDistrictIds.length }} təhsil sektoru, </span>
               }
               @if (selectedSchoolIds.length > 0) {
                 <span>{{ selectedSchoolIds.length }} məktəb, </span>
