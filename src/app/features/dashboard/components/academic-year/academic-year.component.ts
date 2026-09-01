@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, GraduationCap, Loader, CheckCircle, AlertTriangle, Lock } from 'lucide-angular';
-import { AcademicYearService, GradePromotionPreview, AcademicYearClosurePreview } from '../../services/academic-year.service';
+import { LucideAngularModule, GraduationCap, Loader, CheckCircle, AlertTriangle, Lock, Award } from 'lucide-angular';
+import { AcademicYearService, GradePromotionPreview, AcademicYearClosurePreview, RatingYearState } from '../../services/academic-year.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { SnackBarService } from '../../../commonComponents/services/snack-bar.service';
 import { academicYearLabel } from '../../../../core/utils/academic-year.util';
@@ -20,6 +20,7 @@ export class AcademicYearComponent implements OnInit {
     readonly CheckCircle = CheckCircle;
     readonly AlertTriangle = AlertTriangle;
     readonly Lock = Lock;
+    readonly Award = Award;
     readonly academicYearLabel = academicYearLabel;
 
     preview: GradePromotionPreview | null = null;
@@ -31,6 +32,10 @@ export class AcademicYearComponent implements OnInit {
     isClosureLoading = false;
     isClosureExecuting = false;
 
+    ratingYearState: RatingYearState | null = null;
+    isRatingYearLoading = false;
+    isRatingYearToggling = false;
+
     constructor(
         private academicYearService: AcademicYearService,
         private dialog: Dialog,
@@ -40,6 +45,7 @@ export class AcademicYearComponent implements OnInit {
     ngOnInit(): void {
         this.loadPreview();
         this.loadClosurePreview();
+        this.loadRatingYearState();
     }
 
     loadPreview(): void {
@@ -153,6 +159,44 @@ export class AcademicYearComponent implements OnInit {
                 this.snackBarService.show(message, 'error');
                 this.isExecuting = false;
                 this.loadPreview();
+            }
+        });
+    }
+
+    // ==================== Reytinq ili (REYTINQ_ILI_TASK.md §7) ====================
+
+    loadRatingYearState(): void {
+        this.isRatingYearLoading = true;
+        this.academicYearService.getRatingYearState().subscribe({
+            next: (state) => {
+                this.ratingYearState = state;
+                this.isRatingYearLoading = false;
+            },
+            error: (error) => {
+                console.error('Reytinq ili vəziyyəti xətası:', error);
+                this.snackBarService.show('Məlumat yüklənərkən xəta baş verdi', 'error');
+                this.isRatingYearLoading = false;
+            }
+        });
+    }
+
+    /** Checkbox dəyişdikdə çağırılır — dərhal PUT, sonra vəziyyəti yenidən oxuyur. */
+    onToggleRatingYear(checked: boolean): void {
+        if (this.isRatingYearToggling || !this.ratingYearState) return;
+
+        this.isRatingYearToggling = true;
+        this.academicYearService.setRatingYearActivated(checked).subscribe({
+            next: () => {
+                this.snackBarService.show('Yadda saxlanıldı', 'success');
+                this.isRatingYearToggling = false;
+                this.loadRatingYearState();
+            },
+            error: (error) => {
+                console.error('Reytinq ili dəyişdirmə xətası:', error);
+                const message = error?.error?.message || 'Dəyişiklik yadda saxlanılmadı';
+                this.snackBarService.show(message, 'error');
+                this.isRatingYearToggling = false;
+                this.loadRatingYearState();
             }
         });
     }

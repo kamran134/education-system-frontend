@@ -41,6 +41,12 @@ export interface AcademicYearClosureResult {
     academicYear: number;
 }
 
+export interface RatingYearState {
+    ratingYear: number;
+    currentAcademicYear: number;
+    activated: boolean;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -68,6 +74,23 @@ export class AcademicYearService {
     executeClosure(note?: string): Observable<AcademicYearClosureResult> {
         const url = `${this.configService.getApiUrl()}/academic-year/closure`;
         return this.http.post<ApiResponse<AcademicYearClosureResult>>(url, { confirm: true, note }, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    /**
+     * REYTINQ_ILI_TASK.md §7 — тумблер «Yeni tədris ili». Свежий запрос, не через закэшированный
+     * core/services/rating-year.service.ts: страница должна показать актуальное состояние сразу
+     * после переключения, а не то, что закэшировано на время жизни приложения.
+     */
+    getRatingYearState(): Observable<RatingYearState> {
+        const url = `${this.configService.getApiUrl()}/reference/rating-year`;
+        return this.http.get<ApiResponse<RatingYearState>>(url, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    setRatingYearActivated(activated: boolean): Observable<{ activated: boolean }> {
+        const url = `${this.configService.getApiUrl()}/academic-year/rating-year`;
+        return this.http.put<ApiResponse<{ activated: boolean }>>(url, { activated }, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 }

@@ -27,7 +27,8 @@ import { DistrictEditingDialogComponent } from '../district-editing-dialog/distr
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
-import { getCurrentAcademicYear, academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
+import { getCurrentAcademicYear, academicYearPeriodLabel, academicYearLabel } from '../../../../core/utils/academic-year.util';
+import { RatingYearService } from '../../../../core/services/rating-year.service';
 
 const SCHOOLS_PAGE_SIZE = 12;
 
@@ -85,6 +86,9 @@ export class DistrictProfileComponent implements OnInit {
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
     readonly periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
+    /** REYTINQ_ILI_TASK.md §6 — «2025/2026 reytinqi» рядом с заголовком карточек, только когда
+     *  показанный год рейтинга отличается от текущего учебного. */
+    ratingYearLabel: string | null = null;
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
@@ -104,7 +108,8 @@ export class DistrictProfileComponent implements OnInit {
         private snackBarService: SnackBarService,
         private dialog: Dialog,
         private navigationHistory: NavigationHistoryService,
-        private profileChangeService: ProfileChangeService
+        private profileChangeService: ProfileChangeService,
+        private ratingYearService: RatingYearService
     ) {}
 
     ngOnInit(): void {
@@ -114,6 +119,14 @@ export class DistrictProfileComponent implements OnInit {
             this.statsDetailsQueryParams = { districtIds: this.districtId };
             this.loadDistrict();
             this.resetAndLoadSchools();
+        });
+        this.ratingYearService.getState().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (state) => {
+                this.ratingYearLabel = state.ratingYear !== state.currentAcademicYear
+                    ? academicYearLabel(state.ratingYear) + ' reytinqi'
+                    : null;
+            },
+            error: () => { this.ratingYearLabel = null; }
         });
     }
 

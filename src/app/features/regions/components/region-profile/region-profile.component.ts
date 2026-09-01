@@ -18,7 +18,8 @@ import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
-import { getCurrentAcademicYear, academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
+import { getCurrentAcademicYear, academicYearPeriodLabel, academicYearLabel } from '../../../../core/utils/academic-year.util';
+import { RatingYearService } from '../../../../core/services/rating-year.service';
 import { RegionEditingDialogComponent } from '../region-editing-dialog/region-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
@@ -64,6 +65,9 @@ export class RegionProfileComponent implements OnInit {
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
     readonly periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
+    /** REYTINQ_ILI_TASK.md §6 — «2025/2026 reytinqi» рядом с заголовком карточек, только когда
+     *  показанный год рейтинга отличается от текущего учебного (иначе подпись избыточна). */
+    ratingYearLabel: string | null = null;
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
@@ -82,7 +86,8 @@ export class RegionProfileComponent implements OnInit {
         private configService: ConfigService,
         private snackBarService: SnackBarService,
         private dialog: Dialog,
-        private navigationHistory: NavigationHistoryService
+        private navigationHistory: NavigationHistoryService,
+        private ratingYearService: RatingYearService
     ) {}
 
     ngOnInit(): void {
@@ -92,6 +97,14 @@ export class RegionProfileComponent implements OnInit {
             this.loadRegion();
             this.resetAndLoadDistricts();
             this.loadStatsDetailsQueryParams();
+        });
+        this.ratingYearService.getState().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (state) => {
+                this.ratingYearLabel = state.ratingYear !== state.currentAcademicYear
+                    ? academicYearLabel(state.ratingYear) + ' reytinqi'
+                    : null;
+            },
+            error: () => { this.ratingYearLabel = null; }
         });
     }
 

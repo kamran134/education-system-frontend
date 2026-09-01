@@ -134,6 +134,9 @@
           <h2 class="flex items-center gap-2.5 text-[15px] font-bold tracking-tight text-[var(--ui-ink)]">
             Layihə müəllimləri
             <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ teachersTotal }} nəfər, reytinq üzrə</span>
+            @if (ratingYearLabel) {
+              <span class="text-xs font-normal text-[var(--ui-muted)]">· {{ ratingYearLabel }}</span>
+            }
           </h2>
           @if (permissions.canAccessRoute('canAccessSchools')) {
             <a [routerLink]="['/schools', schoolId, 'teachers']"
