@@ -131,7 +131,11 @@
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
                       Fənlər üzrə ballar
-                      @if (student.grade >= 5) {
+                      <!-- Класс НА МОМЕНТ ЭКЗАМЕНА (result.grade), не живой student.grade — тот
+                           после повышения врёт задним числом (SINIF_TARIXCESI_TASK.md §3.3).
+                           Это заголовок столбца (вне @for по result), поэтому — по всем строкам
+                           текущего года разом, а не по одной конкретной. -->
+                      @if (currentResults.some(r => r.grade >= 5)) {
                         <span class="text-xs text-gray-500">(Sual sayı)</span>
                       }
                     </th>
@@ -164,7 +168,7 @@
                           @if (result.disciplines?.az !== undefined) {
                             <div>
                               Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
-                              @if (student.grade >= 5 && result.questionCounts?.az) {
+                              @if (result.grade >= 5 && result.questionCounts?.az) {
                                 <span class="text-xs text-gray-500"> ({{ result.questionCounts?.az }})</span>
                               }
                             </div>
@@ -172,7 +176,7 @@
                           @if (result.disciplines?.math !== undefined) {
                             <div>
                               Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
-                              @if (student.grade >= 5 && result.questionCounts?.math) {
+                              @if (result.grade >= 5 && result.questionCounts?.math) {
                                 <span class="text-xs text-gray-500"> ({{ result.questionCounts?.math }})</span>
                               }
                             </div>
@@ -180,7 +184,7 @@
                           @if (result.disciplines?.lifeKnowledge !== undefined) {
                             <div>
                               Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
-                              @if (student.grade >= 5 && result.questionCounts?.lifeKnowledge) {
+                              @if (result.grade >= 5 && result.questionCounts?.lifeKnowledge) {
                                 <span class="text-xs text-gray-500"> ({{ result.questionCounts?.lifeKnowledge }})</span>
                               }
                             </div>
@@ -188,7 +192,7 @@
                           @if (result.disciplines?.logic !== undefined) {
                             <div>
                               Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
-                              @if (student.grade >= 5 && result.questionCounts?.logic) {
+                              @if (result.grade >= 5 && result.questionCounts?.logic) {
                                 <span class="text-xs text-gray-500"> ({{ result.questionCounts?.logic }})</span>
                               }
                             </div>
@@ -196,7 +200,7 @@
                           @if (result.disciplines?.english !== undefined) {
                             <div>
                               İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
-                              @if (student.grade >= 5 && result.questionCounts?.english) {
+                              @if (result.grade >= 5 && result.questionCounts?.english) {
                                 <span class="text-xs text-gray-500"> ({{ result.questionCounts?.english }})</span>
                               }
                             </div>

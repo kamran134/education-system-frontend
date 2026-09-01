@@ -23,7 +23,11 @@ export class ExcelService {
         ['lastName',          { label: 'Soyadı',           accessor: (r: any) => r.studentData?.lastName }],
         ['firstName',         { label: 'Adı',              accessor: (r: any) => r.studentData?.firstName }],
         ['middleName',        { label: 'Atasının adı',     accessor: (r: any) => r.studentData?.middleName }],
-        ['grade',             { label: 'Sinfi',            accessor: (r: any) => r.studentData?.grade }],
+        // Класс НА МОМЕНТ РЕЗУЛЬТАТА (r.grade, sr.grade на бэке), не студента (r.studentData?.grade —
+        // живой, текущий класс). Fallback не нужен: все три вызывающих (İE/AŞ/AŞ respublika üzrə,
+        // stats.component.ts) идут через queryStudentResultStats, где верхнеуровневый grade есть
+        // всегда — проверено grep-ом (SINIF_TARIXCESI_TASK.md §3.2).
+        ['grade',             { label: 'Sinfi',            accessor: (r: any) => r.grade }],
         ['teacher',           { label: 'Müəllimi',         accessor: (r: any) => r.studentData?.teacher?.fullname || 'Müəllim tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (r: any) => r.studentData?.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Təhsil sektoru', accessor: (r: any) => r.studentData?.district?.name || 'Təhsil sektoru tapılmadı' }],
@@ -41,7 +45,11 @@ export class ExcelService {
         ['lastName',          { label: 'Soyadı',           accessor: (s: any) => s.lastName }],
         ['firstName',         { label: 'Adı',              accessor: (s: any) => s.firstName }],
         ['middleName',        { label: 'Atasının adı',     accessor: (s: any) => s.middleName }],
-        ['grade',             { label: 'Sinfi',            accessor: (s: any) => s.grade }],
+        // yearGrade — класс ЗА ПОКАЗАННЫЙ учебный год, не живой s.grade. Намеренно без
+        // `?? s.grade`: подставлять живой класс в выгрузку за прошлый год — ровно та ошибка,
+        // которую чиним (SINIF_TARIXCESI_TASK.md §3.1). Бэк заполняет yearGrade всегда, так что
+        // пустым оно окажется только там, где класс за тот год действительно неизвестен.
+        ['grade',             { label: 'Sinfi',            accessor: (s: any) => s.yearGrade ?? '' }],
         ['teacher',           { label: 'Müəllimi',         accessor: (s: any) => s.teacher?.fullname || 'Müəllim tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (s: any) => s.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Təhsil sektoru', accessor: (s: any) => s.district?.name || 'Təhsil sektoru tapılmadı' }],

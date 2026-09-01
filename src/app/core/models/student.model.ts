@@ -55,6 +55,9 @@ export interface Student {
     avatarUrl?: string;
     participationCount?: number; // number of exams participated
     ratings?: YearRating[];
+    /** Класс ЗА ЗАПРОШЕННЫЙ учебный год (student_grade_history на бэке). Отличие от `grade` —
+     *  тот живой (текущий) класс из реестра; за прошлый год их нельзя путать. null = неизвестен. */
+    yearGrade?: number | null;
 }
 
 export interface StudentForCreation {

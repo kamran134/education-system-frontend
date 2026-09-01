@@ -46,7 +46,10 @@ export class StudentsYearTabComponent {
         { key: 'lastName', label: 'Soyadı', sortable: true },
         { key: 'firstName', label: 'Adı', sortable: true },
         { key: 'middleName', label: 'Atasının adı', sortable: true },
-        { key: 'grade', label: 'Sinfi', sortable: true },
+        // yearGrade — класс ЗА ПОКАЗАННЫЙ учебный год (student_grade_history), не живой
+        // student.grade: за прошлый год живой класс — то самое враньё задним числом после
+        // повышения, из-за которого заведена задача (SINIF_TARIXCESI_TASK.md §3.1).
+        { key: 'grade', label: 'Sinfi', sortable: true, field: 'yearGrade', formatter: (v) => v != null ? String(v) : '—' },
         { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'teacher.fullname', formatter: (v) => v || 'Müəllim tapılmadı' },
         { key: 'school', label: 'Məktəbi', sortable: true, field: 'school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
         { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'district.name', formatter: (v) => v || 'Təhsil sektoru tapılmadı' },

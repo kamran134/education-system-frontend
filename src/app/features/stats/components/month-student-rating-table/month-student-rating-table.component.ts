@@ -44,7 +44,9 @@ export class MonthStudentRatingTableComponent {
         ['firstName', { key: 'firstName', label: 'Adı', sortable: true, field: 'studentData.firstName' }],
         ['middleName', { key: 'middleName', label: 'Ata adı', sortable: true, field: 'studentData.middleName' }],
         ['totalScore', { key: 'totalScore', label: 'İmtahan balı', sortable: true, field: 'totalScore' }],
-        ['grade', { key: 'grade', label: 'Sinifi', sortable: true, field: 'studentData.grade' }],
+        // Класс НА МОМЕНТ РЕЗУЛЬТАТА (row.grade, sr.grade на бэке), не studentData.grade — тот
+        // живой класс ученика, после повышения он врёт задним числом (SINIF_TARIXCESI_TASK.md §3.2).
+        ['grade', { key: 'grade', label: 'Sinifi', sortable: true, field: 'grade' }],
         ['teacher', { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'studentData.teacher.fullname' }],
         ['school', { key: 'school', label: 'Məktəbi', sortable: true, field: 'studentData.school.name' }],
         ['district', { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'studentData.district.name' }],
