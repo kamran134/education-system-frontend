@@ -226,7 +226,11 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',').filter((id: string) => id.trim() !== '') : [];
                     this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
+                    this.selectedLevels = params['levels'] ? params['levels'].split(',').filter((l: string) => l.trim() !== '') : [];
                     this.searchString = params['search'] || '';
+                    // Учебный год восстанавливается вместе с остальным фильтром (см. openStudentDetails).
+                    const restoredYear = params['academicYear'] ? +params['academicYear'] : NaN;
+                    this.selectedAcademicYear = isNaN(restoredYear) ? getCurrentAcademicYear() : restoredYear;
 
                     // Список районов зависит от возможного restored regionIds
                     this.loadDistricts();
@@ -1087,8 +1091,12 @@ export class StatsComponent implements OnInit, OnDestroy {
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(",") : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(",") : undefined,
+            levels: this.selectedLevels.length > 0 ? this.selectedLevels.join(",") : undefined,
             search: this.searchString || undefined,
             month: this.selectedMonth,
+            // Учебный год тоже часть фильтра: без него «Geri» возвращал на текущий год, и таблица
+            // выглядела пустой/чужой (01.09.2026 — год переключился на ещё не начавшийся).
+            academicYear: this.selectedAcademicYear,
             source: 'stats',
             tab: this.selectedTab,
             sortActive: this.sortActive,

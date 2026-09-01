@@ -233,7 +233,14 @@ export class StudentDetailsComponent implements OnInit {
      *  учеников/статистики, даже если пришли с главной учителя/директора. filterParams/source
      *  остаются фолбэком на случай прямого захода по ссылке или F5, когда истории SPA нет. */
     goBack(): void {
-        if (this.navigationHistory.canGoBack()) {
+        // Если пришли с фильтрами в query-параметрах — возвращаемся ЯВНО с ними, а не через
+        // историю браузера: у /stats в собственном URL фильтров нет (они живут в состоянии
+        // компонента и сериализуются только в ссылку на карточку ученика), поэтому location.back()
+        // отдавал голый /stats и сбрасывал весь фильтр в дефолт — жалоба заказчика 01.09.2026.
+        // location.back() остаётся для случая, когда восстанавливать нечего: пришли с главной
+        // учителя/директора, где фильтров в ссылке нет (BASE_FIXES_TASK.md §1.5).
+        const hasFilterParams = Object.keys(this.filterParams ?? {}).length > 0;
+        if (!hasFilterParams && this.navigationHistory.canGoBack()) {
             this.navigationHistory.back();
             return;
         }

@@ -49,6 +49,10 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() selectedGrades: number[] = [];
     @Input() selectedLevels: string[] = [];
     @Input() selectedMonth: string = new Date().getFullYear() + '-0';
+    /** Год приходит извне (восстановление фильтра из query-параметров при возврате с карточки
+     *  ученика) — контрол синхронизируется без emitEvent, иначе родитель получил бы обратно
+     *  своё же значение и перезагрузил таблицу вторым запросом. */
+    @Input() selectedAcademicYear: number | null = null;
 
     // Role-based filter visibility — filter is hidden entirely when the role's value
     // is always fixed to a single option (e.g. a teacher can't filter by teacher)
@@ -153,6 +157,10 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         // Trigger change detection when input data changes
         if (changes['regions'] || changes['districts'] || changes['schools'] || changes['teachers']) {
             // Data has been updated, component will re-render
+        }
+        if (changes['selectedAcademicYear'] && this.selectedAcademicYear != null
+            && this.selectedAcademicYear !== this.academicYearControl.value) {
+            this.academicYearControl.setValue(this.selectedAcademicYear, { emitEvent: false });
         }
     }
 
