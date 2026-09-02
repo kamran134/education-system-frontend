@@ -78,10 +78,19 @@ export class StudentDetailsComponent implements OnInit {
         return getCurrentAcademicYear();
     }
 
-    /** Результаты текущего учебного года — по полю result.year (год начала уч. года),
-     *  а не по exam.date (П.10a: поле year уже приходит с бэка). */
+    /**
+     * Результаты текущего учебного года — по result.academicYear (generated-колонка на бэке),
+     * а не по result.year.
+     *
+     * П.10a исходил из того, что result.year — это год НАЧАЛА учебного года. Это неверно: year —
+     * календарный год результата, и учебный год из него получается только вместе с месяцем
+     * (сентябрь-декабрь → year, январь-июнь → year - 1). Из-за этого весенние результаты уезжали
+     * на год вперёд: 1 сентября 2026 «текущим» стал показываться весь январь-июнь 2026, то есть
+     * ПРОШЛЫЙ учебный год и прошлый класс ученика (жалоба заказчика 02.09.2026 — «sinfi tədris ili
+     * üzrə deyil, illər üzrə verir»).
+     */
     get currentResults(): ExamResult[] {
-        return (this.student?.results ?? []).filter(r => r.year === this.currentAcademicYear);
+        return (this.student?.results ?? []).filter(r => r.academicYear === this.currentAcademicYear);
     }
 
     /**
@@ -97,7 +106,7 @@ export class StudentDetailsComponent implements OnInit {
     get previousGradeOptions(): number[] {
         const grades = new Set<number>();
         for (const r of this.student?.results ?? []) {
-            if (r.grade != null && r.year !== this.currentAcademicYear) grades.add(r.grade);
+            if (r.grade != null && r.academicYear !== this.currentAcademicYear) grades.add(r.grade);
         }
         return [...grades].sort((a, b) => b - a);
     }
@@ -111,7 +120,7 @@ export class StudentDetailsComponent implements OnInit {
         if (this.selectedPreviousGrades.length === 0) return [];
         const currentYear = this.currentAcademicYear;
         return (this.student?.results ?? []).filter(r =>
-            r.grade != null && this.selectedPreviousGrades.includes(r.grade) && r.year !== currentYear
+            r.grade != null && this.selectedPreviousGrades.includes(r.grade) && r.academicYear !== currentYear
         );
     }
 
