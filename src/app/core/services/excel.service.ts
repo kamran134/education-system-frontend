@@ -234,7 +234,8 @@ export class ExcelService {
         return rows.map(result => {
             const row: Record<string, any> = {
                 // Код строкой: 10-значное число Excel сворачивает в «1.2E+09» (П.10f).
-                'Şagirdin kodu': String(student.code),
+                // Заголовок «Şagirdin kodu» → «Şagirdin iş nömrəsi» по просьбе заказчика (02.09.2026).
+                'Şagirdin iş nömrəsi': String(student.code),
                 'Soyadı': student.lastName,
                 'Adı': student.firstName,
                 'Atasının adı': student.middleName,
@@ -246,7 +247,8 @@ export class ExcelService {
                 // «İmtahanın adı» убрана по просьбе заказчика (02.09.2026): дата экзамена и так
                 // однозначно определяет строку, а название только раздувало лист. Убрана всем,
                 // включая админов — заказчик это разрешил явно.
-                'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
+                // «Tarixi» → «İmtahan tarixi» по просьбе заказчика (02.09.2026).
+                'İmtahan tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
                 // Pillə и İmtahan balı — сразу после даты, как в таблице на самой карточке.
                 // Раньше обе стояли в конце, за динамическими колонками предметов, и на широком
                 // листе их просто не находили глазами.
@@ -304,7 +306,8 @@ export class ExcelService {
         );
 
         // ── 2. Column layout ──────────────────────────────────────────────────
-        const fixedBefore = ['№', 'Sinif', 'Şagirdin kodu', 'Şagirdin soyadı', 'Şagirdin adı', 'Şagirdin ata adı'];
+        // «Şagirdin kodu» → «Şagirdin iş nömrəsi» по просьбе заказчика (02.09.2026), как и в выгрузке карточки ученика.
+        const fixedBefore = ['№', 'Sinif', 'Şagirdin iş nömrəsi', 'Şagirdin soyadı', 'Şagirdin adı', 'Şagirdin ata adı'];
         const allHeaders  = [...fixedBefore, ...activeDisciplines.map(d => d.label), 'Yekun bal', 'Pillə'];
         const totalCols   = allHeaders.length;
         const yekunBalIdx = fixedBefore.length + activeDisciplines.length;
