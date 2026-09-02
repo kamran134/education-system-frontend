@@ -16,7 +16,13 @@ export interface ExamResult {
     exam: Exam | null;
     grade: number;
     level: string;
+    /** Колонка student_results.score. У каждого результата она жёстко равна 1 («одно участие») —
+     *  это НЕ рейтинговый балл, для него есть ratingScore ниже. */
     score: number;
+    /** Рейтинговый балл, набранный этим результатом (за тот месяц): участие + inkişaf +
+     *  ayın şagirdi + respublika üzrə ayın şagirdi. Сумма таких баллов за год и есть годовой
+     *  рейтинг ученика (v_student_year_scores). */
+    ratingScore?: number;
     student: string;
     totalScore: number;
     studentData?: Student;

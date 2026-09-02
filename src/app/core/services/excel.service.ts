@@ -244,14 +244,20 @@ export class ExcelService {
                 'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
                 'Təhsil sektoru': student.district?.name || 'Təhsil sektoru tapılmadı',
                 'İmtahanın adı': result.exam?.name,
-                'Reytinq xalı': result.score,
                 'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
+                // Pillə и İmtahan balı — сразу после даты, как в таблице на самой карточке.
+                // Раньше обе стояли в конце, за динамическими колонками предметов, и на широком
+                // листе их просто не находили глазами.
+                'Pilləsi': result.level || 'Pillə tapılmadı',
+                'İmtahan balı': result.totalScore || 0,
             };
             for (const d of activeDisciplines) {
                 row[d.label] = result.disciplines?.[d.key] ?? 0;
             }
-            row['İmtahan balı'] = result.totalScore || 0;
-            row['Pilləsi'] = result.level || 'Pillə tapılmadı';
+            // Рейтинговый балл ЗА ЭТОТ МЕСЯЦ (участие + inkişaf + ayın şagirdi + respublika üzrə),
+            // а не result.score: та колонка в БД у каждого результата равна 1, из-за чего в выгрузке
+            // везде стояла единица (жалоба заказчика 02.09.2026).
+            row['Reytinq xalı'] = result.ratingScore ?? 0;
             row['Statusu'] = this.formatStudentAchievements(result);
             return row;
         });
