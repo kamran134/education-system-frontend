@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { gradeLabel } from '../../../../core/utils/grade-label.util';
 
 import { Observable } from 'rxjs';
 import { LucideAngularModule, Camera, KeyRound } from 'lucide-angular';
@@ -74,7 +75,7 @@ export class ProfileHeaderComponent implements OnInit {
     }
 
     get gradeLabel(): string {
-        return this.profile?.grade != null ? `${this.profile.grade}-ci sinif` : '';
+        return this.profile?.grade != null ? gradeLabel(this.profile.grade) : '';
     }
 
     openFilePicker(): void {

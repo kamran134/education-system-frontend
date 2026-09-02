@@ -31,6 +31,7 @@ import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
 import { getCurrentAcademicYear, academicYearPeriodLabel, academicYearLabel } from '../../../../core/utils/academic-year.util';
 import { RatingYearService } from '../../../../core/services/rating-year.service';
+import { gradeLabel } from '../../../../core/utils/grade-label.util';
 import { resolveTeacherGradeLabel } from '../../../../core/config/teacher-grade.config';
 
 const STUDENTS_PAGE_SIZE = 12;
@@ -331,7 +332,7 @@ export class TeacherProfileComponent implements OnInit {
         this.studentCards = this.students.map((s) => ({
             id: s.id,
             name: `${s.lastName ?? ''} ${s.firstName}`.trim(),
-            meta: `${s.grade}-ci sinif`,
+            meta: gradeLabel(s.grade),
             avatarUrl: this.configService.resolveAssetUrl(s.avatarUrl) ?? null,
             place: s.place ?? null,
             // score (reytinq xalı) в бейдже карточки, не averageScore и не place: список

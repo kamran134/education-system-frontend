@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
+import { gradeLabel, gradeResultsTitle } from '../../../../core/utils/grade-label.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2, User, Trash2, ChevronDown, ChevronUp } from 'lucide-angular';
@@ -94,6 +95,17 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     /**
+     * Заголовок над блоком текущего года — «3-cü sinif nəticələri», по той же просьбе заказчика
+     * («hər başlıq ilə ayrılmalıdır»). null, если в текущем году результаты сразу нескольких
+     * классов: такие ученики в базе есть (см. миграцию 009_student_year_scores_single_grade),
+     * и общий заголовок для них был бы враньём — лучше без заголовка.
+     */
+    get currentResultsTitle(): string | null {
+        const grades = new Set(this.currentResults.map(r => r.grade).filter((g): g is number => g != null));
+        return grades.size === 1 ? gradeResultsTitle([...grades][0]) : null;
+    }
+
+    /**
      * Классы для раскрытия: уникальные result.grade по строкам ВНЕ текущего учебного года,
      * по убыванию (П.10b).
      *
@@ -112,7 +124,27 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     get previousGradeSelectOptions(): { label: string; value: number }[] {
-        return this.previousGradeOptions.map(g => ({ label: `${g}. sinif`, value: g }));
+        return this.previousGradeOptions.map(g => ({ label: gradeLabel(g), value: g }));
+    }
+
+    /**
+     * Раскрытые результаты, разбитые по классам, с заголовком над каждым блоком
+     * («2-ci sinif nəticələri») — заказчик, 02.09.2026: сейчас всё идёт одним списком по датам,
+     * и где кончается один класс и начинается другой, не видно.
+     *
+     * Порядок классов — как в списке раскрытия (по убыванию), внутри класса порядок результатов
+     * сохраняется тот, что пришёл с бэка: год и месяц по убыванию.
+     */
+    get expandedResultGroups(): { grade: number; title: string; results: ExamResult[] }[] {
+        const byGrade = new Map<number, ExamResult[]>();
+        for (const r of this.expandedResults) {
+            if (r.grade == null) continue;
+            if (!byGrade.has(r.grade)) byGrade.set(r.grade, []);
+            byGrade.get(r.grade)!.push(r);
+        }
+        return [...byGrade.keys()]
+            .sort((a, b) => b - a)
+            .map(grade => ({ grade, title: gradeResultsTitle(grade), results: byGrade.get(grade)! }));
     }
 
     /** Строки раскрытых классов (кроме текущего года — он и так показан выше). */

@@ -1,4 +1,5 @@
 import { Teacher } from '../models/teacher.model';
+import { gradesLabel } from '../utils/grade-label.util';
 
 /**
  * Источник значения «Sinfi» на профиле учителя (PROFILES_V3_TASK.md §5).
@@ -15,6 +16,5 @@ export function resolveTeacherGradeLabel(teacher: Teacher): string | null {
     }
     const grades = teacher.grades ?? [];
     if (grades.length === 0) return null;
-    if (grades.length === 1) return `${grades[0]}-ci sinif`;
-    return `${grades.join(', ')}-ci siniflər`;
+    return gradesLabel(grades);
 }

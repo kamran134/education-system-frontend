@@ -122,6 +122,9 @@
           }
           <!-- Current year results -->
           @if (currentResults.length > 0) {
+            @if (currentResultsTitle) {
+              <h3 class="mb-2 text-sm font-semibold text-gray-900">{{ currentResultsTitle }}</h3>
+            }
             <div class="overflow-x-auto">
               <table class="w-full border-collapse">
                 <thead>
@@ -262,8 +265,9 @@
                   </app-button>
                 }
               </div>
-              @if (expandedResults.length > 0) {
-                <div class="mt-3 overflow-x-auto">
+              @for (group of expandedResultGroups; track group.grade) {
+                <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-900">{{ group.title }}</h3>
+                <div class="overflow-x-auto">
                   <table class="w-full border-collapse">
                     <thead>
                       <tr class="bg-blue-50">
@@ -271,13 +275,13 @@
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
-                        @if (expandedResults[0]?.status) {
+                        @if (group.results[0]?.status) {
                           <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Status</th>
                         }
                       </tr>
                     </thead>
                     <tbody>
-                      @for (result of expandedResults; track trackByResultId($index, result)) {
+                      @for (result of group.results; track trackByResultId($index, result)) {
                         <tr class="hover:bg-blue-50 transition-colors">
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.yyyy') : '—' }}
@@ -327,7 +331,7 @@
                               }
                             </div>
                           </td>
-                          @if (expandedResults[0]?.status) {
+                          @if (group.results[0]?.status) {
                             <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                               <div class="space-y-1">
                                 <div>{{ result.status || '—' }}</div>
