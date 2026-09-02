@@ -192,6 +192,24 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         return this.academicYears;
     }
 
+    /**
+     * «2025/2026 tədris ili» под парой «Ay + İl» на месячных вкладках. Сама пара остаётся
+     * календарной — месяц однозначно ложится в календарный год, и выбирать «Oktyabr» внутри
+     * «2025/2026» человеку сложнее, чем «Oktyabr 2025». Но какому tədris ili принадлежит
+     * выбранный месяц — видно должно быть, иначе рядом с вкладками «İlin şagirdləri», где год
+     * учебный, это читается как два разных смысла слова «год».
+     *
+     * Июль и август не входят ни в один учебный год (в БД academic_year там NULL) — для них
+     * подписи нет.
+     */
+    get selectedMonthAcademicYearLabel(): string | null {
+        const month = this.monthControl.value;
+        const year = this.yearControl.value;
+        if (month == null || year == null || month < 1) return null;
+        if (month === 7 || month === 8) return null;
+        return `${academicYearLabel(month >= 9 ? year : year - 1)} tədris ili`;
+    }
+
     setupMonthYearChange() {
         // Эмитим YYYY-MM при изменении месяца или года
         this.monthControl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.emitMonthYear());

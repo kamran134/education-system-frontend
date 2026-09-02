@@ -36,6 +36,11 @@
             [formControl]="yearControl"
             [options]="yearOptions">
           </app-select>
+          <!-- Ay + təqvim ili seçilir, ona görə seçilmiş ayın hansı tədris ilinə düşdüyünü
+               burada yazırıq: sentyabr-dekabr bir tədris ilinə, yanvar-iyun növbətisinə aiddir. -->
+          @if (selectedMonthAcademicYearLabel) {
+            <p class="mt-1 text-xs text-gray-500">{{ selectedMonthAcademicYearLabel }}</p>
+          }
         </div>
       }
 

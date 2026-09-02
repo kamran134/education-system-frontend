@@ -179,6 +179,7 @@ export class StudentDetailsComponent implements OnInit {
             next: (response) => {
                 this.student = ResponseHandlerUtil.extractData<StudentWithResult>(response);
                 this.isLoading = false;
+                this.autoExpandLastGradeIfCurrentYearEmpty();
                 if (this.student) this.loadCertificateAvailability(this.student.id);
             },
             error: (error: Error) => {
@@ -187,6 +188,18 @@ export class StudentDetailsComponent implements OnInit {
                 this.isLoading = false;
             }
         });
+    }
+
+    /**
+     * Если за текущий учебный год результатов нет вообще (сентябрь, экзамены ещё не проводились),
+     * сразу раскрываем последний класс — иначе карточка выглядит пустой, а вся история спрятана
+     * за фильтром, и это читается как «данные пропали». Фильтр остаётся управляемым: раскрытый
+     * класс видно в селекте, его можно снять или добавить другие.
+     */
+    private autoExpandLastGradeIfCurrentYearEmpty(): void {
+        if (this.currentResults.length > 0 || this.selectedPreviousGrades.length > 0) return;
+        const [lastGrade] = this.previousGradeOptions;
+        if (lastGrade != null) this.selectedPreviousGrades = [lastGrade];
     }
 
     private loadCertificateAvailability(studentId: number): void {
