@@ -132,6 +132,7 @@
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Reytinq xalı</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
                       Fənlər üzrə ballar
                       <!-- Класс НА МОМЕНТ ЭКЗАМЕНА (result.grade), не живой student.grade — тот
@@ -142,7 +143,7 @@
                         <span class="text-xs text-gray-500">(Sual sayı)</span>
                       }
                     </th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan üzrə uğuru</th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ay üzrə uğuru</th>
                     <th class="px-4 py-3 border-b border-gray-200"></th>
                   </tr>
                 </thead>
@@ -165,6 +166,9 @@
                       </td>
                       <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
                         {{ result.totalScore }}
+                      </td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                        {{ result.ratingScore ?? 0 }}
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
@@ -212,7 +216,7 @@
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
-                          <div>{{ formatStudentAchievements(result) || '' }}</div>
+                          <div>{{ formatStudentAchievements(result) || '—' }}</div>
                           @for (award of availableAwardsFor(result.id); track award.code) {
                             <button
                               (click)="downloadCertificate(result.id, award.code)"
@@ -274,10 +278,9 @@
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Reytinq xalı</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
-                        @if (group.results[0]?.status) {
-                          <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Status</th>
-                        }
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ay üzrə uğuru</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -301,6 +304,9 @@
                           </td>
                           <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
                             {{ result.totalScore }}
+                          </td>
+                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                            {{ result.ratingScore ?? 0 }}
                           </td>
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             <div class="space-y-1">
@@ -331,10 +337,9 @@
                               }
                             </div>
                           </td>
-                          @if (group.results[0]?.status) {
-                            <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
-                              <div class="space-y-1">
-                                <div>{{ result.status || '—' }}</div>
+                          <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                            <div class="space-y-1">
+                              <div>{{ formatStudentAchievements(result) || '—' }}</div>
                                 @for (award of availableAwardsFor(result.id); track award.code) {
                                   <button
                                     (click)="downloadCertificate(result.id, award.code)"
@@ -348,9 +353,8 @@
                                     {{ award.label }} sertifikatı
                                   </button>
                                 }
-                              </div>
-                            </td>
-                          }
+                            </div>
+                          </td>
                         </tr>
                       }
                     </tbody>

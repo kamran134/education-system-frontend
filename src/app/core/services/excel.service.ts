@@ -250,15 +250,15 @@ export class ExcelService {
                 // листе их просто не находили глазами.
                 'Pilləsi': result.level || 'Pillə tapılmadı',
                 'İmtahan balı': result.totalScore || 0,
+                // Рейтинговый балл ЗА ЭТОТ МЕСЯЦ (участие + inkişaf + ayın şagirdi + respublika üzrə),
+                // а не result.score: та колонка в БД у каждого результата равна 1, из-за чего в выгрузке
+                // везде стояла единица (жалоба заказчика 02.09.2026).
+                'Reytinq xalı': result.ratingScore ?? 0,
             };
             for (const d of activeDisciplines) {
                 row[d.label] = result.disciplines?.[d.key] ?? 0;
             }
-            // Рейтинговый балл ЗА ЭТОТ МЕСЯЦ (участие + inkişaf + ayın şagirdi + respublika üzrə),
-            // а не result.score: та колонка в БД у каждого результата равна 1, из-за чего в выгрузке
-            // везде стояла единица (жалоба заказчика 02.09.2026).
-            row['Reytinq xalı'] = result.ratingScore ?? 0;
-            row['Statusu'] = this.formatStudentAchievements(result);
+            row['Ay üzrə uğuru'] = this.formatStudentAchievements(result);
             return row;
         });
     }
