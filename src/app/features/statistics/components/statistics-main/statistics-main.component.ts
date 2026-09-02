@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { StatisticsService } from '../../services/statistics.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
@@ -19,7 +19,8 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { academicYearPeriodLabel } from '../../../../core/utils/academic-year.util';
+import { academicYearPeriodLabel, getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
+import { RatingYearService } from '../../../../core/services/rating-year.service';
 
 @Component({
     selector: 'app-statistics-main',
@@ -42,6 +43,7 @@ export class StatisticsMainComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private navigationHistory = inject(NavigationHistoryService);
+    private ratingYearService = inject(RatingYearService);
 
     statistics: StatisticsResponse | null = null;
     isLoading = false;
@@ -139,7 +141,7 @@ export class StatisticsMainComponent implements OnInit {
     selectedTeacherIds: string[] = [];
     selectedGrades: number[] = [];
     selectedMonth: number | null = null;
-    selectedYear: number = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
+    selectedYear: number = getCurrentAcademicYear();
 
     // Данные для фильтров
     districts: District[] = [];
@@ -165,7 +167,12 @@ export class StatisticsMainComponent implements OnInit {
         { value: 12, label: 'Dekabr' }
     ];
 
-    private readonly currentAcademicYear = new Date().getMonth() >= 8 ? new Date().getFullYear() : new Date().getFullYear() - 1;
+    // Календарное правило учебного года — из общей утилиты, а не третьей копией той же
+    // формулы в файле.
+    private readonly currentAcademicYear = getCurrentAcademicYear();
+    /** Год, за который реально есть данные (см. RatingYearService). Значение по умолчанию
+     *  для селекта года: иначе 1 сентября страница открывается пустой. */
+    private ratingYear: number | null = null;
     years = Array.from({ length: 6 }, (_, i) => this.currentAcademicYear - i);
 
     /** Фильтр по учебному году открыт всем ролям, имеющим доступ к странице (П.8b) — раньше
@@ -266,11 +273,24 @@ export class StatisticsMainComponent implements OnInit {
         // приходит сюда с district/school/teacherIds в queryParams — раньше эта страница их
         // вообще не читала, фильтр молча терялся и открывалась статистика по всей республике.
         this.applyQueryParamFilters();
+        const yearCameFromUrl = this.route.snapshot.queryParams['year'] != null;
 
         // Область видимости роли-владельца всегда перекрывает queryParams (BASE_FIXES_TASK.md
         // §1.3) — своя сущность и так ровно то, что «Ətraflı statistika» присылает в ссылке,
         // а прямой заход на /statistics без queryParams иначе показал бы всю республику.
-        this.resolveOwnerScope$().subscribe(() => {
+        //
+        // Год резолвится ДО загрузки, одной цепочкой: иначе первый запрос уходил бы за текущий
+        // год, а ответ резолвера приходил бы уже после него. Явный year из ссылки сильнее.
+        this.ratingYearService.getState().pipe(
+            catchError(() => of(null)),
+            switchMap(state => {
+                this.ratingYear = state?.ratingYear ?? null;
+                if (!yearCameFromUrl && this.ratingYear !== null) {
+                    this.selectedYear = this.ratingYear;
+                }
+                return this.resolveOwnerScope$();
+            })
+        ).subscribe(() => {
             if (this.forcedDistrictIds.length > 0) this.selectedDistrictIds = this.forcedDistrictIds;
             if (this.forcedSchoolIds.length > 0) this.selectedSchoolIds = this.forcedSchoolIds;
             if (this.forcedTeacherIds.length > 0) this.selectedTeacherIds = this.forcedTeacherIds;
@@ -449,7 +469,7 @@ export class StatisticsMainComponent implements OnInit {
         this.selectedTeacherIds = [...this.forcedTeacherIds];
         this.selectedGrades = [];
         this.selectedMonth = null;
-        this.selectedYear = this.currentAcademicYear;
+        this.selectedYear = this.ratingYear ?? this.currentAcademicYear;
         this.inkishafMinParticipations = 2;
         this.schools = [];
         this.teachers = [];

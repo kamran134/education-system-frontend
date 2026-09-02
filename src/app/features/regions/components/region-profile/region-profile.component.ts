@@ -64,7 +64,10 @@ export class RegionProfileComponent implements OnInit {
     districtCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
-    readonly periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
+    /** Подпись над блоком статистики. Не readonly и не «текущий год»: цифры под ней приходят
+     *  за год резолвера (REYTINQ_ILI_TASK.md §3), и подпись обязана называть тот же год —
+     *  иначе в сентябре заголовок обещает 2026/2027, а под ним данные 2025/2026. */
+    periodLabel = academicYearPeriodLabel(getCurrentAcademicYear());
     /** REYTINQ_ILI_TASK.md §6 — «2025/2026 reytinqi» рядом с заголовком карточек, только когда
      *  показанный год рейтинга отличается от текущего учебного (иначе подпись избыточна). */
     ratingYearLabel: string | null = null;
@@ -100,6 +103,7 @@ export class RegionProfileComponent implements OnInit {
         });
         this.ratingYearService.getState().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (state) => {
+                this.periodLabel = academicYearPeriodLabel(state.ratingYear);
                 this.ratingYearLabel = state.ratingYear !== state.currentAcademicYear
                     ? academicYearLabel(state.ratingYear) + ' reytinqi'
                     : null;
