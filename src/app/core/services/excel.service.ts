@@ -243,7 +243,9 @@ export class ExcelService {
                 'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
                 'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
                 'Təhsil sektoru': student.district?.name || 'Təhsil sektoru tapılmadı',
-                'İmtahanın adı': result.exam?.name,
+                // «İmtahanın adı» убрана по просьбе заказчика (02.09.2026): дата экзамена и так
+                // однозначно определяет строку, а название только раздувало лист. Убрана всем,
+                // включая админов — заказчик это разрешил явно.
                 'Tarixi': result.exam?.date ? moment(new Date(result.exam.date)).format('DD.MM.yyyy') : 'Tarix tapılmadı',
                 // Pillə и İmtahan balı — сразу после даты, как в таблице на самой карточке.
                 // Раньше обе стояли в конце, за динамическими колонками предметов, и на широком
