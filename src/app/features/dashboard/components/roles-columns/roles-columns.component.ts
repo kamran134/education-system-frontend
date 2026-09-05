@@ -115,6 +115,20 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'score', label: 'Reytinq xalı', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
     ],
+    // Ключи должны совпадать с displayedColumns в exam-results.component.ts (FIXES п.4 от 04.09.2026)
+    examResults: [
+        { key: 'studentData.code', label: 'İş nömrəsi', selected: false, order: 0 },
+        { key: 'studentData.lastName', label: 'Soyadı', selected: false, order: 1 },
+        { key: 'studentData.firstName', label: 'Adı', selected: false, order: 2 },
+        { key: 'grade', label: 'Sinif', selected: false, order: 3 },
+        { key: 'level', label: 'Pillə', selected: false, order: 4 },
+        { key: 'scorePercent', label: 'Bal faizi', selected: false, order: 5 },
+        { key: 'totalScore', label: 'Ümumi bal', selected: false, order: 6 },
+        { key: 'exam.date', label: 'Tarix', selected: false, order: 7 },
+        { key: 'studentData.school.name', label: 'Məktəb', selected: false, order: 8 },
+        { key: 'studentData.teacher.fullname', label: 'Müəllim', selected: false, order: 9 },
+        { key: 'studentData.district.name', label: 'Təhsil sektoru', selected: false, order: 10 },
+    ],
 };
 
 @Component({
@@ -153,15 +167,18 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'allSchools', label: 'İlin məktəbləri' },
         { key: 'allDistricts', label: 'İlin təhsil sektorları' },
         { key: 'allRegions', label: 'İlin regional idarələri' },
+        { key: 'examResults', label: 'İmtahan nəticələri' },
     ];
 
+    // exam-results səhifəsi (/exam-results) yalnız authGuard ilə qorunur — bütün rollara açıqdır,
+    // ona görə examResults tabı da bura sadalanan bütün rollara əlavə olunub (FIXES п.4 от 04.09.2026).
     readonly roleTabAccess: Record<string, string[]> = {
-        moderator: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'],
-        regionRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'],
-        districtRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts'],
-        schoolDirector: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools'],
-        teacher: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers'],
-        student: ['developingStudents', 'monthStudents'],
+        moderator: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions', 'examResults'],
+        regionRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions', 'examResults'],
+        districtRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'examResults'],
+        schoolDirector: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'examResults'],
+        teacher: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'examResults'],
+        student: ['developingStudents', 'monthStudents', 'examResults'],
     };
 
     activeRoleKey: string = 'moderator';

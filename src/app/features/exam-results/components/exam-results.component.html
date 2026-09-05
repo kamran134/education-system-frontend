@@ -71,34 +71,41 @@
           placeholder="Sinifləri seçin">
         </app-select>
         <!-- District filter -->
-        <app-select
-          label="Təhsil sektorları"
-          [options]="districtOptions"
-          [multiple]="true"
-          [(ngModel)]="selectedDistrictIds"
-          (ngModelChange)="onDistrictChange($event)"
-          placeholder="Təhsil sektorlarını seçin">
-        </app-select>
+        @if (!hideDistrictFilter) {
+          <app-select
+            label="Təhsil sektorları"
+            [options]="districtOptions"
+            [multiple]="true"
+            [(ngModel)]="selectedDistrictIds"
+            (ngModelChange)="onDistrictChange($event)"
+            placeholder="Təhsil sektorlarını seçin">
+          </app-select>
+        }
         <!-- School filter -->
-        <app-select
-          label="Məktəblər"
-          [options]="schoolOptions"
-          [multiple]="true"
-          [disabled]="selectedDistrictIds.length === 0"
-          [(ngModel)]="selectedSchoolIds"
-          (ngModelChange)="onSchoolChange($event)"
-          placeholder="Məktəbləri seçin">
-        </app-select>
-        <!-- Teacher filter -->
-        <app-select
-          label="Müəllimlər"
-          [options]="teacherOptions"
-          [multiple]="true"
-          [disabled]="selectedSchoolIds.length === 0"
-          [(ngModel)]="selectedTeacherIds"
-          (ngModelChange)="onTeacherChange($event)"
-          placeholder="Müəllimləri seçin">
-        </app-select>
+        @if (!hideSchoolFilter) {
+          <app-select
+            label="Məktəblər"
+            [options]="schoolOptions"
+            [multiple]="true"
+            [disabled]="selectedDistrictIds.length === 0"
+            [(ngModel)]="selectedSchoolIds"
+            (ngModelChange)="onSchoolChange($event)"
+            placeholder="Məktəbləri seçin">
+          </app-select>
+        }
+        <!-- Teacher filter. Məktəb filtri gizlədilib (schoolDirector) — o zaman selectedSchoolIds
+             həmişə boşdur, ona görə "disabled" şərti yalnız məktəb filtri göründükdə tətbiq olunur. -->
+        @if (!hideTeacherFilter) {
+          <app-select
+            label="Müəllimlər"
+            [options]="teacherOptions"
+            [multiple]="true"
+            [disabled]="!hideSchoolFilter && selectedSchoolIds.length === 0"
+            [(ngModel)]="selectedTeacherIds"
+            (ngModelChange)="onTeacherChange($event)"
+            placeholder="Müəllimləri seçin">
+          </app-select>
+        }
       </div>
     </div>
   }

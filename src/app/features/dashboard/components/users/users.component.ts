@@ -143,6 +143,8 @@ export class UsersComponent implements OnInit, OnDestroy {
         return [
             { key: 'email', label: 'E-mail', sortable: true },
             { key: 'role', label: 'Vəzifəsi', sortable: true, cellTemplate: this.roleCellTemplate },
+            // Bağlı olduğu sahə (məktəb/müəllim/şagird/rayon/region adı) — admin-oxşar rollarda yoxdur (FIXES п.9).
+            { key: 'linkedName', label: 'Bağlı olduğu', sortable: false, formatter: (value: string | undefined) => value || '—' },
             { key: 'isApproved', label: 'Təsdiq', sortable: false, cellTemplate: this.approvedCellTemplate }
         ];
     }

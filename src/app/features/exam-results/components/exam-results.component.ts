@@ -21,6 +21,8 @@ import { ExcelService } from '../../../core/services/excel.service';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../core/utils/id.util';
 import { ResultEditingDialogComponent } from '../../students/components/result-editing/result-editing-dialog.component';
+import { DashboardService } from '../../dashboard/services/dashboard.service';
+import { UserSettings } from '../../../core/models/settings.model';
 
 // UI Components
 import { LucideAngularModule, Search, Download, Filter, X, Edit2 } from 'lucide-angular';
@@ -90,19 +92,78 @@ export class ExamResultsComponent implements OnInit {
     @ViewChild('totalScoreCell', { static: true }) totalScoreCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
     @ViewChild('levelCell', { static: true }) levelCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
 
+    // Порядок и состав колонок по умолчанию (FIXES п.4 от 04.09.2026: «Şagirdlər, pilləsi və bal
+    // faizləri ön planda»). Ключи совпадают с ключами вкладки examResults в roles-columns.component.ts —
+    // это те же строки, что хранятся в user_settings.role_settings.
+    private readonly defaultColumnOrder: string[] = [
+        'studentData.code',
+        'studentData.lastName',
+        'studentData.firstName',
+        'grade',
+        'level',
+        'scorePercent',
+        'totalScore',
+        'exam.date',
+        'studentData.school.name',
+        'studentData.teacher.fullname',
+        'studentData.district.name'
+    ];
+
+    // Порядок колонок, настроенный админом для роли пользователя (roles-columns.component.ts) —
+    // null, пока настройки ещё не загружены или роль не настроена: тогда используется defaultColumnOrder.
+    private columnOrder: string[] | null = null;
+
+    private get columnCatalog(): Record<string, TableColumn> {
+        return {
+            'studentData.code': { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student },
+            'studentData.lastName': { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
+            'studentData.firstName': { key: 'studentData.firstName', label: 'Adı', sortable: true },
+            'grade': { key: 'grade', label: 'Sinif', sortable: true },
+            'level': { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate },
+            // Не сортируется — сортировка идёт на бэкенде по колонкам БД, а этой колонки в БД нет.
+            'scorePercent': { key: 'scorePercent', label: 'Bal faizi', sortable: false, formatter: (_v, row) => this.formatScorePercent(row) },
+            'totalScore': { key: 'totalScore', label: 'Ümumi bal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
+            'exam.date': { key: 'exam.date', label: 'Tarix', sortable: true, formatter: (v) => this.formatDate(v) },
+            'studentData.school.name': { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
+            'studentData.teacher.fullname': { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
+            'studentData.district.name': { key: 'studentData.district.name', label: 'Təhsil sektoru', sortable: true }
+        };
+    }
+
     get displayedColumns(): TableColumn[] {
-        return [
-            { key: 'exam.date', label: 'Tarix', sortable: true, formatter: (v) => this.formatDate(v) },
-            { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student },
-            { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
-            { key: 'studentData.firstName', label: 'Adı', sortable: true },
-            { key: 'grade', label: 'Sinif', sortable: true },
-            { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
-            { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
-            { key: 'studentData.district.name', label: 'Təhsil sektoru', sortable: true },
-            { key: 'totalScore', label: 'Ümumi bal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
-            { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate }
-        ];
+        const order = this.columnOrder?.length ? this.columnOrder : this.defaultColumnOrder;
+        const catalog = this.columnCatalog;
+        return order.map(key => catalog[key]).filter((c): c is TableColumn => !!c);
+    }
+
+    // Bal faizi = totalScore / (sum of questionCounts) * 100, округлено до целого. «—», если
+    // вопросов нет вообще (0 или поля отсутствуют) — уровень (pillə) и его пороги не трогаем,
+    // это чистое отображение (FIXES п.4 от 04.09.2026).
+    formatScorePercent(row: ExamResult): string {
+        const counts = row.questionCounts;
+        if (!counts) return '—';
+        const totalQuestions = Object.values(counts).reduce((sum: number, n) => sum + (n || 0), 0);
+        if (!totalQuestions) return '—';
+        const percent = Math.round((row.totalScore / totalQuestions) * 100);
+        return `${percent}%`;
+    }
+
+    get userRole(): string | null {
+        return this.authService.getRole();
+    }
+
+    // Скрытие бессмысленных для роли фильтров (FIXES п.4 от 04.09.2026) — бэкенд и так сужает
+    // выборку по роли, фронт лишь не показывает то, чем роль всё равно не управляет.
+    get hideDistrictFilter(): boolean {
+        return ['teacher', 'schoolDirector', 'districtRepresenter'].includes(this.userRole || '');
+    }
+
+    get hideSchoolFilter(): boolean {
+        return ['teacher', 'schoolDirector'].includes(this.userRole || '');
+    }
+
+    get hideTeacherFilter(): boolean {
+        return this.userRole === 'teacher';
     }
 
     get tableActions(): TableAction[] {
@@ -128,7 +189,8 @@ export class ExamResultsComponent implements OnInit {
         private examService: ExamService,
         private dialog: Dialog,
         private authService: AuthService,
-        private excelService: ExcelService
+        private excelService: ExcelService,
+        private dashboardService: DashboardService
     ) {}
 
     ngOnInit(): void {
@@ -167,6 +229,30 @@ export class ExamResultsComponent implements OnInit {
         this.loadDistricts();
         this.loadExams();
         this.loadExamResults();
+        this.loadColumnSettings();
+
+        // schoolDirector: "Təhsil sektorları"/"Məktəblər" filtrləri gizlədilib (hideSchoolFilter),
+        // ona görə normal zəncir (district → school → teacher) işə düşmür — müəllimlər siyahısını
+        // özü yükləyirik (backend teacher.controller.getTeachers onsuz da direktoru öz məktəbi ilə
+        // süzür, əlavə district/school id lazım deyil).
+        if (!this.hideTeacherFilter && this.hideSchoolFilter) {
+            this.loadTeachers();
+        }
+    }
+
+    // Тот же приём, что stats.component.ts:loadSettings() (non-admin ветка) — глобальные
+    // настройки по ролям, а не персональные (у exam-results нет отдельных «своих» колонок).
+    private loadColumnSettings(): void {
+        this.dashboardService.getGlobalColumns().subscribe({
+            next: (settings: UserSettings) => {
+                const roleKey = this.userRole as string;
+                const roleData = (settings?.roleSettings as any)?.[roleKey];
+                this.columnOrder = roleData?.examResults?.length ? roleData.examResults : null;
+            },
+            error: (error: Error) => {
+                console.error('Error loading exam results column settings:', error);
+            }
+        });
     }
 
     get districtOptions(): SelectOption[] {

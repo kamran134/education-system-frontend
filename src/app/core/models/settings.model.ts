@@ -7,6 +7,7 @@ export interface RoleTabSettings {
     allSchools?: string[];
     allDistricts?: string[];
     allRegions?: string[];
+    examResults?: string[];
 }
 
 export interface RoleSettings {
