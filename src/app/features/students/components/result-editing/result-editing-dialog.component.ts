@@ -50,10 +50,14 @@ export class ResultEditingDialogComponent {
         private authService: AuthService
     ) {
         // Create a copy of the result for editing
+        // disciplines/questionCounts всегда объект (не undefined) — шаблон биндит ngModel через
+        // non-null assertion (editedResult.disciplines!.az), и если бэкенд когда-нибудь снова
+        // не отдаст эти поля, undefined уронит ngModel. Приведение типа — реальный объект с бэка
+        // разрежённый (недостающий предмет просто отсутствует), а IDisciplines этого не выражает.
         this.editedResult = {
             grade: data.result.grade,
-            disciplines: data.result.disciplines ? { ...data.result.disciplines } : undefined,
-            questionCounts: data.result.questionCounts ? { ...data.result.questionCounts } : undefined,
+            disciplines: { ...(data.result.disciplines ?? {}) } as NonNullable<ExamResult['disciplines']>,
+            questionCounts: { ...(data.result.questionCounts ?? {}) } as NonNullable<ExamResult['questionCounts']>,
             level: data.result.level,
             totalScore: data.result.totalScore
         };

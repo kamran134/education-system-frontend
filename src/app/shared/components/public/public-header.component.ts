@@ -16,8 +16,8 @@ import { AuthService } from '../../../core/services/auth.service';
                 <img src="assets/isim-tiles.png" alt="İSİM" width="480" height="120" class="h-[42px] w-auto" />
             </a>
             <a [routerLink]="isAuthorized ? '/panel' : '/login'"
-               class="inline-flex items-center rounded-full bg-brand-redInk px-[22px] py-[10px] text-sm font-bold text-brand-off hover:opacity-90 transition-opacity">
-                {{ isAuthorized ? 'Sistemə keç' : 'Sistemə giriş' }}
+               class="inline-flex items-center rounded-full bg-brand-redInk px-[18px] py-[9px] text-[13px] font-bold text-brand-off hover:opacity-90 transition-opacity">
+                {{ isAuthorized ? 'Platformaya keç' : 'Platformaya giriş' }}
             </a>
         </header>
     `,

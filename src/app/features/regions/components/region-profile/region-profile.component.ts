@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, ArrowLeft, Loader, ChevronRight, KeyRound } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Loader, KeyRound } from 'lucide-angular';
 import { RegionService } from '../../services/region.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { Region } from '../../../../core/models/region.model';
@@ -74,7 +74,6 @@ export class RegionProfileComponent implements OnInit {
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
-    readonly ChevronRight = ChevronRight;
     readonly KeyRound = KeyRound;
 
     private destroyRef = inject(DestroyRef);

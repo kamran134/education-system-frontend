@@ -5,8 +5,8 @@
       <p class="text-[15px] leading-[1.6] text-[#A8AEC8] max-w-[44ch]">{{ isAuthorized ? 'Panelinizə keçərək işinizə davam edin.' : 'Məktəb rəhbərləri, müəllimlər və rayon nümayəndələri üçün giriş.' }}</p>
     </div>
     <a [routerLink]="isAuthorized ? '/panel' : '/login'"
-       class="final-cta inline-flex items-center rounded-full bg-brand-green px-[34px] py-[15px] text-[15px] font-bold text-white hover:opacity-90 transition-opacity">
-      {{ isAuthorized ? 'Sistemə keç' : 'Sistemə giriş' }}
+       class="final-cta inline-flex items-center rounded-full bg-brand-green px-[30px] py-[14px] text-[14px] font-bold text-white hover:opacity-90 transition-opacity">
+      {{ isAuthorized ? 'Platformaya keç' : 'Platformaya giriş' }}
     </a>
   </div>
 

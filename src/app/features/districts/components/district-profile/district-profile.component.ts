@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
-import { LucideAngularModule, ArrowLeft, Loader, ChevronRight, KeyRound } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Loader, KeyRound } from 'lucide-angular';
 import { DistrictService } from '../../services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { District } from '../../../../core/models/district.model';
@@ -95,7 +95,6 @@ export class DistrictProfileComponent implements OnInit {
 
     readonly ArrowLeft = ArrowLeft;
     readonly Loader = Loader;
-    readonly ChevronRight = ChevronRight;
     readonly KeyRound = KeyRound;
 
     private destroyRef = inject(DestroyRef);
