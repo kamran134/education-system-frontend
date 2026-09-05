@@ -78,6 +78,12 @@
         <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <app-input
+              label="Məktəbin adı"
+              [(ngModel)]="editedName"
+              name="name"
+              placeholder="Məktəbin adı"
+            ></app-input>
+            <app-input
               label="Məktəb direktoru"
               [(ngModel)]="editedDirectorName"
               name="directorName"

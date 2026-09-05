@@ -59,6 +59,9 @@ export class TeacherProfileComponent implements OnInit {
     private studentsPage = 1;
 
     editingFacts = false;
+    // Ad Soyad редактируется в этой же форме (п.3 ТЗ 04.09.2026) — то, по чему учителя узнают
+    // в рейтингах и сертификатах, поэтому тоже через модерацию, не напрямую.
+    editedFullname = '';
     editedGradeLabel = '';
     editedPedagogicalExperienceYears: number | null = null;
     // Успехи редактируются в этой же форме, вместе с фактами (26.08.2026, п.4) — отдельной
@@ -231,6 +234,7 @@ export class TeacherProfileComponent implements OnInit {
     }
 
     readonly changeFieldLabels: Record<string, string> = {
+        fullname: 'Ad Soyad',
         gradeLabel: 'Sinfi',
         pedagogicalExperienceYears: 'Pedaqoji stajı',
         achievements: 'Uğurları',
@@ -241,6 +245,7 @@ export class TeacherProfileComponent implements OnInit {
     // единицах ("15 il" vs "12").
     get currentFieldValues(): Record<string, any> {
         return {
+            fullname: this.teacher?.fullname ?? null,
             gradeLabel: this.teacher?.gradeLabel ?? null,
             pedagogicalExperienceYears: this.teacher?.pedagogicalExperienceYears ?? null,
             achievements: this.teacher?.achievements ?? null,
@@ -405,6 +410,7 @@ export class TeacherProfileComponent implements OnInit {
 
     startEditFacts(): void {
         this.correctingPendingId = null;
+        this.editedFullname = this.teacher?.fullname ?? '';
         this.editedGradeLabel = this.teacher?.gradeLabel ?? '';
         this.editedPedagogicalExperienceYears = this.teacher?.pedagogicalExperienceYears ?? null;
         this.editedAchievements = this.teacher?.achievements ?? null;
@@ -415,6 +421,7 @@ export class TeacherProfileComponent implements OnInit {
     startCorrectPendingChange(): void {
         if (!this.pendingChange) return;
         this.correctingPendingId = this.pendingChange.id;
+        this.editedFullname = this.pendingChange.payload['fullname'] ?? this.teacher?.fullname ?? '';
         this.editedGradeLabel = this.pendingChange.payload['gradeLabel'] ?? this.teacher?.gradeLabel ?? '';
         this.editedPedagogicalExperienceYears = this.pendingChange.payload['pedagogicalExperienceYears'] ?? this.teacher?.pedagogicalExperienceYears ?? null;
         this.editedAchievements = this.pendingChange.payload['achievements'] ?? this.teacher?.achievements ?? null;
@@ -437,6 +444,7 @@ export class TeacherProfileComponent implements OnInit {
 
         if (this.correctingPendingId != null) {
             this.profileChangeService.approve(this.correctingPendingId, {
+                fullname: this.editedFullname.trim(),
                 gradeLabel: this.editedGradeLabel.trim() || null,
                 pedagogicalExperienceYears: this.editedPedagogicalExperienceYears,
                 achievements: this.editedAchievements,
@@ -461,6 +469,7 @@ export class TeacherProfileComponent implements OnInit {
         }
 
         this.teacherService.updateTeacherProfile(this.teacherId, {
+            fullname: this.editedFullname.trim(),
             gradeLabel: this.editedGradeLabel.trim() || null,
             pedagogicalExperienceYears: this.editedPedagogicalExperienceYears,
             achievements: this.editedAchievements,

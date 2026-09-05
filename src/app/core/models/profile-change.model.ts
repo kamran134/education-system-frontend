@@ -1,5 +1,6 @@
-/** Модерация самостоятельно введённых полей профиля (BASE_FIXES_TASK.md §2.4). */
-export type ProfileChangeEntityType = 'school' | 'teacher' | 'district';
+/** Модерация самостоятельно введённых полей профиля (BASE_FIXES_TASK.md §2.4).
+ *  'student' добавлен п.3 ТЗ 04.09.2026 — заявку на ФИО ученика подаёт его учитель. */
+export type ProfileChangeEntityType = 'school' | 'teacher' | 'district' | 'student';
 export type ProfileChangeStatus = 'pending' | 'approved' | 'rejected';
 
 export interface ProfileChangeRequest {

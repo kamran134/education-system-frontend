@@ -79,6 +79,12 @@
       @if (editingFacts) {
         <div class="rounded-2xl border bg-[var(--ui-surface)] border-[var(--ui-line)] shadow-sm p-5 sm:p-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <app-input
+              label="Müəllimin adı və soyadı"
+              [(ngModel)]="editedFullname"
+              name="fullname"
+              placeholder="Ad Soyad"
+            ></app-input>
             <div>
               <app-input
                 label="Sinfi"

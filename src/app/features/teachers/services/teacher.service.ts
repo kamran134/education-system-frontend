@@ -95,7 +95,7 @@ export class TeacherService {
     }
 
     /** Owner (учитель сам) уходит в очередь модерации — ответ 202 (BASE_FIXES_TASK.md §2.5). */
-    updateTeacherProfile(teacherId: string | number, data: { biography?: string | null; pedagogicalExperienceYears?: number | null; achievements?: string | null; gradeLabel?: string | null }): Observable<ProfileSaveResult<Teacher>> {
+    updateTeacherProfile(teacherId: string | number, data: { fullname?: string | null; biography?: string | null; pedagogicalExperienceYears?: number | null; achievements?: string | null; gradeLabel?: string | null }): Observable<ProfileSaveResult<Teacher>> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/profile`;
         return this.http.patch<ApiResponse<Teacher>>(url, data, { withCredentials: true, observe: 'response' })
             .pipe(map(response => toProfileSaveResult<Teacher>(response)));

@@ -57,6 +57,9 @@ export class SchoolProfileComponent implements OnInit {
     private teachersPage = 1;
 
     editingFacts = false;
+    // Название школы редактируется в этой же форме (п.3 ТЗ 04.09.2026) — то, по чему школу
+    // узнают в рейтингах и сертификатах, поэтому тоже через модерацию, не напрямую.
+    editedName: string | null = null;
     editedDirectorName: string | null = null;
     editedFoundedYear: number | null = null;
     // Успехи редактируются в этой же форме, вместе с фактами (26.08.2026, п.4) — отдельной
@@ -232,6 +235,7 @@ export class SchoolProfileComponent implements OnInit {
     /** Полям, которые показывает баннер, соответствуют подписи из heroFacts — держим отдельно
      *  от heroFacts (та зависит от school и пересчитывается только при загрузке сущности). */
     readonly changeFieldLabels: Record<string, string> = {
+        name: 'Məktəbin adı',
         directorName: 'Məktəbin direktoru',
         foundedYear: 'Məktəbin yaranma ili',
         achievements: 'Məktəbin uğurları',
@@ -239,6 +243,7 @@ export class SchoolProfileComponent implements OnInit {
 
     get currentFieldValues(): Record<string, any> {
         return {
+            name: this.school?.name ?? null,
             directorName: this.school?.directorName ?? null,
             foundedYear: this.school?.foundedYear ?? null,
             achievements: this.school?.achievements ?? null,
@@ -382,6 +387,7 @@ export class SchoolProfileComponent implements OnInit {
 
     startEditFacts(): void {
         this.correctingPendingId = null;
+        this.editedName = this.school?.name ?? null;
         this.editedDirectorName = this.school?.directorName ?? null;
         this.editedFoundedYear = this.school?.foundedYear ?? null;
         this.editedAchievements = this.school?.achievements ?? null;
@@ -394,6 +400,7 @@ export class SchoolProfileComponent implements OnInit {
     startCorrectPendingChange(): void {
         if (!this.pendingChange) return;
         this.correctingPendingId = this.pendingChange.id;
+        this.editedName = this.pendingChange.payload['name'] ?? this.school?.name ?? null;
         this.editedDirectorName = this.pendingChange.payload['directorName'] ?? this.school?.directorName ?? null;
         this.editedFoundedYear = this.pendingChange.payload['foundedYear'] ?? this.school?.foundedYear ?? null;
         this.editedAchievements = this.pendingChange.payload['achievements'] ?? this.school?.achievements ?? null;
@@ -416,6 +423,7 @@ export class SchoolProfileComponent implements OnInit {
 
         if (this.correctingPendingId != null) {
             this.profileChangeService.approve(this.correctingPendingId, {
+                name: this.editedName,
                 directorName: this.editedDirectorName,
                 foundedYear: this.editedFoundedYear,
                 achievements: this.editedAchievements,
@@ -440,6 +448,7 @@ export class SchoolProfileComponent implements OnInit {
         }
 
         this.schoolService.updateSchoolProfile(this.schoolId, {
+            name: this.editedName,
             directorName: this.editedDirectorName,
             foundedYear: this.editedFoundedYear,
             achievements: this.editedAchievements,

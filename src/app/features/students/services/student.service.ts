@@ -8,6 +8,8 @@ import { ApiResponse } from '../../../core/models/response.model';
 import { ResponseHandlerUtil } from '../../../core/utils/response-handler.util';
 import { map } from 'rxjs/operators';
 import { ExamResult } from '../../../core/models/examResult.model';
+import { ProfileSaveResult } from '../../../core/models/profile-change.model';
+import { toProfileSaveResult } from '../../../core/utils/profile-save-result.util';
 
 @Injectable({
     providedIn: 'root'
@@ -95,6 +97,17 @@ export class StudentService {
         const url: string = `${this.configService.getApiUrl()}/students/${student.id}`;
         return this.http.put<ApiResponse<StudentWithResult>>(url, student, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    /**
+     * Заявка на правку ФИО ученика (п.3 ТЗ 04.09.2026) — подаёт учитель этого ученика, идёт
+     * через ту же очередь модерации, что и у школы/учителя/района (BASE_FIXES_TASK.md §2.5):
+     * 200 — применено сразу (админ), 202 — ушло на подтверждение (учитель), см. toProfileSaveResult.
+     */
+    updateStudentProfile(studentId: string | number, data: { lastName?: string | null; firstName?: string; middleName?: string | null }): Observable<ProfileSaveResult<Student>> {
+        const url: string = `${this.configService.getApiUrl()}/students/${studentId}/profile`;
+        return this.http.patch<ApiResponse<Student>>(url, data, { withCredentials: true, observe: 'response' })
+            .pipe(map(response => toProfileSaveResult<Student>(response)));
     }
 
     deleteStudent(studentId: string | number): Observable<any> {

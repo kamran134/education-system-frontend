@@ -93,7 +93,7 @@ export class SchoolService {
      * Owner (schoolDirector своей школы) уходит в очередь модерации, а не пишет напрямую —
      * ответ 202 вместо 200 (BASE_FIXES_TASK.md §2.5). Различаем через observe:'response'.
      */
-    updateSchoolProfile(schoolId: string | number, data: { description?: string | null; history?: string | null; directorName?: string | null; foundedYear?: number | null; achievements?: string | null }): Observable<ProfileSaveResult<School>> {
+    updateSchoolProfile(schoolId: string | number, data: { name?: string | null; description?: string | null; history?: string | null; directorName?: string | null; foundedYear?: number | null; achievements?: string | null }): Observable<ProfileSaveResult<School>> {
         const url: string = `${this.configService.getApiUrl()}/schools/${schoolId}/profile`;
         return this.http.patch<ApiResponse<School>>(url, data, { withCredentials: true, observe: 'response' })
             .pipe(map(response => toProfileSaveResult<School>(response)));

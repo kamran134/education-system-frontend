@@ -13,21 +13,29 @@ const ENTITY_TYPE_LABELS: Record<ProfileChangeEntityType, string> = {
     school: 'Məktəb',
     teacher: 'Müəllim',
     district: 'Təhsil sektoru',
+    student: 'Şagird',
 };
 
+/** student намеренно без '/profile' — /students/:id, а не /students/:id/profile (см. profileRoute). */
 const ENTITY_PROFILE_ROUTE: Record<ProfileChangeEntityType, string> = {
     school: '/schools',
     teacher: '/teachers',
     district: '/districts',
+    student: '/students',
 };
 
 const FIELD_LABELS: Record<string, string> = {
+    name: 'Məktəbin adı',
     directorName: 'Məktəbin direktoru',
     foundedYear: 'Məktəbin yaranma ili',
     achievements: 'Uğurları',
+    fullname: 'Ad Soyad',
     gradeLabel: 'Sinfi',
     pedagogicalExperienceYears: 'Pedaqoji stajı',
     educationHeadName: 'Təhsil sektorunun müdiri',
+    lastName: 'Soyadı',
+    firstName: 'Adı',
+    middleName: 'Ata adı',
 };
 
 /**
@@ -96,6 +104,8 @@ export class ProfileChangesComponent implements OnInit {
     }
 
     profileRoute(row: ProfileChangeQueueRow): any[] {
+        // Şagird üçün /students/:id — /profile şəkilçisi yoxdur, school/teacher/district-dən fərqli.
+        if (row.entityType === 'student') return [ENTITY_PROFILE_ROUTE.student, row.entityId];
         return [ENTITY_PROFILE_ROUTE[row.entityType], row.entityId, 'profile'];
     }
 

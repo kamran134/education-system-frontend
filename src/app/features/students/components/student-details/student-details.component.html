@@ -60,6 +60,14 @@
                 {{ student.lastName }} {{ student.firstName }} {{ student.middleName }}
               </h1>
               <p class="text-gray-600 mt-1">İş nömrəsi: {{ student.code }}</p>
+              @if (canEditStudentName && !editingStudentName) {
+                <app-button variant="outline" size="sm" class="inline-block mt-2" (clicked)="startEditStudentName()">
+                  <div class="flex items-center space-x-2">
+                    <lucide-icon [img]="Edit2" class="w-3.5 h-3.5"></lucide-icon>
+                    <span>Adı redaktə et</span>
+                  </div>
+                </app-button>
+              }
             </div>
           </div>
           <!-- Back Button -->
@@ -73,6 +81,50 @@
           </app-button>
         </div>
       </div>
+
+      <!-- Şagirdin adının modersiyaya göndərilməsi (п.3 ТЗ 04.09.2026) — yalnız bu şagirdin
+           müəllimi üçün, direktor üçün deyil. -->
+      @if (canEditStudentName && pendingNameChange) {
+        <app-profile-change-banner
+          [pending]="pendingNameChange"
+          [isAdminView]="false"
+          [fieldLabels]="studentNameFieldLabels">
+        </app-profile-change-banner>
+      }
+
+      @if (canEditStudentName && editingStudentName) {
+        <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Şagirdin adını redaktə et</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <app-input
+              label="Soyadı"
+              [(ngModel)]="editedLastName"
+              name="editedLastName"
+              placeholder="Soyadı"
+            ></app-input>
+            <app-input
+              label="Adı"
+              [(ngModel)]="editedFirstName"
+              name="editedFirstName"
+              placeholder="Adı"
+              [required]="true"
+            ></app-input>
+            <app-input
+              label="Ata adı"
+              [(ngModel)]="editedMiddleName"
+              name="editedMiddleName"
+              placeholder="Ata adı"
+            ></app-input>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <app-button variant="primary" [disabled]="isSavingStudentName || !editedFirstName.trim()" (clicked)="saveStudentName()">
+              {{ isSavingStudentName ? 'Göndərilir...' : 'Yadda saxla' }}
+            </app-button>
+            <app-button variant="outline" [disabled]="isSavingStudentName" (clicked)="cancelEditStudentName()">Ləğv et</app-button>
+          </div>
+        </div>
+      }
+
       <!-- Student Information Card -->
       <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Şagird haqqında məlumat</h2>

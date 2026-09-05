@@ -11,6 +11,7 @@ import { ExcelService } from '../../../../core/services/excel.service';
 import { getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
 import { gradeLabel, gradeResultsTitle } from '../../../../core/utils/grade-label.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { LucideAngularModule, ArrowLeft, Download, Loader, Edit2, User, Trash2, ChevronDown, ChevronUp } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -31,6 +32,9 @@ import {
     CertificateAvailabilityMap,
     CertificateAwardMeta,
 } from '../../../../core/models/certificate.model';
+import { ProfileChangeService } from '../../../../core/services/profile-change.service';
+import { ProfileChangeRequest } from '../../../../core/models/profile-change.model';
+import { ProfileChangeBannerComponent } from '../../../../shared/components/profile/profile-change-banner/profile-change-banner.component';
 
 @Component({
     selector: 'app-student-details',
@@ -40,8 +44,10 @@ import {
         RouterModule,
         LucideAngularModule,
         ButtonComponent,
+        InputComponent,
         ImageCropModalComponent,
-        SelectComponent
+        SelectComponent,
+        ProfileChangeBannerComponent
     ],
     templateUrl: './student-details.component.html',
     styleUrl: './student-details.component.scss'
@@ -74,6 +80,21 @@ export class StudentDetailsComponent implements OnInit {
     // hərəsinin öz yükləmə vəziyyəti olmalıdır.
     downloadingKey: string | null = null;
     readonly certificateAwards = CERTIFICATE_AWARDS;
+
+    /** Модерация ФИО ученика (п.3 ТЗ 04.09.2026) — редактирует учитель ЭТОГО ученика, через
+     *  ту же очередь профильных заявок, что и у школы/учителя/района (BASE_FIXES_TASK.md §2.4).
+     *  Директор школы сюда не допущен — заказчик просил это право только для учителей. */
+    editingStudentName = false;
+    editedLastName: string | null = null;
+    editedFirstName = '';
+    editedMiddleName: string | null = null;
+    isSavingStudentName = false;
+    pendingNameChange: ProfileChangeRequest | null = null;
+    readonly studentNameFieldLabels: Record<string, string> = {
+        lastName: 'Soyadı',
+        firstName: 'Adı',
+        middleName: 'Ata adı',
+    };
 
     private get currentAcademicYear(): number {
         return getCurrentAcademicYear();
@@ -186,7 +207,8 @@ export class StudentDetailsComponent implements OnInit {
         private navigationHistory: NavigationHistoryService,
         private snackBarService: SnackBarService,
         private configService: ConfigService,
-        private certificateService: CertificateService
+        private certificateService: CertificateService,
+        private profileChangeService: ProfileChangeService
     ) { }
 
     ngOnInit(): void {
@@ -213,6 +235,7 @@ export class StudentDetailsComponent implements OnInit {
                 this.isLoading = false;
                 this.autoExpandLastGradeIfCurrentYearEmpty();
                 if (this.student) this.loadCertificateAvailability(this.student.id);
+                this.loadPendingNameChange();
             },
             error: (error: Error) => {
                 console.error('Şagirdin alınmasında xəta!', error.error);
@@ -402,6 +425,66 @@ export class StudentDetailsComponent implements OnInit {
     get canEditResults(): boolean {
         const currentUser = this.authService.getCurrentUserValue();
         return currentUser?.role === 'admin' || currentUser?.role === 'superadmin';
+    }
+
+    /** ФИО ученика правит только его учитель (п.3 ТЗ 04.09.2026, согласовано 05.09.2026) — не
+     *  директор школы и не через RBAC-таблицу (canEditStudents у роли teacher по-прежнему false,
+     *  прямое редактирование ученика ему запрещено, это отдельный путь через модерацию). */
+    get canEditStudentName(): boolean {
+        const user = this.authService.getCurrentUserValue();
+        return user?.role === 'teacher' && String(user.profile?.entityId) === String(this.student?.teacher?.id ?? '');
+    }
+
+    private loadPendingNameChange(): void {
+        if (!this.canEditStudentName || !this.student) return;
+        this.profileChangeService.current('student', this.student.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (pending) => { this.pendingNameChange = pending; },
+                error: () => { this.pendingNameChange = null; }
+            });
+    }
+
+    startEditStudentName(): void {
+        if (!this.student) return;
+        this.editedLastName = this.pendingNameChange?.payload['lastName'] ?? this.student.lastName ?? null;
+        this.editedFirstName = this.pendingNameChange?.payload['firstName'] ?? this.student.firstName ?? '';
+        this.editedMiddleName = this.pendingNameChange?.payload['middleName'] ?? this.student.middleName ?? null;
+        this.editingStudentName = true;
+    }
+
+    cancelEditStudentName(): void {
+        this.editingStudentName = false;
+    }
+
+    saveStudentName(): void {
+        if (!this.student) return;
+        this.isSavingStudentName = true;
+        this.studentService.updateStudentProfile(this.student.id, {
+            lastName: this.editedLastName,
+            firstName: this.editedFirstName.trim(),
+            middleName: this.editedMiddleName,
+        })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (result) => {
+                    this.isSavingStudentName = false;
+                    this.editingStudentName = false;
+                    if (result.applied) {
+                        if (this.student) this.student = { ...this.student, ...result.entity };
+                        this.pendingNameChange = null;
+                        this.snackBarService.show('Profil uğurla yeniləndi', 'success');
+                    } else {
+                        this.pendingNameChange = result.pendingRequest;
+                        this.profileChangeService.refreshPendingCount();
+                        this.snackBarService.show('Məlumatlar admin təsdiqinə göndərildi', 'success');
+                    }
+                },
+                error: () => {
+                    this.isSavingStudentName = false;
+                    this.snackBarService.show('Göndərilərkən xəta baş verdi', 'error');
+                }
+            });
     }
 
     // Avatar methods
