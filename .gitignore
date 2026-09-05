@@ -45,3 +45,6 @@ Thumbs.db
 *.md
 !CLAUDE.md
 !.claude/**/*.md
+
+# Local agent/editor run config
+.claude/launch.json
