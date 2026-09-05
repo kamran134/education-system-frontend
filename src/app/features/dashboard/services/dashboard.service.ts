@@ -33,6 +33,9 @@ export class DashboardService {
         if (userParams.updatedAt)          params = params.set('updatedAt', userParams.updatedAt.toISOString());
         if (userParams.sortColumn)         params = params.set('sortColumn', userParams.sortColumn);
         if (userParams.sortDirection)      params = params.set('sortDirection', userParams.sortDirection);
+        if (userParams.districtIds && userParams.districtIds.length > 0) params = params.set('districtIds', userParams.districtIds.toString());
+        if (userParams.schoolIds && userParams.schoolIds.length > 0)     params = params.set('schoolIds', userParams.schoolIds.toString());
+        if (userParams.teacherIds && userParams.teacherIds.length > 0)   params = params.set('teacherIds', userParams.teacherIds.toString());
         return this.http.get<UserResponse>(url, { params, withCredentials: true }).pipe(
             catchError(this.handleError.bind(this))
         );

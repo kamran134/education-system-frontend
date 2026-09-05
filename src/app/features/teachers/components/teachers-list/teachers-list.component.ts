@@ -62,6 +62,15 @@ export class TeachersListComponent implements OnInit {
     selectedSchoolIds: string[] = [];
     districtOptions: SelectOption[] = [];
     schoolOptions: SelectOption[] = [];
+
+    /** Фильтр «скрытые / показываемые müəllim» — только для admin-подобных ролей
+     *  (FIXES п.8 от 04.09.2026), чтобы вернуть ошибочно скрытого учителя обратно. */
+    selectedVisibility: 'all' | 'hidden' | 'shown' = 'all';
+    readonly visibilityOptions: SelectOption[] = [
+        { value: 'all', label: 'Hamısı' },
+        { value: 'hidden', label: 'Yalnız gizlədilən müəllimlər' },
+        { value: 'shown', label: 'Yalnız göstərilən müəllimlər' }
+    ];
     missingSchoolCodes: number[] = [];
     teacherCodesWithoutSchoolCodes: number[] = [];
     incorrectTeacherCodes: number[] = [];
@@ -177,6 +186,12 @@ export class TeachersListComponent implements OnInit {
         return this.authService.isAdminOrSuperAdmin();
     }
 
+    /** Разрешаем фильтр по видимости superadmin/admin/moderator — тем же ролям, что уже
+     *  могут редактировать müəllim (RBAC-матрица одна на всё приложение). */
+    get canFilterByVisibility(): boolean {
+        return this.authService.canEditTeachers();
+    }
+
     private setupActionButtons(): void {
         this.actionButtons = [];
 
@@ -247,6 +262,12 @@ export class TeachersListComponent implements OnInit {
         this.loadTeachers();
     }
 
+    onVisibilityChange(value: 'all' | 'hidden' | 'shown'): void {
+        this.selectedVisibility = value || 'all';
+        this.pageIndex = 0;
+        this.loadTeachers();
+    }
+
     onFilterChange(filterData: any): void {
         // Handle district filter change
         if (filterData.districts !== undefined) {
@@ -308,6 +329,7 @@ export class TeachersListComponent implements OnInit {
             size: this.pageSize,
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
+            active: this.selectedVisibility === 'all' ? undefined : this.selectedVisibility === 'shown',
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection
         }

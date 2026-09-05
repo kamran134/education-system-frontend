@@ -32,4 +32,9 @@ export interface UserParams {
     updatedAt?: Date;
     sortColumn?: string;
     sortDirection?: 'asc' | 'desc';
+    // Фильтры по rayon/məktəb/müəllim (FIXES п.9 от 04.09.2026) — работают на табах
+    // schoolDirector/teacher/student, где у пользователя есть эффективная привязка.
+    districtIds?: string | string[];
+    schoolIds?: string | string[];
+    teacherIds?: string | string[];
 }

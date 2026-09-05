@@ -20,7 +20,7 @@
         }
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- District Filter -->
         <div>
           <app-select
@@ -44,6 +44,19 @@
             (ngModelChange)="onSchoolChange($event)">
           </app-select>
         </div>
+
+        <!-- Visibility Filter (только для admin-подобных ролей — проверить, кто ошибочно скрыт) -->
+        @if (canFilterByVisibility) {
+          <div>
+            <app-select
+              label="Görünürlük"
+              placeholder="Hamısı"
+              [(ngModel)]="selectedVisibility"
+              [options]="visibilityOptions"
+              (ngModelChange)="onVisibilityChange($event)">
+            </app-select>
+          </div>
+        }
       </div>
     </div>
   </div>

@@ -30,6 +30,42 @@
     </nav>
   </div>
 
+  <!-- Rayon/məktəb/müəllim filtrləri — yalnız bağlılığı olan rollarda (schoolDirector/teacher/student) -->
+  @if (showHierarchyFilters) {
+    <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <app-select
+          label="Təhsil sektoru"
+          [multiple]="true"
+          [(ngModel)]="selectedDistrictIds"
+          [options]="districtOptions"
+          placeholder="Hamısı"
+          (ngModelChange)="onDistrictChange($event)">
+        </app-select>
+
+        <app-select
+          label="Məktəb"
+          [multiple]="true"
+          [(ngModel)]="selectedSchoolIds"
+          [options]="schoolOptions"
+          [disabled]="selectedDistrictIds.length === 0"
+          placeholder="Hamısı"
+          (ngModelChange)="onSchoolChange($event)">
+        </app-select>
+
+        <app-select
+          label="Müəllim"
+          [multiple]="true"
+          [(ngModel)]="selectedTeacherIds"
+          [options]="teacherOptions"
+          [disabled]="selectedSchoolIds.length === 0"
+          placeholder="Hamısı"
+          (ngModelChange)="onTeacherChange($event)">
+        </app-select>
+      </div>
+    </div>
+  }
+
   <!-- Cell templates for columns that render a badge instead of plain text -->
   <ng-template #roleCell let-role>
     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getRoleBadgeClass(role)">

@@ -60,6 +60,15 @@ export class SchoolsListComponent implements OnInit {
     selectedDistrictIds: string[] = [];
     districtOptions: SelectOption[] = [];
 
+    /** Фильтр «скрытые / показываемые məktəb» — только для admin-подобных ролей
+     *  (FIXES п.8 от 04.09.2026), чтобы вернуть ошибочно скрытую школу обратно. */
+    selectedVisibility: 'all' | 'hidden' | 'shown' = 'all';
+    readonly visibilityOptions: SelectOption[] = [
+        { value: 'all', label: 'Hamısı' },
+        { value: 'hidden', label: 'Yalnız gizlədilən məktəblər' },
+        { value: 'shown', label: 'Yalnız göstərilən məktəblər' }
+    ];
+
     // Table configuration
     @ViewChild('nameCell', { static: true }) nameCellTemplate!: TemplateRef<any>;
 
@@ -192,6 +201,12 @@ export class SchoolsListComponent implements OnInit {
         return this.authService.isAdminOrSuperAdmin();
     }
 
+    /** Разрешаем фильтр по видимости superadmin/admin/moderator — тем же ролям, что уже
+     *  могут редактировать məktəb (RBAC-матрица одна на всё приложение). */
+    get canFilterByVisibility(): boolean {
+        return this.authService.canEditSchools();
+    }
+
     loadDistricts(): void {
         const params: FilterParams = {
             page: 1,
@@ -216,6 +231,12 @@ export class SchoolsListComponent implements OnInit {
 
 onFilterChange(filters: Record<string, any>): void {
         this.selectedDistrictIds = filters['districtIds'] || [];
+        this.pageIndex = 0;
+        this.loadSchools();
+    }
+
+    onVisibilityChange(value: 'all' | 'hidden' | 'shown'): void {
+        this.selectedVisibility = value || 'all';
         this.pageIndex = 0;
         this.loadSchools();
     }
@@ -265,6 +286,7 @@ onFilterChange(filters: Record<string, any>): void {
             page: this.pageIndex + 1,
             size: this.pageSize,
             districtIds: this.selectedDistrictIds.join(","),
+            active: this.selectedVisibility === 'all' ? undefined : this.selectedVisibility === 'shown',
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection
         };

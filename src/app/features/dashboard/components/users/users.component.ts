@@ -16,10 +16,19 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { TABLE_PAGE_SIZE_DEFAULT, TABLE_PAGE_SIZE_OPTIONS } from '../../../../shared/components/ui/data-table/table-defaults';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { FilterParams } from '../../../../core/models/filterParams.model';
+import { District } from '../../../../core/models/district.model';
+import { School } from '../../../../core/models/school.model';
+import { Teacher } from '../../../../core/models/teacher.model';
+import { DistrictService } from '../../../districts/services/district.service';
+import { SchoolService } from '../../../schools/services/school.service';
+import { TeacherService } from '../../../teachers/services/teacher.service';
+import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 
 @Component({
     selector: 'app-users',
-    imports: [FormsModule, LucideAngularModule, ButtonComponent, DataTableComponent, FullscreenPanelComponent],
+    imports: [FormsModule, LucideAngularModule, ButtonComponent, DataTableComponent, FullscreenPanelComponent, SelectComponent],
     templateUrl: './users.component.html',
     styleUrl: './users.component.scss'
 })
@@ -47,6 +56,32 @@ export class UsersComponent implements OnInit, OnDestroy {
     ];
     selectedRole = 'student';
 
+    // Rayon/məktəb/müəllim фильтры (FIXES п.9 от 04.09.2026) — есть смысл только на табах, где
+    // у пользователя есть эффективная привязка к иерархии.
+    readonly filterableRoles = ['schoolDirector', 'teacher', 'student'];
+    get showHierarchyFilters(): boolean {
+        return this.filterableRoles.includes(this.selectedRole);
+    }
+
+    districts: District[] = [];
+    schools: School[] = [];
+    teachers: Teacher[] = [];
+    selectedDistrictIds: string[] = [];
+    selectedSchoolIds: string[] = [];
+    selectedTeacherIds: string[] = [];
+
+    get districtOptions(): SelectOption[] {
+        return this.districts.map(district => ({ value: district.id, label: district.name }));
+    }
+
+    get schoolOptions(): SelectOption[] {
+        return this.schools.map(school => ({ value: school.id, label: school.name }));
+    }
+
+    get teacherOptions(): SelectOption[] {
+        return this.teachers.map(teacher => ({ value: teacher.id, label: teacher.fullname }));
+    }
+
     // Sort
     sortColumn = 'email';
     sortDirection: 'asc' | 'desc' = 'asc';
@@ -65,6 +100,9 @@ export class UsersComponent implements OnInit, OnDestroy {
 
     constructor(
         private dashboardService: DashboardService,
+        private districtService: DistrictService,
+        private schoolService: SchoolService,
+        private teacherService: TeacherService,
         private dialog: Dialog,
         private toastService: ToastService,
         private authService: AuthService,
@@ -79,8 +117,10 @@ export class UsersComponent implements OnInit, OnDestroy {
             .subscribe(isLoggedIn => {
                 if (isLoggedIn) {
                     this.authorizedUserRole = this.authService.getRole();
-                    if (this.authorizedUserRole === 'admin' || this.authorizedUserRole === 'superadmin') this.loadUsers();
-                    else this.router.navigate(['/admin/rating-columns']);
+                    if (this.authorizedUserRole === 'admin' || this.authorizedUserRole === 'superadmin') {
+                        if (this.showHierarchyFilters) this.loadDistricts();
+                        this.loadUsers();
+                    } else this.router.navigate(['/admin/rating-columns']);
                 } else {
                     this.router.navigate(['/login']);
                 }
@@ -149,7 +189,10 @@ export class UsersComponent implements OnInit, OnDestroy {
             size: this.pageSize,
             role: this.selectedRole || undefined,
             sortColumn: this.sortColumn,
-            sortDirection: this.sortDirection
+            sortDirection: this.sortDirection,
+            districtIds: this.showHierarchyFilters && this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
+            schoolIds: this.showHierarchyFilters && this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
+            teacherIds: this.showHierarchyFilters && this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined
         })
             .pipe(takeUntil(this.destroy$))
             .subscribe({
@@ -173,6 +216,10 @@ export class UsersComponent implements OnInit, OnDestroy {
         if (this.selectedRole === role) return;
         this.selectedRole = role;
         this.pageIndex = 0;
+        this.resetHierarchyFilters();
+        if (this.showHierarchyFilters && this.districts.length === 0) {
+            this.loadDistricts();
+        }
         this.loadUsers();
     }
 
@@ -180,6 +227,82 @@ export class UsersComponent implements OnInit, OnDestroy {
         return this.selectedRole === role
             ? 'border-indigo-600 text-indigo-600'
             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+    }
+
+    private resetHierarchyFilters(): void {
+        this.selectedDistrictIds = [];
+        this.selectedSchoolIds = [];
+        this.selectedTeacherIds = [];
+        this.schools = [];
+        this.teachers = [];
+    }
+
+    loadDistricts(): void {
+        const params: FilterParams = { page: 1, size: 1000, sortColumn: 'name', sortDirection: 'asc' };
+        this.districtService.getDistricts(params).subscribe({
+            next: (response) => {
+                this.districts = ResponseHandlerUtil.extractData<District[]>(response) || [];
+            },
+            error: (err: any) => {
+                console.error('Error loading districts:', err);
+            }
+        });
+    }
+
+    loadSchools(): void {
+        if (this.selectedDistrictIds.length === 0) {
+            this.schools = [];
+            return;
+        }
+        const params: FilterParams = { districtIds: this.selectedDistrictIds.join(',') };
+        this.schoolService.getSchoolsForFilter(params).subscribe({
+            next: (schools) => {
+                this.schools = schools || [];
+            },
+            error: (err: any) => {
+                console.error('Error loading schools:', err);
+            }
+        });
+    }
+
+    loadTeachers(): void {
+        if (this.selectedSchoolIds.length === 0) {
+            this.teachers = [];
+            return;
+        }
+        const params: FilterParams = { schoolIds: this.selectedSchoolIds.join(',') };
+        this.teacherService.getTeachersForFilter(params).subscribe({
+            next: (teachers) => {
+                this.teachers = teachers || [];
+            },
+            error: (err: any) => {
+                console.error('Error loading teachers:', err);
+            }
+        });
+    }
+
+    onDistrictChange(districtIds: string[]): void {
+        this.selectedDistrictIds = districtIds || [];
+        this.selectedSchoolIds = [];
+        this.selectedTeacherIds = [];
+        this.teachers = [];
+        this.loadSchools();
+        this.pageIndex = 0;
+        this.loadUsers();
+    }
+
+    onSchoolChange(schoolIds: string[]): void {
+        this.selectedSchoolIds = schoolIds || [];
+        this.selectedTeacherIds = [];
+        this.loadTeachers();
+        this.pageIndex = 0;
+        this.loadUsers();
+    }
+
+    onTeacherChange(teacherIds: string[]): void {
+        this.selectedTeacherIds = teacherIds || [];
+        this.pageIndex = 0;
+        this.loadUsers();
     }
 
     onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
