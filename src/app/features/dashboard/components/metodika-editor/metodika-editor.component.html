@@ -1,0 +1,271 @@
+<div class="max-w-4xl mx-auto pb-16">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div class="flex items-center">
+      <lucide-icon [img]="BookOpen" class="w-8 h-8 text-primary-600 mr-3"></lucide-icon>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Metodika səhifəsi</h1>
+        <p class="text-gray-600 text-sm mt-1">Açıq «İSİM metodikası» səhifəsinin mətnini redaktə edin</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a
+        href="/metodika"
+        target="_blank"
+        rel="noopener"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+        <lucide-icon [img]="Eye" class="w-4 h-4"></lucide-icon>
+        Baxış
+      </a>
+      <button
+        type="button"
+        [disabled]="isResetting"
+        (click)="resetToDefault()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <lucide-icon [img]="RotateCcw" class="w-4 h-4"></lucide-icon>
+        İlkin mətnə qaytar
+      </button>
+      <button
+        type="button"
+        [disabled]="isSaving || isLoading"
+        (click)="save()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+        <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
+        Yadda saxla
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-16 text-gray-500">Yüklənir...</div>
+  }
+
+  @if (!isLoading) {
+    <div class="space-y-6">
+
+      <!-- ==================== Hero ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Giriş bölməsi</h2>
+        <div class="space-y-4">
+          <app-input label="Üst yazı" [(ngModel)]="content.hero.eyebrow"></app-input>
+          <app-input label="Başlıq" [(ngModel)]="content.hero.title"></app-input>
+          <app-input label="Lid mətn" [multiline]="true" [rows]="3" [(ngModel)]="content.hero.lead"></app-input>
+        </div>
+      </section>
+
+      <!-- ==================== 2 hissə (oglavlenie) ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">İki hissə bölməsi</h2>
+        <div class="space-y-4">
+          <app-input label="Üst yazı" [(ngModel)]="content.parts.eyebrow"></app-input>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+              <div class="text-xs font-semibold text-gray-500 uppercase">1-ci hissə</div>
+              <app-input label="Başlıq" [(ngModel)]="content.parts.items[0].title"></app-input>
+              <app-input label="Mətn" [multiline]="true" [rows]="2" [(ngModel)]="content.parts.items[0].text"></app-input>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+              <div class="text-xs font-semibold text-gray-500 uppercase">2-ci hissə</div>
+              <app-input label="Başlıq" [(ngModel)]="content.parts.items[1].title"></app-input>
+              <app-input label="Mətn" [multiline]="true" [rows]="2" [(ngModel)]="content.parts.items[1].text"></app-input>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Təlim + müəllif ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Müəllim təlimi və metodikanın müəllifi</h2>
+        <div class="space-y-4">
+          <app-input label="Başlıq" [(ngModel)]="content.training.title"></app-input>
+          <app-input label="Mətn" [multiline]="true" [rows]="3" [(ngModel)]="content.training.text"></app-input>
+          <app-input label="Bloqun nişanı (badge)" [(ngModel)]="content.training.authorBadge"></app-input>
+          <app-input label="Müəllifin adı" [(ngModel)]="content.training.authorName"></app-input>
+          <app-input label="Müəllif haqqında" [multiline]="true" [rows]="4" [(ngModel)]="content.training.authorBio"></app-input>
+        </div>
+      </section>
+
+      <!-- ==================== Birinci hissə ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Birinci hissə — Mərkəzləşmiş İmtahan</h2>
+        <div class="space-y-4">
+          <app-input label="Nişan (badge)" [(ngModel)]="content.part1.badge"></app-input>
+          <app-input label="Başlıq" [(ngModel)]="content.part1.title"></app-input>
+          <app-input label="Lid mətn" [multiline]="true" [rows]="2" [(ngModel)]="content.part1.lead"></app-input>
+          <app-input label="İmtahanın adı" [(ngModel)]="content.part1.examTitle"></app-input>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700">Fənlər (cəmi: {{ totalQuestions }} sual)</span>
+              <button type="button" (click)="addDiscipline()" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon> Fənn əlavə et
+              </button>
+            </div>
+            <div class="space-y-3">
+              @for (d of content.part1.disciplines; track $index) {
+                <div class="flex items-start gap-3 border border-gray-200 rounded-lg p-3">
+                  <div class="flex-1">
+                    <app-input label="Fənnin adı" [(ngModel)]="d.name"></app-input>
+                  </div>
+                  <div class="w-32">
+                    <app-input label="Sual sayı" type="number" [min]="1" [(ngModel)]="d.questions"></app-input>
+                  </div>
+                  <button
+                    type="button"
+                    [disabled]="content.part1.disciplines.length <= 1"
+                    (click)="removeDiscipline($index)"
+                    class="mt-6 p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                    <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <app-input label="Səviyyələr bölməsinin başlığı" [(ngModel)]="content.part1.levelsTitle"></app-input>
+          <app-input label="Səviyyələr bölməsinin lid mətni" [multiline]="true" [rows]="2" [(ngModel)]="content.part1.levelsLead"></app-input>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700">Səviyyələr</span>
+              <button type="button" (click)="addLevel()" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon> Səviyyə əlavə et
+              </button>
+            </div>
+            <div class="space-y-3">
+              @for (l of content.part1.levels; track $index) {
+                <div class="flex items-start gap-3 border border-gray-200 rounded-lg p-3">
+                  <div class="w-32">
+                    <app-input label="Kod" [(ngModel)]="l.code"></app-input>
+                  </div>
+                  <div class="flex-1">
+                    <app-input label="Faiz aralığı" [(ngModel)]="l.percent"></app-input>
+                  </div>
+                  <button
+                    type="button"
+                    [disabled]="content.part1.levels.length <= 1"
+                    (click)="removeLevel($index)"
+                    class="mt-6 p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                    <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <app-input label="Şəklin altındakı qeyd" [multiline]="true" [rows]="2" [(ngModel)]="content.part1.ladderNote"></app-input>
+        </div>
+      </section>
+
+      <!-- ==================== Canlı yayım ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Nəticələr canlı yayımda</h2>
+        <div class="space-y-4">
+          <app-input label="Başlıq" [(ngModel)]="content.live.title"></app-input>
+
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">Kartlar</span>
+            <button type="button" (click)="addLiveCard()" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+              <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon> Kart əlavə et
+            </button>
+          </div>
+          <div class="space-y-3">
+            @for (card of content.live.cards; track $index) {
+              <div class="border border-gray-200 rounded-lg p-4 space-y-3">
+                <div class="flex items-start gap-3">
+                  <div class="flex-1 space-y-3">
+                    <app-input label="Nişan (badge)" [(ngModel)]="card.badge"></app-input>
+                    <app-input label="Başlıq" [(ngModel)]="card.title"></app-input>
+                    <app-input label="Mətn" [multiline]="true" [rows]="2" [(ngModel)]="card.text"></app-input>
+                  </div>
+                  <button
+                    type="button"
+                    [disabled]="content.live.cards.length <= 1"
+                    (click)="removeLiveCard($index)"
+                    class="p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                    <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== İlin şagirdi bölməsi ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">«İLİN ŞAGİRDLƏRİ» necə müəyyənləşir</h2>
+        <div class="space-y-4">
+          <app-input label="Başlıq" [(ngModel)]="content.yearAwards.title"></app-input>
+          <app-input label="Lid mətn" [multiline]="true" [rows]="2" [(ngModel)]="content.yearAwards.lead"></app-input>
+
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-gray-700">Bal kartları</span>
+            <button type="button" (click)="addYearPoint()" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+              <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon> Kart əlavə et
+            </button>
+          </div>
+          <div class="space-y-3">
+            @for (p of content.yearAwards.points; track $index) {
+              <div class="flex items-start gap-3 border border-gray-200 rounded-lg p-3">
+                <div class="w-28">
+                  <app-input label="Bal" [(ngModel)]="p.points"></app-input>
+                </div>
+                <div class="flex-1">
+                  <app-input label="Başlıq" [(ngModel)]="p.title"></app-input>
+                </div>
+                <div class="flex-1">
+                  <app-input label="Qeyd" [(ngModel)]="p.note"></app-input>
+                </div>
+                <button
+                  type="button"
+                  [disabled]="content.yearAwards.points.length <= 1"
+                  (click)="removeYearPoint($index)"
+                  class="mt-6 p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                  <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
+            }
+          </div>
+
+          <app-input label="Aşağı bloqun mətni" [multiline]="true" [rows]="2" [(ngModel)]="content.yearAwards.footer"></app-input>
+        </div>
+      </section>
+
+      <!-- ==================== Nə əldə edirik? №1 ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">«Nə əldə edirik?» (1)</h2>
+        <div class="space-y-4">
+          <app-input label="Etiket" [(ngModel)]="content.outcome1.label"></app-input>
+          <app-input label="Mətn" [multiline]="true" [rows]="3" [(ngModel)]="content.outcome1.text"></app-input>
+        </div>
+      </section>
+
+      <!-- ==================== Psixoloji-karyera testi ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Psixoloji-karyera testi</h2>
+        <div class="space-y-4">
+          <app-input label="Nişan (badge)" [(ngModel)]="content.careerTest.badge"></app-input>
+          <app-input label="Başlıq" [(ngModel)]="content.careerTest.title"></app-input>
+          <app-input label="Mətn" [multiline]="true" [rows]="3" [(ngModel)]="content.careerTest.text"></app-input>
+          <app-input label="«Nə əldə edirik?» etiketi" [(ngModel)]="content.careerTest.outcomeLabel"></app-input>
+          <app-input label="«Nə əldə edirik?» mətni" [multiline]="true" [rows]="3" [(ngModel)]="content.careerTest.outcomeText"></app-input>
+        </div>
+      </section>
+
+      <!-- ==================== İkinci hissə ==================== -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">İkinci hissə — Qavrama üslubu</h2>
+        <div class="space-y-4">
+          <app-input label="Nişan (badge)" [(ngModel)]="content.part2.badge"></app-input>
+          <app-input label="Başlıq" [(ngModel)]="content.part2.title"></app-input>
+          <app-input label="Lid mətn" [multiline]="true" [rows]="3" [(ngModel)]="content.part2.lead"></app-input>
+          <app-input label="«Nə əldə edirik?» etiketi" [(ngModel)]="content.part2.outcomeLabel"></app-input>
+          <app-input label="«Nə əldə edirik?» mətni" [multiline]="true" [rows]="3" [(ngModel)]="content.part2.outcomeText"></app-input>
+        </div>
+      </section>
+
+    </div>
+  }
+</div>
