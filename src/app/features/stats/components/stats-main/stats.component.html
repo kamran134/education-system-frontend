@@ -19,6 +19,7 @@
     [selectedLevels]="selectedLevels"
     [selectedMonth]="selectedMonth"
     [selectedAcademicYear]="selectedAcademicYear"
+    [selectedYearlyMonth]="selectedYearlyMonth"
     [hideRegionFilter]="shouldHideRegionFilter"
     [hideDistrictFilter]="shouldHideDistrictFilter"
     [hideSchoolFilter]="shouldHideSchoolFilter"
@@ -35,6 +36,7 @@
     (levelChanged)="onLevelSelectChanged($event)"
     (searchStringChanged)="onSearchChange($event)"
     (academicYearUpdated)="onAcademicYearChanged($event)"
+    (yearlyMonthUpdated)="onYearlyMonthChanged($event)"
   ></app-stats-filters>
 
   <!-- Custom Tabs: one fullscreen button expands the tab strip together with the active table -->
@@ -98,7 +100,7 @@
 
       @if (['allStudents','allTeachers','allSchools','allDistricts','allRegions'].includes(selectedTab)) {
         <div class="mb-3 text-sm text-[var(--ui-ink-2)]">
-          {{ academicYearLabel(selectedAcademicYear) }} tədris ili
+          {{ yearlyTabLabel }}
         </div>
       }
 
@@ -107,7 +109,7 @@
         <div>
           <app-students-year-tab
             [students]="stats.students ?? []"
-            [displayedColumns]="studentColumns"
+            [displayedColumns]="displayedStudentColumns"
             [totalCount]="totalCounts.allStudentsTotalCount ?? 0"
             [pageIndex]="pageIndex"
             [pageSize]="studentsPageSize"
@@ -129,7 +131,7 @@
         <div>
           <app-teachers-year-tab
             [teachers]="stats.teachers ?? []"
-            [displayedColumns]="teacherColumns"
+            [displayedColumns]="displayedTeacherColumns"
             [totalCount]="totalCounts.allTeachersTotalCount ?? 0"
             [pageIndex]="pageIndex"
             [pageSize]="pageSize"
@@ -151,7 +153,7 @@
         <div>
           <app-schools-year-tab
             [schools]="stats.schools ?? []"
-            [displayedColumns]="schoolColumns"
+            [displayedColumns]="displayedSchoolColumns"
             [totalCount]="totalCounts.allSchoolsTotalCount ?? 0"
             [pageIndex]="pageIndex"
             [pageSize]="pageSize"
@@ -173,7 +175,7 @@
         <div>
           <app-districts-year-tab
             [districts]="stats.districts ?? []"
-            [displayedColumns]="districtColumns"
+            [displayedColumns]="displayedDistrictColumns"
             [totalCount]="totalCounts.allDistrictsTotalCount ?? 0"
             [pageIndex]="pageIndex"
             [pageSize]="pageSize"
@@ -195,7 +197,7 @@
         <div>
           <app-regions-year-tab
             [regions]="stats.regions ?? []"
-            [displayedColumns]="regionColumns"
+            [displayedColumns]="displayedRegionColumns"
             [totalCount]="totalCounts.allRegionsTotalCount ?? 0"
             [pageIndex]="pageIndex"
             [pageSize]="pageSize"

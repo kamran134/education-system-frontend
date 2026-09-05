@@ -55,6 +55,19 @@
         </div>
       }
 
+      <!-- Month Filter (İlin... tabs) — п.10 ТЗ 04.09.2026: найти, кто набрал больше всего
+           баллов за конкретный месяц. Отдельного календарного года нет — он вычисляется
+           из этого месяца и выбранного «Tədris ili» выше. -->
+      @if (['allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions'].includes(selectedTab)) {
+        <div>
+          <app-select
+            label="Ay"
+            [formControl]="yearlyMonthControl"
+            [options]="yearlyMonthOptions">
+          </app-select>
+        </div>
+      }
+
       <!-- Regions Filter -->
       @if (selectedTab !== 'allRegions' && !hideRegionFilter) {
         <div>

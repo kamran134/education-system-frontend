@@ -177,6 +177,9 @@ export class StatsService {
         if (params.academicYear) {
             queryParams.push(`academicYear=${params.academicYear}`);
         }
+        if (params.month) {
+            queryParams.push(`month=${params.month}`);
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -208,6 +211,9 @@ export class StatsService {
         if (params.academicYear) {
             queryParams.push(`academicYear=${params.academicYear}`);
         }
+        if (params.month) {
+            queryParams.push(`month=${params.month}`);
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -236,6 +242,9 @@ export class StatsService {
         if (params.academicYear) {
             queryParams.push(`academicYear=${params.academicYear}`);
         }
+        if (params.month) {
+            queryParams.push(`month=${params.month}`);
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -260,6 +269,9 @@ export class StatsService {
         }
         if (params.academicYear) {
             queryParams.push(`academicYear=${params.academicYear}`);
+        }
+        if (params.month) {
+            queryParams.push(`month=${params.month}`);
         }
 
         if (queryParams.length > 0) {

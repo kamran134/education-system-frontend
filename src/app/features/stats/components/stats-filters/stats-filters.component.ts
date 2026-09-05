@@ -53,6 +53,10 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
      *  ученика) — контрол синхронизируется без emitEvent, иначе родитель получил бы обратно
      *  своё же значение и перезагрузил таблицу вторым запросом. */
     @Input() selectedAcademicYear: number | null = null;
+    /** Месяц фильтра на годовых вкладках (İlin ...) — 0 значит «Bütün il». В отличие от
+     *  selectedMonth (пара Ay+İl на месячных вкладках) тут нет отдельного календарного года:
+     *  он вычисляется родителем из этого месяца и выбранного tədris ili (п.10 ТЗ 04.09.2026). */
+    @Input() selectedYearlyMonth: number = 0;
 
     // Role-based filter visibility — filter is hidden entirely when the role's value
     // is always fixed to a single option (e.g. a teacher can't filter by teacher)
@@ -65,6 +69,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     @Input() hideSearchFilter: boolean = false;
 
     @Output() monthUpdated = new EventEmitter<string>();
+    @Output() yearlyMonthUpdated = new EventEmitter<number>();
     @Output() regionChanged = new EventEmitter<string[]>();
     @Output() districtChanged = new EventEmitter<string[]>();
     @Output() schoolChanged = new EventEmitter<string[]>();
@@ -102,9 +107,31 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
     ];
     years: number[] = [];
 
+    /** Месяц на годовых вкладках (İlin ...) — «Bütün il» + сентябрь-декабрь + январь-июнь.
+     *  Июль и август не входят: экзамены İSİM ежемесячные, в каникулы не проводятся — пустой
+     *  месяц в списке породит вопрос «почему тут ничего нет» (п.10 ТЗ 04.09.2026). */
+    yearlyMonths = [
+        { value: 0, name: 'Bütün il' },
+        { value: 9, name: 'Sentyabr' },
+        { value: 10, name: 'Oktyabr' },
+        { value: 11, name: 'Noyabr' },
+        { value: 12, name: 'Dekabr' },
+        { value: 1, name: 'Yanvar' },
+        { value: 2, name: 'Fevral' },
+        { value: 3, name: 'Mart' },
+        { value: 4, name: 'Aprel' },
+        { value: 5, name: 'May' },
+        { value: 6, name: 'İyun' }
+    ];
+    yearlyMonthControl = new FormControl(0);
+
     // Options for select components
     get monthOptions() {
         return this.months.map(month => ({ label: month.name, value: month.value }));
+    }
+
+    get yearlyMonthOptions() {
+        return this.yearlyMonths.map(month => ({ label: month.name, value: month.value }));
     }
 
     get yearOptions() {
@@ -147,6 +174,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         this.setupMonthYearChange();
         this.setupYears();
         this.setupAcademicYears();
+        this.setupYearlyMonthChange();
     }
 
     ngOnInit() {
@@ -161,6 +189,10 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         if (changes['selectedAcademicYear'] && this.selectedAcademicYear != null
             && this.selectedAcademicYear !== this.academicYearControl.value) {
             this.academicYearControl.setValue(this.selectedAcademicYear, { emitEvent: false });
+        }
+        if (changes['selectedYearlyMonth'] && this.selectedYearlyMonth != null
+            && this.selectedYearlyMonth !== this.yearlyMonthControl.value) {
+            this.yearlyMonthControl.setValue(this.selectedYearlyMonth, { emitEvent: false });
         }
     }
 
@@ -190,6 +222,16 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
 
     get academicYearOptions() {
         return this.academicYears;
+    }
+
+    setupYearlyMonthChange() {
+        this.yearlyMonthControl.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(month => {
+                if (month != null) {
+                    this.yearlyMonthUpdated.emit(month);
+                }
+            });
     }
 
     /**

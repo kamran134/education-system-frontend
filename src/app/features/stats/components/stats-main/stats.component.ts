@@ -126,6 +126,63 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedMonth: string = new Date().getFullYear() + '-0'; // Формат: 'MM-YYYY-DD', где MM - месяц, YYYY - год, DD - день
     selectedAcademicYear: number = getCurrentAcademicYear();
     readonly academicYearLabel = academicYearLabel;
+    /** Месяц фильтра на годовых вкладках (İlin ...) — 0 значит «Bütün il» (п.10 ТЗ 04.09.2026).
+     *  В отличие от selectedMonth (пара Ay+İl на месячных вкладках), тут нет отдельного
+     *  календарного года: он вычисляется из этого месяца и selectedAcademicYear, см.
+     *  selectedYearlyCalendarYear — то же правило, по которому определён
+     *  student_results.academic_year (сентябрь-декабрь → тот же учебный год, январь-июнь → следующий). */
+    selectedYearlyMonth: number = 0;
+
+    private readonly yearlyTabNoun: Record<string, string> = {
+        allStudents: 'şagirdlər',
+        allTeachers: 'müəllimlər',
+        allSchools: 'məktəblər',
+        allDistricts: 'təhsil sektorları',
+        allRegions: 'regional təhsil idarələri'
+    };
+
+    /** Календарный год, которому принадлежит selectedYearlyMonth в контексте selectedAcademicYear. */
+    get selectedYearlyCalendarYear(): number {
+        return this.selectedYearlyMonth >= 9 ? this.selectedAcademicYear : this.selectedAcademicYear + 1;
+    }
+
+    /** month=YYYY-MM для бэкенда — только когда месяц реально выбран (не «Bütün il»),
+     *  иначе undefined, чтобы поле вообще не попадало в запрос. */
+    get selectedYearlyMonthParam(): string | undefined {
+        if (!this.selectedYearlyMonth) return undefined;
+        return `${this.selectedYearlyCalendarYear}-${String(this.selectedYearlyMonth).padStart(2, '0')}`;
+    }
+
+    /** Подпись над таблицей годовых вкладок. Геттер, а не BehaviorSubject (как у месячных
+     *  developingStudentsLabel$ и соседних) — так подпись не может рассинхронизироваться,
+     *  если где-то забыть вызвать обновление после смены selectedAcademicYear/selectedYearlyMonth. */
+    get yearlyTabLabel(): string {
+        if (!this.selectedYearlyMonth) {
+            return `${academicYearLabel(this.selectedAcademicYear)} tədris ili`;
+        }
+        const monthLabel = this.monthNamePipe.transform(this.selectedYearlyMonthParam!);
+        const noun = this.yearlyTabNoun[this.selectedTab] ?? '';
+        return `${monthLabel} ${this.selectedYearlyCalendarYear} — ən çox xal toplayan ${noun}`;
+    }
+
+    // Отображаемые наборы колонок годовых вкладок — averageScore скрывается, когда выбран
+    // месяц (бэкенд шлёт null, среднего балла за месяц не существует). Сами сохранённые
+    // настройки (studentColumns и т.д.) не трогаем — фильтруем только то, что показываем.
+    get displayedStudentColumns(): string[] {
+        return this.selectedYearlyMonth ? this.studentColumns.filter(c => c !== 'averageScore') : this.studentColumns;
+    }
+    get displayedTeacherColumns(): string[] {
+        return this.selectedYearlyMonth ? this.teacherColumns.filter(c => c !== 'averageScore') : this.teacherColumns;
+    }
+    get displayedSchoolColumns(): string[] {
+        return this.selectedYearlyMonth ? this.schoolColumns.filter(c => c !== 'averageScore') : this.schoolColumns;
+    }
+    get displayedDistrictColumns(): string[] {
+        return this.selectedYearlyMonth ? this.districtColumns.filter(c => c !== 'averageScore') : this.districtColumns;
+    }
+    get displayedRegionColumns(): string[] {
+        return this.selectedYearlyMonth ? this.regionColumns.filter(c => c !== 'averageScore') : this.regionColumns;
+    }
     selectedRegionIds: string[] = [];
     selectedDistrictIds: string[] = [];
     selectedSchoolIds: string[] = [];
@@ -640,6 +697,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
         };
+        if (this.selectedYearlyMonth) {
+            params.month = this.selectedYearlyMonthParam;
+        }
 
         this.isloading = true;
         this.stats.students = [];
@@ -672,6 +732,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
         }
+        if (this.selectedYearlyMonth) {
+            params.month = this.selectedYearlyMonthParam;
+        }
 
         this.statsService.getTeachersStats(params).subscribe({
             next: (response: any) => {
@@ -703,6 +766,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
         }
+        if (this.selectedYearlyMonth) {
+            params.month = this.selectedYearlyMonthParam;
+        }
 
         this.statsService.getSchoolsStats(params).subscribe({
             next: (response) => {
@@ -728,6 +794,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
         }
+        if (this.selectedYearlyMonth) {
+            params.month = this.selectedYearlyMonthParam;
+        }
 
         this.statsService.getDistrictsStats(params).subscribe({
             next: (response: any) => {
@@ -751,6 +820,9 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
         }
+        if (this.selectedYearlyMonth) {
+            params.month = this.selectedYearlyMonthParam;
+        }
 
         this.statsService.getRegionsStats(params).subscribe({
             next: (response: any) => {
@@ -769,6 +841,27 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     onAcademicYearChanged(year: number): void {
         this.selectedAcademicYear = year;
+        if (this.selectedTab === 'allStudents') {
+            this.loadAllStudentsStats();
+        } else if (this.selectedTab === 'allTeachers') {
+            this.loadTeachersStats();
+        } else if (this.selectedTab === 'allSchools') {
+            this.loadSchoolsStats();
+        } else if (this.selectedTab === 'allDistricts') {
+            this.loadDistrictsStats();
+        } else if (this.selectedTab === 'allRegions') {
+            this.loadRegionsStats();
+        }
+    }
+
+    // Фильтр «Ay» на годовых вкладках (İlin ...) — п.10 ТЗ 04.09.2026.
+    onYearlyMonthChanged(month: number): void {
+        this.selectedYearlyMonth = month;
+        // averageScore в месячном срезе не существует (бэкенд шлёт null) — сортировка по
+        // ней осталась бы висеть на скрытой колонке.
+        if (month && this.sortActive === 'averageScore') {
+            this.sortActive = 'score';
+        }
         if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
         } else if (this.selectedTab === 'allTeachers') {
@@ -1226,7 +1319,7 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     /** Same filters/sort as the on-screen page, but page 1 at export size — see TABLE_EXPORT_PAGE_SIZE. */
     private buildExportBaseParams(): FilterParams {
-        return {
+        const params: FilterParams = {
             page: 1,
             size: TABLE_EXPORT_PAGE_SIZE,
             sortColumn: this.sortActive || 'score',
@@ -1234,6 +1327,12 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
         };
+        // Иначе экспорт с включённым фильтром «Ay» тихо выгрузил бы годовые данные вместо
+        // месячных — тот же фильтр, что и у таблицы на экране (п.10 ТЗ 04.09.2026).
+        if (this.selectedYearlyMonth) {
+            params.month = this.selectedYearlyMonthParam;
+        }
+        return params;
     }
 
     private exportAllStudents(): void {
@@ -1250,7 +1349,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Student>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatAllStudentData(data, this.studentColumns), `İlin şagirdləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatAllStudentData(data, this.displayedStudentColumns), `İlin şagirdləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;
@@ -1273,7 +1372,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.teacherColumns), `İlin müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.displayedTeacherColumns), `İlin müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;
@@ -1296,7 +1395,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<School>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatSchoolData(data, this.schoolColumns), `İlin məktəbləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatSchoolData(data, this.displayedSchoolColumns), `İlin məktəbləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;
@@ -1315,7 +1414,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<District>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.districtColumns), `İlin təhsil sektorları ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatDistrictData(data, this.displayedDistrictColumns), `İlin təhsil sektorları ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;
@@ -1331,7 +1430,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Region>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatRegionData(data, this.regionColumns), `İlin regional idarələri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatRegionData(data, this.displayedRegionColumns), `İlin regional idarələri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;
