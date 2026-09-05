@@ -136,14 +136,28 @@ export class ExamResultsComponent implements OnInit {
         return order.map(key => catalog[key]).filter((c): c is TableColumn => !!c);
     }
 
-    // Bal faizi = totalScore / (sum of questionCounts) * 100, округлено до целого. «—», если
-    // вопросов нет вообще (0 или поля отсутствуют) — уровень (pillə) и его пороги не трогаем,
-    // это чистое отображение (FIXES п.4 от 04.09.2026).
+    /**
+     * Стандартное число вопросов Mərkəzləşmiş İmtahan: 15 Azərbaycan dili + 15 Riyaziyyat +
+     * 10 Həyat Bilgisi + 10 Məntiq (PDF заказчика «İSİM layihəsi barədə məlumat», страница
+     * методики). Запасной знаменатель — см. комментарий к formatScorePercent.
+     */
+    private readonly DEFAULT_QUESTION_COUNT = 50;
+
+    // Bal faizi = totalScore / число вопросов * 100, округлено до целого. Уровень (pillə) и его
+    // пороги не трогаем — это чистое отображение (FIXES п.4 от 04.09.2026).
+    //
+    // Знаменатель с запасным вариантом не от лени: импорт результатов
+    // (studentResult.service.pg.ts) читает количества вопросов из файла ТОЛЬКО для классов ≥ 5,
+    // а lifeKnowledgeCount/logicCount не заполняет вообще никогда — у результатов ибтидаи
+    // классов в БД лежат нули. Считать по ним значит показать «—» почти всей аудитории İSİM,
+    // поэтому при нулевой сумме берём стандартные 50 вопросов.
     formatScorePercent(row: ExamResult): string {
         const counts = row.questionCounts;
-        if (!counts) return '—';
-        const totalQuestions = Object.values(counts).reduce((sum: number, n) => sum + (n || 0), 0);
-        if (!totalQuestions) return '—';
+        const countedQuestions = counts
+            ? Object.values(counts).reduce((sum: number, n) => sum + (n || 0), 0)
+            : 0;
+        const totalQuestions = countedQuestions || this.DEFAULT_QUESTION_COUNT;
+        if (row.totalScore == null) return '—';
         const percent = Math.round((row.totalScore / totalQuestions) * 100);
         return `${percent}%`;
     }
