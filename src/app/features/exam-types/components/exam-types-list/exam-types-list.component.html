@@ -1,0 +1,83 @@
+<app-list-layout
+  title="İmtahan növləri"
+  description="İmtahan növləri, onların bölmələri və fənləri"
+  [isLoading]="isLoading"
+  [hasError]="hasError"
+  [errorMessage]="errorMessage"
+  loadingText="İmtahan növləri yüklənir..."
+  [actionButtons]="actionButtons"
+>
+  <div slot="content">
+    <div class="mb-4 flex flex-wrap gap-3">
+      <a
+        routerLink="/admin/subjects"
+        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+      >
+        Fənlər siyahısı
+      </a>
+      <a
+        routerLink="/admin/level-scales"
+        class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+      >
+        Pillə şkalaları
+      </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left font-medium text-gray-500">Kod</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-500">Adı</th>
+            <th class="px-4 py-2 text-center font-medium text-gray-500">Baza növü</th>
+            <th class="px-4 py-2 text-center font-medium text-gray-500">Aktiv</th>
+            <th class="px-4 py-2 text-right font-medium text-gray-500">Əməliyyatlar</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (examType of examTypes; track examType.id) {
+            <tr>
+              <td class="px-4 py-2 text-gray-700">{{ examType.code }}</td>
+              <td class="px-4 py-2 text-gray-900">{{ examType.nameAz }}</td>
+              <td class="px-4 py-2 text-center">
+                @if (examType.isBase) {
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-primary-500" title="Baza növü"></span>
+                }
+              </td>
+              <td class="px-4 py-2 text-center">
+                @if (examType.active) {
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-green-500" title="Aktiv"></span>
+                } @else {
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-gray-300" title="Deaktiv"></span>
+                }
+              </td>
+              <td class="px-4 py-2">
+                <div class="flex justify-end gap-2">
+                  <a
+                    [routerLink]="['/admin/exam-types', examType.id]"
+                    class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <lucide-icon [img]="Edit" class="h-3.5 w-3.5"></lucide-icon>
+                    Redaktə et
+                  </a>
+                  <button
+                    type="button"
+                    (click)="onDeleteExamType(examType)"
+                    class="inline-flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <lucide-icon [img]="Trash2" class="h-3.5 w-3.5"></lucide-icon>
+                    Sil
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="px-4 py-6 text-center text-gray-500">İmtahan növü tapılmadı</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</app-list-layout>

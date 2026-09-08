@@ -310,7 +310,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     openAddExamDialog(): void {
         const dialogRef = this.dialog.open<any>(ExamAddDialogComponent, {
             width: '600px',
-            data: { name: '', code: '', date: '' }
+            data: { name: '', code: '', date: '', examTypeId: null }
         });
 
         dialogRef.closed.subscribe(result => {
@@ -372,7 +372,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
                         this.loadExams();
                     },
                     error: (err: any) => {
-                        this.toastService.show('İmtahan redaktə edilməsində xəta baş verdi', 'error');
+                        this.toastService.show(err?.error?.message || 'İmtahan redaktə edilməsində xəta baş verdi', 'error');
                     }
                 });
             } else if (result?.action === 'delete') {

@@ -1,27 +1,39 @@
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Exam } from '../../../../core/models/exam.model';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { ExamTypeService } from '../../../exam-types/services/exam-type.service';
+import { ExamType } from '../../../../core/models/examType.model';
+import { ExamResultsService } from '../../../exam-results/services/exam-results.service';
 
 @Component({
     selector: 'app-exam-editing',
     imports: [
     FormsModule,
     InputComponent,
-    ModalComponent
+    ModalComponent,
+    SelectComponent
 ],
     templateUrl: './exam-editing-dialog.component.html',
     styleUrl: './exam-editing-dialog.component.scss'
 })
-export class ExamEditingDialogComponent {
+export class ExamEditingDialogComponent implements OnInit {
     editedExam: any;
+    examTypeOptions: SelectOption[] = [];
+    // IMTAHAN_NOVLERI_TASK.md §6: menять imtahan növünü qadağandır, əgər imtahanın artıq
+    // nəticələri varsa (backend eyni qadağanı 409 ilə tətbiq edir — exam.service.pg.ts:update;
+    // burada isə UI-da əvvəlcədən görünən edir, sorğu boşuna göndərilmir).
+    examTypeLocked = false;
 
     constructor(
         public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: any } | undefined>,
-        @Inject(DIALOG_DATA) public data: { exam: Exam, isEditing: boolean, canDelete?: boolean }
+        @Inject(DIALOG_DATA) public data: { exam: Exam, isEditing: boolean, canDelete?: boolean },
+        private examTypeService: ExamTypeService,
+        private examResultsService: ExamResultsService
     ) {
         // Преобразуем date в строку для отображения
         this.editedExam = { ...this.data.exam };
@@ -33,6 +45,23 @@ export class ExamEditingDialogComponent {
             this.editedExam.dateString = `${day}.${month}.${year}`;
         } else {
             this.editedExam.dateString = '';
+        }
+    }
+
+    ngOnInit(): void {
+        this.examTypeService.getExamTypes().subscribe({
+            next: (types: ExamType[]) => {
+                this.examTypeOptions = (types || []).map(t => ({ value: t.id, label: t.nameAz }));
+            },
+            error: () => { this.examTypeOptions = []; }
+        });
+
+        if (this.data.isEditing && this.data.exam?.id) {
+            this.examResultsService.getExamResults({ examIds: String(this.data.exam.id), page: 1, size: 1 })
+                .subscribe({
+                    next: (res) => { this.examTypeLocked = (res?.totalCount || 0) > 0; },
+                    error: () => { this.examTypeLocked = false; }
+                });
         }
     }
 
@@ -48,7 +77,8 @@ export class ExamEditingDialogComponent {
         return !!(
             this.editedExam.name?.trim() &&
             this.editedExam.code &&
-            this.editedExam.dateString?.trim()
+            this.editedExam.dateString?.trim() &&
+            !!this.editedExam.examTypeId
         );
     }
 
@@ -90,7 +120,8 @@ export class ExamEditingDialogComponent {
         const examData = {
             name: this.editedExam.name,
             code: this.editedExam.code,
-            date: this.editedExam.date
+            date: this.editedExam.date,
+            examTypeId: this.editedExam.examTypeId
         };
         
         this.dialogRef.close({ action: 'save', data: examData });

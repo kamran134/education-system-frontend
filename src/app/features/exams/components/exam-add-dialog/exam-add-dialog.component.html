@@ -29,5 +29,13 @@
       name="date"
       [required]="true"
     ></app-input>
+
+    <app-select
+      label="İmtahan növü"
+      [options]="examTypeOptions"
+      [(ngModel)]="data.examTypeId"
+      name="examTypeId"
+      [required]="true"
+    ></app-select>
   </form>
 </app-modal>

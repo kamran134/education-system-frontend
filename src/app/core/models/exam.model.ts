@@ -12,4 +12,6 @@ export interface Exam {
     name: string;
     code: number;
     date: Date;
+    examTypeId: number;
+    examTypeName: string;
 }

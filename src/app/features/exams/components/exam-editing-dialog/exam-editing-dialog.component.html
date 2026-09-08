@@ -30,5 +30,19 @@
       name="date"
       [required]="true"
     ></app-input>
+
+    <app-select
+      label="İmtahan növü"
+      [options]="examTypeOptions"
+      [(ngModel)]="editedExam.examTypeId"
+      name="examTypeId"
+      [required]="true"
+      [disabled]="examTypeLocked"
+    ></app-select>
+    @if (examTypeLocked) {
+      <p class="text-sm text-gray-500 dark:text-gray-400 -mt-4">
+        Bu imtahanın artıq nəticələri var, ona görə növünü dəyişmək olmaz.
+      </p>
+    }
   </form>
 </app-modal>

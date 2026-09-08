@@ -56,7 +56,7 @@ export class ExamService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    addExam(exam: {name: string, code: number, date: Date}): Observable<Exam> {
+    addExam(exam: {name: string, code: number, date: Date, examTypeId: number}): Observable<Exam> {
         const url: string = `${this.configService.getApiUrl()}/exams`;
         return this.http.post<ApiResponse<Exam>>(url, exam, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));

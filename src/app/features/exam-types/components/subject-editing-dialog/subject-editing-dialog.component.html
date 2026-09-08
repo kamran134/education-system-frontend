@@ -1,0 +1,37 @@
+<app-modal
+  [title]="modalTitle"
+  size="md"
+  [buttons]="modalButtons"
+  (closed)="onModalClose()"
+>
+  <form class="space-y-6">
+    <app-input
+      label="Kod"
+      placeholder="məs. az, math"
+      [(ngModel)]="model.code"
+      name="code"
+      [required]="true"
+      [disabled]="data.isEditing"
+    ></app-input>
+
+    <app-input
+      label="Adı"
+      placeholder="Fənnin adını daxil edin"
+      [(ngModel)]="model.nameAz"
+      name="nameAz"
+      [required]="true"
+    ></app-input>
+
+    <app-input
+      label="Sıra nömrəsi"
+      [(ngModel)]="model.sortOrder"
+      name="sortOrder"
+      type="number"
+    ></app-input>
+
+    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+      <input type="checkbox" [(ngModel)]="model.active" name="active" class="rounded border-gray-300" />
+      Aktiv
+    </label>
+  </form>
+</app-modal>

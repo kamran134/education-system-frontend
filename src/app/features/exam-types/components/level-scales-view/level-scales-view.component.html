@@ -1,0 +1,52 @@
+<app-list-layout
+  title="Pillə şkalaları"
+  description="Faiz diapazonları — yalnız oxumaq üçün, redaktor ayrı tapşırıqdır"
+  [isLoading]="isLoading"
+  [hasError]="hasError"
+  [errorMessage]="errorMessage"
+  loadingText="Şkalalar yüklənir..."
+  [backButton]="backButton"
+>
+  <div slot="content" class="space-y-6">
+    @for (scale of scales; track scale.id) {
+      <div class="rounded-lg border border-gray-200 bg-white p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-gray-900">{{ scale.nameAz }}</h3>
+            <p class="text-xs text-gray-500">{{ scale.code }}</p>
+          </div>
+          @if (!scale.active) {
+            <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">Deaktiv</span>
+          }
+        </div>
+        @if (scale.note) {
+          <p class="mb-3 text-sm text-gray-600">{{ scale.note }}</p>
+        }
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+          <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left font-medium text-gray-500">Kod</th>
+                <th class="px-4 py-2 text-left font-medium text-gray-500">Adı</th>
+                <th class="px-4 py-2 text-center font-medium text-gray-500">Faiz aralığı</th>
+                <th class="px-4 py-2 text-center font-medium text-gray-500">İştirak balı</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              @for (band of scale.bands; track band.code) {
+                <tr>
+                  <td class="px-4 py-2 text-gray-700">{{ band.code }}</td>
+                  <td class="px-4 py-2 text-gray-900">{{ band.nameAz }}</td>
+                  <td class="px-4 py-2 text-center text-gray-700">{{ band.minPercent }}% – {{ band.maxPercent }}%</td>
+                  <td class="px-4 py-2 text-center text-gray-700">{{ band.participationScore }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @empty {
+      <p class="text-center text-gray-500">Şkala tapılmadı</p>
+    }
+  </div>
+</app-list-layout>

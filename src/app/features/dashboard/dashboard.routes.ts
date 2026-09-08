@@ -9,6 +9,10 @@ import { MetodikaEditorComponent } from './components/metodika-editor/metodika-e
 import { CertificateTemplatesListComponent } from '../certificates/components/certificate-templates-list/certificate-templates-list.component';
 import { CertificateEditorComponent } from '../certificates/components/certificate-editor/certificate-editor.component';
 import { ProfileChangesComponent } from './components/profile-changes/profile-changes.component';
+import { ExamTypesListComponent } from '../exam-types/components/exam-types-list/exam-types-list.component';
+import { ExamTypeEditorComponent } from '../exam-types/components/exam-type-editor/exam-type-editor.component';
+import { SubjectsListComponent } from '../exam-types/components/subjects-list/subjects-list.component';
+import { LevelScalesViewComponent } from '../exam-types/components/level-scales-view/level-scales-view.component';
 import { adminGuard } from '../../core/guards/admin.guard';
 
 export const routes: Routes = [
@@ -25,6 +29,12 @@ export const routes: Routes = [
             { path: 'metodika', component: MetodikaEditorComponent, canActivate: [adminGuard] },
             { path: 'certificates', component: CertificateTemplatesListComponent, canActivate: [adminGuard] },
             { path: 'certificates/:id', component: CertificateEditorComponent, canActivate: [adminGuard] },
+            // IMTAHAN_NOVLERI_TASK.md §6 — админка справочников (шаг 1)
+            { path: 'exam-types', component: ExamTypesListComponent, canActivate: [adminGuard] },
+            { path: 'exam-types/new', component: ExamTypeEditorComponent, canActivate: [adminGuard] },
+            { path: 'exam-types/:id', component: ExamTypeEditorComponent, canActivate: [adminGuard] },
+            { path: 'subjects', component: SubjectsListComponent, canActivate: [adminGuard] },
+            { path: 'level-scales', component: LevelScalesViewComponent, canActivate: [adminGuard] },
             { path: '', redirectTo: 'rating-columns', pathMatch: 'full' }
         ]
     }

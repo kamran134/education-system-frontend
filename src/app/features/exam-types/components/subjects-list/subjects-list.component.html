@@ -1,0 +1,58 @@
+<app-list-layout
+  title="Fənlər"
+  description="Fənlər справочник — imtahan növlərinin bölmələrində istifadə olunur"
+  [isLoading]="isLoading"
+  [hasError]="hasError"
+  [errorMessage]="errorMessage"
+  loadingText="Fənlər yüklənir..."
+  [actionButtons]="actionButtons"
+  [backButton]="backButton"
+>
+  <div slot="content">
+    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left font-medium text-gray-500">Kod</th>
+            <th class="px-4 py-2 text-left font-medium text-gray-500">Adı</th>
+            <th class="px-4 py-2 text-center font-medium text-gray-500">Sıra</th>
+            <th class="px-4 py-2 text-center font-medium text-gray-500">Aktiv</th>
+            <th class="px-4 py-2 text-right font-medium text-gray-500">Əməliyyatlar</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (subject of subjects; track subject.code) {
+            <tr>
+              <td class="px-4 py-2 text-gray-700">{{ subject.code }}</td>
+              <td class="px-4 py-2 text-gray-900">{{ subject.nameAz }}</td>
+              <td class="px-4 py-2 text-center text-gray-700">{{ subject.sortOrder }}</td>
+              <td class="px-4 py-2 text-center">
+                @if (subject.active) {
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-green-500" title="Aktiv"></span>
+                } @else {
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-gray-300" title="Deaktiv"></span>
+                }
+              </td>
+              <td class="px-4 py-2">
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="openEditDialog(subject)"
+                    class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <lucide-icon [img]="Edit" class="h-3.5 w-3.5"></lucide-icon>
+                    Redaktə et
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="px-4 py-6 text-center text-gray-500">Fənn tapılmadı</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</app-list-layout>
