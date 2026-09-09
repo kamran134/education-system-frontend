@@ -1,18 +1,23 @@
 import { Exam } from "./exam.model";
 import { Student } from "./student.model";
 
-interface IDisciplines {
-    az: number;
-    math: number;
-    lifeKnowledge: number;
-    logic: number;
-    english: number;
+/** Один предмет результата (IMTAHAN_NOVLERI_TASK.md §4/§6, шаг 2) — заменяет пять
+ *  захардкоженных полей az/math/lifeKnowledge/logic/english. Набор предметов и maxQuestions
+ *  зависят от секции типа экзамена этого результата, поэтому приходят с бэка, а не заданы
+ *  статически на фронте. */
+export interface IDisciplineScore {
+    subjectCode: string;
+    nameAz: string;
+    score: number;
+    questionCount: number | null;
+    maxQuestions: number | null;
 }
 
 export interface ExamResult {
     id: number;
-    disciplines?: IDisciplines;
-    questionCounts?: IDisciplines;
+    disciplines?: IDisciplineScore[];
+    maxQuestions?: number | null;
+    scorePercent?: number | null;
     exam: Exam | null;
     grade: number;
     level: string;

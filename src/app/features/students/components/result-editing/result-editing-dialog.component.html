@@ -13,7 +13,7 @@
             </div>
         </div>
 
-        <!-- Grade, Level, Total Score -->
+        <!-- Grade -->
         <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-700">Ümumi məlumat</h3>
 
@@ -24,22 +24,15 @@
                     [(ngModel)]="editedResult.grade"
                     name="grade"
                     [required]="true" />
-
-                <app-select
-                    label="Pillə"
-                    [options]="levelOptions"
-                    [(ngModel)]="editedResult.level"
-                    name="level"
-                    [required]="true" />
-
-                <app-input
-                    label="Ümumi bal"
-                    type="number"
-                    [(ngModel)]="editedResult.totalScore"
-                    name="totalScore"
-                    placeholder="Ümumi balı daxil edin"
-                    [required]="true" />
             </div>
+
+            <!-- Pillə/Ümumi bal artıq burada redaktə edilmir (IMTAHAN_NOVLERI_TASK.md §5) —
+                 fənlər üzrə balları saxladıqdan sonra server özü hesablayır. -->
+            <p class="text-xs text-gray-500">
+                Hazırkı pillə: <span class="font-medium">{{ data.result.level || 'Müəyyən edilməyib' }}</span> ·
+                Ümumi bal: <span class="font-medium">{{ data.result.totalScore }}</span>
+                — fənlər üzrə balları dəyişib yadda saxladıqdan sonra yenidən hesablanacaq.
+            </p>
         </div>
 
         <!-- Disciplines Scores -->
@@ -47,85 +40,23 @@
             <h3 class="text-sm font-semibold text-gray-700">Fənlər üzrə nəticələr</h3>
 
             <div class="space-y-3">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-                    <app-input
-                        label="Azərbaycan dili - Düzgün cavabların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.disciplines!.az"
-                        name="az"
-                        placeholder="Düzgün cavabların sayı" />
+                @for (d of editedResult.disciplines; track d.subjectCode) {
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
+                        <app-input
+                            [label]="d.nameAz + ' - Düzgün cavabların sayı' + (d.maxQuestions ? ' (maks. ' + d.maxQuestions + ')' : '')"
+                            type="number"
+                            [(ngModel)]="d.score"
+                            [name]="'score_' + d.subjectCode"
+                            placeholder="Düzgün cavabların sayı" />
 
-                    <app-input
-                        label="Azərbaycan dili - Sualların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.questionCounts!.az"
-                        name="azCount"
-                        placeholder="Sualların sayı" />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-                    <app-input
-                        label="Riyaziyyat - Düzgün cavabların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.disciplines!.math"
-                        name="math"
-                        placeholder="Düzgün cavabların sayı" />
-
-                    <app-input
-                        label="Riyaziyyat - Sualların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.questionCounts!.math"
-                        name="mathCount"
-                        placeholder="Sualların sayı" />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-                    <app-input
-                        label="Həyat bilgisi - Düzgün cavabların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.disciplines!.lifeKnowledge"
-                        name="lifeKnowledge"
-                        placeholder="Düzgün cavabların sayı" />
-
-                    <app-input
-                        label="Həyat bilgisi - Sualların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.questionCounts!.lifeKnowledge"
-                        name="lifeKnowledgeCount"
-                        placeholder="Sualların sayı" />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-                    <app-input
-                        label="Məntiq - Düzgün cavabların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.disciplines!.logic"
-                        name="logic"
-                        placeholder="Düzgün cavabların sayı" />
-
-                    <app-input
-                        label="Məntiq - Sualların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.questionCounts!.logic"
-                        name="logicCount"
-                        placeholder="Sualların sayı" />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-                    <app-input
-                        label="İngilis dili - Düzgün cavabların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.disciplines!.english"
-                        name="english"
-                        placeholder="Düzgün cavabların sayı" />
-
-                    <app-input
-                        label="İngilis dili - Sualların sayı"
-                        type="number"
-                        [(ngModel)]="editedResult.questionCounts!.english"
-                        name="englishCount"
-                        placeholder="Sualların sayı" />
-                </div>
+                        <app-input
+                            [label]="d.nameAz + ' - Sualların sayı'"
+                            type="number"
+                            [(ngModel)]="d.questionCount"
+                            [name]="'count_' + d.subjectCode"
+                            placeholder="Sualların sayı" />
+                    </div>
+                }
             </div>
         </div>
     </div>

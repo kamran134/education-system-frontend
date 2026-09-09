@@ -347,27 +347,11 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     /**
-     * Форматирует достижения студента на основе числовых полей
+     * Форматирует достижения студента — делегирует в ExcelService, где раньше эта же логика
+     * жила ещё раз буква-в-букву (IMTAHAN_NOVLERI_TASK.md §6, строки 356-367 старой версии).
      */
     formatStudentAchievements(result: any): string {
-        const achievements: string[] = [];
-
-        // Проверяем развивающийся студент
-        if (result.developmentScore && result.developmentScore > 0) {
-            achievements.push('İnkişaf edən şagird');
-        }
-
-        // Проверяем студент месяца по району
-        if (result.studentOfTheMonthScore && result.studentOfTheMonthScore > 0) {
-            achievements.push('Ayın şagirdi');
-        }
-
-        // Проверяем студент месяца по республике
-        if (result.republicWideStudentOfTheMonthScore && result.republicWideStudentOfTheMonthScore > 0) {
-            achievements.push('Respublika üzrə ayın şagirdi');
-        }
-
-        return achievements.join(', ');
+        return this.excelService.formatStudentAchievements(result);
     }
 
     /**

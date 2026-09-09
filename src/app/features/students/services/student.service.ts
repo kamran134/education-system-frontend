@@ -71,6 +71,13 @@ export class StudentService {
             queryParams.push(`month=${params.month}`);
         }
 
+        // IMTAHAN_NOVLERI_TASK.md §5-§6 шаг 3: без него бэкенд подставляет базовый тип —
+        // существующий реестр/İlin şagirdləri (features/stats) не передают его и видят то же,
+        // что и раньше. features/type-ratings передаёт выбранный тип явно.
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
+        }
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }

@@ -1,0 +1,120 @@
+<div class="p-4 sm:p-6 space-y-4">
+  <div>
+    <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Reytinqlər (imtahan növü üzrə)</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400">
+      İnkişaf edən şagirdlər, Ayın şagirdləri, Respublika üzrə ayın şagirdləri, İlin şagirdləri/müəllimləri/məktəbləri/rayonları/regionları — seçilmiş imtahan növü üzrə.
+    </p>
+  </div>
+
+  <div class="flex flex-wrap gap-4 items-end">
+    <div>
+      <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">İmtahan növü</label>
+      <select
+        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm min-w-[220px]"
+        [(ngModel)]="selectedExamTypeId"
+        (ngModelChange)="onExamTypeChange()">
+        @for (t of examTypes; track t.id) {
+          <option [ngValue]="t.id">{{ t.nameAz }}{{ t.isBase ? ' (baza)' : '' }}</option>
+        }
+      </select>
+    </div>
+
+    @if (isMonthTab) {
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ay</label>
+        <input type="month" class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+          [(ngModel)]="month" (ngModelChange)="onMonthChange()" />
+      </div>
+    } @else {
+      <div>
+        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Tədris ili</label>
+        <select class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+          [(ngModel)]="academicYear" (ngModelChange)="onAcademicYearChange()">
+          @for (y of academicYears; track y) {
+            <option [ngValue]="y">{{ academicYearLabel(y) }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+
+  <div class="-mx-4 sm:mx-0">
+    <app-tabs [tabs]="tabItems" [selectedIndex]="activeTabIndex" (selectedIndexChange)="onTabChange($event)"></app-tabs>
+  </div>
+
+  @if (isMonthTab) {
+    <app-data-table
+      [data]="isLoadingMonth ? [] : monthRows"
+      [columns]="monthColumns"
+      ariaLabel="Aylıq nominasiya cədvəli"
+      [totalCount]="monthRows.length"
+      [flat]="true">
+    </app-data-table>
+    @if (!isLoadingMonth && monthRows.length === 0) {
+      <p class="text-sm text-gray-500 px-2">Bu ay üçün məlumat yoxdur.</p>
+    }
+  } @else {
+    @switch (activeTab) {
+      @case ('studentsYear') {
+        <app-students-year-tab
+          [students]="students"
+          [displayedColumns]="studentsYearColumns"
+          [totalCount]="totalCount"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [isLoading]="isLoadingYear"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)">
+        </app-students-year-tab>
+      }
+      @case ('teachersYear') {
+        <app-teachers-year-tab
+          [teachers]="teachers"
+          [displayedColumns]="teachersYearColumns"
+          [totalCount]="totalCount"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [isLoading]="isLoadingYear"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)">
+        </app-teachers-year-tab>
+      }
+      @case ('schoolsYear') {
+        <app-schools-year-tab
+          [schools]="schools"
+          [displayedColumns]="schoolsYearColumns"
+          [totalCount]="totalCount"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [isLoading]="isLoadingYear"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)">
+        </app-schools-year-tab>
+      }
+      @case ('districtsYear') {
+        <app-districts-year-tab
+          [districts]="districts"
+          [displayedColumns]="districtsYearColumns"
+          [totalCount]="totalCount"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [isLoading]="isLoadingYear"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)">
+        </app-districts-year-tab>
+      }
+      @case ('regionsYear') {
+        <app-regions-year-tab
+          [regions]="regions"
+          [displayedColumns]="regionsYearColumns"
+          [totalCount]="totalCount"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [isLoading]="isLoadingYear"
+          (sortChanged)="onSortChange($event)"
+          (pageChanged)="onPageChange($event)">
+        </app-regions-year-tab>
+      }
+    }
+  }
+</div>

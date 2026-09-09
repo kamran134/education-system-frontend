@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DIALOG_DATA, DialogRef, Dialog } from '@angular/cdk/dialog';
 import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-format.pipe';
 import { ExamService } from '../../services/exam.service';
@@ -7,12 +8,13 @@ import { ToastService } from '../../../../shared/components/ui/toast/toast.servi
 import { Error } from '../../../../core/models/error.model';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { LucideAngularModule, Upload, Save, Trash2 } from 'lucide-angular';
+import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
+import { LucideAngularModule, Upload, Save, Trash2, FileDown } from 'lucide-angular';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 
 @Component({
     selector: 'app-exam-result-dialog',
-    imports: [MomentDateFormatPipe, ModalComponent, ButtonComponent, LucideAngularModule],
+    imports: [FormsModule, MomentDateFormatPipe, ModalComponent, ButtonComponent, SelectComponent, LucideAngularModule],
     templateUrl: './exam-result-dialog.component.html',
     styleUrls: ['./exam-result-dialog.component.scss']
 })
@@ -22,6 +24,13 @@ export class ExamResultDialogComponent implements OnInit {
     readonly Upload = Upload;
     readonly Save = Save;
     readonly Trash2 = Trash2;
+    readonly FileDown = FileDown;
+
+    // IMTAHAN_NOVLERI_TASK.md §7: şablon GET /exams/:id/results-template.xlsx?grade=N sinfə görə
+    // toplanır (bölmənin fənlərinə görə), ona görə endirmədən əvvəl sinif seçilir.
+    readonly gradeOptions: SelectOption[] = Array.from({ length: 11 }, (_, i) => ({ value: i + 1, label: `${i + 1}` }));
+    templateGrade = 1;
+    downloadingTemplate = false;
 
     constructor(
         public dialogRef: DialogRef<{ hasErrors: boolean } | undefined>,
@@ -102,6 +111,42 @@ export class ExamResultDialogComponent implements OnInit {
                 }
             });
         }
+    }
+
+    /** "Şablonu yüklə" — GET /exams/:id/results-template.xlsx?grade=N (IMTAHAN_NOVLERI_TASK.md §7).
+     *  Формат шаблона собирается сервером из набора предметов секции, в которую попадает
+     *  выбранный класс, — если секция не настроена, бэк вернёт понятную ошибку на аз. */
+    onDownloadTemplate(): void {
+        if (this.downloadingTemplate) return;
+        this.downloadingTemplate = true;
+        this.examService.downloadResultsTemplate(this.data.exam.id, this.templateGrade).subscribe({
+            next: (blob) => {
+                this.downloadingTemplate = false;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `netice-sablonu-${this.data.exam.code}-sinif-${this.templateGrade}.xlsx`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            error: (error: any) => {
+                this.downloadingTemplate = false;
+                // responseType: 'blob' — HttpClient JSON-xəta gövdəsini parse etmir, error.error
+                // burada Blob-dur, mətn deyil. Server mesajını oxumaq üçün onu ayrıca oxumaq lazımdır.
+                if (error?.error instanceof Blob) {
+                    error.error.text().then((text: string) => {
+                        try {
+                            const parsed = JSON.parse(text);
+                            this.toastService.show(parsed?.message || 'Şablon yüklənərkən xəta baş verdi', 'error');
+                        } catch {
+                            this.toastService.show('Şablon yüklənərkən xəta baş verdi', 'error');
+                        }
+                    });
+                } else {
+                    this.toastService.show('Şablon yüklənərkən xəta baş verdi', 'error');
+                }
+            }
+        });
     }
 
     onDelete(event: Event): void {

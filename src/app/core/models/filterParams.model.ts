@@ -20,6 +20,11 @@ export interface FilterParams {
     search?: string;
     dateFrom?: string;
     dateTo?: string;
+    // IMTAHAN_NOVLERI_TASK.md §5-§6 шаг 3: необязательный фильтр по типу экзамена для /api/stats/*.
+    // Без него бэкенд подставляет базовый тип — существующие экраны (stats.component.ts и т.д.)
+    // не передают его вовсе и продолжают видеть ровно то же, что и раньше. Используется новой
+    // страницей features/type-ratings/.
+    examTypeId?: number;
 }
 
 export interface UserParams {

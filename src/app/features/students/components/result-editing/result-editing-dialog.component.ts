@@ -22,14 +22,6 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class ResultEditingDialogComponent {
     editedResult: Partial<ExamResult>;
-    levelOptions: SelectOption[] = [
-        { value: 'Lisey', label: 'Lisey' },
-        { value: 'A', label: 'A' },
-        { value: 'B', label: 'B' },
-        { value: 'C', label: 'C' },
-        { value: 'D', label: 'D' },
-        { value: 'E', label: 'E' }
-    ];
     gradeOptions: SelectOption[] = [
         { value: 1, label: '1' },
         { value: 2, label: '2' },
@@ -49,17 +41,14 @@ export class ResultEditingDialogComponent {
         @Inject(DIALOG_DATA) public data: { result: ExamResult, canDelete?: boolean },
         private authService: AuthService
     ) {
-        // Create a copy of the result for editing
-        // disciplines/questionCounts всегда объект (не undefined) — шаблон биндит ngModel через
-        // non-null assertion (editedResult.disciplines!.az), и если бэкенд когда-нибудь снова
-        // не отдаст эти поля, undefined уронит ngModel. Приведение типа — реальный объект с бэка
-        // разрежённый (недостающий предмет просто отсутствует), а IDisciplines этого не выражает.
+        // Копия результата для редактирования. level/totalScore/scorePercent БОЛЬШЕ НЕ
+        // редактируются здесь и не входят в payload (IMTAHAN_NOVLERI_TASK.md §5/§6) — сервер
+        // пересчитывает их сам из disciplines через конфиг секции экзамена и шкалу типа, тем же
+        // путём, что и парсер Excel. Предметы — копия массива (каждый элемент — отдельный
+        // объект, чтобы редактирование не мутировало исходный result до сохранения).
         this.editedResult = {
             grade: data.result.grade,
-            disciplines: { ...(data.result.disciplines ?? {}) } as NonNullable<ExamResult['disciplines']>,
-            questionCounts: { ...(data.result.questionCounts ?? {}) } as NonNullable<ExamResult['questionCounts']>,
-            level: data.result.level,
-            totalScore: data.result.totalScore
+            disciplines: (data.result.disciplines ?? []).map(d => ({ ...d })),
         };
     }
 
@@ -74,9 +63,9 @@ export class ResultEditingDialogComponent {
     get isValid(): boolean {
         return !!(
             this.editedResult.grade &&
-            this.editedResult.level &&
-            this.editedResult.totalScore !== undefined &&
-            this.editedResult.disciplines
+            this.editedResult.disciplines &&
+            this.editedResult.disciplines.length > 0 &&
+            this.editedResult.disciplines.every(d => d.score !== undefined && d.score !== null && !isNaN(d.score))
         );
     }
 

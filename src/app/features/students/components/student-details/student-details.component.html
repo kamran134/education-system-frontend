@@ -187,11 +187,9 @@
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Reytinq xalı</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
                       Fənlər üzrə ballar
-                      <!-- Класс НА МОМЕНТ ЭКЗАМЕНА (result.grade), не живой student.grade — тот
-                           после повышения врёт задним числом (SINIF_TARIXCESI_TASK.md §3.3).
-                           Это заголовок столбца (вне @for по result), поэтому — по всем строкам
-                           текущего года разом, а не по одной конкретной. -->
-                      @if (currentResults.some(r => r.grade >= 5)) {
+                      <!-- Sual sayı hər predmetin özündə göstərilir (IMTAHAN_NOVLERI_TASK.md §6) —
+                           sinifdən deyil, imtahan növünün has_question_counts sazlamasından asılıdır. -->
+                      @if (currentResults.some(r => (r.disciplines ?? []).some(d => d.questionCount != null))) {
                         <span class="text-xs text-gray-500">(Sual sayı)</span>
                       }
                     </th>
@@ -224,43 +222,11 @@
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
-                          @if (result.disciplines?.az !== undefined) {
+                          @for (d of result.disciplines; track d.subjectCode) {
                             <div>
-                              Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
-                              @if (result.grade >= 5 && result.questionCounts?.az) {
-                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.az }})</span>
-                              }
-                            </div>
-                          }
-                          @if (result.disciplines?.math !== undefined) {
-                            <div>
-                              Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
-                              @if (result.grade >= 5 && result.questionCounts?.math) {
-                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.math }})</span>
-                              }
-                            </div>
-                          }
-                          @if (result.disciplines?.lifeKnowledge !== undefined) {
-                            <div>
-                              Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
-                              @if (result.grade >= 5 && result.questionCounts?.lifeKnowledge) {
-                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.lifeKnowledge }})</span>
-                              }
-                            </div>
-                          }
-                          @if (result.disciplines?.logic !== undefined) {
-                            <div>
-                              Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
-                              @if (result.grade >= 5 && result.questionCounts?.logic) {
-                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.logic }})</span>
-                              }
-                            </div>
-                          }
-                          @if (result.disciplines?.english !== undefined) {
-                            <div>
-                              İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
-                              @if (result.grade >= 5 && result.questionCounts?.english) {
-                                <span class="text-xs text-gray-500"> ({{ result.questionCounts?.english }})</span>
+                              {{ d.nameAz }}: <span class="font-medium">{{ d.score }}</span>
+                              @if (d.questionCount != null) {
+                                <span class="text-xs text-gray-500"> ({{ d.questionCount }})</span>
                               }
                             </div>
                           }
@@ -362,30 +328,8 @@
                           </td>
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             <div class="space-y-1">
-                              @if (result.disciplines?.az !== undefined) {
-                                <div>
-                                  Azərbaycan dili: <span class="font-medium">{{ result.disciplines?.az }}</span>
-                                </div>
-                              }
-                              @if (result.disciplines?.math !== undefined) {
-                                <div>
-                                  Riyaziyyat: <span class="font-medium">{{ result.disciplines?.math }}</span>
-                                </div>
-                              }
-                              @if (result.disciplines?.lifeKnowledge !== undefined) {
-                                <div>
-                                  Həyat bilgisi: <span class="font-medium">{{ result.disciplines?.lifeKnowledge }}</span>
-                                </div>
-                              }
-                              @if (result.disciplines?.logic !== undefined) {
-                                <div>
-                                  Məntiq: <span class="font-medium">{{ result.disciplines?.logic }}</span>
-                                </div>
-                              }
-                              @if (result.disciplines?.english !== undefined) {
-                                <div>
-                                  İngilis dili: <span class="font-medium">{{ result.disciplines?.english }}</span>
-                                </div>
+                              @for (d of result.disciplines; track d.subjectCode) {
+                                <div>{{ d.nameAz }}: <span class="font-medium">{{ d.score }}</span></div>
                               }
                             </div>
                           </td>

@@ -122,9 +122,11 @@ export class ExcelService {
     }
 
     /**
-     * Форматирует достижения студента на основе числовых полей
+     * Форматирует достижения студента на основе числовых полей. Публичный — раньше был
+     * продублирован буква-в-букву в student-details.component.ts:352-368 (IMTAHAN_NOVLERI_TASK.md
+     * §6), теперь единственная реализация, компонент делегирует сюда.
      */
-    private formatStudentAchievements(result: any): string {
+    formatStudentAchievements(result: any): string {
         const achievements: string[] = [];
 
         // Проверяем развивающийся студент
@@ -204,32 +206,25 @@ export class ExcelService {
         XLSX.writeFile(wb, `istifadeci-${safeEmail}.xlsx`);
     }
 
-    /** Полные азербайджанские подписи предметов (не сокращения из стилизованного экспорта). */
-    private readonly studentDetailDisciplines: Array<{ key: 'az' | 'math' | 'lifeKnowledge' | 'logic' | 'english'; label: string }> = [
-        { key: 'az',            label: 'Azərbaycan dili' },
-        { key: 'math',          label: 'Riyaziyyat' },
-        { key: 'lifeKnowledge', label: 'Həyat bilgisi' },
-        { key: 'logic',         label: 'Məntiq' },
-        { key: 'english',       label: 'İngilis dili' },
-    ];
-
     /**
      * Экспорт результатов ученика. `results` — уже отфильтрованный набор строк (текущий год для
      * основной кнопки, выбранные классы для второй) — сам метод историю не режет.
-     * Одна ветка вместо прежних grade<5 / grade>=5: единственное отличие было в наличии
-     * «Həyat bilgisi», а это теперь решает динамический список предметов.
+     * Полные азербайджанские подписи предметов (не сокращения из стилизованного экспорта) —
+     * теперь из фактического набора предметов результатов (`result.disciplines`, приходит с
+     * бэка вместе с каждым результатом), а не из статического списка пяти кодов
+     * (IMTAHAN_NOVLERI_TASK.md §6). Заодно отпадает нужда в отдельном фильтре «хотя бы одна
+     * ненулевая строка» (П.10e) — результат нового формата просто не содержит предмета,
+     * которого у него нет, никаких фантомных нулей.
      */
     formatStudentDetailsData(student: StudentWithResult, results?: ExamResult[]): any[] {
         const rows = results ?? student.results ?? [];
 
-        // Предметная колонка выводится, только если хотя бы в одной экспортируемой строке по ней
-        // есть ненулевой балл (П.10e). Тот же подход, что в exportExamResultsStyled.
-        const activeDisciplines = this.studentDetailDisciplines.filter(d =>
-            rows.some(r => {
-                const v = (r.disciplines as any)?.[d.key];
-                return v != null && v !== 0;
-            })
-        );
+        const disciplineLabels = new Map<string, string>();
+        for (const r of rows) {
+            for (const d of r.disciplines ?? []) {
+                if (!disciplineLabels.has(d.subjectCode)) disciplineLabels.set(d.subjectCode, d.nameAz);
+            }
+        }
 
         return rows.map(result => {
             const row: Record<string, any> = {
@@ -259,8 +254,8 @@ export class ExcelService {
                 // везде стояла единица (жалоба заказчика 02.09.2026).
                 'Reytinq xalı': result.ratingScore ?? 0,
             };
-            for (const d of activeDisciplines) {
-                row[d.label] = result.disciplines?.[d.key] ?? 0;
+            for (const [code, label] of disciplineLabels) {
+                row[label] = result.disciplines?.find(d => d.subjectCode === code)?.score ?? 0;
             }
             row['Ay üzrə uğuru'] = this.formatStudentAchievements(result);
             return row;
@@ -291,19 +286,19 @@ export class ExcelService {
      * – dynamic discipline columns (only those with at least one non-zero value)
      */
     exportExamResultsStyled(results: ExamResult[], filterLabel: string): void {
-        type DisciplineKey = 'az' | 'math' | 'lifeKnowledge' | 'logic' | 'english';
-
-        // ── 1. Active discipline columns ──────────────────────────────────────
-        const allDisciplines: Array<{ key: DisciplineKey; label: string }> = [
-            { key: 'az',            label: 'Az.' },
-            { key: 'math',          label: 'Riy.' },
-            { key: 'lifeKnowledge', label: 'H.B.' },
-            { key: 'logic',         label: 'Məntiq' },
-            { key: 'english',       label: 'İng.' },
-        ];
-        const activeDisciplines = allDisciplines.filter(d =>
-            results.some(r => r.disciplines && ((r.disciplines as any)[d.key] ?? 0) > 0)
-        );
+        // Активные предметные колонки — из фактического набора предметов результатов
+        // (IMTAHAN_NOVLERI_TASK.md §6), а не из пяти захардкоженных кодов. name_az приходит с
+        // бэка на каждом результате (result.disciplines[].nameAz).
+        const activeDisciplines: Array<{ key: string; label: string }> = [];
+        const seenCodes = new Set<string>();
+        for (const r of results) {
+            for (const d of r.disciplines ?? []) {
+                if (!seenCodes.has(d.subjectCode)) {
+                    seenCodes.add(d.subjectCode);
+                    activeDisciplines.push({ key: d.subjectCode, label: d.nameAz });
+                }
+            }
+        }
 
         // ── 2. Column layout ──────────────────────────────────────────────────
         // «Şagirdin kodu» → «Şagirdin iş nömrəsi» по просьбе заказчика (02.09.2026), как и в выгрузке карточки ученика.
@@ -386,7 +381,7 @@ export class ExcelService {
                 r.studentData?.lastName ?? '',
                 r.studentData?.firstName ?? '',
                 r.studentData?.middleName ?? '',
-                ...activeDisciplines.map(d => (r.disciplines as any)?.[d.key] ?? ''),
+                ...activeDisciplines.map(d => r.disciplines?.find(x => x.subjectCode === d.key)?.score ?? ''),
                 r.totalScore ?? 0,
                 r.level ?? '',
             ];
@@ -416,7 +411,7 @@ export class ExcelService {
         ws['!cols'] = [
             { wch: 4  },  // №
             { wch: 6  },  // Sinif
-            { wch: 13 },  // kod
+            { wch: 16 },  // iş nömrəsi
             { wch: 16 },  // soyadı
             { wch: 13 },  // adı
             { wch: 13 },  // ata adı

@@ -105,6 +105,12 @@ export class ExamService {
         ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    /** GET /exams/:id/results-template.xlsx?grade=N — IMTAHAN_NOVLERI_TASK.md §7. */
+    downloadResultsTemplate(examId: string | number, grade: number): Observable<Blob> {
+        const url: string = `${this.configService.getApiUrl()}/exams/${examId}/results-template.xlsx?grade=${grade}`;
+        return this.http.get(url, { responseType: 'blob', withCredentials: true });
+    }
+
     exportResultsAsJson(examId?: string | number): Observable<Blob> {
         const base: string = `${this.configService.getApiUrl()}/student-results/export`;
         const url: string = examId ? `${base}?examId=${examId}` : base;

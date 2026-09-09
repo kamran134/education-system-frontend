@@ -1,12 +1,8 @@
 import { ApiResponse } from "./response.model";
 
-export interface BookletDisciplines {
-    az?: string[];
-    math?: string[];
-    lifeKnowledge?: string[];
-    logic?: string[];
-    english?: string[];
-}
+// Произвольный набор кодов предметов (IMTAHAN_NOVLERI_TASK.md §6), а не пять захардкоженных
+// ключей — набор предметов буклета зависит от секции типа экзамена, а не фиксирован.
+export type BookletDisciplines = Record<string, string[]>;
 
 export interface BookletDistrict {
     id: number;
@@ -29,6 +25,11 @@ export interface Booklet {
     disciplines: BookletDisciplines;
     district?: BookletDistrict | string;
     name?: string;
+    // IMTAHAN_NOVLERI_TASK.md §5 "хвост шага 2": subjects.name_az по кодам disciplines, отдано
+    // JOIN'ом сервером (GET /booklets/public/:id) — публичная страница буклета не может сама
+    // сходить в /subjects (требует JWT). Опционально: старые ответы бэка/кэш без поля — компонент
+    // фоллбэкает на сам код.
+    disciplineNames?: Record<string, string>;
 }
 
 export interface BookletResponse {

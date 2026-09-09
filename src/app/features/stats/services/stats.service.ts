@@ -55,6 +55,9 @@ export class StatsService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
+        if (params.examTypeId) {
+            url = `${url}&examTypeId=${params.examTypeId}`;
+        }
         return this.http.get<ApiResponse<StatsResponse>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -85,6 +88,9 @@ export class StatsService {
         }
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+        }
+        if (params.examTypeId) {
+            url = `${url}&examTypeId=${params.examTypeId}`;
         }
         return this.http.get<ApiResponse<any[]>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -117,6 +123,9 @@ export class StatsService {
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
         }
+        if (params.examTypeId) {
+            url = `${url}&examTypeId=${params.examTypeId}`;
+        }
         return this.http.get<ApiResponse<any[]>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
@@ -147,6 +156,9 @@ export class StatsService {
         }
         if (params.sortColumn && params.sortDirection) {
             url = `${url}&sortColumn=${params.sortColumn}&sortDirection=${params.sortDirection}`;
+        }
+        if (params.examTypeId) {
+            url = `${url}&examTypeId=${params.examTypeId}`;
         }
         return this.http.get<ApiResponse<any[]>>(url, {})
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
@@ -179,6 +191,9 @@ export class StatsService {
         }
         if (params.month) {
             queryParams.push(`month=${params.month}`);
+        }
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
         }
 
         if (queryParams.length > 0) {
@@ -214,6 +229,9 @@ export class StatsService {
         if (params.month) {
             queryParams.push(`month=${params.month}`);
         }
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -245,6 +263,9 @@ export class StatsService {
         if (params.month) {
             queryParams.push(`month=${params.month}`);
         }
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -272,6 +293,9 @@ export class StatsService {
         }
         if (params.month) {
             queryParams.push(`month=${params.month}`);
+        }
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
         }
 
         if (queryParams.length > 0) {

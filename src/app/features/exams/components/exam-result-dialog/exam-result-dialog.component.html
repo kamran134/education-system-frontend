@@ -13,6 +13,28 @@
       <p><strong>Tarix:</strong> {{ data.exam.date | momentDateFormat: 'DD.MM.YYYY' }}</p>
     </div>
 
+    <!-- Şablon: IMTAHAN_NOVLERI_TASK.md §7 — şablon serverdə seçilmiş sinfin bölməsinin fənlərinə
+         görə toplanır, formatı imtahan növünün sazlamasından fərqlənə bilməz. -->
+    <div class="bg-gray-50 p-4 rounded-lg flex items-end gap-3 flex-wrap">
+      <div class="w-24">
+        <app-select
+          label="Sinif"
+          [options]="gradeOptions"
+          [(ngModel)]="templateGrade"
+          name="templateGrade">
+        </app-select>
+      </div>
+      <app-button
+        variant="outline"
+        [disabled]="downloadingTemplate"
+        (clicked)="onDownloadTemplate()">
+        <div class="flex items-center space-x-2">
+          <lucide-icon [img]="FileDown" class="w-4 h-4"></lucide-icon>
+          <span>Şablonu yüklə</span>
+        </div>
+      </app-button>
+    </div>
+
     <!-- File Upload Section -->
     <form (submit)="onSubmit($event)" enctype="multipart/form-data" class="space-y-4">
       <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">

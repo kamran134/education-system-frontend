@@ -3,12 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ActivatedRoute } from '@angular/router';
 
-import { Booklet, BookletDisciplines, BookletDistrict, BookletExam } from '../../../../core/models/booklet.model';
+import { Booklet, BookletDistrict, BookletExam } from '../../../../core/models/booklet.model';
 import { BookletService } from '../../../exams/services/booklet.service';
 import { LucideAngularModule, BookOpen, MapPin, Calendar, Hash, Loader } from 'lucide-angular';
 
 interface DisciplineTab {
-    key: keyof BookletDisciplines;
+    key: string;
     label: string;
 }
 
@@ -24,15 +24,7 @@ export class BookletDetailComponent implements OnInit {
     hasError = false;
     errorMessage = '';
 
-    activeTab: keyof BookletDisciplines | null = null;
-
-    readonly disciplineTabs: DisciplineTab[] = [
-        { key: 'az',            label: 'Azərbaycan dili' },
-        { key: 'math',          label: 'Riyaziyyat' },
-        { key: 'lifeKnowledge', label: 'Həyat bilgisi' },
-        { key: 'logic',         label: 'Məntiq' },
-        { key: 'english',       label: 'İngilis dili' },
-    ];
+    activeTab: string | null = null;
 
     // Icons
     readonly BookOpen = BookOpen;
@@ -76,9 +68,10 @@ export class BookletDetailComponent implements OnInit {
 
     get availableTabs(): DisciplineTab[] {
         if (!this.booklet?.disciplines) return [];
-        return this.disciplineTabs.filter(
-            tab => (this.booklet!.disciplines[tab.key]?.length ?? 0) > 0
-        );
+        const names = this.booklet.disciplineNames ?? {};
+        return Object.entries(this.booklet.disciplines)
+            .filter(([, answers]) => (answers?.length ?? 0) > 0)
+            .map(([key]) => ({ key, label: names[key] ?? key }));
     }
 
     get activeAnswers(): string[] {
@@ -104,7 +97,7 @@ export class BookletDetailComponent implements OnInit {
         return '—';
     }
 
-    selectTab(key: keyof BookletDisciplines): void {
+    selectTab(key: string): void {
         this.activeTab = key;
     }
 }
