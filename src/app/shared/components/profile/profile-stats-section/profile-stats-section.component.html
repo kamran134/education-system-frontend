@@ -9,6 +9,11 @@
         <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ periodLabel }}</span>
       }
     </h2>
+    @if (!isLoading && !loadFailed && stats?.examTypeName) {
+      <!-- IMTAHAN_NOVLERI_TASK.md §14: заказчик потребовал явно показывать, что плитки — по
+           базовому типу, а не хардкодить его название на фронте (оно приходит из данных). -->
+      <p class="w-full text-xs text-[var(--ui-muted)] -mt-2">{{ stats?.examTypeName }} üzrə göstərilir</p>
+    }
     @if (showDetailsLink) {
       <a [routerLink]="['/statistics']" [queryParams]="detailsQueryParams"
         class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">

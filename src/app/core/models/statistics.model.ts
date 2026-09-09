@@ -6,6 +6,8 @@ export interface StatisticsFilter {
     grades?: number[];
     year?: number;
     month?: number;
+    // IMTAHAN_NOVLERI_TASK.md §14: без него бэкенд берёт базовый тип.
+    examTypeId?: number;
 }
 
 export interface InkishafFilter {
@@ -15,6 +17,7 @@ export interface InkishafFilter {
     grades?: number[];
     year?: number;
     minParticipations?: number;
+    examTypeId?: number;
 }
 
 export interface StatusStatistics {
@@ -38,6 +41,10 @@ export interface YearlyStatistics {
     developingStudents: StatusStatistics;
     averageScore: number;
     levelStatistics: LevelStatistics;
+    // IMTAHAN_NOVLERI_TASK.md §14: тип, по которому реально посчитаны цифры — переданный
+    // examTypeId или базовый по умолчанию. Используется для подписи на плитках профиля.
+    examTypeId?: number;
+    examTypeName?: string;
 }
 
 export interface MonthlyStatistics {

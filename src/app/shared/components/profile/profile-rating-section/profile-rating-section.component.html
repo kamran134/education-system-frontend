@@ -6,6 +6,10 @@
       </span>
       Reytinqlər
     </h2>
+    @if (examTypeName) {
+      <!-- IMTAHAN_NOVLERI_TASK.md §14: история — только по базовому типу экзамена -->
+      <p class="w-full text-xs text-[var(--ui-muted)] -mt-2">{{ examTypeName }} üzrə göstərilir</p>
+    }
     @if (showDetailsLink) {
       <a [routerLink]="['/stats']"
         class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">

@@ -1,9 +1,11 @@
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, DestroyRef, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideAngularModule, TrendingUp, ChevronRight } from 'lucide-angular';
 import { YearRating } from '../../../../core/models/year-rating.model';
 import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
+import { ExamTypeService } from '../../../../features/exam-types/services/exam-type.service';
 
 /**
  * Блок "Reytinqlər bölməsi" на профиле (PROFILES_TASK.md §5) — данные уже приходят в ratings[].
@@ -24,7 +26,7 @@ import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/util
     templateUrl: './profile-rating-section.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfileRatingSectionComponent {
+export class ProfileRatingSectionComponent implements OnInit {
     @Input() ratings: YearRating[] = [];
     @Input() showDetailsLink = true;
     @Input() placeField: 'place' | 'districtPlace' = 'place';
@@ -33,6 +35,23 @@ export class ProfileRatingSectionComponent {
     readonly TrendingUp = TrendingUp;
     readonly ChevronRight = ChevronRight;
     readonly currentYear = getCurrentAcademicYear();
+
+    /** IMTAHAN_NOVLERI_TASK.md §14: история после задачи 1 фильтруется по базовому типу —
+     *  заказчик потребовал явную подпись об этом, название типа не хардкодим. Компонент сам
+     *  ходит за справочником (тот же паттерн, что profile-stats-section уже использует для
+     *  собственного HTTP-запроса) — родительские профили типы экзаменов не знают. */
+    examTypeName: string | null = null;
+    private destroyRef = inject(DestroyRef);
+    private examTypeService = inject(ExamTypeService);
+
+    ngOnInit(): void {
+        this.examTypeService.getExamTypes()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (types) => { this.examTypeName = types.find((t) => t.isBase)?.nameAz ?? null; },
+                error: () => { this.examTypeName = null; },
+            });
+    }
 
     get sortedRatings(): YearRating[] {
         return [...this.ratings].sort((a, b) => b.year - a.year);

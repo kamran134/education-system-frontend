@@ -48,6 +48,9 @@ export class StatisticsService {
             if (filters.month != null) {
                 params = params.set('month', filters.month.toString());
             }
+            if (filters.examTypeId != null) {
+                params = params.set('examTypeId', filters.examTypeId.toString());
+            }
         }
 
         return this.http.get<ApiResponse<StatisticsResponse>>(this.apiUrl, { params });
@@ -80,6 +83,9 @@ export class StatisticsService {
             }
             if (filters.month != null) {
                 params = params.set('month', filters.month.toString());
+            }
+            if (filters.examTypeId != null) {
+                params = params.set('examTypeId', filters.examTypeId.toString());
             }
         }
 
@@ -114,6 +120,9 @@ export class StatisticsService {
             if (filters.month != null) {
                 params = params.set('month', filters.month.toString());
             }
+            if (filters.examTypeId != null) {
+                params = params.set('examTypeId', filters.examTypeId.toString());
+            }
         }
 
         return this.http.get<ApiResponse<MonthlyStatistics[]>>(`${this.apiUrl}/monthly`, { params });
@@ -143,6 +152,9 @@ export class StatisticsService {
             }
             if (filters.minParticipations != null) {
                 params = params.set('minParticipations', filters.minParticipations.toString());
+            }
+            if (filters.examTypeId != null) {
+                params = params.set('examTypeId', filters.examTypeId.toString());
             }
         }
 

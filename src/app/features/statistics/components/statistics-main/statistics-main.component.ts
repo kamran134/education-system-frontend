@@ -2,13 +2,15 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { StatisticsService } from '../../services/statistics.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
+import { ExamTypeService } from '../../../exam-types/services/exam-type.service';
 import { StatisticsFilter, StatisticsResponse, InkishafStatistics } from '../../../../core/models/statistics.model';
+import { ExamType } from '../../../../core/models/examType.model';
 import { District } from '../../../../core/models/district.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
@@ -39,6 +41,7 @@ export class StatisticsMainComponent implements OnInit {
     private districtService = inject(DistrictService);
     private schoolService = inject(SchoolService);
     private teacherService = inject(TeacherService);
+    private examTypeService = inject(ExamTypeService);
     private authService = inject(AuthService);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
@@ -142,6 +145,10 @@ export class StatisticsMainComponent implements OnInit {
     selectedGrades: number[] = [];
     selectedMonth: number | null = null;
     selectedYear: number = getCurrentAcademicYear();
+    // IMTAHAN_NOVLERI_TASK.md §14: null, пока справочник не загружен — устанавливается на
+    // базовый тип в loadExamTypes(). Отдельно от прочих фильтров: у него нет "владельца"
+    // (BASE_FIXES_TASK.md §1.3 не про типы экзаменов), доступен всем ролям без блокировки.
+    selectedExamTypeId: number | null = null;
 
     // Данные для фильтров
     districts: District[] = [];
@@ -151,6 +158,7 @@ export class StatisticsMainComponent implements OnInit {
     // тот же паттерн каскада, что у districts→schools (PROFILES_V2_TASK.md §4.4).
     teachers: Teacher[] = [];
     allGrades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    examTypes: ExamType[] = [];
 
     months = [
         { value: 1, label: 'Yanvar' },
@@ -174,6 +182,8 @@ export class StatisticsMainComponent implements OnInit {
      *  для селекта года: иначе 1 сентября страница открывается пустой. */
     private ratingYear: number | null = null;
     years = Array.from({ length: 6 }, (_, i) => this.currentAcademicYear - i);
+    /** id базового типа (is_base) — на него сбрасывается selectedExamTypeId в onFilterReset(). */
+    private baseExamTypeId: number | null = null;
 
     /** Фильтр по учебному году открыт всем ролям, имеющим доступ к странице (П.8b) — раньше
      *  неадминам отдавался только текущий год. Глубина истории (6 лет) не меняется. */
@@ -217,6 +227,10 @@ export class StatisticsMainComponent implements OnInit {
 
     get monthOptions() {
         return this.months.map(m => ({ label: m.label, value: m.value }));
+    }
+
+    get examTypeOptions() {
+        return this.examTypes.map(t => ({ label: t.nameAz, value: t.id }));
     }
 
     get yearOptions() {
@@ -274,6 +288,7 @@ export class StatisticsMainComponent implements OnInit {
         // вообще не читала, фильтр молча терялся и открывалась статистика по всей республике.
         this.applyQueryParamFilters();
         const yearCameFromUrl = this.route.snapshot.queryParams['year'] != null;
+        const examTypeCameFromUrl = this.selectedExamTypeId !== null;
 
         // Область видимости роли-владельца всегда перекрывает queryParams (BASE_FIXES_TASK.md
         // §1.3) — своя сущность и так ровно то, что «Ətraflı statistika» присылает в ссылке,
@@ -281,7 +296,7 @@ export class StatisticsMainComponent implements OnInit {
         //
         // Год резолвится ДО загрузки, одной цепочкой: иначе первый запрос уходил бы за текущий
         // год, а ответ резолвера приходил бы уже после него. Явный year из ссылки сильнее.
-        this.ratingYearService.getState().pipe(
+        const yearAndScope$ = this.ratingYearService.getState().pipe(
             catchError(() => of(null)),
             switchMap(state => {
                 this.ratingYear = state?.ratingYear ?? null;
@@ -290,7 +305,21 @@ export class StatisticsMainComponent implements OnInit {
                 }
                 return this.resolveOwnerScope$();
             })
-        ).subscribe(() => {
+        );
+        // IMTAHAN_NOVLERI_TASK.md §14: список типов + дефолт на базовый тип резолвится в той же
+        // цепочке, ДО первого loadStatistics()/loadInkishafStatistics() — иначе первый запрос
+        // ушёл бы без examTypeId (что тоже дало бы базовый тип на бэкенде через resolveExamTypeId,
+        // но селект в этот момент показывал бы пустое значение).
+        const examTypes$ = this.examTypeService.getExamTypes().pipe(catchError(() => of([])));
+
+        forkJoin([yearAndScope$, examTypes$]).subscribe(([, examTypes]) => {
+            this.examTypes = examTypes;
+            const base = examTypes.find(t => t.isBase);
+            this.baseExamTypeId = base?.id ?? null;
+            if (!examTypeCameFromUrl) {
+                this.selectedExamTypeId = this.baseExamTypeId ?? (examTypes[0]?.id ?? null);
+            }
+
             if (this.forcedDistrictIds.length > 0) this.selectedDistrictIds = this.forcedDistrictIds;
             if (this.forcedSchoolIds.length > 0) this.selectedSchoolIds = this.forcedSchoolIds;
             if (this.forcedTeacherIds.length > 0) this.selectedTeacherIds = this.forcedTeacherIds;
@@ -321,6 +350,10 @@ export class StatisticsMainComponent implements OnInit {
         if (params['year']) {
             const year = parseInt(params['year'], 10);
             if (!isNaN(year)) this.selectedYear = year;
+        }
+        if (params['examTypeId']) {
+            const examTypeId = parseInt(params['examTypeId'], 10);
+            if (!isNaN(examTypeId)) this.selectedExamTypeId = examTypeId;
         }
     }
 
@@ -376,7 +409,8 @@ export class StatisticsMainComponent implements OnInit {
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined,
             month: this.selectedMonth !== null ? this.selectedMonth : undefined,
-            year: this.selectedYear
+            year: this.selectedYear,
+            examTypeId: this.selectedExamTypeId ?? undefined
         };
 
         this.statisticsService.getStatistics(filters).subscribe({
@@ -400,7 +434,8 @@ export class StatisticsMainComponent implements OnInit {
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades : undefined,
             year: this.selectedYear,
-            minParticipations: this.inkishafMinParticipations
+            minParticipations: this.inkishafMinParticipations,
+            examTypeId: this.selectedExamTypeId ?? undefined
         }).subscribe({
             next: (response) => {
                 this.inkishafStatistics = ResponseHandlerUtil.extractData<InkishafStatistics>(response);
@@ -460,6 +495,11 @@ export class StatisticsMainComponent implements OnInit {
         this.loadInkishafStatistics();
     }
 
+    onExamTypeChange(): void {
+        this.loadStatistics();
+        this.loadInkishafStatistics();
+    }
+
     onFilterReset(): void {
         // Роль-владелец сбрасывается к своей области видимости, а не к пустому фильтру —
         // иначе задизейбленные district/school/teacher-селекты после сброса показывали бы
@@ -470,6 +510,7 @@ export class StatisticsMainComponent implements OnInit {
         this.selectedGrades = [];
         this.selectedMonth = null;
         this.selectedYear = this.ratingYear ?? this.currentAcademicYear;
+        this.selectedExamTypeId = this.baseExamTypeId ?? this.selectedExamTypeId;
         this.inkishafMinParticipations = 2;
         this.schools = [];
         this.teachers = [];

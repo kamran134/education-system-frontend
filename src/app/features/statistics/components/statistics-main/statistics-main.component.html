@@ -34,7 +34,16 @@
 
     <!-- Filters Grid -->
     <div [class]="filtersExpanded ? 'block' : 'hidden'">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-4">
+        <!-- Фильтр по типу экзамена (IMTAHAN_NOVLERI_TASK.md §14) — по умолчанию базовый тип,
+             но виден и переключаем всем ролям, имеющим доступ к странице. -->
+        <app-select
+          label="İmtahan növü"
+          [(ngModel)]="selectedExamTypeId"
+          [options]="examTypeOptions"
+          (ngModelChange)="onExamTypeChange()">
+        </app-select>
+
         <!-- Фильтр по году — открыт всем ролям (П.8b) -->
         <app-select
           label="İl"
