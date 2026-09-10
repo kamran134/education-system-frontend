@@ -70,7 +70,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     tableFullscreen = false;
 
     // Sorting
-    sortColumn = 'lastName';
+    sortColumn = 'fullname';
     sortDirection: 'asc' | 'desc' = 'asc';
 
     // Filters
@@ -101,9 +101,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'code', label: 'İş nömrəsi', sortable: true, type: 'text' },
-        { key: 'lastName', label: 'Soyadı', sortable: true, type: 'text' },
-        { key: 'firstName', label: 'Adı', sortable: true, type: 'text' },
-        { key: 'middleName', label: 'Ata adı', sortable: true, type: 'text' },
+        { key: 'fullname', label: 'Soyadı, adı, ata adı', sortable: true, type: 'text' },
         { key: 'grade', label: 'Sinif', sortable: true, type: 'number' },
         { key: 'teacher.fullname', label: 'Müəllimi', sortable: false, type: 'text' },
         { key: 'school.name', label: 'Məktəbi', sortable: false, type: 'text' },

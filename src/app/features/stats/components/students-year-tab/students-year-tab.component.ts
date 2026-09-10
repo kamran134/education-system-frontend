@@ -43,9 +43,7 @@ export class StudentsYearTabComponent {
         { key: 'districtPlace', label: 'Təhsil sektoru üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
         { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
         { key: 'code', label: 'Şagirdin kodu', sortable: true },
-        { key: 'lastName', label: 'Soyadı', sortable: true },
-        { key: 'firstName', label: 'Adı', sortable: true },
-        { key: 'middleName', label: 'Atasının adı', sortable: true },
+        { key: 'fullname', label: 'Soyadı, adı, ata adı', sortable: true },
         // yearGrade — класс ЗА ПОКАЗАННЫЙ учебный год (student_grade_history), не живой
         // student.grade: за прошлый год живой класс — то самое враньё задним числом после
         // повышения, из-за которого заведена задача (SINIF_TARIXCESI_TASK.md §3.1).

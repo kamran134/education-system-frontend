@@ -202,7 +202,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
                                 // getStudentById returns student with results, extract student data
                                 const student = response.student || response;
                                 if (student) {
-                                    this.studentSearchTerm = `${student.lastName} ${student.firstName} ${student.middleName} (${student.code})`;
+                                    this.studentSearchTerm = `${student.fullname} (${student.code})`;
                                 }
                             },
                             error: (error) => console.error('Error loading student:', error)
@@ -529,7 +529,7 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
                     console.log('Student search response:', students);
                     this.studentOptions = students.map((s: Student) => ({
                         value: s.id,
-                        label: `${s.lastName} ${s.firstName} ${s.middleName} (${s.code})`
+                        label: `${s.fullname} (${s.code})`
                     }));
                 },
                 error: (error) => {

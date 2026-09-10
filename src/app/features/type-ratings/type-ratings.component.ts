@@ -55,9 +55,7 @@ const TAB_ITEMS: { key: TabKey; label: string }[] = [
 
 const STUDENT_RESULT_COLUMNS: TableColumn[] = [
     { key: 'code', label: 'Şagird kodu', field: 'studentData.code' },
-    { key: 'lastName', label: 'Soyadı', field: 'studentData.lastName' },
-    { key: 'firstName', label: 'Adı', field: 'studentData.firstName' },
-    { key: 'middleName', label: 'Atasının adı', field: 'studentData.middleName' },
+    { key: 'fullname', label: 'Soyadı, adı, ata adı', field: 'studentData.fullname' },
     { key: 'grade', label: 'Sinfi' },
     { key: 'teacher', label: 'Müəllimi', field: 'studentData.teacher.fullname', formatter: (v) => v || 'Müəllim tapılmadı' },
     { key: 'school', label: 'Məktəbi', field: 'studentData.school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
@@ -118,7 +116,7 @@ export class TypeRatingsComponent implements OnInit {
     isLoadingYear = false;
 
     readonly studentsYearColumns = [
-        'place', 'districtPlace', 'code', 'lastName', 'firstName', 'middleName',
+        'place', 'districtPlace', 'code', 'fullname',
         'grade', 'teacher', 'school', 'district', 'score', 'averageScore', 'participationCount',
     ];
     readonly teachersYearColumns = ['place', 'districtPlace', 'code', 'fullName', 'school', 'district', 'score', 'averageScore', 'studentCount'];

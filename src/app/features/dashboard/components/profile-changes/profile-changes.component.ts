@@ -33,9 +33,6 @@ const FIELD_LABELS: Record<string, string> = {
     gradeLabel: 'Sinfi',
     pedagogicalExperienceYears: 'Pedaqoji stajı',
     educationHeadName: 'Təhsil sektorunun müdiri',
-    lastName: 'Soyadı',
-    firstName: 'Adı',
-    middleName: 'Ata adı',
 };
 
 /**

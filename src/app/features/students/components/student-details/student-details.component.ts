@@ -85,15 +85,11 @@ export class StudentDetailsComponent implements OnInit {
      *  ту же очередь профильных заявок, что и у школы/учителя/района (BASE_FIXES_TASK.md §2.4).
      *  Директор школы сюда не допущен — заказчик просил это право только для учителей. */
     editingStudentName = false;
-    editedLastName: string | null = null;
-    editedFirstName = '';
-    editedMiddleName: string | null = null;
+    editedFullname = '';
     isSavingStudentName = false;
     pendingNameChange: ProfileChangeRequest | null = null;
     readonly studentNameFieldLabels: Record<string, string> = {
-        lastName: 'Soyadı',
-        firstName: 'Adı',
-        middleName: 'Ata adı',
+        fullname: 'Soyadı, adı, ata adı',
     };
 
     private get currentAcademicYear(): number {
@@ -341,7 +337,7 @@ export class StudentDetailsComponent implements OnInit {
         const sheet = XLSX.utils.json_to_sheet(this.excelService.formatStudentDetailsData(this.student!, results));
         // OOXML запрещает : \ / ? * [ ] в имени листа и ограничивает его 31 символом —
         // без этого длинная фамилия+имя валит book_append_sheet исключением (26.08.2026, п.5).
-        const sheetName = `${this.student?.lastName} ${this.student?.firstName}`.replace(/[:\\/?*[\]]/g, '-').slice(0, 31);
+        const sheetName = `${this.student?.fullname}`.replace(/[:\\/?*[\]]/g, '-').slice(0, 31);
         XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
         XLSX.writeFile(workbook, `${fileBaseName}.xlsx`);
     }
@@ -431,9 +427,7 @@ export class StudentDetailsComponent implements OnInit {
 
     startEditStudentName(): void {
         if (!this.student) return;
-        this.editedLastName = this.pendingNameChange?.payload['lastName'] ?? this.student.lastName ?? null;
-        this.editedFirstName = this.pendingNameChange?.payload['firstName'] ?? this.student.firstName ?? '';
-        this.editedMiddleName = this.pendingNameChange?.payload['middleName'] ?? this.student.middleName ?? null;
+        this.editedFullname = this.pendingNameChange?.payload['fullname'] ?? this.student.fullname ?? '';
         this.editingStudentName = true;
     }
 
@@ -445,9 +439,7 @@ export class StudentDetailsComponent implements OnInit {
         if (!this.student) return;
         this.isSavingStudentName = true;
         this.studentService.updateStudentProfile(this.student.id, {
-            lastName: this.editedLastName,
-            firstName: this.editedFirstName.trim(),
-            middleName: this.editedMiddleName,
+            fullname: this.editedFullname.trim(),
         })
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({

@@ -38,9 +38,7 @@ import { YearRating } from './year-rating.model';
 
 export interface Student {
     id: number;
-    lastName: string;
-    firstName: string;
-    middleName: string;
+    fullname: string;
     code: number;
     grade: number;
     teacher: Teacher | null;
@@ -61,9 +59,7 @@ export interface Student {
 }
 
 export interface StudentForCreation {
-    lastName: string;
-    firstName: string;
-    middleName: string;
+    fullname: string;
     code: number;
     grade: number;
     teacher?: Teacher;
@@ -73,9 +69,7 @@ export interface StudentForCreation {
 
 export interface StudentWithResult {
     id: number;
-    lastName: string;
-    firstName: string;
-    middleName: string;
+    fullname: string;
     code: number;
     grade: number;
     teacher: Teacher | null;

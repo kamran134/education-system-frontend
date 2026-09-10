@@ -115,7 +115,7 @@ export class StudentService {
      * через ту же очередь модерации, что и у школы/учителя/района (BASE_FIXES_TASK.md §2.5):
      * 200 — применено сразу (админ), 202 — ушло на подтверждение (учитель), см. toProfileSaveResult.
      */
-    updateStudentProfile(studentId: string | number, data: { lastName?: string | null; firstName?: string; middleName?: string | null }): Observable<ProfileSaveResult<Student>> {
+    updateStudentProfile(studentId: string | number, data: { fullname?: string }): Observable<ProfileSaveResult<Student>> {
         const url: string = `${this.configService.getApiUrl()}/students/${studentId}/profile`;
         return this.http.patch<ApiResponse<Student>>(url, data, { withCredentials: true, observe: 'response' })
             .pipe(map(response => toProfileSaveResult<Student>(response)));

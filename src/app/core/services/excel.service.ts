@@ -20,9 +20,7 @@ export class ExcelService {
         ['level',             { label: 'Pillə',            accessor: (r: any) => r.level || '' }],
         ['place',             { label: 'Yer',              accessor: (r: any) => r.place || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (r: any) => r.studentData?.code }],
-        ['lastName',          { label: 'Soyadı',           accessor: (r: any) => r.studentData?.lastName }],
-        ['firstName',         { label: 'Adı',              accessor: (r: any) => r.studentData?.firstName }],
-        ['middleName',        { label: 'Atasının adı',     accessor: (r: any) => r.studentData?.middleName }],
+        ['fullname',          { label: 'Soyadı, adı, ata adı', accessor: (r: any) => r.studentData?.fullname }],
         // Класс НА МОМЕНТ РЕЗУЛЬТАТА (r.grade, sr.grade на бэке), не студента (r.studentData?.grade —
         // живой, текущий класс). Fallback не нужен: все три вызывающих (İE/AŞ/AŞ respublika üzrə,
         // stats.component.ts) идут через queryStudentResultStats, где верхнеуровневый grade есть
@@ -42,9 +40,7 @@ export class ExcelService {
         ['districtPlace',     { label: 'Təhsil sektoru üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
         ['filterPlace',       { label: 'Filtr üzrə yer',    accessor: (s: any) => s.filterPlace || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (s: any) => s.code }],
-        ['lastName',          { label: 'Soyadı',           accessor: (s: any) => s.lastName }],
-        ['firstName',         { label: 'Adı',              accessor: (s: any) => s.firstName }],
-        ['middleName',        { label: 'Atasının adı',     accessor: (s: any) => s.middleName }],
+        ['fullname',          { label: 'Soyadı, adı, ata adı', accessor: (s: any) => s.fullname }],
         // yearGrade — класс ЗА ПОКАЗАННЫЙ учебный год, не живой s.grade. Намеренно без
         // `?? s.grade`: подставлять живой класс в выгрузку за прошлый год — ровно та ошибка,
         // которую чиним (SINIF_TARIXCESI_TASK.md §3.1). Бэк заполняет yearGrade всегда, так что
@@ -231,9 +227,7 @@ export class ExcelService {
                 // Код строкой: 10-значное число Excel сворачивает в «1.2E+09» (П.10f).
                 // Заголовок «Şagirdin kodu» → «Şagirdin iş nömrəsi» по просьбе заказчика (02.09.2026).
                 'Şagirdin iş nömrəsi': String(student.code),
-                'Soyadı': student.lastName,
-                'Adı': student.firstName,
-                'Atasının adı': student.middleName,
+                'Soyadı, adı, ata adı': student.fullname,
                 // Класс на момент экзамена, а не текущий класс ученика (тот растёт каждый год) — П.10d.
                 'Sinfi': result.grade,
                 'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
@@ -302,7 +296,7 @@ export class ExcelService {
 
         // ── 2. Column layout ──────────────────────────────────────────────────
         // «Şagirdin kodu» → «Şagirdin iş nömrəsi» по просьбе заказчика (02.09.2026), как и в выгрузке карточки ученика.
-        const fixedBefore = ['№', 'Sinif', 'Şagirdin iş nömrəsi', 'Şagirdin soyadı', 'Şagirdin adı', 'Şagirdin ata adı'];
+        const fixedBefore = ['№', 'Sinif', 'Şagirdin iş nömrəsi', 'Soyadı, adı, ata adı'];
         const allHeaders  = [...fixedBefore, ...activeDisciplines.map(d => d.label), 'Yekun bal', 'Pillə'];
         const totalCols   = allHeaders.length;
         const yekunBalIdx = fixedBefore.length + activeDisciplines.length;
@@ -378,9 +372,7 @@ export class ExcelService {
                 rowIdx + 1,
                 r.grade ?? '',
                 r.studentData?.code ?? '',
-                r.studentData?.lastName ?? '',
-                r.studentData?.firstName ?? '',
-                r.studentData?.middleName ?? '',
+                r.studentData?.fullname ?? '',
                 ...activeDisciplines.map(d => r.disciplines?.find(x => x.subjectCode === d.key)?.score ?? ''),
                 r.totalScore ?? 0,
                 r.level ?? '',
@@ -412,9 +404,7 @@ export class ExcelService {
             { wch: 4  },  // №
             { wch: 6  },  // Sinif
             { wch: 16 },  // iş nömrəsi
-            { wch: 16 },  // soyadı
-            { wch: 13 },  // adı
-            { wch: 13 },  // ata adı
+            { wch: 28 },  // Soyadı, adı, ata adı
             ...activeDisciplines.map(() => ({ wch: 8 })),
             { wch: 11 },  // Yekun bal
             { wch: 9  },  // Pillə

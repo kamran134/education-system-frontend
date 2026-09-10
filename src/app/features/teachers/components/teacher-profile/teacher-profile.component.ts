@@ -335,7 +335,7 @@ export class TeacherProfileComponent implements OnInit {
     private recomputeStudentCards(): void {
         this.studentCards = this.students.map((s) => ({
             id: s.id,
-            name: `${s.lastName ?? ''} ${s.firstName}`.trim(),
+            name: s.fullname,
             meta: gradeLabel(s.grade),
             avatarUrl: this.configService.resolveAssetUrl(s.avatarUrl) ?? null,
             place: s.place ?? null,

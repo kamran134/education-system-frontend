@@ -59,9 +59,7 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
     get isValid(): boolean {
         return !!(
             this.data.student.code &&
-            this.data.student.lastName?.trim() &&
-            this.data.student.firstName?.trim() &&
-            this.data.student.middleName?.trim() &&
+            this.data.student.fullname?.trim() &&
             this.data.student.district &&
             this.data.student.school &&
             this.data.student.teacher &&
@@ -178,9 +176,7 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
         if (!this.data.isEditing) {
             this.data.student = {
                 code: 0,
-                lastName: '',
-                firstName: '',
-                middleName: '',
+                fullname: '',
                 grade: 5
             };
         }

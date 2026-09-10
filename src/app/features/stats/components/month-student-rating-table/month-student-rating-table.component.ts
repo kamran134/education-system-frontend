@@ -40,9 +40,7 @@ export class MonthStudentRatingTableComponent {
     private readonly columnDefinitions = new Map<string, TableColumn>([
         ['level', { key: 'level', label: 'Pillə', sortable: true, field: 'level', formatter: (v) => v || '-' }],
         ['code', { key: 'code', label: 'İş nömrəsi', sortable: true, field: 'studentData.code' }],
-        ['lastName', { key: 'lastName', label: 'Soyadı', sortable: true, field: 'studentData.lastName' }],
-        ['firstName', { key: 'firstName', label: 'Adı', sortable: true, field: 'studentData.firstName' }],
-        ['middleName', { key: 'middleName', label: 'Ata adı', sortable: true, field: 'studentData.middleName' }],
+        ['fullname', { key: 'fullname', label: 'Soyadı, adı, ata adı', sortable: true, field: 'studentData.fullname' }],
         ['totalScore', { key: 'totalScore', label: 'İmtahan balı', sortable: true, field: 'totalScore' }],
         // Класс НА МОМЕНТ РЕЗУЛЬТАТА (row.grade, sr.grade на бэке), не studentData.grade — тот
         // живой класс ученика, после повышения он врёт задним числом (SINIF_TARIXCESI_TASK.md §3.2).

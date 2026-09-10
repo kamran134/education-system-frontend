@@ -1,9 +1,7 @@
 export enum TableColumnsEnum {
     id = 'id',
     name = 'Adı',
-    firstName = 'Adı',
-    lastName = 'Soyadı',
-    middleName = 'Ata adı',
+    fullname = 'Soyadı, adı, ata adı',
     fullName = 'Soyadı, adı və ata adı',
     code = 'Kodu',
     score = 'Reytinq xalı',
@@ -16,9 +14,7 @@ export enum TableColumnsEnum {
 
 export enum MonthStudentColumnsEnum {
     code = 'Kodu',
-    lastName = 'Soyadı',
-    firstName = 'Adı',
-    middleName = 'Ata adı',
+    fullname = 'Soyadı, adı, ata adı',
     grade = 'Sinifi',
     teacher = 'Müəllimi',
     school = 'Məktəbi',
@@ -28,9 +24,7 @@ export enum MonthStudentColumnsEnum {
 
 export enum StudentColumnsEnum {
     code = 'Kodu',
-    lastName = 'Soyadı',
-    firstName = 'Adı',
-    middleName = 'Ata adı',
+    fullname = 'Soyadı, adı, ata adı',
     grade = 'Sinifi',
     teacher = 'Müəllimi',
     school = 'Məktəbi',

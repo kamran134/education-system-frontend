@@ -97,8 +97,7 @@ export class ExamResultsComponent implements OnInit {
     // это те же строки, что хранятся в user_settings.role_settings.
     private readonly defaultColumnOrder: string[] = [
         'studentData.code',
-        'studentData.lastName',
-        'studentData.firstName',
+        'studentData.fullname',
         'grade',
         'level',
         'scorePercent',
@@ -116,8 +115,7 @@ export class ExamResultsComponent implements OnInit {
     private get columnCatalog(): Record<string, TableColumn> {
         return {
             'studentData.code': { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student },
-            'studentData.lastName': { key: 'studentData.lastName', label: 'Soyadı', sortable: true },
-            'studentData.firstName': { key: 'studentData.firstName', label: 'Adı', sortable: true },
+            'studentData.fullname': { key: 'studentData.fullname', label: 'Soyadı, adı, ata adı', sortable: true },
             'grade': { key: 'grade', label: 'Sinif', sortable: true },
             'level': { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate },
             // Не сортируется — сортировка идёт на бэкенде по колонкам БД, а этой колонки в БД нет.

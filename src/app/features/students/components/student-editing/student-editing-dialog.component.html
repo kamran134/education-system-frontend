@@ -35,26 +35,10 @@
       }
 
       <app-input
-        label="Şagirdin soyadı"
-        placeholder="Şagirdin soyadını daxil edin"
-        [(ngModel)]="data.student.lastName"
-        name="lastName"
-        [required]="true"
-      ></app-input>
-
-      <app-input
-        label="Şagirdin adı"
-        placeholder="Şagirdin adını daxil edin"
-        [(ngModel)]="data.student.firstName"
-        name="firstName"
-        [required]="true"
-      ></app-input>
-
-      <app-input
-        label="Şagirdin ata adı"
-        placeholder="Şagirdin ata adını daxil edin"
-        [(ngModel)]="data.student.middleName"
-        name="middleName"
+        label="Şagirdin soyadı, adı, ata adı"
+        placeholder="Soyadı, adı, ata adı"
+        [(ngModel)]="data.student.fullname"
+        name="fullname"
         [required]="true"
       ></app-input>
 
