@@ -196,6 +196,25 @@
             </div>
           </div>
         }
+
+        <!-- Type Ratings Card — рейтинги в разрезе типа экзамена (IMTAHAN_NOVLERI_TASK.md §6).
+             Отдельная карточка, а не вкладка внутри «Reytinqlər»: та страница намеренно осталась
+             на базовом типе и не знает про остальные (решение заказчика 4 и 5, §2 ТЗ). -->
+        @if (permissions.canShowUI('showStatsSection')) {
+          <div
+            class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
+            routerLink="/type-ratings">
+            <div class="absolute inset-0 bg-gradient-to-br from-rose-500 to-rose-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            <div class="p-8 text-center relative">
+              <div class="w-16 h-16 mx-auto mb-4 bg-rose-100 rounded-xl flex items-center justify-center group-hover:bg-rose-200 transition-colors duration-300">
+                <lucide-icon [img]="ClipboardList" class="w-8 h-8 text-rose-600"></lucide-icon>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 group-hover:text-rose-600 transition-colors duration-300">
+                Növlər üzrə reytinq
+              </h3>
+            </div>
+          </div>
+        }
       </div>
     </div>
     }

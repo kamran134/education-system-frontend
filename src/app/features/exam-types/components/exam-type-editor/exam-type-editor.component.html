@@ -55,10 +55,6 @@
 
         <div class="mt-6 flex flex-wrap gap-6">
           <label class="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.hasQuestionCounts" name="hasQuestionCounts" [ngModelOptions]="{standalone: true}">
-            Sual sayı hesablanır
-          </label>
-          <label class="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.isBase" name="isBase" [ngModelOptions]="{standalone: true}">
             Baza növüdür
           </label>
@@ -142,7 +138,7 @@
 
                 <div class="space-y-3">
                   @for (subjectEntry of section.subjects; track $index; let subjectIndex = $index) {
-                    <div class="grid grid-cols-1 gap-3 rounded-lg bg-gray-50 p-3 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
+                    <div class="grid grid-cols-1 gap-3 rounded-lg bg-gray-50 p-3 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
                       <app-select
                         label="Fənn"
                         [options]="subjectOptions"
@@ -151,13 +147,6 @@
                         [ngModelOptions]="{standalone: true}"
                         (selectionChange)="onSubjectCodeChange(sectionIndex, subjectIndex)"
                       ></app-select>
-                      <app-input
-                        label="Maks. sual sayı"
-                        type="number"
-                        [(ngModel)]="subjectEntry.maxQuestions"
-                        [name]="'maxQuestions' + sectionIndex + '_' + subjectIndex"
-                        [ngModelOptions]="{standalone: true}"
-                      ></app-input>
                       <app-input
                         label="Sıra"
                         type="number"

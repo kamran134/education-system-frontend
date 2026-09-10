@@ -873,6 +873,9 @@ export class RbacService {
 
         if (permissions.routes.canAccessProfile) routes.push('/profile');
         if (permissions.routes.canAccessStats) routes.push('/stats');
+        // Рейтинги в разрезе типа экзамена. Отдельного права не заводим: страница показывает
+        // те же номинации, что и /stats, только с выбором типа — кто видит одно, видит и другое.
+        if (permissions.routes.canAccessStats) routes.push('/type-ratings');
         if (permissions.routes.canAccessRegions) routes.push('/regions');
         if (permissions.routes.canAccessDistricts) routes.push('/districts');
         if (permissions.routes.canAccessSchools) routes.push('/schools');

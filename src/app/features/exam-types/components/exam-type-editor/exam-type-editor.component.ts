@@ -52,7 +52,6 @@ export class ExamTypeEditorComponent implements OnInit {
         code: string;
         nameAz: string;
         levelScaleId: number | null;
-        hasQuestionCounts: boolean;
         monthAwardMinRank: number | null;
         isBase: boolean;
         active: boolean;
@@ -62,7 +61,6 @@ export class ExamTypeEditorComponent implements OnInit {
         code: '',
         nameAz: '',
         levelScaleId: null,
-        hasQuestionCounts: false,
         monthAwardMinRank: null,
         isBase: false,
         active: true,
@@ -124,7 +122,6 @@ export class ExamTypeEditorComponent implements OnInit {
                     code: found.code,
                     nameAz: found.nameAz,
                     levelScaleId: found.levelScaleId,
-                    hasQuestionCounts: found.hasQuestionCounts,
                     monthAwardMinRank: found.monthAwardMinRank,
                     isBase: found.isBase,
                     active: found.active,
@@ -175,7 +172,6 @@ export class ExamTypeEditorComponent implements OnInit {
         this.model.sections[sectionIndex].subjects.push({
             subjectCode: '',
             nameAz: '',
-            maxQuestions: 0,
             sortOrder: this.model.sections[sectionIndex].subjects.length
         });
     }
@@ -204,7 +200,6 @@ export class ExamTypeEditorComponent implements OnInit {
             code: this.model.code.trim(),
             nameAz: this.model.nameAz.trim(),
             levelScaleId: this.model.levelScaleId as number,
-            hasQuestionCounts: this.model.hasQuestionCounts,
             monthAwardMinRank: this.model.monthAwardMinRank,
             isBase: this.model.isBase,
             active: this.model.active,
@@ -217,7 +212,6 @@ export class ExamTypeEditorComponent implements OnInit {
                 subjects: section.subjects.map(subject => ({
                     subjectCode: subject.subjectCode,
                     nameAz: subject.nameAz,
-                    maxQuestions: subject.maxQuestions,
                     sortOrder: subject.sortOrder
                 }))
             }))

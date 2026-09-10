@@ -38,12 +38,17 @@
         <!-- Disciplines Scores -->
         <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-700">Fənlər üzrə nəticələr</h3>
+            <!-- IMTAHAN_NOVLERI_TASK.md §16: sual sayı hər fənn üçün mütləqdir — bal faizinin
+                 məxrəci məhz bu dəyərlərin cəmindən hesablanır, server tərəfindən. -->
+            <p class="text-xs text-gray-500">
+                Bal faizinin hesablanması üçün hər fənn üzrə sualların sayı mütləq göstərilməlidir.
+            </p>
 
             <div class="space-y-3">
                 @for (d of editedResult.disciplines; track d.subjectCode) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
                         <app-input
-                            [label]="d.nameAz + ' - Düzgün cavabların sayı' + (d.maxQuestions ? ' (maks. ' + d.maxQuestions + ')' : '')"
+                            [label]="d.nameAz + ' - Düzgün cavabların sayı' + (d.questionCount ? ' (maks. ' + d.questionCount + ')' : '')"
                             type="number"
                             [(ngModel)]="d.score"
                             [name]="'score_' + d.subjectCode"
@@ -54,7 +59,8 @@
                             type="number"
                             [(ngModel)]="d.questionCount"
                             [name]="'count_' + d.subjectCode"
-                            placeholder="Sualların sayı" />
+                            [required]="true"
+                            placeholder="Sualların sayı (mütləq)" />
                     </div>
                 }
             </div>

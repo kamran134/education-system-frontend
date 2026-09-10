@@ -1,7 +1,11 @@
+// IMTAHAN_NOVLERI_TASK.md §16: exam_type_section_subjects задаёт ТОЛЬКО состав предметов
+// секции — maxQuestions (число вопросов по предмету) больше не свойство конфига типа, а
+// свойство конкретной работы (student_result_subject_scores.questionCount на каждом
+// результате). exam_types.hasQuestionCounts снят тем же основанием: колонка "(sual sayı)"
+// в шаблоне Excel теперь генерируется всегда, для любого типа.
 export interface ExamTypeSectionSubject {
     subjectCode: string;
     nameAz: string;
-    maxQuestions: number;
     sortOrder: number;
 }
 
@@ -18,7 +22,6 @@ export interface ExamType {
     code: string;
     nameAz: string;
     levelScaleId: number;
-    hasQuestionCounts: boolean;
     monthAwardMinRank: number | null;
     isBase: boolean;
     active: boolean;
@@ -31,7 +34,6 @@ export interface ExamType {
 export interface ExamTypeInputSectionSubject {
     subjectCode: string;
     nameAz: string;
-    maxQuestions: number;
     sortOrder: number;
 }
 
@@ -47,7 +49,6 @@ export interface ExamTypeInput {
     code: string;
     nameAz: string;
     levelScaleId: number;
-    hasQuestionCounts: boolean;
     monthAwardMinRank: number | null;
     isBase: boolean;
     active: boolean;

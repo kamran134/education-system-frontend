@@ -60,12 +60,18 @@ export class ResultEditingDialogComponent {
         return 'İmtahan nəticəsinin məlumatlarını daxil edin';
     }
 
+    // IMTAHAN_NOVLERI_TASK.md §16: sual sayı hər fənn üçün MÜTLƏQdir — server questionCount-suz
+    // (yaxud sıfır) faizi hesablamayacaq (computeScoreSummary xəta atır). Save düyməsi bunu
+    // fronttdan tələb edərək istifadəçini birbaşa xəbərdar edir, boş formanı 400-ə göndərmək əvəzinə.
     get isValid(): boolean {
         return !!(
             this.editedResult.grade &&
             this.editedResult.disciplines &&
             this.editedResult.disciplines.length > 0 &&
-            this.editedResult.disciplines.every(d => d.score !== undefined && d.score !== null && !isNaN(d.score))
+            this.editedResult.disciplines.every(d =>
+                d.score !== undefined && d.score !== null && !isNaN(d.score) &&
+                d.questionCount !== undefined && d.questionCount !== null && !isNaN(d.questionCount) && d.questionCount > 0
+            )
         );
     }
 

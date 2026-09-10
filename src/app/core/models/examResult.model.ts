@@ -2,15 +2,16 @@ import { Exam } from "./exam.model";
 import { Student } from "./student.model";
 
 /** Один предмет результата (IMTAHAN_NOVLERI_TASK.md §4/§6, шаг 2) — заменяет пять
- *  захардкоженных полей az/math/lifeKnowledge/logic/english. Набор предметов и maxQuestions
- *  зависят от секции типа экзамена этого результата, поэтому приходят с бэка, а не заданы
- *  статически на фронте. */
+ *  захардкоженных полей az/math/lifeKnowledge/logic/english. Набор предметов зависит от секции
+ *  типа экзамена этого результата, поэтому приходит с бэка, а не задан статически на фронте.
+ *  Отдельного maxQuestions на предмет больше нет (§16): questionCount на этой же строке И ЕСТЬ
+ *  число вопросов по предмету в этой конкретной работе — знаменатель процента складывается из
+ *  суммы questionCount всех предметов результата (см. ExamResult.maxQuestions ниже). */
 export interface IDisciplineScore {
     subjectCode: string;
     nameAz: string;
     score: number;
     questionCount: number | null;
-    maxQuestions: number | null;
 }
 
 export interface ExamResult {
