@@ -224,7 +224,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         if (!b.exam) return '—';
         if (typeof b.exam === 'object') {
             const e = b.exam as BookletExam;
-            return `${e.name} (${e.code})`;
+            return e.name;
         }
         return '—';
     }

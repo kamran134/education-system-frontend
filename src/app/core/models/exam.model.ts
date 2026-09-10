@@ -10,7 +10,6 @@ export interface ExamApiResponse extends ApiResponse<{ data: Exam[], totalCount:
 export interface Exam {
     id: number;
     name: string;
-    code: number;
     date: Date;
     examTypeId: number;
     examTypeName: string;

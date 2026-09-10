@@ -92,7 +92,6 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
     // Table configuration
     tableColumns: TableColumn[] = [
-        { key: 'code', label: 'İmtahan kodu', sortable: true, type: 'text' },
         { key: 'name', label: 'İmtahan adı', sortable: true, type: 'text' },
         { key: 'date', label: 'İmtahan tarixi', sortable: true, type: 'date' }
     ];
@@ -310,7 +309,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     openAddExamDialog(): void {
         const dialogRef = this.dialog.open<any>(ExamAddDialogComponent, {
             width: '600px',
-            data: { name: '', code: '', date: '', examTypeId: null }
+            data: { name: '', date: '', examTypeId: null }
         });
 
         dialogRef.closed.subscribe(result => {

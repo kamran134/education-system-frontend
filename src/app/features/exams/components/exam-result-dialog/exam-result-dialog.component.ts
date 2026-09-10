@@ -125,7 +125,7 @@ export class ExamResultDialogComponent implements OnInit {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `netice-sablonu-${this.data.exam.code}-sinif-${this.templateGrade}.xlsx`;
+                a.download = `netice-sablonu-${this.data.exam.id}-sinif-${this.templateGrade}.xlsx`;
                 a.click();
                 URL.revokeObjectURL(url);
             },

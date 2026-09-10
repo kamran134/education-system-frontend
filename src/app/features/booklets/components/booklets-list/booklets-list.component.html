@@ -36,7 +36,7 @@
                 <option [value]="null">Bütün imtahanlar</option>
                 @for (exam of exams; track exam) {
                   <option [value]="exam.id">
-                    {{ exam.name }} ({{ exam.code }})
+                    {{ exam.name }}
                   </option>
                 }
               </select>

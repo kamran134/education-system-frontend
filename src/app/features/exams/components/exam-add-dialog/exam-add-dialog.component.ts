@@ -23,8 +23,8 @@ export class ExamAddDialogComponent implements OnInit {
     examTypeOptions: SelectOption[] = [];
 
     constructor(
-        public dialogRef: DialogRef<{ name: string; code: string, date: any, examTypeId: number | null } | undefined>,
-        @Inject(DIALOG_DATA) public data: { name: string; code: string, date: any, examTypeId: number | null },
+        public dialogRef: DialogRef<{ name: string; date: any, examTypeId: number | null } | undefined>,
+        @Inject(DIALOG_DATA) public data: { name: string; date: any, examTypeId: number | null },
         private examTypeService: ExamTypeService
     ) {
         // Преобразуем date в строку для input type="date"
@@ -45,7 +45,7 @@ export class ExamAddDialogComponent implements OnInit {
     }
 
     get isValid(): boolean {
-        return !!(this.data.name?.trim() && this.data.code?.trim() && this.data.date && !!this.data.examTypeId);
+        return !!(this.data.name?.trim() && this.data.date && !!this.data.examTypeId);
     }
 
     get modalButtons(): ModalButton[] {

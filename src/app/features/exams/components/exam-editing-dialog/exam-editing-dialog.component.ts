@@ -76,7 +76,6 @@ export class ExamEditingDialogComponent implements OnInit {
     get isValid(): boolean {
         return !!(
             this.editedExam.name?.trim() &&
-            this.editedExam.code &&
             this.editedExam.dateString?.trim() &&
             !!this.editedExam.examTypeId
         );
@@ -119,7 +118,6 @@ export class ExamEditingDialogComponent implements OnInit {
         
         const examData = {
             name: this.editedExam.name,
-            code: this.editedExam.code,
             date: this.editedExam.date,
             examTypeId: this.editedExam.examTypeId
         };

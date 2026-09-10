@@ -13,7 +13,6 @@ export interface BookletDistrict {
 export interface BookletExam {
     id: number;
     name: string;
-    code: number;
     date: string;
 }
 

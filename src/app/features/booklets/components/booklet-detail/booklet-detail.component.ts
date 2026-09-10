@@ -92,7 +92,7 @@ export class BookletDetailComponent implements OnInit {
         if (typeof this.booklet.exam === 'object') {
             const e = this.booklet.exam as BookletExam;
             const date = e.date ? new Date(e.date).toLocaleDateString('az-AZ') : '';
-            return `${e.name} (${e.code})${date ? ' · ' + date : ''}`;
+            return `${e.name}${date ? ' · ' + date : ''}`;
         }
         return '—';
     }
