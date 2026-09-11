@@ -53,46 +53,27 @@
               </td>
               <td class="px-4 py-2">
                 <div class="flex justify-end gap-2">
-                  <!-- IMTAHAN_NOVLERI_TASK.md §18.1: несколько секций -> дропдаун со списком,
-                       ровно одна -> качается сразу без меню. -->
-                  @if (examType.sections.length > 1) {
-                    <app-dropdown position="left">
-                      <button
-                        slot="trigger"
-                        type="button"
-                        [disabled]="downloadingTemplateExamTypeId === examType.id"
-                        class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-                      >
-                        <lucide-icon [img]="FileDown" class="h-3.5 w-3.5"></lucide-icon>
-                        Excel şablonu
-                      </button>
-                      <div slot="content">
-                        @for (section of examType.sections; track section.id) {
-                          @if (section.subjects.length > 0) {
-                            <app-dropdown-item (clicked)="onDownloadSectionTemplate(examType, section)">
-                              {{ section.nameAz }}
-                            </app-dropdown-item>
-                          } @else {
-                            <div
-                              class="flex w-full cursor-not-allowed items-center px-4 py-2 text-sm text-gray-400"
-                              title="Bu bölmə üçün fənlər təyin edilməyib"
-                            >
-                              {{ section.nameAz }}
-                            </div>
-                          }
-                        }
-                      </div>
-                    </app-dropdown>
-                  } @else if (examType.sections.length === 1) {
+                  <!-- IMTAHAN_NOVLERI_TASK.md §18.1: шаблон свой у каждой секции. Кнопка на секцию
+                       прямо в строке, а не дропдаун: app-dropdown позиционирует меню absolute
+                       внутри ячейки, и контейнер таблицы с overflow его обрезает и рисует лишний
+                       скролл (тот же класс проблемы, что в MODAL_DROPDOWN_FIX.md — там тоже ушли
+                       от выпадашки, а не боролись с overflow). Плюс app-dropdown оборачивает
+                       триггер в собственную <button>, что давало вложенные кнопки и двойной
+                       паддинг — строка с дропдауном была выше остальных. -->
+                  @for (section of examType.sections; track section.id) {
                     <button
                       type="button"
-                      (click)="onDownloadSectionTemplate(examType, examType.sections[0])"
-                      [disabled]="downloadingTemplateExamTypeId === examType.id"
-                      [title]="examType.sections[0].subjects.length === 0 ? 'Bu bölmə üçün fənlər təyin edilməyib' : ''"
-                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      (click)="onDownloadSectionTemplate(examType, section)"
+                      [disabled]="downloadingTemplateExamTypeId === examType.id || section.subjects.length === 0"
+                      [title]="section.subjects.length === 0 ? 'Bu bölmə üçün fənlər təyin edilməyib' : ('Excel şablonu: ' + section.nameAz)"
+                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <lucide-icon [img]="FileDown" class="h-3.5 w-3.5"></lucide-icon>
-                      Excel şablonu
+                      @if (examType.sections.length > 1) {
+                        {{ section.nameAz }}
+                      } @else {
+                        Excel şablonu
+                      }
                     </button>
                   }
                   <a

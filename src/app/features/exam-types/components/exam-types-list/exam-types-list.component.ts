@@ -8,16 +8,13 @@ import { ExamTypeService } from '../../services/exam-type.service';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { ListLayoutComponent, ActionButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { DropdownComponent, DropdownItemComponent } from '../../../../shared/components/ui/dropdown/dropdown.component';
 
 @Component({
     selector: 'app-exam-types-list',
     imports: [
         RouterModule,
         LucideAngularModule,
-        ListLayoutComponent,
-        DropdownComponent,
-        DropdownItemComponent
+        ListLayoutComponent
     ],
     templateUrl: './exam-types-list.component.html',
     styleUrls: ['./exam-types-list.component.scss']
