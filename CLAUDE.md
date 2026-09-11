@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 - `npm start` / `ng serve` — dev server at http://localhost:4200
 - `ng build` — production build, client-side only (no SSR/prerender — the Dockerfile serves the `browser/` output through nginx, `server.ts` was never used in prod and has been removed; prerendering pre-baked `/login` redirect stubs into every `authGuard`-protected route, since the guard runs without a browser at build time)
+- `nginx.conf` — the container's nginx config (copied in by the Dockerfile). It does gzip and cache headers: hashed bundles (`-XXXXXXXX.js/css`) are `immutable, 1y`, `index.html` is `no-cache`, `assets/` is 7 days. Keep that split: `assets/` names don't change on update, so a long TTL there would pin stale images. TLS/HTTP2 live on the host's outer nginx, not here. Background: prod is in Frankfurt and the Baku→EU channel is ~200 KB/s per connection, so uncompressed weight is what made the landing "not open" for regional users (Sept 2026).
 - `ng test` — Karma/Jasmine unit tests (see Testing note below before relying on these)
 - `ng generate component|service|guard ...` — scaffolding; everything in this repo is standalone (no NgModules)
 
