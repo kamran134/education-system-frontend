@@ -150,35 +150,66 @@ export class TeachersListComponent implements OnInit {
             this.setupActionButtons();
         });
 
-        // Restore state from query parameters if coming back
-        this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(queryParams => {
-            if (queryParams['teacherPage'] !== undefined) {
-                this.pageIndex = parseInt(queryParams['teacherPage']) || 0;
-            }
-            if (queryParams['teacherPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['teacherPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
-            }
+        // KICIK_DUZELISLER_2026-09-11 п.3b: разовое чтение snapshot вместо подписки на
+        // queryParams — теперь сами пишем фильтры в URL (syncStateToUrl), и подписка
+        // повторно триггеровалась бы на каждую свою же запись.
+        const queryParams = this.route.snapshot.queryParams;
+        if (queryParams['teacherPage'] !== undefined) {
+            this.pageIndex = parseInt(queryParams['teacherPage']) || 0;
+        }
+        if (queryParams['teacherPageSize'] !== undefined) {
+            this.pageSize = parseInt(queryParams['teacherPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
+        }
 
-            // Restore district selection (for display purposes)
-            if (queryParams['selectedDistrictIds']) {
-                this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
+        // Restore district selection (for display purposes)
+        if (queryParams['selectedDistrictIds']) {
+            this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
+        }
 
-            // Restore school selection only if not in filtered view
-            if (queryParams['selectedSchoolIds'] && !this.schoolId) {
-                this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
+        // Restore school selection only if not in filtered view
+        if (queryParams['selectedSchoolIds'] && !this.schoolId) {
+            this.selectedSchoolIds = queryParams['selectedSchoolIds'].split(',').filter((id: string) => id.trim() !== '');
+        }
 
-            // Load districts first, then cascade load schools if needed
-            this.loadDistricts();
+        if (queryParams['visibility'] === 'hidden' || queryParams['visibility'] === 'shown') {
+            this.selectedVisibility = queryParams['visibility'];
+        }
+        if (queryParams['sortColumn']) {
+            this.sortColumn = queryParams['sortColumn'];
+        }
+        if (queryParams['sortDirection'] === 'asc' || queryParams['sortDirection'] === 'desc') {
+            this.sortDirection = queryParams['sortDirection'];
+        }
 
-            // After districts loaded, cascade load schools based on restored filters
-            if (this.selectedDistrictIds.length > 0) {
-                this.loadSchools();
-            }
+        // Load districts first, then cascade load schools if needed
+        this.loadDistricts();
 
-            this.loadTeachers();
-            this.loadPendingMarkers();
+        // After districts loaded, cascade load schools based on restored filters
+        if (this.selectedDistrictIds.length > 0) {
+            this.loadSchools();
+        }
+
+        this.loadTeachers();
+        this.loadPendingMarkers();
+    }
+
+    /** Пишем состояние фильтров/пагинации/сортировки в URL при каждом изменении
+     *  (replaceUrl — чтобы не засорять историю переходов), тогда goBack() → location.back()
+     *  сам восстановит страницу такой же, какой её оставили (KICIK_DUZELISLER_2026-09-11 п.3b). */
+    private syncStateToUrl(): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                selectedDistrictIds: this.selectedDistrictIds.length ? this.selectedDistrictIds.join(',') : undefined,
+                selectedSchoolIds: this.schoolId ? undefined : (this.selectedSchoolIds.length ? this.selectedSchoolIds.join(',') : undefined),
+                visibility: this.selectedVisibility === 'all' ? undefined : this.selectedVisibility,
+                teacherPage: this.pageIndex || undefined,
+                teacherPageSize: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn === 'fullname' ? undefined : this.sortColumn,
+                sortDirection: this.sortDirection === 'asc' ? undefined : this.sortDirection,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
         });
     }
 
@@ -251,6 +282,7 @@ export class TeachersListComponent implements OnInit {
 
         // Reset pagination and reload data
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3b
         this.loadTeachers();
     }
 
@@ -259,12 +291,14 @@ export class TeachersListComponent implements OnInit {
 
         // Reset pagination and reload data
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3b
         this.loadTeachers();
     }
 
     onVisibilityChange(value: 'all' | 'hidden' | 'shown'): void {
         this.selectedVisibility = value || 'all';
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3b
         this.loadTeachers();
     }
 
@@ -409,6 +443,7 @@ export class TeachersListComponent implements OnInit {
     onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3b
         this.loadTeachers();
     }
 
@@ -416,6 +451,7 @@ export class TeachersListComponent implements OnInit {
         this.sortColumn = event.column;
         this.sortDirection = event.direction;
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3b
         this.loadTeachers();
     }
 

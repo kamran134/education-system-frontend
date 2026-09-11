@@ -131,24 +131,53 @@ export class SchoolsListComponent implements OnInit {
             this.setupActionButtons();
         });
 
-        // Restore state from query parameters if coming back
-        this.route.queryParams.subscribe(queryParams => {
-            if (queryParams['schoolPage'] !== undefined) {
-                this.pageIndex = parseInt(queryParams['schoolPage']) || 0;
-            }
-            if (queryParams['schoolPageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['schoolPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
-            }
-
-            // Restore district selection (for display purposes)
-            if (queryParams['selectedDistrictIds']) {
-                this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
-        });
+        // KICIK_DUZELISLER_2026-09-11 п.3a: разовое чтение snapshot вместо подписки на
+        // queryParams — теперь сами пишем фильтры в URL (syncStateToUrl), и подписка
+        // повторно триггеровалась бы на каждую свою же запись.
+        const queryParams = this.route.snapshot.queryParams;
+        if (queryParams['schoolPage'] !== undefined) {
+            this.pageIndex = parseInt(queryParams['schoolPage']) || 0;
+        }
+        if (queryParams['schoolPageSize'] !== undefined) {
+            this.pageSize = parseInt(queryParams['schoolPageSize']) || TABLE_PAGE_SIZE_DEFAULT;
+        }
+        // Restore district selection — только если район не зафиксирован маршрутом
+        // districts/:id/schools (иначе query-параметр не должен перебивать :id).
+        if (!this.districtId && queryParams['selectedDistrictIds']) {
+            this.selectedDistrictIds = queryParams['selectedDistrictIds'].split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (queryParams['visibility'] === 'hidden' || queryParams['visibility'] === 'shown') {
+            this.selectedVisibility = queryParams['visibility'];
+        }
+        if (queryParams['sortColumn']) {
+            this.sortColumn = queryParams['sortColumn'];
+        }
+        if (queryParams['sortDirection'] === 'asc' || queryParams['sortDirection'] === 'desc') {
+            this.sortDirection = queryParams['sortDirection'];
+        }
 
         this.loadDistricts();
         this.loadSchools();
         this.loadPendingMarkers();
+    }
+
+    /** Пишем состояние фильтров/пагинации/сортировки в URL при каждом изменении
+     *  (replaceUrl — чтобы не засорять историю переходов), тогда goBack() → location.back()
+     *  сам восстановит страницу такой же, какой её оставили (KICIK_DUZELISLER_2026-09-11 п.3a). */
+    private syncStateToUrl(): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                selectedDistrictIds: this.districtId ? undefined : (this.selectedDistrictIds.length ? this.selectedDistrictIds.join(',') : undefined),
+                visibility: this.selectedVisibility === 'all' ? undefined : this.selectedVisibility,
+                schoolPage: this.pageIndex || undefined,
+                schoolPageSize: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn === 'name' ? undefined : this.sortColumn,
+                sortDirection: this.sortDirection === 'asc' ? undefined : this.sortDirection,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     private setupActionButtons(): void {
@@ -232,12 +261,14 @@ export class SchoolsListComponent implements OnInit {
 onFilterChange(filters: Record<string, any>): void {
         this.selectedDistrictIds = filters['districtIds'] || [];
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3a
         this.loadSchools();
     }
 
     onVisibilityChange(value: 'all' | 'hidden' | 'shown'): void {
         this.selectedVisibility = value || 'all';
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3a
         this.loadSchools();
     }
 
@@ -425,6 +456,7 @@ onFilterChange(filters: Record<string, any>): void {
     onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3a
         this.loadSchools();
     }
 
@@ -432,6 +464,7 @@ onFilterChange(filters: Record<string, any>): void {
         this.sortColumn = event.column;
         this.sortDirection = event.direction;
         this.pageIndex = 0;
+        this.syncStateToUrl(); // KICIK_DUZELISLER_2026-09-11 п.3a
         this.loadSchools();
     }
 

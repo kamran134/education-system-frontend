@@ -206,6 +206,13 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
     onSchoolSelectChanged(): void {
         this.data.teacher.district = this.selectedDistrict as District;
         this.data.teacher.school = this.selectedSchool as School;
+        // KICIK_DUZELISLER_2026-09-11 п.4c: перебазируем код прямо в диалоге, чтобы админ видел
+        // итоговый код ДО сохранения (codePrefix/ownCodeSuffix выше уже отображают его через
+        // selectedSchool). Бэк перебазирует код и сам (п.4a) — здесь только чтобы форма не
+        // показывала старый префикс школы до сохранения.
+        if (this.data.isEditing && this.selectedSchool) {
+            this.data.teacher.code = this.selectedSchool.code * 100 + (this.data.teacher.code % 100);
+        }
     }
 
     onSave(): void {

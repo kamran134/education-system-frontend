@@ -172,7 +172,7 @@
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Reytinq xalı</th>
+                    <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
                       Fənlər üzrə ballar
                       <!-- Sual sayı hər predmetin özündə göstərilir (IMTAHAN_NOVLERI_TASK.md §6) —
@@ -181,6 +181,7 @@
                         <span class="text-xs text-gray-500">(Sual sayı)</span>
                       }
                     </th>
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Reytinq xalı</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ay üzrə uğuru</th>
                     <th class="px-4 py-3 border-b border-gray-200"></th>
                   </tr>
@@ -205,9 +206,7 @@
                       <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
                         {{ result.totalScore }}
                       </td>
-                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
-                        {{ result.ratingScore ?? 0 }}
-                      </td>
+                      <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
                           @for (d of result.disciplines; track d.subjectCode) {
@@ -219,6 +218,9 @@
                             </div>
                           }
                         </div>
+                      </td>
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                        {{ result.ratingScore ?? 0 }}
                       </td>
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
@@ -284,8 +286,9 @@
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Reytinq xalı</th>
+                        <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Reytinq xalı</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ay üzrə uğuru</th>
                       </tr>
                     </thead>
@@ -311,15 +314,16 @@
                           <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
                             {{ result.totalScore }}
                           </td>
-                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
-                            {{ result.ratingScore ?? 0 }}
-                          </td>
+                          <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             <div class="space-y-1">
                               @for (d of result.disciplines; track d.subjectCode) {
                                 <div>{{ d.nameAz }}: <span class="font-medium">{{ d.score }}</span></div>
                               }
                             </div>
+                          </td>
+                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                            {{ result.ratingScore ?? 0 }}
                           </td>
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             <div class="space-y-1">

@@ -243,14 +243,16 @@ export class ExcelService {
                 // листе их просто не находили глазами.
                 'Pilləsi': result.level || 'Pillə tapılmadı',
                 'İmtahan balı': result.totalScore || 0,
-                // Рейтинговый балл ЗА ЭТОТ МЕСЯЦ (участие + inkişaf + ayın şagirdi + respublika üzrə),
-                // а не result.score: та колонка в БД у каждого результата равна 1, из-за чего в выгрузке
-                // везде стояла единица (жалоба заказчика 02.09.2026).
-                'Reytinq xalı': result.ratingScore ?? 0,
             };
             for (const [code, label] of disciplineLabels) {
                 row[label] = result.disciplines?.find(d => d.subjectCode === code)?.score ?? 0;
             }
+            // KICIK_DUZELISLER_2026-09-11 п.1: «Reytinq xalı» — после предметных колонок, перед
+            // «Ay üzrə uğuru», как в таблице на самой карточке.
+            // Рейтинговый балл ЗА ЭТОТ МЕСЯЦ (участие + inkişaf + ayın şagirdi + respublika üzrə),
+            // а не result.score: та колонка в БД у каждого результата равна 1, из-за чего в выгрузке
+            // везде стояла единица (жалоба заказчика 02.09.2026).
+            row['Reytinq xalı'] = result.ratingScore ?? 0;
             row['Ay üzrə uğuru'] = this.formatStudentAchievements(result);
             return row;
         });

@@ -21,7 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
-import { academicYearPeriodLabel, getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
+import { academicYearLabel, academicYearPeriodLabel, FIRST_TRACKED_ACADEMIC_YEAR, getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
 import { RatingYearService } from '../../../../core/services/rating-year.service';
 
 @Component({
@@ -181,12 +181,23 @@ export class StatisticsMainComponent implements OnInit {
     /** Год, за который реально есть данные (см. RatingYearService). Значение по умолчанию
      *  для селекта года: иначе 1 сентября страница открывается пустой. */
     private ratingYear: number | null = null;
-    years = Array.from({ length: 6 }, (_, i) => this.currentAcademicYear - i);
+    // KICIK_DUZELISLER_2026-09-11 п.2: годы только с FIRST_TRACKED_ACADEMIC_YEAR (решение
+    // заказчика 11.09.2026) — та же логика, что setupAcademicYears() в stats-filters.component.ts,
+    // скопирована сюда, а не импортирована (это /statistics, отдельная страница от /stats).
+    years = (() => {
+        const current = Math.max(getCurrentAcademicYear(), FIRST_TRACKED_ACADEMIC_YEAR);
+        const result: number[] = [];
+        for (let y = current; y >= FIRST_TRACKED_ACADEMIC_YEAR; y--) {
+            result.push(y);
+        }
+        return result;
+    })();
     /** id базового типа (is_base) — на него сбрасывается selectedExamTypeId в onFilterReset(). */
     private baseExamTypeId: number | null = null;
 
     /** Фильтр по учебному году открыт всем ролям, имеющим доступ к странице (П.8b) — раньше
-     *  неадминам отдавался только текущий год. Глубина истории (6 лет) не меняется. */
+     *  неадминам отдавался только текущий год. Глубина истории теперь не фиксированное число
+     *  лет, а всё от FIRST_TRACKED_ACADEMIC_YEAR до текущего — как в /stats (KICIK_DUZELISLER_2026-09-11 п.2). */
     get availableYears(): number[] {
         return this.years;
     }
@@ -234,7 +245,8 @@ export class StatisticsMainComponent implements OnInit {
     }
 
     get yearOptions() {
-        return this.availableYears.map(y => ({ label: `${y}-${y + 1}`, value: y }));
+        // KICIK_DUZELISLER_2026-09-11 п.2: формат "2025/2026", как в рейтингах, вместо "2025-2026".
+        return this.availableYears.map(y => ({ label: academicYearLabel(y), value: y }));
     }
 
     get inkishafTitle(): string {

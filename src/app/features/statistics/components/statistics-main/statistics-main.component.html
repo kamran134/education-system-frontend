@@ -45,8 +45,9 @@
         </app-select>
 
         <!-- Фильтр по году — открыт всем ролям (П.8b) -->
+        <!-- KICIK_DUZELISLER_2026-09-11 п.2: «İl» → «Tədris ili» — это учебный год, не календарный -->
         <app-select
-          label="İl"
+          label="Tədris ili"
           [(ngModel)]="selectedYear"
           [options]="yearOptions"
           (ngModelChange)="onYearChange()">
