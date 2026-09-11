@@ -36,4 +36,10 @@ export class ExamTypeService {
         return this.http.delete<ApiResponse<void>>(url, { withCredentials: true })
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
+
+    /** GET /exam-types/:id/results-template.xlsx?sectionId=X — IMTAHAN_NOVLERI_TASK.md §18.1. */
+    downloadResultsTemplate(examTypeId: number, sectionId: number): Observable<Blob> {
+        const url: string = `${this.configService.getApiUrl()}/exam-types/${examTypeId}/results-template.xlsx?sectionId=${sectionId}`;
+        return this.http.get(url, { responseType: 'blob', withCredentials: true });
+    }
 }

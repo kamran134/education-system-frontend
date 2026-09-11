@@ -53,6 +53,48 @@
               </td>
               <td class="px-4 py-2">
                 <div class="flex justify-end gap-2">
+                  <!-- IMTAHAN_NOVLERI_TASK.md §18.1: несколько секций -> дропдаун со списком,
+                       ровно одна -> качается сразу без меню. -->
+                  @if (examType.sections.length > 1) {
+                    <app-dropdown position="left">
+                      <button
+                        slot="trigger"
+                        type="button"
+                        [disabled]="downloadingTemplateExamTypeId === examType.id"
+                        class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      >
+                        <lucide-icon [img]="FileDown" class="h-3.5 w-3.5"></lucide-icon>
+                        Excel şablonu
+                      </button>
+                      <div slot="content">
+                        @for (section of examType.sections; track section.id) {
+                          @if (section.subjects.length > 0) {
+                            <app-dropdown-item (clicked)="onDownloadSectionTemplate(examType, section)">
+                              {{ section.nameAz }}
+                            </app-dropdown-item>
+                          } @else {
+                            <div
+                              class="flex w-full cursor-not-allowed items-center px-4 py-2 text-sm text-gray-400"
+                              title="Bu bölmə üçün fənlər təyin edilməyib"
+                            >
+                              {{ section.nameAz }}
+                            </div>
+                          }
+                        }
+                      </div>
+                    </app-dropdown>
+                  } @else if (examType.sections.length === 1) {
+                    <button
+                      type="button"
+                      (click)="onDownloadSectionTemplate(examType, examType.sections[0])"
+                      [disabled]="downloadingTemplateExamTypeId === examType.id"
+                      [title]="examType.sections[0].subjects.length === 0 ? 'Bu bölmə üçün fənlər təyin edilməyib' : ''"
+                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    >
+                      <lucide-icon [img]="FileDown" class="h-3.5 w-3.5"></lucide-icon>
+                      Excel şablonu
+                    </button>
+                  }
                   <a
                     [routerLink]="['/admin/exam-types', examType.id]"
                     class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
