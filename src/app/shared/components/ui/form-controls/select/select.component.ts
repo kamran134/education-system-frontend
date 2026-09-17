@@ -226,12 +226,12 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
 
   get selectedOption(): SelectOption | null {
     if (this.multiple) return null;
-    return this.options.find(opt => opt.value === this.value) || null;
+    return this.options.find(opt => this.sameValue(opt.value, this.value)) || null;
   }
 
   get selectedOptions(): SelectOption[] {
     if (!this.multiple || !Array.isArray(this.value)) return [];
-    return this.options.filter(opt => this.value.includes(opt.value));
+    return this.options.filter(opt => this.hasValue(opt.value));
   }
 
   get filteredOptions(): SelectOption[] {
@@ -275,7 +275,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
 
     if (this.multiple) {
       const currentValues = Array.isArray(this.value) ? [...this.value] : [];
-      const index = currentValues.indexOf(option.value);
+      const index = currentValues.findIndex(v => this.sameValue(v, option.value));
       
       if (index > -1) {
         currentValues.splice(index, 1);
@@ -297,7 +297,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
     event.stopPropagation();
     
     if (this.multiple && Array.isArray(this.value)) {
-      const newValue = this.value.filter(val => val !== optionValue);
+      const newValue = this.value.filter(val => !this.sameValue(val, optionValue));
       this.value = newValue;
       this.onChange(this.value);
       this.selectionChange.emit(this.value);
@@ -306,9 +306,25 @@ export class SelectComponent implements ControlValueAccessor, OnInit, OnDestroy 
 
   isSelected(optionValue: any): boolean {
     if (this.multiple) {
-      return Array.isArray(this.value) && this.value.includes(optionValue);
+      return this.hasValue(optionValue);
     }
-    return this.value === optionValue;
+    return this.sameValue(this.value, optionValue);
+  }
+
+  /**
+   * YENI_DUZELISLER_2026-09-17 п.1: значения сравниваются без учёта типа. Опции селектов —
+   * id из API (number), а выбранное значение нередко приходит из URL строкой ('2463' после
+   * queryParams на /stats, /exam-results, /statistics): при строгом === выбранный учитель/школа
+   * применялся к таблице, но в селекте не подсвечивался и чипом не показывался.
+   */
+  private sameValue(a: any, b: any): boolean {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    return String(a) === String(b);
+  }
+
+  private hasValue(optionValue: any): boolean {
+    return Array.isArray(this.value) && this.value.some(v => this.sameValue(v, optionValue));
   }
 
   trackByValue(index: number, option: SelectOption): any {
