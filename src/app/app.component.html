@@ -114,7 +114,7 @@
               }
               @if (permissions.canAccessRoute('canAccessStudents')) {
                 <app-dropdown-item (clicked)="goToStudents()">
-                  <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
+                  <lucide-icon [img]="Users" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                   Şagirdlər
                 </app-dropdown-item>
               }
@@ -132,12 +132,12 @@
             </div>
             <div slot="content">
               <app-dropdown-item (clicked)="goToProfile()">
-                <lucide-icon [img]="UserCog" class="mr-3 h-4 w-4"></lucide-icon>
+                <lucide-icon [img]="UserCog" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                 Şəxsi məlumatlar
               </app-dropdown-item>
               <app-dropdown-divider></app-dropdown-divider>
               <app-dropdown-item (clicked)="logInOut()">
-                <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4"></lucide-icon>
+                <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                 Sistemdən çıxış
               </app-dropdown-item>
             </div>
@@ -155,19 +155,19 @@
             <div slot="content">
               @if (permissions.canAccessRoute('canAccessUserManagement')) {
                 <app-dropdown-item (clicked)="goToUsers()">
-                  <lucide-icon [img]="Users" class="mr-3 h-4 w-4"></lucide-icon>
+                  <lucide-icon [img]="Users" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                   İstifadəçilər
                 </app-dropdown-item>
               }
               @if (permissions.canAccessRoute('canAccessRatingColumns')) {
                 <app-dropdown-item (clicked)="goToRatingColumns()">
-                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                   Reytinq sütunları
                 </app-dropdown-item>
               }
               @if (permissions.canAccessRoute('canAccessProfileChanges')) {
                 <app-dropdown-item (clicked)="goToProfileChanges()">
-                  <lucide-icon [img]="ClipboardCheck" class="mr-3 h-4 w-4"></lucide-icon>
+                  <lucide-icon [img]="ClipboardCheck" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                   <span class="flex items-center gap-2">
                     Təsdiq gözləyən məlumatlar
                     @if (pendingChangesCount > 0) {
@@ -183,7 +183,7 @@
               }
               @if (permissions.isAdmin()) {
                 <app-dropdown-item (clicked)="goToAdminPanel()">
-                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4"></lucide-icon>
+                  <lucide-icon [img]="Settings" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
                   Admin paneli
                 </app-dropdown-item>
               }

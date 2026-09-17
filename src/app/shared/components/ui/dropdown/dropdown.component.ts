@@ -46,7 +46,7 @@ export class DropdownComponent {
   }
 
   get menuClasses(): string {
-    const baseClasses = 'absolute z-10 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none';
+    const baseClasses = 'absolute z-10 mt-2 min-w-56 w-max max-w-xs rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none';
     const positionClass = this.position === 'left' ? 'left-0' : 'right-0';
     return `${baseClasses} ${positionClass}`;
   }
@@ -75,7 +75,7 @@ export class DropdownComponent {
     template: `
     <button
       type="button"
-      class="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+      class="group flex w-full items-center whitespace-nowrap px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
       role="menuitem"
       (click)="handleClick($event)"
     >
