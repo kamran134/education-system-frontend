@@ -42,7 +42,7 @@ export class StatsColumnsComponent implements OnInit{
 
     readonly tabs: TabItem[] = [
         { label: 'İnkişaf edən şagirdlər' }, { label: 'Ayın şagirdləri' }, { label: 'İlin şagirdləri' },
-        { label: 'İlin müəllimləri' }, { label: 'İlin məktəbləri' }, { label: 'İlin təhsil sektorları' },
+        { label: 'İlin layihə müəllimləri' }, { label: 'İlin məktəbləri' }, { label: 'İlin təhsil sektorları' },
         { label: 'İlin regional idarələri' },
     ];
 
@@ -61,24 +61,30 @@ export class StatsColumnsComponent implements OnInit{
     developingStudentColumnOptions: Column[] = [
         { key: 'level', label: 'Pillə', selected: false, order: 0 },
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 2 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 2 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 3 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 4 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 4 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 5 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 6 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 7 },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 8 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 8 },
     ];
 
     monthStudentColumnOptions: Column[] = [
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 0 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 1 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 1 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 2 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 3 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 3 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 4 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 7 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 7 },
         // { key: 'place', label: 'Yer', selected: false, order: 10 }
     ];
 
@@ -87,9 +93,11 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'districtPlace', label: 'Təhsil sektoru üzrə yer', selected: false, order: 1 },
         { key: 'filterPlace', label: 'Filtr üzrə yer', selected: false, order: 2 },
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 3 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 4 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 4 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 5 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 6 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 6 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 7 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 8 },
         { key: 'score', label: 'Reytinq xalı', selected: false, order: 9 },

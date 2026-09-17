@@ -229,7 +229,8 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             'regionRepresenter': 'Regional idarə nümayəndəsi',
             'districtRepresenter': 'Rayon nümayəndəsi',
             'schoolDirector': 'Məktəb direktoru',
-            'teacher': 'Müəllim',
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+            'teacher': 'Layihə müəllimi',
             'student': 'Şagird'
         };
 
@@ -265,7 +266,8 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
             { value: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
             { value: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
             { value: 'schoolDirector', label: 'Məktəb direktoru' },
-            { value: 'teacher', label: 'Müəllim' },
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+            { value: 'teacher', label: 'Layihə müəllimi' },
             { value: 'student', label: 'Şagird' }
         ];
 
@@ -637,7 +639,8 @@ export class UserEditDialogComponent implements OnInit, OnDestroy {
         }
 
         if (this.needsTeacherSelection && !this.dataSource.teacherId) {
-            this.toastService.show('Müəllim üçün müəllim profili seçilməlidir!', 'error');
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi" (составное "müəllim profili" не трогаем).
+            this.toastService.show('Layihə müəllimi üçün müəllim profili seçilməlidir!', 'error');
             return;
         }
 

@@ -55,7 +55,7 @@
             <!-- Teachers Filter -->
             <div>
               <app-select
-                label="Müəllimlər"
+                label="Layihə müəllimləri"
                 [multiple]="true"
                 [(ngModel)]="selectedTeacherIds"
                 [options]="teacherOptions"
@@ -113,7 +113,7 @@
                 <span>{{ selectedSchoolIds.length }} məktəb, </span>
               }
               @if (selectedTeacherIds.length > 0) {
-                <span>{{ selectedTeacherIds.length }} müəllim, </span>
+                <span>{{ selectedTeacherIds.length }} layihə müəllimi, </span>
               }
               @if (selectedGrades.length > 0) {
                 <span>{{ selectedGrades.length }} sinif, </span>

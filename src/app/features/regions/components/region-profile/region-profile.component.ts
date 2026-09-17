@@ -18,6 +18,7 @@ import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { ProfileResultsSectionComponent } from '../../../../shared/components/profile/profile-results-section/profile-results-section.component';
 import { getCurrentAcademicYear, academicYearPeriodLabel, academicYearLabel } from '../../../../core/utils/academic-year.util';
 import { RatingYearService } from '../../../../core/services/rating-year.service';
 import { RegionEditingDialogComponent } from '../region-editing-dialog/region-editing-dialog.component';
@@ -43,6 +44,7 @@ const DISTRICTS_PAGE_SIZE = 12;
         ButtonComponent,
         ProfileHeroComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
+        ProfileResultsSectionComponent,
     ],
     templateUrl: './region-profile.component.html',
 })
@@ -64,6 +66,11 @@ export class RegionProfileComponent implements OnInit {
     districtCards: EntityCardItem[] = [];
     statsFilter: StatisticsFilter | null = null;
     statsDetailsQueryParams: Record<string, any> | null = null;
+    // YENI_DUZELISLER_2026-09-17 п.1b: отдельное поле для ссылки "Tam reytinq…" (profile-rating-section) —
+    // statsDetailsQueryParams здесь намеренно НЕ подходит: там districtIds = ВСЕ районы региона
+    // (нужно /statistics, у которого нет фильтра по региону), а /stats по regionIds сам загрузит
+    // районы региона (loadDistricts() зависит от selectedRegionIds) — не нужно тащить весь список.
+    ratingsQueryParams: Record<string, any> | null = null;
     /** Подпись над блоком статистики. Не readonly и не «текущий год»: цифры под ней приходят
      *  за год резолвера (REYTINQ_ILI_TASK.md §3), и подпись обязана называть тот же год —
      *  иначе в сентябре заголовок обещает 2026/2027, а под ним данные 2025/2026. */
@@ -96,6 +103,8 @@ export class RegionProfileComponent implements OnInit {
         this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
             this.regionId = params['id'];
             this.statsFilter = { regionIds: [this.regionId] };
+            // YENI_DUZELISLER_2026-09-17 п.1b: см. комментарий у ratingsQueryParams выше.
+            this.ratingsQueryParams = { regionIds: this.regionId };
             this.loadRegion();
             this.resetAndLoadDistricts();
             this.loadStatsDetailsQueryParams();

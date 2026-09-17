@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, inject, TemplateRef, ViewChild } from '@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from '@angular/cdk/dialog';
 import { ExamResultsService } from '../services/exam-results.service';
@@ -115,7 +115,8 @@ export class ExamResultsComponent implements OnInit {
     private get columnCatalog(): Record<string, TableColumn> {
         return {
             'studentData.code': { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student },
-            'studentData.fullname': { key: 'studentData.fullname', label: 'Soyadı, adı, ata adı', sortable: true },
+            // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся (заказчик: «в /exam-results тоже»).
+            'studentData.fullname': { key: 'studentData.fullname', label: 'Şagird', sortable: true },
             'grade': { key: 'grade', label: 'Sinif', sortable: true },
             'level': { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate },
             // Не сортируется — сортировка идёт на бэкенде по колонкам БД, а этой колонки в БД нет.
@@ -123,7 +124,8 @@ export class ExamResultsComponent implements OnInit {
             'totalScore': { key: 'totalScore', label: 'Ümumi bal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
             'exam.date': { key: 'exam.date', label: 'Tarix', sortable: true, formatter: (v) => this.formatDate(v) },
             'studentData.school.name': { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
-            'studentData.teacher.fullname': { key: 'studentData.teacher.fullname', label: 'Müəllim', sortable: true },
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+            'studentData.teacher.fullname': { key: 'studentData.teacher.fullname', label: 'Layihə müəllimi', sortable: true },
             'studentData.district.name': { key: 'studentData.district.name', label: 'Təhsil sektoru', sortable: true }
         };
     }
@@ -185,7 +187,8 @@ export class ExamResultsComponent implements OnInit {
         private dialog: Dialog,
         private authService: AuthService,
         private excelService: ExcelService,
-        private dashboardService: DashboardService
+        private dashboardService: DashboardService,
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit(): void {
@@ -223,16 +226,52 @@ export class ExamResultsComponent implements OnInit {
 
         this.loadDistricts();
         this.loadExams();
-        this.loadExamResults();
         this.loadColumnSettings();
 
-        // schoolDirector: "Təhsil sektorları"/"Məktəblər" filtrləri gizlədilib (hideSchoolFilter),
-        // ona görə normal zəncir (district → school → teacher) işə düşmür — müəllimlər siyahısını
-        // özü yükləyirik (backend teacher.controller.getTeachers onsuz da direktoru öz məktəbi ilə
-        // süzür, əlavə district/school id lazım deyil).
-        if (!this.hideTeacherFilter && this.hideSchoolFilter) {
+        // YENI_DUZELISLER_2026-09-17 п.7c: фильтр из ссылки профиля/меню владельца (districtIds/
+        // schoolIds/teacherIds в queryParams) — читаем один раз, до первого filterTrigger$, по
+        // образцу statistics-main.component.ts::applyQueryParamFilters(). Серверный скоуп по
+        // ролям (examResults.controller.ts) остаётся как есть — здесь только предвыбор фронта.
+        const hasQueryFilters = this.applyQueryParamFilters();
+        if (hasQueryFilters) this.showFilters = true;
+
+        // Тот же приём каскада district → school → teacher, что и в onDistrictChange/onSchoolChange
+        // ниже — но без повторного вызова loadExamResults() (он всего один раз, в конце метода).
+        if (this.selectedDistrictIds.length > 0) {
+            this.loadSchools();
+        }
+        if (this.selectedSchoolIds.length > 0) {
+            this.loadTeachers();
+        } else if (!this.hideTeacherFilter && this.hideSchoolFilter) {
+            // schoolDirector: "Təhsil sektorları"/"Məktəblər" filtrləri gizlədilib (hideSchoolFilter),
+            // ona görə normal zəncir (district → school → teacher) işə düşmür — müəllimlər siyahısını
+            // özü yükləyirik (backend teacher.controller.getTeachers onsuz da direktoru öz məktəbi ilə
+            // süzür, əlavə district/school id lazım deyil). schoolIds queryParams-dan gəlmişsə,
+            // yuxarıdakı budaq artıq yükləyib — təkrar sorğu getmir.
             this.loadTeachers();
         }
+
+        this.loadExamResults();
+    }
+
+    /** YENI_DUZELISLER_2026-09-17 п.7c: см. вызов в ngOnInit(). Возвращает true, если хоть один
+     *  фильтр пришёл из ссылки — используется, чтобы сразу раскрыть панель фильтров. */
+    private applyQueryParamFilters(): boolean {
+        const params = this.route.snapshot.queryParams;
+        let hasFilters = false;
+        if (params['districtIds']) {
+            this.selectedDistrictIds = String(params['districtIds']).split(',').filter((id: string) => id.trim() !== '');
+            hasFilters = true;
+        }
+        if (params['schoolIds']) {
+            this.selectedSchoolIds = String(params['schoolIds']).split(',').filter((id: string) => id.trim() !== '');
+            hasFilters = true;
+        }
+        if (params['teacherIds']) {
+            this.selectedTeacherIds = String(params['teacherIds']).split(',').filter((id: string) => id.trim() !== '');
+            hasFilters = true;
+        }
+        return hasFilters;
     }
 
     // Тот же приём, что stats.component.ts:loadSettings() (non-admin ветка) — глобальные

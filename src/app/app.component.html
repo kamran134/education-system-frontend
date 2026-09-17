@@ -42,6 +42,13 @@
                   Statistika
                 </app-dropdown-item>
               }
+              <!-- YENI_DUZELISLER_2026-09-17 п.7d: как у Statistika — не для ученика (у него результаты уже на своей странице). -->
+              @if (showExamResultsMenuItem()) {
+                <app-dropdown-item (clicked)="goToExamResultsForOwner()">
+                  <lucide-icon [img]="ClipboardList" class="mr-3 h-4 w-4"></lucide-icon>
+                  İmtahan nəticələri
+                </app-dropdown-item>
+              }
               <app-dropdown-divider></app-dropdown-divider>
               <app-dropdown-item (clicked)="logInOut()">
                 <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4 text-red-600"></lucide-icon>
@@ -102,7 +109,7 @@
               @if (permissions.canAccessRoute('canAccessTeachers')) {
                 <app-dropdown-item (clicked)="goToTeachers()">
                   <lucide-icon [img]="UserCheck" class="mr-3 h-4 w-4"></lucide-icon>
-                  Müəllimlər
+                  Layihə müəllimləri
                 </app-dropdown-item>
               }
               @if (permissions.canAccessRoute('canAccessStudents')) {

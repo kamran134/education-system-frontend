@@ -43,12 +43,14 @@ export class StudentsYearTabComponent {
         { key: 'districtPlace', label: 'Təhsil sektoru üzrə yer', sortable: true, formatter: PLACE_FORMATTER },
         { key: 'filterPlace', label: 'Filtr üzrə yer', sortable: true, formatter: FILTER_PLACE_FORMATTER },
         { key: 'code', label: 'Şagirdin kodu', sortable: true },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', sortable: true },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ 'fullname' не менялся.
+        { key: 'fullname', label: 'Şagird', sortable: true },
         // yearGrade — класс ЗА ПОКАЗАННЫЙ учебный год (student_grade_history), не живой
         // student.grade: за прошлый год живой класс — то самое враньё задним числом после
         // повышения, из-за которого заведена задача (SINIF_TARIXCESI_TASK.md §3.1).
         { key: 'grade', label: 'Sinfi', sortable: true, field: 'yearGrade', formatter: (v) => v != null ? String(v) : '—' },
-        { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'teacher.fullname', formatter: (v) => v || 'Müəllim tapılmadı' },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', sortable: true, field: 'teacher.fullname', formatter: (v) => v || 'Layihə müəllimi tapılmadı' },
         { key: 'school', label: 'Məktəbi', sortable: true, field: 'school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
         { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'district.name', formatter: (v) => v || 'Təhsil sektoru tapılmadı' },
         // No rounding here — matches the original, unlike averageScore below.

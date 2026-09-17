@@ -9,17 +9,19 @@
         <span class="text-xs font-medium text-[var(--ui-muted)]">· {{ periodLabel }}</span>
       }
     </h2>
-    @if (!isLoading && !loadFailed && stats?.examTypeName) {
-      <!-- IMTAHAN_NOVLERI_TASK.md §14: заказчик потребовал явно показывать, что плитки — по
-           базовому типу, а не хардкодить его название на фронте (оно приходит из данных). -->
-      <p class="w-full text-xs text-[var(--ui-muted)] -mt-2">{{ stats?.examTypeName }} üzrə göstərilir</p>
-    }
     @if (showDetailsLink) {
       <a [routerLink]="['/statistics']" [queryParams]="detailsQueryParams"
         class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
         Ətraflı statistika
         <lucide-icon [img]="ChevronRight" class="w-3.5 h-3.5"></lucide-icon>
       </a>
+    }
+    @if (!isLoading && !loadFailed && stats?.examTypeName) {
+      <!-- IMTAHAN_NOVLERI_TASK.md §14: заказчик потребовал явно показывать, что плитки — по
+           базовому типу, а не хардкодить его название на фронте (оно приходит из данных).
+           YENI_DUZELISLER_2026-09-17 п.10: <p> переставлен ПОСЛЕ <a> — иначе w-full переносит
+           строку и заголовок с ссылкой съезжают на разные строки. -->
+      <p class="w-full text-xs text-[var(--ui-muted)] -mt-1">{{ stats?.examTypeName }} üzrə göstərilir</p>
     }
   </div>
 

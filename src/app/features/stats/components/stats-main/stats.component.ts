@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StatsService } from '../../services/stats.service';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { Error } from '../../../../core/models/error.model';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { Stats } from '../../../../core/models/stats.model';
@@ -43,9 +43,10 @@ import { SchoolsYearTabComponent } from "../schools-year-tab/schools-year-tab.co
 import { DistrictsYearTabComponent } from "../districts-year-tab/districts-year-tab.component";
 import { RegionsYearTabComponent } from "../regions-year-tab/regions-year-tab.component";
 import { PermissionsService } from '../../../../core/services/permissions.service';
+import { NavigationHistoryService } from '../../../../core/services/navigation-history.service';
 
 // UI Components
-import { LucideAngularModule, RefreshCw, Loader, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, RefreshCw, Loader, AlertCircle, ArrowLeft } from 'lucide-angular';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 
 @Component({
@@ -77,6 +78,8 @@ export class StatsComponent implements OnInit, OnDestroy {
     readonly RefreshCw = RefreshCw;
     readonly Loader = Loader;
     readonly AlertCircle = AlertCircle;
+    // YENI_DUZELISLER_2026-09-17 п.9a: иконка страничной "Geri" в шапке.
+    readonly ArrowLeft = ArrowLeft;
 
     isloading: boolean = false;
     isUpdating: boolean = false;
@@ -135,7 +138,8 @@ export class StatsComponent implements OnInit, OnDestroy {
 
     private readonly yearlyTabNoun: Record<string, string> = {
         allStudents: 'şagirdlər',
-        allTeachers: 'müəllimlər',
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        allTeachers: 'layihə müəllimləri',
         allSchools: 'məktəblər',
         allDistricts: 'təhsil sektorları',
         allRegions: 'regional təhsil idarələri'
@@ -197,7 +201,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         { label: 'Ayın şagirdləri', key: 'studentsOfMonth', permission: 'showStudentsTab' },
         { label: 'Respublika üzrə ayın şagirdləri', key: 'studentsOfMonthByRepublic', permission: 'showStudentsTab' },
         { label: 'İlin şagirdləri', key: 'allStudents', permission: 'showStudentsTab' },
-        { label: 'İlin müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
+        { label: 'İlin layihə müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
         { label: 'İlin məktəbləri', key: 'allSchools', permission: 'showSchoolsTab' },
         { label: 'İlin təhsil sektorları', key: 'allDistricts', permission: 'showDistrictsTab' },
         { label: 'İlin regional idarələri', key: 'allRegions', permission: 'showRegionsTab' }
@@ -256,7 +260,11 @@ export class StatsComponent implements OnInit, OnDestroy {
         private toastService: ToastService,
         private monthNamePipe: MonthNamePipe,
         private dashboardService: DashboardService,
-        public permissions: PermissionsService
+        public permissions: PermissionsService,
+        // YENI_DUZELISLER_2026-09-17 п.9a/9b: назван НЕ navigationHistory — это имя уже занято
+        // приватным массивом drill-down истории (см. ниже, строка ~232), другая сущность.
+        private navigationHistoryService: NavigationHistoryService,
+        private location: Location
     ) { }
 
     private destroyRef = inject(DestroyRef);
@@ -429,6 +437,8 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     // Настройка контекста пользователя (заголовки, фильтры)
+    // YENI_DUZELISLER_2026-09-17 п.1c: более узкие фильтры, пришедшие из ссылки профиля (п.1),
+    // намеренно не сбрасываются — здесь выставляются только ключи своего уровня.
     private setupUserContext(): void {
         if (!this.currentUser) return;
 
@@ -445,6 +455,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     }
                     // Reload current tab now that filters are set
                     this.reloadCurrentTab();
+                    // YENI_DUZELISLER_2026-09-17 п.9b: ролевой фильтр тоже должен оказаться в URL.
+                    this.syncFiltersToUrl();
                 },
                 error: (error) => console.error('Error loading school data:', error)
             });
@@ -457,6 +469,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.loadDistricts();
                     // Reload current tab now that filters are set
                     this.reloadCurrentTab();
+                    // YENI_DUZELISLER_2026-09-17 п.9b: ролевой фильтр тоже должен оказаться в URL.
+                    this.syncFiltersToUrl();
                 },
                 error: (error) => console.error('Error loading region data:', error)
             });
@@ -468,6 +482,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     this.selectedDistrictIds = [this.currentUser.districtId];
                     // Reload current tab now that filters are set
                     this.reloadCurrentTab();
+                    // YENI_DUZELISLER_2026-09-17 п.9b: ролевой фильтр тоже должен оказаться в URL.
+                    this.syncFiltersToUrl();
                 },
                 error: (error) => console.error('Error loading district data:', error)
             });
@@ -485,6 +501,8 @@ export class StatsComponent implements OnInit, OnDestroy {
                     }
                     // Reload current tab now that filters are set
                     this.reloadCurrentTab();
+                    // YENI_DUZELISLER_2026-09-17 п.9b: ролевой фильтр тоже должен оказаться в URL.
+                    this.syncFiltersToUrl();
                 },
                 error: (error) => console.error('Error loading teacher data:', error)
             });
@@ -852,6 +870,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         } else if (this.selectedTab === 'allRegions') {
             this.loadRegionsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     // Фильтр «Ay» на годовых вкладках (İlin ...) — п.10 ТЗ 04.09.2026.
@@ -873,6 +892,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         } else if (this.selectedTab === 'allRegions') {
             this.loadRegionsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     // Filters
@@ -1003,6 +1023,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.developingStudentsLabel$.next(`${this.monthNamePipe.transform(month)} ayında inkişaf edən şagirdlər`);
         this.studentsOfMonthLabel$.next(`${this.monthNamePipe.transform(month)} ayında ayın şagirdləri`);
         this.studentsOfMonthByRepublicLabel$.next(`${this.monthNamePipe.transform(month)} ayında respublika üzrə ayın şagirdləri`);
+        // YENI_DUZELISLER_2026-09-17 п.9b: меняет фильтр (месяц) — URL должен это отражать.
+        this.syncFiltersToUrl();
     }
 
     onTabChange(event: any): void {
@@ -1105,6 +1127,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         else if (this.selectedTab === 'allDistricts') {
             this.loadDistrictsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onDistrictSelectChanged(districtIds: string[]) {
@@ -1133,6 +1156,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         else if (this.selectedTab === 'allSchools') {
             this.loadSchoolsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onSchoolSelectChanged(schoolIds: string[]) {
@@ -1148,6 +1172,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         else if (this.selectedTab === 'allTeachers') {
             this.loadTeachersStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onTeacherSelectChanged(teacherIds: string[]) {
@@ -1158,6 +1183,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onGradeSelectChanged(grades: number[]) {
@@ -1168,6 +1194,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         else if (this.selectedTab === 'allStudents') {
             this.loadAllStudentsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onLevelSelectChanged(levels: string[]) {
@@ -1175,10 +1202,15 @@ export class StatsComponent implements OnInit, OnDestroy {
         if (this.isStudentMonthTab()) {
             this.loadMonthStudentsStats();
         }
+        this.syncFiltersToUrl();
     }
 
-    openStudentDetails(studentId: string): void {
-        const queryParams = {
+    /**
+     * YENI_DUZELISLER_2026-09-17 п.9b: полный набор текущих фильтров/вкладки/сортировки/страницы —
+     * вынесено из openStudentDetails() в отдельный метод, теперь используется ещё и syncFiltersToUrl().
+     */
+    private buildFilterQueryParams(): Params {
+        return {
             regionIds: this.selectedRegionIds.length > 0 ? this.selectedRegionIds.join(",") : undefined,
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(",") : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
@@ -1190,13 +1222,35 @@ export class StatsComponent implements OnInit, OnDestroy {
             // Учебный год тоже часть фильтра: без него «Geri» возвращал на текущий год, и таблица
             // выглядела пустой/чужой (01.09.2026 — год переключился на ещё не начавшийся).
             academicYear: this.selectedAcademicYear,
-            source: 'stats',
             tab: this.selectedTab,
             sortActive: this.sortActive,
             sortDirection: this.sortDirection,
             pageSize: this.pageSize,
             studentsPageSize: this.studentsPageSize,
             pageIndex: this.pageIndex
+        };
+    }
+
+    /**
+     * YENI_DUZELISLER_2026-09-17 п.9b: URL-строка /stats держит текущие фильтры — иначе
+     * «назад» браузера / Location.back() отдают голый /stats без фильтра (жалоба 01.09.2026).
+     * Именно Location.replaceState, не router.navigate: навигация заново дёрнула бы подписку
+     * на queryParams (см. ngOnInit выше) и вызвала повторную загрузку данных; replaceState только
+     * подменяет URL в ТЕКУЩЕЙ записи истории браузера, а восстановление при возврате идёт через
+     * уже существующую подписку на queryParams.
+     */
+    private syncFiltersToUrl(): void {
+        // Ролевые ветки setupUserContext() приходят асинхронно — если пользователь уже успел уйти
+        // со /stats (кликнул ученика), переписывать чужой URL нельзя.
+        if (!this.router.url.startsWith('/stats')) return;
+        const tree = this.router.createUrlTree(['/stats'], { queryParams: this.buildFilterQueryParams() });
+        this.location.replaceState(this.router.serializeUrl(tree));
+    }
+
+    openStudentDetails(studentId: string): void {
+        const queryParams = {
+            ...this.buildFilterQueryParams(),
+            source: 'stats',
         };
 
         this.router.navigate(['/students', studentId], { queryParams });
@@ -1218,6 +1272,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             this.pageSize = event.pageSize;
             this.loadSchoolsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onSortChange(sortState: { column: string; direction: 'asc' | 'desc' }): void {
@@ -1244,6 +1299,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         else if (this.selectedTab === 'allRegions') {
             this.loadRegionsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     onSearchChange(searchString: string) {
@@ -1262,6 +1318,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         } else if (this.selectedTab === 'allRegions') {
             this.loadRegionsStats();
         }
+        this.syncFiltersToUrl();
     }
 
     exportToExcel(tableName: 'developingStudents' | 'studentsOfMonth' | 'studentsOfMonthByRepublic' | 'allStudents' | 'allTeachers' | 'allSchools' | 'allDistricts' | 'allRegions' | string) {
@@ -1372,7 +1429,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.displayedTeacherColumns), `İlin müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.displayedTeacherColumns), `İlin layihə müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;
@@ -1442,6 +1499,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectTab(index: number): void {
         this.selectedTabIndex = index;
         this.onTabChange({ index, tab: { textLabel: this.tabs[index].label } });
+        // YENI_DUZELISLER_2026-09-17 п.9b: единственная точка входа смены вкладки (клик по табу,
+        // drill-down goBack()/onXRowClick — все они заканчиваются здесь) — синк URL один раз.
+        this.syncFiltersToUrl();
     }
 
     // Navigation between stats tabs with filtering
@@ -1518,6 +1578,11 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     // Navigate back to previous tab with restored filters
+    // YENI_DUZELISLER_2026-09-17 п.9a: это drill-down "Geri" ВНУТРИ вкладок (иерархия
+    // регион→район→школа→учитель→ученик, свой navigationHistory-массив выше) — не путать со
+    // страничной goBackToReferrer() ниже (та возвращает туда, откуда пришли на /stats, как на
+    // /statistics). Здесь уже заканчивается вызовом selectTab() — он сам синхронизирует URL
+    // (см. syncFiltersToUrl() в конце selectTab()), второй раз вызывать не нужно.
     goBack(): void {
         if (this.navigationHistory.length === 0) {
             return;
@@ -1534,6 +1599,14 @@ export class StatsComponent implements OnInit, OnDestroy {
 
         // Navigate to previous tab
         this.selectTab(previousState.tabIndex);
+    }
+
+    /** YENI_DUZELISLER_2026-09-17 п.9a: страничная "Geri" — вернуться туда, откуда пришли на
+     *  /stats (как на /statistics), а не drill-down внутри вкладок (см. goBack() выше, другое имя
+     *  намеренно). Точная копия statistics-main.component.ts::goBack(). */
+    goBackToReferrer(): void {
+        if (this.navigationHistoryService.canGoBack()) this.navigationHistoryService.back();
+        else this.router.navigate(['/panel']);
     }
 
     ngOnDestroy(): void {

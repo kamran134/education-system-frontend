@@ -68,8 +68,9 @@ export class TeachersListComponent implements OnInit {
     selectedVisibility: 'all' | 'hidden' | 'shown' = 'all';
     readonly visibilityOptions: SelectOption[] = [
         { value: 'all', label: 'Hamısı' },
-        { value: 'hidden', label: 'Yalnız gizlədilən müəllimlər' },
-        { value: 'shown', label: 'Yalnız göstərilən müəllimlər' }
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimlər" → "Layihə müəllimləri".
+        { value: 'hidden', label: 'Yalnız gizlədilən layihə müəllimləri' },
+        { value: 'shown', label: 'Yalnız göstərilən layihə müəllimləri' }
     ];
     missingSchoolCodes: number[] = [];
     teacherCodesWithoutSchoolCodes: number[] = [];
@@ -234,7 +235,7 @@ export class TeachersListComponent implements OnInit {
 
         if (this.authService.canCreateTeachers()) {
             this.actionButtons.push({
-                label: 'Müəllim əlavə et',
+                label: 'Layihə müəllimi əlavə et',
                 icon: this.Plus,
                 action: () => this.onTeacherCreate(),
                 variant: 'primary'
@@ -474,7 +475,8 @@ export class TeachersListComponent implements OnInit {
     onAllTeachersDelete(): void {
         const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
-            data: { title: 'Silinməyə razılıq', text: 'Bütün müəllimləri silmək istədiyinizdən əminsiniz mi?' }
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimləri" (вин. мн.) → "Layihə müəllimlərini".
+            data: { title: 'Silinməyə razılıq', text: 'Bütün layihə müəllimlərini silmək istədiyinizdən əminsiniz mi?' }
         });
 
         confirmRef.closed.subscribe((result: boolean) => {
@@ -512,7 +514,8 @@ export class TeachersListComponent implements OnInit {
                         this.teachers = [newTeacher, ...this.teachers];
                         this.totalCount++;
                         this.isLoading = false;
-                        this.toastService.show(ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yaradıldı', 'success');
+                        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+                        this.toastService.show(ResponseHandlerUtil.extractMessage(response) || 'Layihə müəllimi uğurla yaradıldı', 'success');
                     },
                     error: (error) => {
                         console.error(error);

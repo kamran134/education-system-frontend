@@ -10,6 +10,8 @@ import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
 import { gradeLabel, gradeResultsTitle } from '../../../../core/utils/grade-label.util';
+import { levelBadgeClass } from '../../../../core/utils/level-badge.util';
+import { formatScorePercentOrTotal } from '../../../../core/utils/score-percent.util';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
@@ -97,6 +99,24 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     /**
+     * YENI_DUZELISLER_2026-09-17 п.6c: "основная линия" профиля (заголовки, достижения, сводки,
+     * экспорт) показывает только результаты базового типа экзамена — результаты "не основного"
+     * типа уходят в отдельный свёрнутый блок (otherTypeResults, см. student-details.component.html).
+     * examTypeIsBase !== false (не строго true) — старые строки без exam_type_id бэк уже
+     * промаркировал как базовые (student.service.pg.ts::getResultsByStudentId, п.6a), но на всякий
+     * случай трактуем "неизвестно" как "базовый", чтобы легаси-результаты не пропадали отовсюду.
+     */
+    get baseResults(): ExamResult[] {
+        return (this.student?.results ?? []).filter(r => r.examTypeIsBase !== false);
+    }
+
+    /** YENI_DUZELISLER_2026-09-17 п.6c: результаты "не основного" типа — источник для блока
+     *  "Digər imtahanlar üzrə nəticələri" внизу карточки. */
+    get otherTypeResults(): ExamResult[] {
+        return (this.student?.results ?? []).filter(r => r.examTypeIsBase === false);
+    }
+
+    /**
      * Результаты текущего учебного года — по result.academicYear (generated-колонка на бэке),
      * а не по result.year.
      *
@@ -108,7 +128,8 @@ export class StudentDetailsComponent implements OnInit {
      * üzrə deyil, illər üzrə verir»).
      */
     get currentResults(): ExamResult[] {
-        return (this.student?.results ?? []).filter(r => r.academicYear === this.currentAcademicYear);
+        // YENI_DUZELISLER_2026-09-17 п.6c: baseResults вместо student.results — "не основной" тип сюда не попадает.
+        return this.baseResults.filter(r => r.academicYear === this.currentAcademicYear);
     }
 
     /**
@@ -134,7 +155,8 @@ export class StudentDetailsComponent implements OnInit {
      */
     get previousGradeOptions(): number[] {
         const grades = new Set<number>();
-        for (const r of this.student?.results ?? []) {
+        // YENI_DUZELISLER_2026-09-17 п.6c: baseResults вместо student.results (см. currentResults).
+        for (const r of this.baseResults) {
             if (r.grade != null && r.academicYear !== this.currentAcademicYear) grades.add(r.grade);
         }
         return [...grades].sort((a, b) => b - a);
@@ -168,7 +190,8 @@ export class StudentDetailsComponent implements OnInit {
     get expandedResults(): ExamResult[] {
         if (this.selectedPreviousGrades.length === 0) return [];
         const currentYear = this.currentAcademicYear;
-        return (this.student?.results ?? []).filter(r =>
+        // YENI_DUZELISLER_2026-09-17 п.6c: baseResults вместо student.results (см. currentResults).
+        return this.baseResults.filter(r =>
             r.grade != null && this.selectedPreviousGrades.includes(r.grade) && r.academicYear !== currentYear
         );
     }
@@ -178,7 +201,51 @@ export class StudentDetailsComponent implements OnInit {
         return [...this.currentResults, ...this.expandedResults];
     }
 
+    // YENI_DUZELISLER_2026-09-17 п.6c: фильтр «İmtahan növü» блока «Digər imtahanlar üzrə
+    // nəticələri» — пусто значит «все типы», тот же паттерн, что у selectedPreviousGrades.
+    selectedOtherTypeIds: number[] = [];
+    // Свёрнуто по умолчанию — заказчик: «не основная линия проекта».
+    showOtherResults = false;
+
+    /** Варианты фильтра — уникальные examTypeId/examTypeName из otherTypeResults, по имени. */
+    get otherTypeOptions(): { label: string; value: number }[] {
+        const byId = new Map<number, string>();
+        for (const r of this.otherTypeResults) {
+            if (r.examTypeId != null && !byId.has(r.examTypeId)) byId.set(r.examTypeId, r.examTypeName ?? '');
+        }
+        return [...byId.entries()]
+            .map(([value, label]) => ({ value, label }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }
+
+    /** Группы для блока "Digər imtahanlar üzrə nəticələri" — по типу экзамена, с учётом фильтра,
+     *  порядок групп по имени, внутри группы — как пришло с бэка (год/месяц по убыванию). */
+    get otherResultGroups(): { examTypeId: number; title: string; results: ExamResult[] }[] {
+        const filtered = this.selectedOtherTypeIds.length === 0
+            ? this.otherTypeResults
+            : this.otherTypeResults.filter(r => r.examTypeId != null && this.selectedOtherTypeIds.includes(r.examTypeId));
+        const byType = new Map<number, ExamResult[]>();
+        for (const r of filtered) {
+            if (r.examTypeId == null) continue;
+            if (!byType.has(r.examTypeId)) byType.set(r.examTypeId, []);
+            byType.get(r.examTypeId)!.push(r);
+        }
+        return [...byType.entries()]
+            .map(([examTypeId, results]) => ({ examTypeId, title: results[0]?.examTypeName ?? '', results }))
+            .sort((a, b) => a.title.localeCompare(b.title));
+    }
+
     trackByResultId(_: number, result: ExamResult): number { return result.id; }
+
+    /** YENI_DUZELISLER_2026-09-17 п.2: цвета пилле как на обложке лендинга/metodika. */
+    levelBadgeClass(level: string | null | undefined): string {
+        return levelBadgeClass(level);
+    }
+
+    /** YENI_DUZELISLER_2026-09-17 п.5: "Bal faizi" — процент, если бэк посчитал scorePercent, иначе сырой балл. */
+    formatScorePercentOrTotal(result: ExamResult): string {
+        return formatScorePercentOrTotal(result);
+    }
 
     // Icons
     readonly ArrowLeft = ArrowLeft;
@@ -303,17 +370,18 @@ export class StudentDetailsComponent implements OnInit {
     }
 
     /** Возврат туда, откуда пришли (26.08.2026, п.2) — раньше всегда падал на общий список
-     *  учеников/статистики, даже если пришли с главной учителя/директора. filterParams/source
-     *  остаются фолбэком на случай прямого захода по ссылке или F5, когда истории SPA нет. */
+     *  учеников/статистики, даже если пришли с главной учителя/директора.
+     *
+     *  YENI_DUZELISLER_2026-09-17 п.9c: раньше при заходе с фильтрами в query-параметрах мы
+     *  намеренно ОБХОДИЛИ историю браузера — у /stats в собственном URL фильтров не было (они жили
+     *  только в состоянии компонента), и Location.back() отдавал голый /stats, сбрасывая фильтр
+     *  (жалоба заказчика 01.09.2026). После п.9b /stats сам держит текущие фильтры в URL
+     *  (stats.component.ts::syncFiltersToUrl()), так что Location.back() теперь восстановит их
+     *  сам — условие `!hasFilterParams` больше не нужно, историю используем всегда, когда она есть.
+     *  Явная навигация с filterParams остаётся фолбэком на случай прямого захода по ссылке или F5,
+     *  когда истории SPA нет. */
     goBack(): void {
-        // Если пришли с фильтрами в query-параметрах — возвращаемся ЯВНО с ними, а не через
-        // историю браузера: у /stats в собственном URL фильтров нет (они живут в состоянии
-        // компонента и сериализуются только в ссылку на карточку ученика), поэтому location.back()
-        // отдавал голый /stats и сбрасывал весь фильтр в дефолт — жалоба заказчика 01.09.2026.
-        // location.back() остаётся для случая, когда восстанавливать нечего: пришли с главной
-        // учителя/директора, где фильтров в ссылке нет (BASE_FIXES_TASK.md §1.5).
-        const hasFilterParams = Object.keys(this.filterParams ?? {}).length > 0;
-        if (!hasFilterParams && this.navigationHistory.canGoBack()) {
+        if (this.navigationHistory.canGoBack()) {
             this.navigationHistory.back();
             return;
         }

@@ -1,10 +1,10 @@
 <app-list-layout
-  title="Müəllimlər"
-  [description]="totalCount + ' müəllim'"
+  title="Layihə müəllimləri"
+  [description]="totalCount + ' layihə müəllimi'"
   [isLoading]="isLoading"
   [hasError]="hasError"
   [errorMessage]="errorMessage"
-  loadingText="Müəllimlər yüklənir..."
+  loadingText="Layihə müəllimləri yüklənir..."
   [actionButtons]="actionButtons"
   [backButton]="backButton"
   [hasFilters]="true"
@@ -71,7 +71,7 @@
         }
       </span>
     </ng-template>
-    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Müəllimlər">
+    <app-fullscreen-panel [(expanded)]="tableFullscreen" title="Layihə müəllimləri">
       <app-data-table
         [data]="teachers"
         [columns]="tableColumns"
@@ -96,7 +96,7 @@
   @if (incorrectTeacherCodes.length > 0) {
     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
       <h3 class="text-lg font-medium text-red-800 mb-3">
-        Kodları yanlış olan müəllimlər. (Müəllim kodu 7 ədədli rəqəm olmalıdır)
+        Kodları yanlış olan layihə müəllimləri. (Müəllim kodu 7 ədədli rəqəm olmalıdır)
       </h3>
       <div class="text-sm text-red-700 space-y-1">
         @for (code of incorrectTeacherCodes; track code) {
@@ -110,7 +110,7 @@
   @if (missingSchoolCodes.length > 0) {
     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
       <h3 class="text-lg font-medium text-yellow-800 mb-3">
-        Bazada olmayan məktəb kodları (məktəbi bazada olmayan müəllimlər yüklənmədi)
+        Bazada olmayan məktəb kodları (məktəbi bazada olmayan layihə müəllimləri yüklənmədi)
       </h3>
       <div class="text-sm text-yellow-700 space-y-1">
         @for (schoolCode of missingSchoolCodes; track schoolCode) {
@@ -124,7 +124,7 @@
   @if (teacherCodesWithoutSchoolCodes.length > 0) {
     <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
       <h3 class="text-lg font-medium text-orange-800 mb-3">
-        Faylda məktəb kodu olmayan və yüklənməyən müəllimlər
+        Faylda məktəb kodu olmayan və yüklənməyən layihə müəllimləri
       </h3>
       <div class="text-sm text-orange-700 space-y-1">
         @for (teacherCode of teacherCodesWithoutSchoolCodes; track teacherCode) {
@@ -141,7 +141,7 @@
       @if ((repairingResults.repairedTeachers || []).length > 0) {
         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
           <h3 class="text-lg font-medium text-green-800 mb-3">
-            Məlumatları tam və ya qismən bərpa olunan müəllimlərin kodları
+            Məlumatları tam və ya qismən bərpa olunan layihə müəllimlərinin kodları
           </h3>
           <div class="text-sm text-green-700 space-y-1">
             @for (teacher of repairingResults.repairedTeachers; track teacher) {
@@ -154,7 +154,7 @@
       @if ((repairingResults.missedDistricts || []).length > 0) {
         <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
           <h3 class="text-lg font-medium text-purple-800 mb-3">
-            Təhsil sektoru tapılmayan müəllimlərin kodları
+            Təhsil sektoru tapılmayan layihə müəllimlərinin kodları
           </h3>
           <div class="text-sm text-purple-700 space-y-1">
             @for (teacher of repairingResults.missedDistricts; track teacher) {
@@ -167,7 +167,7 @@
       @if ((repairingResults.missedSchools || []).length > 0) {
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 class="text-lg font-medium text-blue-800 mb-3">
-            Məktəbləri tapılmayan müəllimlərin kodları
+            Məktəbləri tapılmayan layihə müəllimlərinin kodları
           </h3>
           <div class="text-sm text-blue-700 space-y-1">
             @for (teacher of repairingResults.missedSchools; track teacher) {
@@ -180,7 +180,7 @@
       @if ((repairingResults.failedTeachers || []).length > 0) {
         <div class="bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 class="text-lg font-medium text-red-800 mb-3">
-            Xəta baş verən müəllimlər
+            Xəta baş verən layihə müəllimləri
           </h3>
           <div class="text-sm text-red-700 space-y-1">
             @for (teacher of repairingResults.failedTeachers; track teacher) {

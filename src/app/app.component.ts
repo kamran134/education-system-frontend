@@ -154,6 +154,12 @@ export class AppComponent implements OnInit {
         return this.authService.getRole() !== 'student';
     }
 
+    /** YENI_DUZELISLER_2026-09-17 п.7d: то же правило, что у Statistika — у ученика результаты
+     *  уже показаны на его собственной странице, отдельный пункт меню ему не нужен. */
+    showExamResultsMenuItem(): boolean {
+        return this.authService.getRole() !== 'student';
+    }
+
     get ownerDisplayName(): string {
         const user = this.authService.getCurrentUserValue();
         return user?.profile?.fullName ?? user?.profile?.name ?? user?.email ?? '';
@@ -295,6 +301,37 @@ export class AppComponent implements OnInit {
             return;
         }
         this.router.navigate(['/statistics']);
+    }
+
+    /**
+     * YENI_DUZELISLER_2026-09-17 п.7d: предвыбор фильтра /exam-results из текущего пользователя —
+     * учитель → teacherIds, директор → schoolIds, представитель района → districtIds,
+     * представитель региона — без параметров (бэк сам ограничит регионом, у /exam-results нет
+     * фильтра по региону). Пустые значения не передаём.
+     *
+     * Отклонение от ТЗ: там ожидались поля user.teacherId/schoolId/districtId (как в
+     * core/models/user.model.ts — это модель админки, не то, что отдаёт /auth/me). Реально
+     * AuthService.getCurrentUserValue() отдаёт UserInfo с одним общим profile.entityId
+     * (auth.models.ts) — id СВОЕЙ сущности, конкретный смысл которого зависит от role, ровно как
+     * уже используется в других местах (например student-details.component.ts::canEditStudentName).
+     * Названа goToExamResultsForOwner (не goToExamResults) — это имя уже занято существующим
+     * методом навигации без параметров для пункта «İmtahan nəticələri» в меню «Bölmələr» (для
+     * admin-подобных ролей, см. ниже) — их трогать не нужно, они не входят в п.7.
+     */
+    goToExamResultsForOwner(): void {
+        if (!this.isAuthorized()) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        const user = this.authService.getCurrentUserValue();
+        const entityId = user?.profile?.entityId;
+        const queryParams: Record<string, string> = {};
+        if (entityId != null) {
+            if (user!.role === 'teacher') queryParams['teacherIds'] = String(entityId);
+            else if (user!.role === 'schoolDirector') queryParams['schoolIds'] = String(entityId);
+            else if (user!.role === 'districtRepresenter') queryParams['districtIds'] = String(entityId);
+        }
+        this.router.navigate(['/exam-results'], { queryParams });
     }
 
     goToRegions(): void {

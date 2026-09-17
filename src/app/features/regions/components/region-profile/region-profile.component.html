@@ -52,8 +52,10 @@
         (uploadRejected)="onAvatarRejected($event)">
       </app-profile-hero>
 
+      <!-- YENI_DUZELISLER_2026-09-17 п.1b: ratingsQueryParams = { regionIds }, не statsDetailsQueryParams (см. .ts). -->
       <app-profile-rating-section
-        [ratings]="region.ratings ?? []">
+        [ratings]="region.ratings ?? []"
+        [detailsQueryParams]="ratingsQueryParams">
       </app-profile-rating-section>
 
       <app-profile-stats-section
@@ -86,6 +88,13 @@
           </app-entity-card-grid>
         </div>
       </div>
+
+      <!-- YENI_DUZELISLER_2026-09-17 п.7: карточка-ссылка на /exam-results, последним блоком.
+           statsDetailsQueryParams = { districtIds: все районы региона } — у /exam-results нет
+           фильтра по региону, это правильный вариант (см. .ts). -->
+      <app-profile-results-section
+        [queryParams]="statsDetailsQueryParams">
+      </app-profile-results-section>
     </div>
   }
 </div>

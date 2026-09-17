@@ -12,6 +12,7 @@ import { Student } from '../../core/models/student.model';
 import { ResponseHandlerUtil } from '../../core/utils/response-handler.util';
 import { ToastService } from '../../shared/components/ui/toast/toast.service';
 import { getCurrentAcademicYear, academicYearLabel, FIRST_TRACKED_ACADEMIC_YEAR } from '../../core/utils/academic-year.util';
+import { formatScorePercentOrTotal } from '../../core/utils/score-percent.util';
 
 import { TabsComponent, TabItem } from '../../shared/components/ui/tabs/tabs.component';
 import { DataTableComponent, TableColumn, PaginationEvent } from '../../shared/components/ui/data-table/data-table.component';
@@ -47,7 +48,7 @@ const TAB_ITEMS: { key: TabKey; label: string }[] = [
     { key: 'month', label: 'Ayın şagirdləri' },
     { key: 'monthRepublic', label: 'Respublika üzrə ayın şagirdləri' },
     { key: 'studentsYear', label: 'İlin şagirdləri' },
-    { key: 'teachersYear', label: 'İlin müəllimləri' },
+    { key: 'teachersYear', label: 'İlin layihə müəllimləri' },
     { key: 'schoolsYear', label: 'İlin məktəbləri' },
     { key: 'districtsYear', label: 'İlin rayonları' },
     { key: 'regionsYear', label: 'İlin regionları' },
@@ -55,12 +56,16 @@ const TAB_ITEMS: { key: TabKey; label: string }[] = [
 
 const STUDENT_RESULT_COLUMNS: TableColumn[] = [
     { key: 'code', label: 'Şagird kodu', field: 'studentData.code' },
-    { key: 'fullname', label: 'Soyadı, adı, ata adı', field: 'studentData.fullname' },
+    // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ 'fullname' не менялся.
+    { key: 'fullname', label: 'Şagird', field: 'studentData.fullname' },
     { key: 'grade', label: 'Sinfi' },
-    { key: 'teacher', label: 'Müəllimi', field: 'studentData.teacher.fullname', formatter: (v) => v || 'Müəllim tapılmadı' },
+    // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+    { key: 'teacher', label: 'Layihə müəllimi', field: 'studentData.teacher.fullname', formatter: (v) => v || 'Layihə müəllimi tapılmadı' },
     { key: 'school', label: 'Məktəbi', field: 'studentData.school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
     { key: 'district', label: 'Təhsil sektoru', field: 'studentData.district.name', formatter: (v) => v || 'Təhsil sektoru tapılmadı' },
-    { key: 'totalScore', label: 'Ümumi bal' },
+    // YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi"; formatter получает (value, row) —
+    // используем row, чтобы учесть scorePercent, а не только totalScore.
+    { key: 'totalScore', label: 'Bal faizi', formatter: (_, row) => formatScorePercentOrTotal(row) },
     { key: 'level', label: 'Pillə' },
     { key: 'score', label: 'Reytinq xalı' },
     { key: 'exam', label: 'İmtahan', field: 'examData.name', formatter: (v) => v || '—' },

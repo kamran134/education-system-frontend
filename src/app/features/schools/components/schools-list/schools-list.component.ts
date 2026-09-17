@@ -374,7 +374,7 @@ onFilterChange(filters: Record<string, any>): void {
             width: '350px',
             data: {
                 title: 'Silinməyə razılıq',
-                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəblər silinərkən onlara bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!'
+                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəblər silinərkən onlara bağlı layihə müəllimləri, şagirdlər və onların nəticələri də silinəcək!'
             }
         });
 

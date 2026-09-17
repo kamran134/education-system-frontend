@@ -7,6 +7,7 @@ import { School } from "../models/school.model";
 import { District } from "../models/district.model";
 import { Region } from "../models/region.model";
 import moment from "moment";
+import { formatScorePercentOrTotal } from "../utils/score-percent.util";
 
 @Injectable({
     providedIn: 'root'
@@ -20,16 +21,19 @@ export class ExcelService {
         ['level',             { label: 'Pillə',            accessor: (r: any) => r.level || '' }],
         ['place',             { label: 'Yer',              accessor: (r: any) => r.place || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (r: any) => r.studentData?.code }],
-        ['fullname',          { label: 'Soyadı, adı, ata adı', accessor: (r: any) => r.studentData?.fullname }],
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        ['fullname',          { label: 'Şagird', accessor: (r: any) => r.studentData?.fullname }],
         // Класс НА МОМЕНТ РЕЗУЛЬТАТА (r.grade, sr.grade на бэке), не студента (r.studentData?.grade —
         // живой, текущий класс). Fallback не нужен: все три вызывающих (İE/AŞ/AŞ respublika üzrə,
         // stats.component.ts) идут через queryStudentResultStats, где верхнеуровневый grade есть
         // всегда — проверено grep-ом (SINIF_TARIXCESI_TASK.md §3.2).
         ['grade',             { label: 'Sinfi',            accessor: (r: any) => r.grade }],
-        ['teacher',           { label: 'Müəllimi',         accessor: (r: any) => r.studentData?.teacher?.fullname || 'Müəllim tapılmadı' }],
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        ['teacher',           { label: 'Layihə müəllimi',         accessor: (r: any) => r.studentData?.teacher?.fullname || 'Layihə müəllimi tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (r: any) => r.studentData?.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Təhsil sektoru', accessor: (r: any) => r.studentData?.district?.name || 'Təhsil sektoru tapılmadı' }],
-        ['totalScore',        { label: 'İmtahan balı',    accessor: (r: any) => r.totalScore ?? 0 }],
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        ['totalScore',        { label: 'Bal faizi',    accessor: (r: any) => formatScorePercentOrTotal(r) }],
         ['score',             { label: 'Reytinq xalı',             accessor: (r: any) => r.score ?? 0 }],
         ['averageScore',      { label: 'Orta reytinq xalı',        accessor: (r: any) => r.studentData?.averageScore ?? 0 }],
         ['participationCount',{ label: 'İştirak sayı',    accessor: (r: any) => r.participationCount ?? 0 }],
@@ -40,13 +44,15 @@ export class ExcelService {
         ['districtPlace',     { label: 'Təhsil sektoru üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
         ['filterPlace',       { label: 'Filtr üzrə yer',    accessor: (s: any) => s.filterPlace || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (s: any) => s.code }],
-        ['fullname',          { label: 'Soyadı, adı, ata adı', accessor: (s: any) => s.fullname }],
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        ['fullname',          { label: 'Şagird', accessor: (s: any) => s.fullname }],
         // yearGrade — класс ЗА ПОКАЗАННЫЙ учебный год, не живой s.grade. Намеренно без
         // `?? s.grade`: подставлять живой класс в выгрузку за прошлый год — ровно та ошибка,
         // которую чиним (SINIF_TARIXCESI_TASK.md §3.1). Бэк заполняет yearGrade всегда, так что
         // пустым оно окажется только там, где класс за тот год действительно неизвестен.
         ['grade',             { label: 'Sinfi',            accessor: (s: any) => s.yearGrade ?? '' }],
-        ['teacher',           { label: 'Müəllimi',         accessor: (s: any) => s.teacher?.fullname || 'Müəllim tapılmadı' }],
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        ['teacher',           { label: 'Layihə müəllimi',         accessor: (s: any) => s.teacher?.fullname || 'Layihə müəllimi tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (s: any) => s.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Təhsil sektoru', accessor: (s: any) => s.district?.name || 'Təhsil sektoru tapılmadı' }],
         ['score',             { label: 'Reytinq xalı',     accessor: (s: any) => s.score ?? 0 }],
@@ -179,7 +185,8 @@ export class ExcelService {
         regionRepresenter: 'Regional idarə nümayəndəsi',
         districtRepresenter: 'Rayon nümayəndəsi',
         schoolDirector: 'Məktəb direktoru',
-        teacher: 'Müəllim',
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        teacher: 'Layihə müəllimi',
         student: 'Şagird',
     };
 
@@ -230,7 +237,8 @@ export class ExcelService {
                 'Soyadı, adı, ata adı': student.fullname,
                 // Класс на момент экзамена, а не текущий класс ученика (тот растёт каждый год) — П.10d.
                 'Sinfi': result.grade,
-                'Müəllimi': student.teacher?.fullname || 'Müəllim tapılmadı',
+                // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+                'Layihə müəllimi': student.teacher?.fullname || 'Layihə müəllimi tapılmadı',
                 'Məktəbi': student.school?.name || 'Məktəb tapılmadı',
                 'Təhsil sektoru': student.district?.name || 'Təhsil sektoru tapılmadı',
                 // «İmtahanın adı» убрана по просьбе заказчика (02.09.2026): дата экзамена и так
@@ -242,7 +250,8 @@ export class ExcelService {
                 // Раньше обе стояли в конце, за динамическими колонками предметов, и на широком
                 // листе их просто не находили глазами.
                 'Pilləsi': result.level || 'Pillə tapılmadı',
-                'İmtahan balı': result.totalScore || 0,
+                // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi" (ключ объекта = заголовок листа).
+                'Bal faizi': formatScorePercentOrTotal(result),
             };
             for (const [code, label] of disciplineLabels) {
                 row[label] = result.disciplines?.find(d => d.subjectCode === code)?.score ?? 0;

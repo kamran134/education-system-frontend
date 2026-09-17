@@ -123,7 +123,7 @@
               <span class="ml-2 text-gray-900">{{ student.grade }}</span>
             </div>
             <div>
-              <span class="font-medium text-gray-700">Müəllimi:</span>
+              <span class="font-medium text-gray-700">Layihə müəllimi:</span>
               <span class="ml-2 text-gray-900">{{ student.teacher?.fullname }}</span>
             </div>
           </div>
@@ -171,7 +171,8 @@
                   <tr class="bg-gray-50">
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ümumi bal</th>
+                    <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi" — процент, если известно число вопросов. -->
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Bal faizi</th>
                     <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
                       Fənlər üzrə ballar
@@ -193,18 +194,15 @@
                         {{ result.exam?.date | date: 'dd.MM.yyyy' }}
                       </td>
                       <td class="px-4 py-3 text-sm border-b border-gray-100">
-                        <span class="px-2 py-1 text-xs font-medium rounded-full"
-                                          [ngClass]="{
-                                            'bg-green-100 text-green-800': result.level === 'Yüksək',
-                                            'bg-yellow-100 text-yellow-800': result.level === 'Orta',
-                                            'bg-red-100 text-red-800': result.level === 'Aşağı',
-                                            'bg-gray-100 text-gray-800': !result.level || (result.level !== 'Yüksək' && result.level !== 'Orta' && result.level !== 'Aşağı')
-                                          }">
+                        <!-- YENI_DUZELISLER_2026-09-17 п.2: цвета пилле как на обложке лендинга/metodika
+                             (E/D/C/B/A/Lisey) вместо старой легаси-раскраски по Yüksək/Orta/Aşağı. -->
+                        <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + levelBadgeClass(result.level)">
                           {{ result.level || 'Müəyyən edilməyib' }}
                         </span>
                       </td>
-                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
-                        {{ result.totalScore }}
+                      <!-- YENI_DUZELISLER_2026-09-17 п.5: без scorePercent (нет числа вопросов) — title поясняет, что показан сырой балл. -->
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi bal — sual sayı məlum deyil' : null">
+                        {{ formatScorePercentOrTotal(result) }}
                       </td>
                       <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
@@ -285,7 +283,8 @@
                       <tr class="bg-blue-50">
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ümumi bal</th>
+                        <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi". -->
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Bal faizi</th>
                         <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Reytinq xalı</th>
@@ -299,20 +298,15 @@
                             {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.yyyy') : '—' }}
                           </td>
                           <td class="px-4 py-3 text-sm border-b border-gray-100">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full"
-                                              [ngClass]="{
-                                                'bg-green-100 text-green-800': result.level === 'A',
-                                                'bg-blue-100 text-blue-800': result.level === 'B',
-                                                'bg-yellow-100 text-yellow-800': result.level === 'C',
-                                                'bg-orange-100 text-orange-800': result.level === 'D',
-                                                'bg-red-100 text-red-800': result.level === 'E',
-                                                'bg-gray-100 text-gray-800': !result.level
-                                              }">
+                            <!-- YENI_DUZELISLER_2026-09-17 п.2: цвета пилле как на обложке лендинга/metodika;
+                                 старая раскраска не учитывала Lisey вовсе. -->
+                            <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + levelBadgeClass(result.level)">
                               {{ result.level || 'Müəyyən edilməyib' }}
                             </span>
                           </td>
-                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
-                            {{ result.totalScore }}
+                          <!-- YENI_DUZELISLER_2026-09-17 п.5: без scorePercent (нет числа вопросов) — title поясняет, что показан сырой балл. -->
+                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi bal — sual sayı məlum deyil' : null">
+                            {{ formatScorePercentOrTotal(result) }}
                           </td>
                           <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
@@ -347,6 +341,102 @@
                       }
                     </tbody>
                   </table>
+                </div>
+              }
+            </div>
+          }
+          <!-- YENI_DUZELISLER_2026-09-17 п.6: результаты "не основного" типа экзамена — отдельным
+               свёрнутым блоком внизу (заказчик: "не основная линия проекта"). Только если такие
+               результаты вообще есть — иначе блока нет совсем. -->
+          @if (otherTypeResults.length > 0) {
+            <div class="mt-6 border-t border-gray-200 pt-4">
+              <button type="button"
+                (click)="showOtherResults = !showOtherResults"
+                class="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-gray-700 transition-colors">
+                <span>Digər imtahanlar üzrə nəticələr ({{ otherTypeResults.length }})</span>
+                @if (showOtherResults) {
+                  <lucide-icon [img]="ChevronUp" class="w-4 h-4"></lucide-icon>
+                } @else {
+                  <lucide-icon [img]="ChevronDown" class="w-4 h-4"></lucide-icon>
+                }
+              </button>
+              @if (showOtherResults) {
+                <div class="mt-4">
+                  <div class="w-72">
+                    <app-select
+                      label="İmtahan növü"
+                      [multiple]="true"
+                      [(ngModel)]="selectedOtherTypeIds"
+                      [options]="otherTypeOptions">
+                    </app-select>
+                  </div>
+                  @for (group of otherResultGroups; track group.examTypeId) {
+                    <h3 class="mt-5 mb-2 text-sm font-semibold text-gray-900">{{ group.title }}</h3>
+                    <div class="overflow-x-auto">
+                      <table class="w-full border-collapse">
+                        <thead>
+                          <tr class="bg-gray-50">
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Bal faizi</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Fənlər üzrə ballar</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Reytinq xalı</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ay üzrə uğuru</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (result of group.results; track trackByResultId($index, result)) {
+                            <tr class="hover:bg-gray-50 transition-colors">
+                              <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                {{ result.exam?.date ? (result.exam?.date | date: 'dd.MM.yyyy') : '—' }}
+                              </td>
+                              <td class="px-4 py-3 text-sm border-b border-gray-100">
+                                <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + levelBadgeClass(result.level)">
+                                  {{ result.level || 'Müəyyən edilməyib' }}
+                                </span>
+                              </td>
+                              <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi bal — sual sayı məlum deyil' : null">
+                                {{ formatScorePercentOrTotal(result) }}
+                              </td>
+                              <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                <div class="space-y-1">
+                                  @for (d of result.disciplines; track d.subjectCode) {
+                                    <div>
+                                      {{ d.nameAz }}: <span class="font-medium">{{ d.score }}</span>
+                                      @if (d.questionCount != null) {
+                                        <span class="text-xs text-gray-500"> ({{ d.questionCount }})</span>
+                                      }
+                                    </div>
+                                  }
+                                </div>
+                              </td>
+                              <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100">
+                                {{ result.ratingScore ?? 0 }}
+                              </td>
+                              <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
+                                <div class="space-y-1">
+                                  <div>{{ formatStudentAchievements(result) || '—' }}</div>
+                                  @for (award of availableAwardsFor(result.id); track award.code) {
+                                    <button
+                                      (click)="downloadCertificate(result.id, award.code)"
+                                      [disabled]="isDownloading(result.id, award.code)"
+                                      class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-800 disabled:opacity-50 transition-colors">
+                                      @if (isDownloading(result.id, award.code)) {
+                                        <lucide-icon [img]="Loader" class="w-3.5 h-3.5 animate-spin"></lucide-icon>
+                                      } @else {
+                                        <lucide-icon [img]="Download" class="w-3.5 h-3.5"></lucide-icon>
+                                      }
+                                      {{ award.label }} sertifikatı
+                                    </button>
+                                  }
+                                </div>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
                 </div>
               }
             </div>

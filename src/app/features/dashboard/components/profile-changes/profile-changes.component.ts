@@ -11,7 +11,8 @@ import { FullscreenPanelComponent } from '../../../../shared/components/ui/fulls
 
 const ENTITY_TYPE_LABELS: Record<ProfileChangeEntityType, string> = {
     school: 'Məktəb',
-    teacher: 'Müəllim',
+    // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+    teacher: 'Layihə müəllimi',
     district: 'Təhsil sektoru',
     student: 'Şagird',
 };

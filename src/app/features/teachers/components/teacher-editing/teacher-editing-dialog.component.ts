@@ -42,7 +42,8 @@ export class TeacherEditingDialogComponent implements OnInit, OnDestroy {
     ) { }
 
     get modalTitle(): string {
-        return this.data.isEditing ? 'Müəllimin redaktə edilməsi' : 'Yeni müəllim əlavə et';
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        return this.data.isEditing ? 'Layihə müəlliminin redaktə edilməsi' : 'Yeni layihə müəllimi əlavə et';
     }
 
     get modalSubtitle(): string {

@@ -45,4 +45,9 @@ export interface ExamResult {
      *  student_results.academic_year. null у июльских/августовских результатов: они не
      *  принадлежат ни одному учебному году. */
     academicYear?: number | null;
+    // YENI_DUZELISLER_2026-09-17 п.6b: тип экзамена результата — нужен, чтобы профиль ученика
+    // (student-details) отделил результаты "не основного" типа в свёрнутый блок (п.6).
+    examTypeId?: number | null;
+    examTypeName?: string | null;
+    examTypeIsBase?: boolean;
 }

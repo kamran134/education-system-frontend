@@ -3,6 +3,7 @@ import { ButtonComponent } from '../../../../shared/components/ui/button/button.
 import { DataTableComponent, TableColumn, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
 import { LucideAngularModule, Download, User } from 'lucide-angular';
+import { formatScorePercentOrTotal } from '../../../../core/utils/score-percent.util';
 
 /**
  * Renders one of the three month-based rating tabs (developing / month / month-republic).
@@ -40,12 +41,16 @@ export class MonthStudentRatingTableComponent {
     private readonly columnDefinitions = new Map<string, TableColumn>([
         ['level', { key: 'level', label: 'Pillə', sortable: true, field: 'level', formatter: (v) => v || '-' }],
         ['code', { key: 'code', label: 'İş nömrəsi', sortable: true, field: 'studentData.code' }],
-        ['fullname', { key: 'fullname', label: 'Soyadı, adı, ata adı', sortable: true, field: 'studentData.fullname' }],
-        ['totalScore', { key: 'totalScore', label: 'İmtahan balı', sortable: true, field: 'totalScore' }],
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ 'fullname' не менялся.
+        ['fullname', { key: 'fullname', label: 'Şagird', sortable: true, field: 'studentData.fullname' }],
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi"; sortable оставлен — сортировка
+        // серверная, по sr.total_score, formatter только меняет отображаемое значение.
+        ['totalScore', { key: 'totalScore', label: 'Bal faizi', sortable: true, field: 'totalScore', formatter: (_, row) => formatScorePercentOrTotal(row) }],
         // Класс НА МОМЕНТ РЕЗУЛЬТАТА (row.grade, sr.grade на бэке), не studentData.grade — тот
         // живой класс ученика, после повышения он врёт задним числом (SINIF_TARIXCESI_TASK.md §3.2).
         ['grade', { key: 'grade', label: 'Sinifi', sortable: true, field: 'grade' }],
-        ['teacher', { key: 'teacher', label: 'Müəllimi', sortable: true, field: 'studentData.teacher.fullname' }],
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        ['teacher', { key: 'teacher', label: 'Layihə müəllimi', sortable: true, field: 'studentData.teacher.fullname' }],
         ['school', { key: 'school', label: 'Məktəbi', sortable: true, field: 'studentData.school.name' }],
         ['district', { key: 'district', label: 'Təhsil sektoru', sortable: true, field: 'studentData.district.name' }],
         ['averageScore', { key: 'averageScore', label: 'Orta reytinq xalı', sortable: true, field: 'studentData.averageScore' }],

@@ -92,8 +92,10 @@
         </div>
       }
 
+      <!-- YENI_DUZELISLER_2026-09-17 п.1b: statsDetailsQueryParams уже содержит { districtIds } — переиспользуем для ссылки "Tam reytinq…" на /stats. -->
       <app-profile-rating-section
-        [ratings]="district.ratings ?? []">
+        [ratings]="district.ratings ?? []"
+        [detailsQueryParams]="statsDetailsQueryParams">
       </app-profile-rating-section>
 
       <app-profile-stats-section
@@ -126,6 +128,11 @@
           </app-entity-card-grid>
         </div>
       </div>
+
+      <!-- YENI_DUZELISLER_2026-09-17 п.7: карточка-ссылка на /exam-results, последним блоком. -->
+      <app-profile-results-section
+        [queryParams]="statsDetailsQueryParams">
+      </app-profile-results-section>
     </div>
   }
 </div>

@@ -31,6 +31,9 @@ export class ProfileRatingSectionComponent implements OnInit {
     @Input() showDetailsLink = true;
     @Input() placeField: 'place' | 'districtPlace' = 'place';
     @Input() placeColumnLabel = 'Respublika üzrə yeri';
+    // YENI_DUZELISLER_2026-09-17 п.1a: параметры фильтра для ссылки "Tam reytinq…" на /stats —
+    // по образцу detailsQueryParams в profile-stats-section.component.ts.
+    @Input() detailsQueryParams: Record<string, any> | null = null;
 
     readonly TrendingUp = TrendingUp;
     readonly ChevronRight = ChevronRight;

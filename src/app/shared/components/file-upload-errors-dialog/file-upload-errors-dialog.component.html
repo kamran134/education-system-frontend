@@ -16,7 +16,7 @@
           <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
               <lucide-icon [img]="XCircle" class="h-5 w-5 text-red-500"></lucide-icon>
-              Kodları yanlış olan müəllimlər (Müəllim kodu 7 ədədli rəqəm olmalıdır)
+              Kodları yanlış olan layihə müəllimləri (Müəllim kodu 7 ədədli rəqəm olmalıdır)
             </h3>
             <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.incorrectTeacherCodes; track code) {
@@ -42,7 +42,7 @@
           <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
               <lucide-icon [img]="Info" class="h-5 w-5 text-red-500"></lucide-icon>
-              Faylda məktəb kodu olmayan müəllimlər
+              Faylda məktəb kodu olmayan layihə müəllimləri
             </h3>
             <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.teacherCodesWithoutSchoolCodes; track code) {
@@ -55,7 +55,7 @@
           <div class="rounded-lg border-l-4 border-green-500 bg-green-50 dark:bg-green-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-green-800 dark:text-green-200">
               <lucide-icon [img]="CheckCircle" class="h-5 w-5 text-green-600"></lucide-icon>
-              Artıq bazada olan müəllimlər
+              Artıq bazada olan layihə müəllimləri
             </h3>
             <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.existingTeacherCodes; track code) {
@@ -145,7 +145,7 @@
           <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
               <lucide-icon [img]="UserX" class="h-5 w-5 text-red-500"></lucide-icon>
-              Müəllimi tapılmayan şagirdlər
+              Layihə müəllimi tapılmayan şagirdlər
             </h3>
             <div class="mt-3 flex flex-wrap gap-2">
               @for (code of data.errors.studentsWithoutTeacher; track code) {

@@ -25,6 +25,7 @@ import { ProfileAchievementsComponent } from '../../../../shared/components/prof
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { ProfileResultsSectionComponent } from '../../../../shared/components/profile/profile-results-section/profile-results-section.component';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
@@ -41,6 +42,7 @@ const TEACHERS_PAGE_SIZE = 12;
         ButtonComponent, InputComponent,
         ProfileHeroComponent, ProfileChangeBannerComponent, ProfileAchievementsComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
+        ProfileResultsSectionComponent,
     ],
     templateUrl: './school-profile.component.html',
     styleUrl: './school-profile.component.scss'
@@ -348,7 +350,8 @@ export class SchoolProfileComponent implements OnInit {
                         const updatedSchool = ResponseHandlerUtil.extractData<School>(response);
                         const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Məktəb uğurla yeniləndi';
                         const cascadeParts: string[] = [];
-                        if (updatedSchool.cascadedTeachersCount) cascadeParts.push(`${updatedSchool.cascadedTeachersCount} müəllimin`);
+                        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi" (род. падеж после числительного).
+                        if (updatedSchool.cascadedTeachersCount) cascadeParts.push(`${updatedSchool.cascadedTeachersCount} layihə müəlliminin`);
                         if (updatedSchool.cascadedStudentsCount) cascadeParts.push(`${updatedSchool.cascadedStudentsCount} şagirdin`);
                         const cascadeMessage = cascadeParts.length ? ` (${cascadeParts.join(' və ')} kodu avtomatik yeniləndi)` : '';
                         this.snackBarService.show(baseMessage + cascadeMessage, 'success');
@@ -367,7 +370,7 @@ export class SchoolProfileComponent implements OnInit {
             width: '350px',
             data: {
                 title: 'Silinməyə razılıq',
-                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı müəllimlər, şagirdlər və onların nəticələri də silinəcək!'
+                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı layihə müəllimləri, şagirdlər və onların nəticələri də silinəcək!'
             }
         });
 

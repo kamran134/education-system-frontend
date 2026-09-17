@@ -103,7 +103,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         { key: 'code', label: 'İş nömrəsi', sortable: true, type: 'text' },
         { key: 'fullname', label: 'Soyadı, adı, ata adı', sortable: true, type: 'text' },
         { key: 'grade', label: 'Sinif', sortable: true, type: 'number' },
-        { key: 'teacher.fullname', label: 'Müəllimi', sortable: false, type: 'text' },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher.fullname', label: 'Layihə müəllimi', sortable: false, type: 'text' },
         { key: 'school.name', label: 'Məktəbi', sortable: false, type: 'text' },
         { key: 'district.name', label: 'Təhsil sektoru', sortable: false, type: 'text' }
     ];

@@ -7,6 +7,10 @@
  * (dashboard/components/metodika-editor) — единый источник дефолта и единая функция слияния.
  */
 
+// YENI_DUZELISLER_2026-09-17 п.2: палитра плиток уровня вынесена в core/utils/level-badge.util.ts
+// (нужна ещё и кабинету ученика) — здесь остаётся только делегирование, чтобы не плодить копии.
+import { levelBadgeClass } from '../../core/utils/level-badge.util';
+
 export interface MetodikaDiscipline {
     name: string;
     questions: number;
@@ -64,18 +68,6 @@ export const METODIKA_DISCIPLINE_BAR_CLASSES: readonly string[] = [
     'bg-brand-magenta',
 ];
 
-/** Палитра плиток уровня — по коду, см. решение 2 ТЗ. Неизвестный код — нейтральная заглушка. */
-const LEVEL_TILE_CLASSES: Record<string, string> = {
-    E: 'bg-[#FED716] text-brand-ink',
-    D: 'bg-[#F37820] text-white',
-    C: 'bg-brand-magenta text-white',
-    B: 'bg-brand-green text-white',
-    A: 'bg-brand-blue text-white',
-    Lisey: 'bg-brand-red text-white',
-};
-
-const LEVEL_TILE_FALLBACK_CLASS = 'bg-gray-300 text-brand-ink';
-
 export function getDisciplineBarClass(index: number): string {
     return METODIKA_DISCIPLINE_BAR_CLASSES[index % METODIKA_DISCIPLINE_BAR_CLASSES.length];
 }
@@ -87,8 +79,9 @@ export function getLiveCardBadgeClass(index: number): string {
     return LIVE_CARD_BADGE_CLASSES[index % LIVE_CARD_BADGE_CLASSES.length];
 }
 
+// YENI_DUZELISLER_2026-09-17 п.2: делегирует в общий util — поведение /metodika не меняется.
 export function getLevelTileClass(code: string): string {
-    return LEVEL_TILE_CLASSES[code] ?? LEVEL_TILE_FALLBACK_CLASS;
+    return levelBadgeClass(code);
 }
 
 /** totalQuestions больше не хранится отдельно — иначе разъезжается с суммой при правке. */

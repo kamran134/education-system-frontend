@@ -66,7 +66,8 @@ export class LandingComponent implements OnInit {
         this.title.setTitle('İSİM — İbtidai Siniflərin İnkişaf Metodikası');
         this.meta.updateTag({
             name: 'description',
-            content: 'İSİM 1–4-cü siniflərin biliyini aylıq imtahanlarla ölçür və şagird, müəllim, məktəb, rayon üzrə reytinq hesablayır.',
+            // YENI_DUZELISLER_2026-09-17 п.3: "müəllim" → "layihə müəllimi".
+            content: 'İSİM 1–4-cü siniflərin biliyini aylıq imtahanlarla ölçür və şagird, layihə müəllimi, məktəb, rayon üzrə reytinq hesablayır.',
         });
     }
 

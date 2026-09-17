@@ -148,7 +148,8 @@ export class UserProfileComponent implements OnInit {
             'superadmin': 'Super Admin',
             'admin': 'Administrator',
             'moderator': 'Moderator',
-            'teacher': 'Müəllim',
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+            'teacher': 'Layihə müəllimi',
             'user': 'İstifadəçi'
         };
         return roleNames[role] || role;

@@ -12,7 +12,8 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">Müəllim prefiksi</label>
           <input type="text" [value]="codePrefix" disabled
             class="block w-full rounded-lg px-3 py-2 text-sm border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" />
-            <p class="text-sm text-gray-500 mt-2">Müəllimdən asılıdır, dəyişmək üçün "Müəllim" seçin</p>
+            <!-- YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi". -->
+            <p class="text-sm text-gray-500 mt-2">Layihə müəllimindən asılıdır, dəyişmək üçün "Layihə müəllimi" seçin</p>
           </div>
           <app-input
             label="Fərdi hissə (000-999)"
@@ -72,7 +73,7 @@
 
       <app-select
         label="Şagirdin müəllimi"
-        placeholder="Müəllimi seçin"
+        placeholder="Layihə müəllimini seçin"
         [options]="teacherOptions"
         [(ngModel)]="selectedTeacherId"
         name="teacher"

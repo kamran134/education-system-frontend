@@ -6,16 +6,18 @@
       </span>
       Reytinqlər
     </h2>
-    @if (examTypeName) {
-      <!-- IMTAHAN_NOVLERI_TASK.md §14: история — только по базовому типу экзамена -->
-      <p class="w-full text-xs text-[var(--ui-muted)] -mt-2">{{ examTypeName }} üzrə göstərilir</p>
-    }
     @if (showDetailsLink) {
-      <a [routerLink]="['/stats']"
+      <a [routerLink]="['/stats']" [queryParams]="detailsQueryParams"
         class="inline-flex items-center gap-1 text-sm text-[var(--ui-accent)] hover:opacity-80 transition-opacity">
         Tam reytinq və inkişaf cədvəli
         <lucide-icon [img]="ChevronRight" class="w-3.5 h-3.5"></lucide-icon>
       </a>
+    }
+    @if (examTypeName) {
+      <!-- IMTAHAN_NOVLERI_TASK.md §14: история — только по базовому типу экзамена.
+           YENI_DUZELISLER_2026-09-17 п.10: <p> переставлен ПОСЛЕ <a> — иначе w-full переносит
+           строку и заголовок с ссылкой съезжают на разные строки. -->
+      <p class="w-full text-xs text-[var(--ui-muted)] -mt-1">{{ examTypeName }} üzrə göstərilir</p>
     }
   </div>
 

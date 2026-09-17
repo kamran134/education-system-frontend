@@ -51,7 +51,8 @@ const FIELD_TYPE_LABELS: Record<CertificateFieldType, string> = {
     studentFullName: 'Şagirdin adı',
     schoolName: 'Məktəb',
     districtName: 'Təhsil sektoru',
-    teacherFullName: 'Müəllim',
+    // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+    teacherFullName: 'Layihə müəllimi',
     examDate: 'Tarix',
     level: 'Pillə',
     previousLevel: 'Əvvəlki pillə',
@@ -129,7 +130,7 @@ const PLACEHOLDER_CHIPS: { token: string; label: string }[] = [
     { token: 'studentFullName', label: 'Şagirdin adı' },
     { token: 'schoolName', label: 'Məktəb' },
     { token: 'districtName', label: 'Təhsil sektoru' },
-    { token: 'teacherFullName', label: 'Müəllim' },
+    { token: 'teacherFullName', label: 'Layihə müəllimi' },
     { token: 'examDate', label: 'Tarix' },
     { token: 'level', label: 'Pillə' },
     { token: 'previousLevel', label: 'Əvvəlki pillə' },

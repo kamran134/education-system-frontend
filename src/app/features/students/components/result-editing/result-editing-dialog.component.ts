@@ -7,6 +7,7 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { formatScorePercentOrTotal } from '../../../../core/utils/score-percent.util';
 
 @Component({
     selector: 'app-result-editing',
@@ -58,6 +59,11 @@ export class ResultEditingDialogComponent {
 
     get modalSubtitle(): string {
         return 'İmtahan nəticəsinin məlumatlarını daxil edin';
+    }
+
+    /** YENI_DUZELISLER_2026-09-17 п.5: "Bal faizi" — тот же форматтер, что и в student-details. */
+    formatScorePercentOrTotal(result: ExamResult): string {
+        return formatScorePercentOrTotal(result);
     }
 
     // IMTAHAN_NOVLERI_TASK.md §16: sual sayı hər fənn üçün MÜTLƏQdir — server questionCount-suz

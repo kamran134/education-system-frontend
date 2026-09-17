@@ -1,7 +1,16 @@
 <div class="p-6 space-y-6">
-  <!-- Единый заголовок для всех ролей (П.7) — оформление как на «Ətraflı statistika». -->
-  <div class="mb-8">
+  <!-- Единый заголовок для всех ролей (П.7) — оформление как на «Ətraflı statistika».
+       YENI_DUZELISLER_2026-09-17 п.9a: страничная "Geri" в шапке, по образцу statistics-main —
+       показывается всегда, возвращает туда, откуда пришли на /stats (не путать с drill-down
+       "Geri" внутри вкладок — goBack()/canGoBack() ниже, другой метод). -->
+  <div class="mb-8 flex items-start justify-between gap-3 flex-wrap">
     <h1 class="text-3xl font-bold text-gray-900">İnkişaf və Reytinq göstəriciləri</h1>
+    <app-button variant="outline" size="sm" (clicked)="goBackToReferrer()">
+      <div class="flex items-center gap-2">
+        <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+        <span>Geri</span>
+      </div>
+    </app-button>
   </div>
 
   <app-stats-filters

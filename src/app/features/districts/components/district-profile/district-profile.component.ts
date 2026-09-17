@@ -23,6 +23,7 @@ import { ProfileChangeBannerComponent } from '../../../../shared/components/prof
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { ProfileResultsSectionComponent } from '../../../../shared/components/profile/profile-results-section/profile-results-section.component';
 import { DistrictEditingDialogComponent } from '../district-editing-dialog/district-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
@@ -44,6 +45,7 @@ const SCHOOLS_PAGE_SIZE = 12;
         ButtonComponent, InputComponent,
         ProfileHeroComponent, ProfileChangeBannerComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
+        ProfileResultsSectionComponent,
     ],
     templateUrl: './district-profile.component.html',
     styleUrl: './district-profile.component.scss'

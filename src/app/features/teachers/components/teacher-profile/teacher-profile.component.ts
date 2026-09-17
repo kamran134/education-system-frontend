@@ -25,6 +25,7 @@ import { ProfileAchievementsComponent } from '../../../../shared/components/prof
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
+import { ProfileResultsSectionComponent } from '../../../../shared/components/profile/profile-results-section/profile-results-section.component';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
@@ -43,6 +44,7 @@ const STUDENTS_PAGE_SIZE = 12;
         ButtonComponent, InputComponent,
         ProfileHeroComponent, ProfileChangeBannerComponent, ProfileAchievementsComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
+        ProfileResultsSectionComponent,
     ],
     templateUrl: './teacher-profile.component.html',
     styleUrl: './teacher-profile.component.scss'
@@ -155,7 +157,8 @@ export class TeacherProfileComponent implements OnInit {
                 },
                 error: () => {
                     this.isLoading = false;
-                    this.snackBarService.show('Müəllim tapılmadı', 'error');
+                    // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+                    this.snackBarService.show('Layihə müəllimi tapılmadı', 'error');
                 }
             });
     }
@@ -373,7 +376,8 @@ export class TeacherProfileComponent implements OnInit {
                 this.teacherService.updateTeacher(result.data).subscribe({
                     next: (response) => {
                         const updatedTeacher = ResponseHandlerUtil.extractData<Teacher>(response);
-                        const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Müəllim uğurla yeniləndi';
+                        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+                        const baseMessage = ResponseHandlerUtil.extractMessage(response) || 'Layihə müəllimi uğurla yeniləndi';
                         const cascadeMessage = updatedTeacher.cascadedStudentsCount
                             ? ` (${updatedTeacher.cascadedStudentsCount} şagirdin kodu avtomatik yeniləndi)`
                             : '';
@@ -391,14 +395,16 @@ export class TeacherProfileComponent implements OnInit {
     private handleTeacherDelete(): void {
         const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
-            data: { title: 'Silinməyə razılıq', text: 'Müəllimi silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nMüəllim silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi sil"/"Müəllim" → "Layihə müəllimini"/"Layihə müəllimi".
+            data: { title: 'Silinməyə razılıq', text: 'Layihə müəllimini silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nLayihə müəllimi silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
         });
 
         confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {
             if (!result) return;
             this.teacherService.deleteTeacher(this.teacherId).subscribe({
                 next: (response) => {
-                    this.snackBarService.show(response?.message || 'Müəllim uğurla silindi', 'success');
+                    // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+                    this.snackBarService.show(response?.message || 'Layihə müəllimi uğurla silindi', 'success');
                     this.router.navigate(['/teachers']);
                 },
                 error: (error) => {

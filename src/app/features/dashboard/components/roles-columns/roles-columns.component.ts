@@ -28,41 +28,52 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
     developingStudents: [
         { key: 'level', label: 'Pillə', selected: false, order: 0 },
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 1 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 2 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 2 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 3 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 4 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 4 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 5 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 6 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 7 },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 8 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 8 },
     ],
     monthStudents: [
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 0 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 1 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 1 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 2 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 3 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 3 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 4 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 7 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 7 },
     ],
     republicMonthStudents: [
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 0 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 1 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 1 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 2 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 3 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 3 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 4 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
-        { key: 'totalScore', label: 'İmtahan balı', selected: false, order: 7 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 7 },
     ],
     allStudents: [
         { key: 'place', label: 'Respublika üzrə yer', selected: false, order: 0 },
         { key: 'districtPlace', label: 'Təhsil sektoru üzrə yer', selected: false, order: 1 },
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 2 },
-        { key: 'fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 3 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
+        { key: 'fullname', label: 'Şagird', selected: false, order: 3 },
         { key: 'grade', label: 'Sinifi', selected: false, order: 4 },
-        { key: 'teacher', label: 'Müəllimi', selected: false, order: 5 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi', selected: false, order: 5 },
         { key: 'school', label: 'Məktəbi', selected: false, order: 6 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 7 },
         { key: 'score', label: 'Reytinq xalı', selected: false, order: 8 },
@@ -110,14 +121,16 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
     // Ключи должны совпадать с displayedColumns в exam-results.component.ts (FIXES п.4 от 04.09.2026)
     examResults: [
         { key: 'studentData.code', label: 'İş nömrəsi', selected: false, order: 0 },
-        { key: 'studentData.fullname', label: 'Soyadı, adı, ata adı', selected: false, order: 1 },
+        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся (заказчик: «в /exam-results тоже»).
+        { key: 'studentData.fullname', label: 'Şagird', selected: false, order: 1 },
         { key: 'grade', label: 'Sinif', selected: false, order: 2 },
         { key: 'level', label: 'Pillə', selected: false, order: 3 },
         { key: 'scorePercent', label: 'Bal faizi', selected: false, order: 4 },
         { key: 'totalScore', label: 'Ümumi bal', selected: false, order: 5 },
         { key: 'exam.date', label: 'Tarix', selected: false, order: 6 },
         { key: 'studentData.school.name', label: 'Məktəb', selected: false, order: 7 },
-        { key: 'studentData.teacher.fullname', label: 'Müəllim', selected: false, order: 8 },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        { key: 'studentData.teacher.fullname', label: 'Layihə müəllimi', selected: false, order: 8 },
         { key: 'studentData.district.name', label: 'Təhsil sektoru', selected: false, order: 9 },
     ],
 };
@@ -145,7 +158,8 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
         { key: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
         { key: 'schoolDirector', label: 'Direktor' },
-        { key: 'teacher', label: 'Müəllim' },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        { key: 'teacher', label: 'Layihə müəllimi' },
         { key: 'student', label: 'Şagird' },
     ];
 
@@ -154,7 +168,7 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'monthStudents', label: 'Ayın şagirdləri' },
         { key: 'republicMonthStudents', label: 'Respublika üzrə ayın şagirdləri' },
         { key: 'allStudents', label: 'İlin şagirdləri' },
-        { key: 'allTeachers', label: 'İlin müəllimləri' },
+        { key: 'allTeachers', label: 'İlin layihə müəllimləri' },
         { key: 'allSchools', label: 'İlin məktəbləri' },
         { key: 'allDistricts', label: 'İlin təhsil sektorları' },
         { key: 'allRegions', label: 'İlin regional idarələri' },

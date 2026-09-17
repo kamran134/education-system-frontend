@@ -62,7 +62,8 @@ export class LegacyImportComponent {
         },
         {
             id: 'teachers',
-            title: 'Müəllimlər',
+            // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+            title: 'Layihə müəllimləri',
             description: 'Köhnə bazadan müəllim məlumatlarını idxal edin',
             icon: Users,
             disabled: false

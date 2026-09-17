@@ -97,13 +97,13 @@
              həmişə boşdur, ona görə "disabled" şərti yalnız məktəb filtri göründükdə tətbiq olunur. -->
         @if (!hideTeacherFilter) {
           <app-select
-            label="Müəllimlər"
+            label="Layihə müəllimləri"
             [options]="teacherOptions"
             [multiple]="true"
             [disabled]="!hideSchoolFilter && selectedSchoolIds.length === 0"
             [(ngModel)]="selectedTeacherIds"
             (ngModelChange)="onTeacherChange($event)"
-            placeholder="Müəllimləri seçin">
+            placeholder="Layihə müəllimlərini seçin">
           </app-select>
         }
       </div>

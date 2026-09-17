@@ -30,7 +30,8 @@
                  fənlər üzrə balları saxladıqdan sonra server özü hesablayır. -->
             <p class="text-xs text-gray-500">
                 Hazırkı pillə: <span class="font-medium">{{ data.result.level || 'Müəyyən edilməyib' }}</span> ·
-                Ümumi bal: <span class="font-medium">{{ data.result.totalScore }}</span>
+                <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi". -->
+                Bal faizi: <span class="font-medium">{{ formatScorePercentOrTotal(data.result) }}</span>
                 — fənlər üzrə balları dəyişib yadda saxladıqdan sonra yenidən hesablanacaq.
             </p>
         </div>

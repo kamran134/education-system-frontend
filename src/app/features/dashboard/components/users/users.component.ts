@@ -51,7 +51,8 @@ export class UsersComponent implements OnInit, OnDestroy {
         { value: 'regionRepresenter', label: 'Regional idarə nümayəndəsi' },
         { value: 'districtRepresenter', label: 'Rayon nümayəndəsi' },
         { value: 'schoolDirector', label: 'Məktəb direktoru' },
-        { value: 'teacher', label: 'Müəllim' },
+        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
+        { value: 'teacher', label: 'Layihə müəllimi' },
         { value: 'student', label: 'Şagird' },
     ];
     selectedRole = 'student';
