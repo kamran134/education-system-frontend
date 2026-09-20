@@ -5,6 +5,7 @@ import { ToastService } from '../../../../shared/components/ui/toast/toast.servi
 import { Error } from '../../../../core/models/error.model';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { Stats } from '../../../../core/models/stats.model';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -25,8 +26,12 @@ import { PaginationEvent } from '../../../../shared/components/ui/data-table/dat
 import { TABLE_PAGE_SIZE_DEFAULT, TABLE_EXPORT_PAGE_SIZE } from '../../../../shared/components/ui/data-table/table-defaults';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { TabsComponent } from '../../../../shared/components/ui/tabs/tabs.component';
-import { StatsFiltersComponent } from "../stats-filters/stats-filters.component";
+import { StatsFiltersComponent, DEFAULT_LEVEL_OPTIONS } from "../stats-filters/stats-filters.component";
 import { StatsPagination } from '../../../../core/models/pagination.model';
+import { ExamType } from '../../../../core/models/examType.model';
+import { LevelScale } from '../../../../core/models/levelScale.model';
+import { ExamTypeService } from '../../../exam-types/services/exam-type.service';
+import { LevelScaleService } from '../../../exam-types/services/level-scale.service';
 import * as XLSX from 'xlsx';
 import { ExcelService } from '../../../../core/services/excel.service';
 import { MomentDateFormatPipe } from '../../../../shared/pipes/moment-date-format.pipe';
@@ -195,6 +200,15 @@ export class StatsComponent implements OnInit, OnDestroy {
     selectedLevels: string[] = [];
     selectedTabIndex: number = 0;
 
+    // IMTAHAN_NOVLERI_TASK.md §6 — /type-ratings — тот же StatsComponent, но с обязательным
+    // селектом типа экзамена (data.examTypeSelectable в app.routes.ts). /stats остаётся
+    // false во всём и не меняет поведение (не подмешивает examTypeId ни в один запрос).
+    examTypeSelectable = false;
+    examTypes: ExamType[] = [];
+    selectedExamTypeId: number | null = null;
+    levelScales: LevelScale[] = [];
+    levelOptions: { label: string; value: string }[] = DEFAULT_LEVEL_OPTIONS;
+
     // Все возможные табы
     private allTabs = [
         { label: 'İnkişaf edən şagirdlər', key: 'developingStudents', permission: 'showStudentsTab' },
@@ -260,6 +274,8 @@ export class StatsComponent implements OnInit, OnDestroy {
         private toastService: ToastService,
         private monthNamePipe: MonthNamePipe,
         private dashboardService: DashboardService,
+        private examTypeService: ExamTypeService,
+        private levelScaleService: LevelScaleService,
         public permissions: PermissionsService,
         // YENI_DUZELISLER_2026-09-17 п.9a/9b: назван НЕ navigationHistory — это имя уже занято
         // приватным массивом drill-down истории (см. ниже, строка ~232), другая сущность.
@@ -275,6 +291,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        // IMTAHAN_NOVLERI_TASK.md §6 — /type-ratings передаёт это через route data (app.routes.ts).
+        this.examTypeSelectable = this.route.snapshot.data['examTypeSelectable'] === true;
+
         this.authService.isLoggedIn$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isLoggedIn => {
             if (isLoggedIn) {
                 this.authorizedUserRole = this.authService.getRole();
@@ -284,79 +303,113 @@ export class StatsComponent implements OnInit, OnDestroy {
                 // Не загружаем районы/школы/учителей сразу — районы зависят от возможного
                 // restored regionIds из query-параметров, см. подписку ниже
 
-                this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
-                    // Restore filters
-                    this.selectedRegionIds = params['regionIds'] ? params['regionIds'].split(',').filter((id: string) => id.trim() !== '') : [];
-                    this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',').filter((id: string) => id.trim() !== '') : [];
-                    this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
-                    this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',').filter((id: string) => id.trim() !== '') : [];
-                    this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
-                    this.selectedLevels = params['levels'] ? params['levels'].split(',').filter((l: string) => l.trim() !== '') : [];
-                    this.searchString = params['search'] || '';
-                    // Учебный год восстанавливается вместе с остальным фильтром (см. openStudentDetails).
-                    const restoredYear = params['academicYear'] ? +params['academicYear'] : NaN;
-                    this.selectedAcademicYear = isNaN(restoredYear) ? getCurrentAcademicYear() : restoredYear;
-
-                    // Список районов зависит от возможного restored regionIds
-                    this.loadDistricts();
-
-                    // Restore month and tab
-                    this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-                    this.selectedTab = params['tab'] || 'developingStudents';
-
-                    // Restore sort and pagination
-                    this.sortActive = params['sortActive'] || 'averageScore';
-                    this.sortDirection = params['sortDirection'] || 'desc';
-                    this.pageSize = params['pageSize'] ? +params['pageSize'] : TABLE_PAGE_SIZE_DEFAULT;
-                    this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : TABLE_PAGE_SIZE_DEFAULT;
-                    this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
-
-                    // Map tab to correct tab index and load data
-                    if (this.selectedTab === 'developingStudents') {
-                        this.selectedTabIndex = 0;
-                        this.loadSchools();
-                        this.loadTeachers();
-                        this.loadDevelopingStudentsStats();
-                    } else if (this.selectedTab === 'studentsOfMonth') {
-                        this.selectedTabIndex = 1;
-                        this.loadSchools();
-                        this.loadTeachers();
-                        this.loadStudentsOfMonthStats();
-                    } else if (this.selectedTab === 'studentsOfMonthByRepublic') {
-                        this.selectedTabIndex = 2;
-                        this.loadSchools();
-                        this.loadTeachers();
-                        this.loadStudentsOfMonthByRepublicStats();
-                    } else if (this.selectedTab === 'allStudents') {
-                        this.selectedTabIndex = 3;
-                        this.loadSchools();
-                        this.loadTeachers();
-                        this.loadAllStudentsStats();
-                    } else if (this.selectedTab === 'allTeachers') {
-                        this.selectedTabIndex = 4;
-                        this.loadSchools();
-                        this.loadTeachersStats();
-                    } else if (this.selectedTab === 'allSchools') {
-                        this.selectedTabIndex = 5;
-                        this.loadSchoolsStats();
-                    } else if (this.selectedTab === 'allDistricts') {
-                        this.selectedTabIndex = 6;
-                        this.loadDistrictsStats();
-                    } else if (this.selectedTab === 'allRegions') {
-                        this.selectedTabIndex = 7;
-                        this.loadRegionsStats();
-                    }
-
-                    const monthPart = this.selectedMonth.split('-')[1];
-                    if (monthPart !== '0') {
-                        this.developingStudentsLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında inkişaf edən şagirdlər`);
-                        this.studentsOfMonthLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında ayın şagirdləri`);
-                        this.studentsOfMonthByRepublicLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında respublika üzrə ayın şagirdləri`);
-                    }
-                });
+                if (this.examTypeSelectable) {
+                    // Тип экзамена нужен ДО первой загрузки данных (examTypeParams() читает
+                    // selectedExamTypeId) — иначе первый запрос уйдёт без него.
+                    forkJoin([this.examTypeService.getExamTypes(), this.levelScaleService.getLevelScales()])
+                        .pipe(takeUntilDestroyed(this.destroyRef))
+                        .subscribe({
+                            next: ([types, scales]) => {
+                                this.examTypes = types.filter(t => t.active);
+                                this.levelScales = scales;
+                                this.subscribeToQueryParams();
+                            },
+                            error: (error: any) => {
+                                this.toastService.show(error?.error?.message ?? 'İmtahan növləri yüklənərkən xəta baş verdi', 'error');
+                            }
+                        });
+                } else {
+                    this.subscribeToQueryParams();
+                }
             }
             else {
                 this.router.navigate(['/login']);
+            }
+        });
+    }
+
+    private subscribeToQueryParams(): void {
+        this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
+            // Restore filters
+            this.selectedRegionIds = params['regionIds'] ? params['regionIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+            this.selectedDistrictIds = params['districtIds'] ? params['districtIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+            this.selectedSchoolIds = params['schoolIds'] ? params['schoolIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+            this.selectedTeacherIds = params['teacherIds'] ? params['teacherIds'].split(',').filter((id: string) => id.trim() !== '') : [];
+            this.selectedGrades = params['grades'] ? params['grades'].split(',').map(Number).filter((g: number) => !isNaN(g)) : [];
+            this.selectedLevels = params['levels'] ? params['levels'].split(',').filter((l: string) => l.trim() !== '') : [];
+            this.searchString = params['search'] || '';
+            // Учебный год восстанавливается вместе с остальным фильтром (см. openStudentDetails).
+            const restoredYear = params['academicYear'] ? +params['academicYear'] : NaN;
+            this.selectedAcademicYear = isNaN(restoredYear) ? getCurrentAcademicYear() : restoredYear;
+
+            // IMTAHAN_NOVLERI_TASK.md §6 — тип экзамена восстанавливается из URL, если он там
+            // есть и существует среди активных типов; иначе дефолт заказчика — «второй по
+            // списку, не базовый» (первый активный НЕ базовый тип в порядке сортировки), а
+            // если таких нет — первый вообще. Только на /type-ratings — на /stats examTypes
+            // всегда пуст, этот блок не выполняется.
+            if (this.examTypeSelectable) {
+                const restoredExamTypeId = params['examTypeId'] ? +params['examTypeId'] : NaN;
+                this.selectedExamTypeId = (!isNaN(restoredExamTypeId) && this.examTypes.some(t => t.id === restoredExamTypeId))
+                    ? restoredExamTypeId
+                    : (this.examTypes.find(t => !t.isBase)?.id ?? this.examTypes[0]?.id ?? null);
+                this.rebuildLevelOptions();
+            }
+
+            // Список районов зависит от возможного restored regionIds
+            this.loadDistricts();
+
+            // Restore month and tab
+            this.selectedMonth = params['month'] || `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+            this.selectedTab = params['tab'] || 'developingStudents';
+
+            // Restore sort and pagination
+            this.sortActive = params['sortActive'] || 'averageScore';
+            this.sortDirection = params['sortDirection'] || 'desc';
+            this.pageSize = params['pageSize'] ? +params['pageSize'] : TABLE_PAGE_SIZE_DEFAULT;
+            this.studentsPageSize = params['studentsPageSize'] ? +params['studentsPageSize'] : TABLE_PAGE_SIZE_DEFAULT;
+            this.pageIndex = params['pageIndex'] ? +params['pageIndex'] : 0;
+
+            // Map tab to correct tab index and load data
+            if (this.selectedTab === 'developingStudents') {
+                this.selectedTabIndex = 0;
+                this.loadSchools();
+                this.loadTeachers();
+                this.loadDevelopingStudentsStats();
+            } else if (this.selectedTab === 'studentsOfMonth') {
+                this.selectedTabIndex = 1;
+                this.loadSchools();
+                this.loadTeachers();
+                this.loadStudentsOfMonthStats();
+            } else if (this.selectedTab === 'studentsOfMonthByRepublic') {
+                this.selectedTabIndex = 2;
+                this.loadSchools();
+                this.loadTeachers();
+                this.loadStudentsOfMonthByRepublicStats();
+            } else if (this.selectedTab === 'allStudents') {
+                this.selectedTabIndex = 3;
+                this.loadSchools();
+                this.loadTeachers();
+                this.loadAllStudentsStats();
+            } else if (this.selectedTab === 'allTeachers') {
+                this.selectedTabIndex = 4;
+                this.loadSchools();
+                this.loadTeachersStats();
+            } else if (this.selectedTab === 'allSchools') {
+                this.selectedTabIndex = 5;
+                this.loadSchoolsStats();
+            } else if (this.selectedTab === 'allDistricts') {
+                this.selectedTabIndex = 6;
+                this.loadDistrictsStats();
+            } else if (this.selectedTab === 'allRegions') {
+                this.selectedTabIndex = 7;
+                this.loadRegionsStats();
+            }
+
+            const monthPart = this.selectedMonth.split('-')[1];
+            if (monthPart !== '0') {
+                this.developingStudentsLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında inkişaf edən şagirdlər`);
+                this.studentsOfMonthLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında ayın şagirdləri`);
+                this.studentsOfMonthByRepublicLabel$.next(`${this.monthNamePipe.transform(this.selectedMonth)} ayında respublika üzrə ayın şagirdləri`);
             }
         });
     }
@@ -595,6 +648,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             month: this.selectedMonth,
+            ...this.examTypeParams(),
         };
 
         this.statsService.getDevelopingStudentsStats(params).subscribe({
@@ -634,6 +688,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             month: this.selectedMonth,
+            ...this.examTypeParams(),
         };
 
         this.statsService.getStudentsOfMonthStats(params).subscribe({
@@ -673,6 +728,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             month: this.selectedMonth,
+            ...this.examTypeParams(),
         };
 
         this.statsService.getStudentsOfMonthByRepublicStats(params).subscribe({
@@ -714,6 +770,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
+            ...this.examTypeParams(),
         };
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -749,6 +806,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
+            ...this.examTypeParams(),
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -783,6 +841,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
+            ...this.examTypeParams(),
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -811,6 +870,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
+            ...this.examTypeParams(),
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -837,6 +897,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
+            ...this.examTypeParams(),
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -1205,6 +1266,48 @@ export class StatsComponent implements OnInit, OnDestroy {
         this.syncFiltersToUrl();
     }
 
+    // IMTAHAN_NOVLERI_TASK.md §6 — смена типа экзамена на /type-ratings. Сбрасываем «Pillə»
+    // (коды уровней у другой шкалы могут не совпадать со старыми) и страницу, пересобираем
+    // levelOptions под новую шкалу, перезагружаем текущую вкладку — как и другие фильтры выше.
+    onExamTypeChanged(id: number | null): void {
+        this.selectedExamTypeId = id;
+        this.selectedLevels = [];
+        this.pageIndex = 0;
+        this.rebuildLevelOptions();
+        this.reloadCurrentTab();
+        this.syncFiltersToUrl();
+    }
+
+    // Набор опций «Pillə»: на /stats (!examTypeSelectable) — всегда DEFAULT_LEVEL_OPTIONS, байт
+    // в байт как раньше. На /type-ratings — шкала выбранного типа экзамена, отсортированная по
+    // rank; если тип/шкала не нашлись — тот же дефолт.
+    private rebuildLevelOptions(): void {
+        if (!this.examTypeSelectable) {
+            this.levelOptions = DEFAULT_LEVEL_OPTIONS;
+            return;
+        }
+        const levelScaleId = this.examTypes.find(t => t.id === this.selectedExamTypeId)?.levelScaleId;
+        const scale = levelScaleId != null ? this.levelScales.find(s => s.id === levelScaleId) : undefined;
+        this.levelOptions = scale
+            ? [...scale.bands].sort((a, b) => a.rank - b.rank).map(b => ({ label: b.nameAz, value: b.code }))
+            : DEFAULT_LEVEL_OPTIONS;
+    }
+
+    // IMTAHAN_NOVLERI_TASK.md §6 — подмешивается в params каждого запроса за данными рейтингов
+    // (не справочников для фильтров — те про списки сущностей, не про сами рейтинги). На /stats
+    // (!examTypeSelectable) всегда {} — запросы уходят ровно как раньше, без examTypeId.
+    private examTypeParams(): Pick<FilterParams, 'examTypeId'> {
+        return this.examTypeSelectable && this.selectedExamTypeId != null
+            ? { examTypeId: this.selectedExamTypeId }
+            : {};
+    }
+
+    // /stats и /type-ratings — один и тот же компонент, но со своим базовым путём для URL
+    // (syncFiltersToUrl/buildFilterQueryParams) и навигацией к карточке ученика.
+    get basePath(): string {
+        return this.examTypeSelectable ? '/type-ratings' : '/stats';
+    }
+
     /**
      * YENI_DUZELISLER_2026-09-17 п.9b: полный набор текущих фильтров/вкладки/сортировки/страницы —
      * вынесено из openStudentDetails() в отдельный метод, теперь используется ещё и syncFiltersToUrl().
@@ -1227,7 +1330,10 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection,
             pageSize: this.pageSize,
             studentsPageSize: this.studentsPageSize,
-            pageIndex: this.pageIndex
+            pageIndex: this.pageIndex,
+            // IMTAHAN_NOVLERI_TASK.md §6 — только на /type-ratings; на /stats всегда undefined,
+            // поле не попадает в URL (как и раньше).
+            examTypeId: this.examTypeSelectable ? this.selectedExamTypeId ?? undefined : undefined,
         };
     }
 
@@ -1241,16 +1347,18 @@ export class StatsComponent implements OnInit, OnDestroy {
      */
     private syncFiltersToUrl(): void {
         // Ролевые ветки setupUserContext() приходят асинхронно — если пользователь уже успел уйти
-        // со /stats (кликнул ученика), переписывать чужой URL нельзя.
-        if (!this.router.url.startsWith('/stats')) return;
-        const tree = this.router.createUrlTree(['/stats'], { queryParams: this.buildFilterQueryParams() });
+        // с этой страницы (кликнул ученика), переписывать чужой URL нельзя. basePath() — /stats
+        // или /type-ratings, в зависимости от режима (IMTAHAN_NOVLERI_TASK.md §6); startsWith
+        // покрывает и URL с query-строкой (/stats?tab=... тоже начинается с /stats).
+        if (!this.router.url.startsWith(this.basePath)) return;
+        const tree = this.router.createUrlTree([this.basePath], { queryParams: this.buildFilterQueryParams() });
         this.location.replaceState(this.router.serializeUrl(tree));
     }
 
     openStudentDetails(studentId: string): void {
         const queryParams = {
             ...this.buildFilterQueryParams(),
-            source: 'stats',
+            source: this.examTypeSelectable ? 'type-ratings' : 'stats',
         };
 
         this.router.navigate(['/students', studentId], { queryParams });
@@ -1383,6 +1491,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             sortDirection: this.sortDirection || 'desc',
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
+            ...this.examTypeParams(),
         };
         // Иначе экспорт с включённым фильтром «Ay» тихо выгрузил бы годовые данные вместо
         // месячных — тот же фильтр, что и у таблицы на экране (п.10 ТЗ 04.09.2026).

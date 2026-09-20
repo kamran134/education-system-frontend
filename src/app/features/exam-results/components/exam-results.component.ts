@@ -11,6 +11,8 @@ import { District } from '../../../core/models/district.model';
 import { School } from '../../../core/models/school.model';
 import { Teacher } from '../../../core/models/teacher.model';
 import { Exam } from '../../../core/models/exam.model';
+import { ExamType } from '../../../core/models/examType.model';
+import { ExamTypeService } from '../../exam-types/services/exam-type.service';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { DistrictService } from '../../districts/services/district.service';
 import { SchoolService } from '../../schools/services/school.service';
@@ -63,6 +65,7 @@ export class ExamResultsComponent implements OnInit {
     schools: School[] = [];
     teachers: Teacher[] = [];
     exams: Exam[] = [];
+    examTypes: ExamType[] = [];
 
     // Pagination
     totalCount = 0;
@@ -85,6 +88,8 @@ export class ExamResultsComponent implements OnInit {
     selectedTeacherIds: string[] = [];
     selectedExamIds: string[] = [];
     selectedGrades: number[] = [];
+    // правки заказчика 20.09.2026 — селект типа экзамена, по умолчанию базовый.
+    selectedExamTypeId: number | null = null;
 
     // Filter visibility
     showFilters = false;
@@ -188,6 +193,7 @@ export class ExamResultsComponent implements OnInit {
         private authService: AuthService,
         private excelService: ExcelService,
         private dashboardService: DashboardService,
+        private examTypeService: ExamTypeService,
         private route: ActivatedRoute
     ) {}
 
@@ -206,6 +212,7 @@ export class ExamResultsComponent implements OnInit {
                     teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
                     examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
                     grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
+                    examTypeId: this.selectedExamTypeId ?? undefined,
                     sortColumn: this.sortColumn || undefined,
                     sortDirection: this.sortDirection || undefined
                 };
@@ -226,6 +233,7 @@ export class ExamResultsComponent implements OnInit {
 
         this.loadDistricts();
         this.loadExams();
+        this.loadExamTypes();
         this.loadColumnSettings();
 
         // YENI_DUZELISLER_2026-09-17 п.7c: фильтр из ссылки профиля/меню владельца (districtIds/
@@ -311,10 +319,23 @@ export class ExamResultsComponent implements OnInit {
     }
 
     get examOptions(): SelectOption[] {
-        return this.exams.map(exam => ({
+        // правки заказчика 20.09.2026 — сузить список имтаханов до выбранного типа экзамена
+        // (без выбранного типа — не фильтруем, все имтаханы).
+        const exams = this.selectedExamTypeId != null
+            ? this.exams.filter(exam => exam.examTypeId === this.selectedExamTypeId)
+            : this.exams;
+        return exams.map(exam => ({
             value: exam.id,
             label: `${exam.name} (${new Date(exam.date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
         }));
+    }
+
+    get examTypeOptions(): SelectOption[] {
+        return this.examTypes.map(t => ({ value: t.id, label: t.nameAz }));
+    }
+
+    get selectedExamTypeName(): string {
+        return this.examTypes.find(t => t.id === this.selectedExamTypeId)?.nameAz ?? '';
     }
 
     get gradeOptions(): SelectOption[] {
@@ -385,6 +406,26 @@ export class ExamResultsComponent implements OnInit {
         });
     }
 
+    // правки заказчика 20.09.2026 — default = базовый тип. Первая loadExamResults() из
+    // ngOnInit уже ушла без examTypeId (бэкенд и так резолвит базовый) — второй запрос нужен
+    // только если дефолт НЕ базовый (нет активного базового типа среди active), иначе это был
+    // бы дублирующий запрос с тем же результатом.
+    loadExamTypes(): void {
+        this.examTypeService.getExamTypes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (types) => {
+                this.examTypes = types.filter(t => t.active);
+                const base = this.examTypes.find(t => t.isBase);
+                this.selectedExamTypeId = base?.id ?? this.examTypes[0]?.id ?? null;
+                if (!base && this.selectedExamTypeId != null) {
+                    this.loadExamResults();
+                }
+            },
+            error: (err: any) => {
+                console.error('İmtahan növlərinin yüklənməsində xəta:', err);
+            }
+        });
+    }
+
     loadExams(): void {
         this.isLoadingExams = true;
         const params: FilterParams = {
@@ -447,6 +488,13 @@ export class ExamResultsComponent implements OnInit {
         this.loadExamResults();
     }
 
+    onExamTypeChange(id: number | null): void {
+        this.selectedExamTypeId = id;
+        this.selectedExamIds = [];
+        this.pageIndex = 0;
+        this.loadExamResults();
+    }
+
     onSearch(): void {
         this.pageIndex = 0;
         this.loadExamResults();
@@ -484,6 +532,8 @@ export class ExamResultsComponent implements OnInit {
         this.schools = [];
         this.teachers = [];
         this.pageIndex = 0;
+        // правки заказчика 20.09.2026 — сброс типа экзамена возвращает к базовому, не к «всем».
+        this.selectedExamTypeId = this.examTypes.find(t => t.isBase)?.id ?? this.examTypes[0]?.id ?? null;
         this.loadExamResults();
     }
 

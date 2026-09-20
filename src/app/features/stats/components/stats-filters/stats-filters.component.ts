@@ -5,6 +5,7 @@ import { District } from '../../../../core/models/district.model';
 import { Region } from '../../../../core/models/region.model';
 import { School } from '../../../../core/models/school.model';
 import { Teacher } from '../../../../core/models/teacher.model';
+import { ExamType } from '../../../../core/models/examType.model';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
 import { getCurrentAcademicYear, academicYearLabel, FIRST_TRACKED_ACADEMIC_YEAR, FIRST_TRACKED_CALENDAR_YEAR } from '../../../../core/utils/academic-year.util';
 
@@ -15,6 +16,18 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { LucideAngularModule, Search, Filter, ChevronDown, ChevronUp } from 'lucide-angular';
 import { SelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
+
+// IMTAHAN_NOVLERI_TASK.md §6 — набор «Pillə» по умолчанию (базовый тип, /stats). Вынесено на
+// уровень модуля, чтобы StatsComponent мог переиспользовать его как fallback для
+// examTypeSelectable-режима (/type-ratings), когда у выбранного типа нет своей шкалы.
+export const DEFAULT_LEVEL_OPTIONS: { label: string; value: string }[] = [
+    { label: 'E', value: 'E' },
+    { label: 'D', value: 'D' },
+    { label: 'C', value: 'C' },
+    { label: 'B', value: 'B' },
+    { label: 'A', value: 'A' },
+    { label: 'Lisey', value: 'Lisey' }
+];
 
 @Component({
     selector: 'app-stats-filters',
@@ -57,6 +70,12 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
      *  selectedMonth (пара Ay+İl на месячных вкладках) тут нет отдельного календарного года:
      *  он вычисляется родителем из этого месяца и выбранного tədris ili (п.10 ТЗ 04.09.2026). */
     @Input() selectedYearlyMonth: number = 0;
+
+    // IMTAHAN_NOVLERI_TASK.md §6 — селект типа экзамена (только на /type-ratings,
+    // examTypeSelectable). На /stats (базовый режим) examTypes всегда [] — блок в шаблоне скрыт.
+    @Input() examTypes: ExamType[] = [];
+    @Input() selectedExamTypeId: number | null = null;
+    @Output() examTypeChanged = new EventEmitter<number | null>();
 
     // Role-based filter visibility — filter is hidden entirely when the role's value
     // is always fixed to a single option (e.g. a teacher can't filter by teacher)
@@ -158,14 +177,16 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         return (this.gradesOptions || []).map(grade => ({ label: grade.toString(), value: grade }));
     }
 
-    readonly levelOptions = [
-        { label: 'E', value: 'E' },
-        { label: 'D', value: 'D' },
-        { label: 'C', value: 'C' },
-        { label: 'B', value: 'B' },
-        { label: 'A', value: 'A' },
-        { label: 'Lisey', value: 'Lisey' }
-    ];
+    // IMTAHAN_NOVLERI_TASK.md §6 — на /stats всегда DEFAULT_LEVEL_OPTIONS (родитель не трогает
+    // этот input в базовом режиме); на /type-ratings родитель подставляет шкалу выбранного типа.
+    @Input() levelOptions: { label: string; value: string }[] = DEFAULT_LEVEL_OPTIONS;
+
+    // Селект типа экзамена — options для app-select.
+    get examTypeOptions() {
+        return (this.examTypes || []).map(t => ({ label: t.nameAz, value: t.id }));
+    }
+
+    examTypeControl = new FormControl<number | null>(null);
 
     private destroyRef = inject(DestroyRef);
 
@@ -175,6 +196,7 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
         this.setupYears();
         this.setupAcademicYears();
         this.setupYearlyMonthChange();
+        this.setupExamTypeChange();
     }
 
     ngOnInit() {
@@ -194,6 +216,15 @@ export class StatsFiltersComponent implements OnInit, OnChanges {
             && this.selectedYearlyMonth !== this.yearlyMonthControl.value) {
             this.yearlyMonthControl.setValue(this.selectedYearlyMonth, { emitEvent: false });
         }
+        if (changes['selectedExamTypeId'] && this.selectedExamTypeId !== this.examTypeControl.value) {
+            this.examTypeControl.setValue(this.selectedExamTypeId, { emitEvent: false });
+        }
+    }
+
+    setupExamTypeChange() {
+        this.examTypeControl.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(id => this.examTypeChanged.emit(id));
     }
 
     /** 2024…текущий календарный год (BASE_FIXES_TASK.md §4.6) — заказчик, 25.08.2026: будущие

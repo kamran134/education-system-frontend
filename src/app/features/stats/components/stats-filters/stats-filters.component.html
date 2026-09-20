@@ -17,6 +17,17 @@
   <!-- Filters Grid -->
   <div [class]="filtersExpanded ? 'block' : 'hidden'">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Exam Type Filter (/type-ratings only, IMTAHAN_NOVLERI_TASK.md §6) -->
+      @if (examTypes.length > 0) {
+        <div>
+          <app-select
+            label="İmtahan növü"
+            [formControl]="examTypeControl"
+            [options]="examTypeOptions">
+          </app-select>
+        </div>
+      }
+
       <!-- Month Filter -->
       @if (['developingStudents', 'studentsOfMonth', 'studentsOfMonthByRepublic'].includes(selectedTab)) {
         <div>

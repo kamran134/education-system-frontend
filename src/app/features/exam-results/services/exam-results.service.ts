@@ -84,6 +84,12 @@ export class ExamResultsService {
             queryParams.push(`sortColumn=${params.sortColumn}`);
             queryParams.push(`sortDirection=${params.sortDirection}`);
         }
+
+        // правки заказчика 20.09.2026 — без него бэкенд подставляет базовый тип, чтобы
+        // результаты разных типов экзамена не смешивались в одной таблице.
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
+        }
         
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;

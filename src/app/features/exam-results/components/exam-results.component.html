@@ -37,6 +37,14 @@
         </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Exam type filter (правки заказчика 20.09.2026) -->
+        <app-select
+          label="İmtahan növü"
+          [options]="examTypeOptions"
+          [(ngModel)]="selectedExamTypeId"
+          (ngModelChange)="onExamTypeChange($event)"
+          placeholder="İmtahan növünü seçin">
+        </app-select>
         <!-- Search by name -->
         <app-input
           label="Ad və soyada görə axtarış"
@@ -129,6 +137,9 @@
           <span class="text-sm text-gray-500">
             Cəmi: {{ totalCount }} nəticə
           </span>
+          @if (selectedExamTypeName) {
+            <span class="text-sm text-gray-500">· {{ selectedExamTypeName }}</span>
+          }
         </div>
       </div>
     </div>

@@ -8,7 +8,6 @@ import { SchoolsListComponent } from './features/schools/components/schools-list
 import { TeachersListComponent } from './features/teachers/components/teachers-list/teachers-list.component';
 import { ExamsListComponent } from './features/exams/components/exams-list/exams-list.component';
 import { StatsComponent } from './features/stats/components/stats-main/stats.component';
-import { TypeRatingsComponent } from './features/type-ratings/type-ratings.component';
 import { StatisticsMainComponent } from './features/statistics/components/statistics-main/statistics-main.component';
 import { StudentsListComponent } from './features/students/components/students-list/students-list.component';
 import { StudentDetailsComponent } from './features/students/components/student-details/student-details.component';
@@ -66,9 +65,9 @@ export const routes: Routes = [
     { path: 'sertifikat/:token', component: CertificateVerifyComponent },
     { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard] },
     { path: 'stats', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')] },
-    // IMTAHAN_NOVLERI_TASK.md §6 — рейтинги по типу экзамена, отдельная страница от /stats
-    // (которая остаётся на базовом типе и не меняется). Тот же гейт, что и /stats.
-    { path: 'type-ratings', component: TypeRatingsComponent, canActivate: [authGuard, roleGuard('canAccessStats')] },
+    // IMTAHAN_NOVLERI_TASK.md §6 — рейтинги по типу экзамена. Больше не отдельный компонент:
+    // тот же StatsComponent в режиме выбора типа экзамена (data.examTypeSelectable), тот же гейт.
+    { path: 'type-ratings', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')], data: { examTypeSelectable: true } },
     { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard] },
     { path: 'profile', loadChildren: () => import('./features/profile/profile.routes').then(m => m.PROFILE_ROUTES), canActivate: [authGuard] },
     { path: 'admin', loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.routes), canActivate: [authGuard] },

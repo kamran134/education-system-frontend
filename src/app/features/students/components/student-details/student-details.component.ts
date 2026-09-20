@@ -385,7 +385,7 @@ export class StudentDetailsComponent implements OnInit {
             this.navigationHistory.back();
             return;
         }
-        const backUrl = this.source === 'stats' ? '/stats' : '/students';
+        const backUrl = this.source === 'stats' ? '/stats' : this.source === 'type-ratings' ? '/type-ratings' : '/students';
         this.router.navigate([backUrl], { queryParams: this.filterParams });
     }
 

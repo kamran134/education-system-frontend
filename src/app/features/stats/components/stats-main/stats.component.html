@@ -4,7 +4,7 @@
        показывается всегда, возвращает туда, откуда пришли на /stats (не путать с drill-down
        "Geri" внутри вкладок — goBack()/canGoBack() ниже, другой метод). -->
   <div class="mb-8 flex items-start justify-between gap-3 flex-wrap">
-    <h1 class="text-3xl font-bold text-gray-900">İnkişaf və Reytinq göstəriciləri</h1>
+    <h1 class="text-3xl font-bold text-gray-900">İnkişaf və Reytinq göstəriciləri{{ examTypeSelectable ? ' (imtahan növü üzrə)' : '' }}</h1>
     <app-button variant="outline" size="sm" (clicked)="goBackToReferrer()">
       <div class="flex items-center gap-2">
         <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
@@ -15,6 +15,10 @@
 
   <app-stats-filters
     [selectedTab]="selectedTab"
+    [examTypes]="examTypeSelectable ? examTypes : []"
+    [selectedExamTypeId]="selectedExamTypeId"
+    [levelOptions]="levelOptions"
+    (examTypeChanged)="onExamTypeChanged($event)"
     [regions]="regions"
     [districts]="districts"
     [schools]="schools"

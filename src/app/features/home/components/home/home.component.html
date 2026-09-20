@@ -198,8 +198,9 @@
         }
 
         <!-- Type Ratings Card — рейтинги в разрезе типа экзамена (IMTAHAN_NOVLERI_TASK.md §6).
-             Отдельная карточка, а не вкладка внутри «Reytinqlər»: та страница намеренно осталась
-             на базовом типе и не знает про остальные (решение заказчика 4 и 5, §2 ТЗ). -->
+             Отдельная карточка, а не вкладка внутри «Reytinqlər»: это тот же StatsComponent, что и
+             /stats, но в режиме с обязательным селектом типа экзамена (examTypeSelectable), а /stats
+             сам остаётся на базовом типе и без селекта. -->
         @if (permissions.canShowUI('showStatsSection')) {
           <div
             class="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border border-gray-100 overflow-hidden"
