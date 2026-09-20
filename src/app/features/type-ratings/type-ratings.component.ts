@@ -63,9 +63,9 @@ const STUDENT_RESULT_COLUMNS: TableColumn[] = [
     { key: 'teacher', label: 'Layihə müəllimi', field: 'studentData.teacher.fullname', formatter: (v) => v || 'Layihə müəllimi tapılmadı' },
     { key: 'school', label: 'Məktəbi', field: 'studentData.school.name', formatter: (v) => v || 'Məktəb tapılmadı' },
     { key: 'district', label: 'Təhsil sektoru', field: 'studentData.district.name', formatter: (v) => v || 'Təhsil sektoru tapılmadı' },
-    // YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi"; formatter получает (value, row) —
+    // YENI_DUZELISLER_2026-09-17 п.5: "Ümumi xal" → "Xal faizi"; formatter получает (value, row) —
     // используем row, чтобы учесть scorePercent, а не только totalScore.
-    { key: 'totalScore', label: 'Bal faizi', formatter: (_, row) => formatScorePercentOrTotal(row) },
+    { key: 'totalScore', label: 'Xal faizi', formatter: (_, row) => formatScorePercentOrTotal(row) },
     { key: 'level', label: 'Pillə' },
     { key: 'score', label: 'Reytinq xalı' },
     { key: 'exam', label: 'İmtahan', field: 'examData.name', formatter: (v) => v || '—' },

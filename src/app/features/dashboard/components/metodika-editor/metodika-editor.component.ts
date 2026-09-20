@@ -143,7 +143,7 @@ export class MetodikaEditorComponent implements OnInit {
         this.content.live.cards.splice(index, 1);
     }
 
-    // ==================== İlin şagirdi balları (yearAwards.points) ====================
+    // ==================== İlin şagirdi xalları (yearAwards.points) ====================
 
     addYearPoint(): void {
         this.content.yearAwards.points.push({ points: '', title: '', note: '' });

@@ -61,7 +61,7 @@ export class ResultEditingDialogComponent {
         return 'İmtahan nəticəsinin məlumatlarını daxil edin';
     }
 
-    /** YENI_DUZELISLER_2026-09-17 п.5: "Bal faizi" — тот же форматтер, что и в student-details. */
+    /** YENI_DUZELISLER_2026-09-17 п.5: "Xal faizi" — тот же форматтер, что и в student-details. */
     formatScorePercentOrTotal(result: ExamResult): string {
         return formatScorePercentOrTotal(result);
     }

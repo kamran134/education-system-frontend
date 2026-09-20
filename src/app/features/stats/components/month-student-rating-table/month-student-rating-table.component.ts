@@ -43,9 +43,9 @@ export class MonthStudentRatingTableComponent {
         ['code', { key: 'code', label: 'İş nömrəsi', sortable: true, field: 'studentData.code' }],
         // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ 'fullname' не менялся.
         ['fullname', { key: 'fullname', label: 'Şagird', sortable: true, field: 'studentData.fullname' }],
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi"; sortable оставлен — сортировка
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi"; sortable оставлен — сортировка
         // серверная, по sr.total_score, formatter только меняет отображаемое значение.
-        ['totalScore', { key: 'totalScore', label: 'Bal faizi', sortable: true, field: 'totalScore', formatter: (_, row) => formatScorePercentOrTotal(row) }],
+        ['totalScore', { key: 'totalScore', label: 'Xal faizi', sortable: true, field: 'totalScore', formatter: (_, row) => formatScorePercentOrTotal(row) }],
         // Класс НА МОМЕНТ РЕЗУЛЬТАТА (row.grade, sr.grade на бэке), не studentData.grade — тот
         // живой класс ученика, после повышения он врёт задним числом (SINIF_TARIXCESI_TASK.md §3.2).
         ['grade', { key: 'grade', label: 'Sinifi', sortable: true, field: 'grade' }],
