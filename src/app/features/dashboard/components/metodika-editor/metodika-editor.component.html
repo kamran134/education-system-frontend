@@ -201,7 +201,7 @@
           <app-input label="Lid mətn" [multiline]="true" [rows]="2" [(ngModel)]="content.yearAwards.lead"></app-input>
 
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-700">Bal kartları</span>
+            <span class="text-sm font-medium text-gray-700">Xal kartları</span>
             <button type="button" (click)="addYearPoint()" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
               <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon> Kart əlavə et
             </button>
@@ -210,7 +210,7 @@
             @for (p of content.yearAwards.points; track $index) {
               <div class="flex items-start gap-3 border border-gray-200 rounded-lg p-3">
                 <div class="w-28">
-                  <app-input label="Bal" [(ngModel)]="p.points"></app-input>
+                  <app-input label="Xal" [(ngModel)]="p.points"></app-input>
                 </div>
                 <div class="flex-1">
                   <app-input label="Başlıq" [(ngModel)]="p.title"></app-input>

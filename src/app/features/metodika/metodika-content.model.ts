@@ -127,7 +127,7 @@ export const METODIKA_DEFAULT_CONTENT: MetodikaContent = {
             { name: 'Məntiq', questions: 10 },
         ],
         levelsTitle: 'İmtahanın nəticəsi — 6 səviyyədən biri',
-        levelsLead: 'Hər şagird topladığı balın faizinə uyğun olaraq aşağıdakı səviyyələrdən birində qərarlaşır.',
+        levelsLead: 'Hər şagird topladığı xalın faizinə uyğun olaraq aşağıdakı səviyyələrdən birində qərarlaşır.',
         levels: [
             { code: 'E', percent: '0–29%' },
             { code: 'D', percent: '30–49%' },
@@ -136,7 +136,7 @@ export const METODIKA_DEFAULT_CONTENT: MetodikaContent = {
             { code: 'A', percent: '84–94%' },
             { code: 'Lisey', percent: '95–100%' },
         ],
-        ladderNote: 'Kürsüdəki bal — səviyyəyə görə İLİN ŞAGİRDLƏRİ yarışına yazılan iştirak balıdır, səviyyənin həddi deyil.',
+        ladderNote: 'Kürsüdəki xal — səviyyəyə görə İLİN ŞAGİRDLƏRİ yarışına yazılan iştirak xalıdır, səviyyənin həddi deyil.',
     },
     live: {
         title: 'Nəticələr canlı yayımda',
@@ -160,7 +160,7 @@ export const METODIKA_DEFAULT_CONTENT: MetodikaContent = {
     },
     yearAwards: {
         title: 'İLİN ŞAGİRDLƏRİ bu cür müəyyənləşir',
-        lead: 'Tədris ilinin sonunda həm rayon (şəhər), həm də Respublika üzrə ən çox bal toplayan şagirdlər İLİN ŞAGİRDLƏRİ adını qazanırlar.',
+        lead: 'Tədris ilinin sonunda həm rayon (şəhər), həm də Respublika üzrə ən çox xal toplayan şagirdlər İLİN ŞAGİRDLƏRİ adını qazanırlar.',
         points: [
             { points: '10', title: 'İNKİŞAF EDƏN ŞAGİRD', note: 'Bir pillə yüksəyə qalxdığı hər imtahana görə' },
             { points: '5', title: 'AYIN ƏN YAXŞI ŞAGİRDİ', note: 'Ayın nəticələrinə görə seçilirsə' },

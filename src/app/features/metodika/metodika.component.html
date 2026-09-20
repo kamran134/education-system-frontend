@@ -126,10 +126,10 @@
 
         <div>
           <img src="assets/hedef-kursusu.svg"
-               alt="Hədəf kürsüsü: E, D, C, B, A və Lisey pillələri — 1 baldan 6 bala qədər"
+               alt="Hədəf kürsüsü: E, D, C, B, A və Lisey pillələri — 1 xaldan 6 xala qədər"
                width="2108" height="1639"
                class="w-full h-auto max-w-[520px] mx-auto" />
-          <!-- Без этой сноски «1 bal … 6 bal» на картинке читается как порог уровня и спорит
+          <!-- Без этой сноски «1 xal … 6 xal» на картинке читается как порог уровня и спорит
                с процентной шкалой слева: на деле это балл за участие в годовом зачёте. -->
           <p class="text-[13px] leading-[1.55] text-[#454C6B] text-center max-w-[46ch] mx-auto mt-3">
             {{ content.part1.ladderNote }}
@@ -169,7 +169,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-9">
         @for (p of content.yearAwards.points; track $index) {
           <div class="border-2 border-brand-ink rounded-[18px] bg-white px-6 py-[26px]">
-            <b class="block text-[38px] leading-none font-bold tracking-[-0.03em] tabular-nums text-brand-redInk mb-3">{{ p.points }}<span class="text-[17px] font-bold ml-[6px]">bal</span></b>
+            <b class="block text-[38px] leading-none font-bold tracking-[-0.03em] tabular-nums text-brand-redInk mb-3">{{ p.points }}<span class="text-[17px] font-bold ml-[6px]">xal</span></b>
             <b class="block text-[15px] tracking-[-0.012em] mb-[7px]">{{ p.title }}</b>
             <p class="text-[13.8px] leading-[1.55] text-[#454C6B]">{{ p.note }}</p>
           </div>
