@@ -19,7 +19,7 @@
         routerLink="/admin/level-scales"
         class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
       >
-        Pillə şkalaları
+        Pillə meyarları
       </a>
     </div>
 
@@ -29,7 +29,7 @@
           <tr>
             <th class="px-4 py-2 text-left font-medium text-gray-500">Kod</th>
             <th class="px-4 py-2 text-left font-medium text-gray-500">Adı</th>
-            <th class="px-4 py-2 text-center font-medium text-gray-500">Baza növü</th>
+            <th class="px-4 py-2 text-center font-medium text-gray-500">Əsas imtahan növü</th>
             <th class="px-4 py-2 text-center font-medium text-gray-500">Aktiv</th>
             <th class="px-4 py-2 text-right font-medium text-gray-500">Əməliyyatlar</th>
           </tr>
@@ -41,7 +41,7 @@
               <td class="px-4 py-2 text-gray-900">{{ examType.nameAz }}</td>
               <td class="px-4 py-2 text-center">
                 @if (examType.isBase) {
-                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-primary-500" title="Baza növü"></span>
+                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-primary-500" title="Əsas imtahan növü"></span>
                 }
               </td>
               <td class="px-4 py-2 text-center">

@@ -35,7 +35,7 @@ export class LevelScalesViewComponent implements OnInit {
             error: (err: any) => {
                 this.isLoading = false;
                 this.hasError = true;
-                this.errorMessage = `Şkalalar yüklənərkən xəta baş verdi: ${err.message || ''}`;
+                this.errorMessage = `Meyarlar yüklənərkən xəta baş verdi: ${err.message || ''}`;
             }
         });
     }

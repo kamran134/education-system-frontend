@@ -30,11 +30,12 @@
           ></app-input>
 
           <app-select
-            label="Pillə şkalası"
+            label="Pillə meyarı"
             [options]="levelScaleOptions"
             [(ngModel)]="model.levelScaleId"
             name="levelScaleId"
             [required]="true"
+            (selectionChange)="onLevelScaleChange()"
           ></app-select>
 
           <app-input
@@ -44,19 +45,20 @@
             name="sortOrder"
           ></app-input>
 
-          <app-input
-            label="Ay üzrə mükafat üçün minimal rütbə"
-            placeholder="Boş buraxsanız — məhdudiyyət yoxdur"
-            type="number"
+          <app-select
+            label="Ayın şagirdi üçün minimal pillə"
+            helpText="Ən yüksək balı toplayan şagird «Ayın şagirdi» adını yalnız bu pillədən aşağı olmayan nəticə ilə alır"
+            [options]="monthAwardOptions"
             [(ngModel)]="model.monthAwardMinRank"
             name="monthAwardMinRank"
-          ></app-input>
+            [disabled]="!model.levelScaleId"
+          ></app-select>
         </div>
 
         <div class="mt-6 flex flex-wrap gap-6">
           <label class="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.isBase" name="isBase" [ngModelOptions]="{standalone: true}">
-            Baza növüdür
+            Əsas imtahan növüdür
           </label>
           <label class="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.active" name="active" [ngModelOptions]="{standalone: true}">
@@ -122,14 +124,25 @@
               <div class="ml-0 sm:ml-4">
                 <div class="mb-2 flex items-center justify-between">
                   <h4 class="text-sm font-medium text-gray-700">Fənlər</h4>
-                  <button
-                    type="button"
-                    (click)="addSubject(sectionIndex)"
-                    class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <lucide-icon [img]="Plus" class="h-3.5 w-3.5"></lucide-icon>
-                    Fənn əlavə et
-                  </button>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      (click)="addSubject(sectionIndex)"
+                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <lucide-icon [img]="Plus" class="h-3.5 w-3.5"></lucide-icon>
+                      Fənn əlavə et
+                    </button>
+                    <button
+                      type="button"
+                      (click)="createSubject(sectionIndex)"
+                      [disabled]="isCreatingSubject"
+                      class="inline-flex items-center gap-1 rounded-lg border border-primary-300 px-2.5 py-1 text-xs font-medium text-primary-700 hover:bg-primary-50 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+                    >
+                      <lucide-icon [img]="Plus" class="h-3.5 w-3.5"></lucide-icon>
+                      Yeni fənn yarat
+                    </button>
+                  </div>
                 </div>
 
                 @if (section.subjects.length === 0) {

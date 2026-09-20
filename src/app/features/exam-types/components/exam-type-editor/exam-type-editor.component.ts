@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Dialog } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
 
 import { ExamType, ExamTypeInput, ExamTypeInputSection, ExamTypeInputSectionSubject } from '../../../../core/models/examType.model';
 import { LevelScale } from '../../../../core/models/levelScale.model';
-import { Subject as SubjectModel } from '../../../../core/models/subject.model';
+import { Subject as SubjectModel, SubjectInput } from '../../../../core/models/subject.model';
 import { ExamTypeService } from '../../services/exam-type.service';
 import { LevelScaleService } from '../../services/level-scale.service';
 import { SubjectService } from '../../services/subject.service';
@@ -13,6 +14,7 @@ import { ToastService } from '../../../../shared/components/ui/toast/toast.servi
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
+import { SubjectEditingDialogComponent, SubjectEditingDialogData } from '../subject-editing-dialog/subject-editing-dialog.component';
 
 /** Локальная (редактируемая на форме) модель секции — без FormArray, простой массив,
  *  мутируемый напрямую (ngModel/*ngFor), как заведено во всём остальном репозитории. */
@@ -41,9 +43,15 @@ export class ExamTypeEditorComponent implements OnInit {
     hasError = false;
     errorMessage = '';
     isSaving = false;
+    isCreatingSubject = false;
 
     levelScaleOptions: SelectOption[] = [];
+    /** Варианты «минимальной pillə для ученика месяца»: пункт «без ограничения» (null) +
+     *  бэнды выбранной pillə meyarı. value = band.rank — в БД хранится именно ранг
+     *  (exam_types.month_award_min_rank), а не код бэнда. */
+    monthAwardOptions: SelectOption[] = [];
     subjectOptions: SelectOption[] = [];
+    private levelScalesById = new Map<number, LevelScale>();
     private subjectsByCode = new Map<string, SubjectModel>();
 
     backButton: BackButton = { show: true, action: () => this.onCancel() };
@@ -77,7 +85,8 @@ export class ExamTypeEditorComponent implements OnInit {
         private examTypeService: ExamTypeService,
         private levelScaleService: LevelScaleService,
         private subjectService: SubjectService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private dialog: Dialog
     ) {}
 
     ngOnInit(): void {
@@ -88,6 +97,8 @@ export class ExamTypeEditorComponent implements OnInit {
         this.levelScaleService.getLevelScales().subscribe({
             next: (scales: LevelScale[]) => {
                 this.levelScaleOptions = (scales || []).map(s => ({ value: s.id, label: s.nameAz }));
+                this.levelScalesById = new Map((scales || []).map(s => [s.id, s]));
+                this.rebuildMonthAwardOptions();
             },
             error: () => { this.levelScaleOptions = []; }
         });
@@ -134,6 +145,7 @@ export class ExamTypeEditorComponent implements OnInit {
                         subjects: (section.subjects || []).map(subject => ({ ...subject }))
                     }))
                 };
+                this.rebuildMonthAwardOptions();
             },
             error: (err: any) => {
                 this.isLoading = false;
@@ -153,6 +165,25 @@ export class ExamTypeEditorComponent implements OnInit {
             this.model.nameAz?.trim() &&
             !!this.model.levelScaleId
         );
+    }
+
+    onLevelScaleChange(): void {
+        this.rebuildMonthAwardOptions();
+        // Сохранённый порог относится к бэндам прежней meyarı — сбрасываем, если такого
+        // ранга в новой нет.
+        if (this.model.monthAwardMinRank !== null &&
+            !this.monthAwardOptions.some(o => o.value === this.model.monthAwardMinRank)) {
+            this.model.monthAwardMinRank = null;
+        }
+    }
+
+    private rebuildMonthAwardOptions(): void {
+        const scale = this.model.levelScaleId !== null ? this.levelScalesById.get(this.model.levelScaleId) : undefined;
+        const bands = [...(scale?.bands || [])].sort((a, b) => a.rank - b.rank);
+        this.monthAwardOptions = [
+            { value: null, label: 'Məhdudiyyət yoxdur' },
+            ...bands.map(b => ({ value: b.rank, label: b.nameAz }))
+        ];
     }
 
     addSection(): void {
@@ -178,6 +209,40 @@ export class ExamTypeEditorComponent implements OnInit {
 
     removeSubject(sectionIndex: number, subjectIndex: number): void {
         this.model.sections[sectionIndex].subjects.splice(subjectIndex, 1);
+    }
+
+    /** Создание предмета справочника прямо из редактора типа (если забыли завести его в
+     *  /admin/subjects). Диалог тот же, что и в списке предметов; после успешного POST новый
+     *  предмет попадает в выпадающий список и сразу добавляется строкой в текущую секцию. */
+    createSubject(sectionIndex: number): void {
+        const dialogRef = this.dialog.open<SubjectInput | undefined>(SubjectEditingDialogComponent, {
+            width: '500px',
+            data: { isEditing: false } as SubjectEditingDialogData
+        });
+
+        dialogRef.closed.subscribe((result) => {
+            if (!result) return;
+
+            this.isCreatingSubject = true;
+            this.subjectService.createSubject(result).subscribe({
+                next: (created: SubjectModel) => {
+                    this.isCreatingSubject = false;
+                    this.subjectsByCode.set(created.code, created);
+                    this.subjectOptions = [...this.subjectOptions, { value: created.code, label: created.nameAz }];
+                    const subjects = this.model.sections[sectionIndex].subjects;
+                    subjects.push({
+                        subjectCode: created.code,
+                        nameAz: created.nameAz,
+                        sortOrder: subjects.length
+                    });
+                    this.toastService.show('Fənn uğurla yaradıldı', 'success');
+                },
+                error: (err: any) => {
+                    this.isCreatingSubject = false;
+                    this.toastService.show(err?.error?.message || 'Fənn yaradılarkən xəta baş verdi', 'error');
+                }
+            });
+        });
     }
 
     /** При выборе предмета в секции подтягиваем его отображаемое имя из справочника
