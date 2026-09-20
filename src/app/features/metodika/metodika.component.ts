@@ -9,10 +9,8 @@ import {
     MetodikaContent,
     METODIKA_DEFAULT_CONTENT,
     mergeMetodikaContent,
-    getDisciplineBarClass,
     getLevelTileClass,
     getLiveCardBadgeClass,
-    getTotalQuestions,
 } from './metodika-content.model';
 
 /**
@@ -38,13 +36,8 @@ export class MetodikaComponent implements OnInit {
 
     content: MetodikaContent = METODIKA_DEFAULT_CONTENT;
 
-    readonly getDisciplineBarClass = getDisciplineBarClass;
     readonly getLevelTileClass = getLevelTileClass;
     readonly getLiveCardBadgeClass = getLiveCardBadgeClass;
-
-    get totalQuestions(): number {
-        return getTotalQuestions(this.content.part1.disciplines);
-    }
 
     ngOnInit(): void {
         this.title.setTitle('İSİM metodikası — İbtidai Siniflərin İnkişaf Metodikası');

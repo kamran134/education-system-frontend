@@ -106,21 +106,6 @@ export class MetodikaEditorComponent implements OnInit {
         });
     }
 
-    // ==================== Fənlər (part1.disciplines) ====================
-
-    addDiscipline(): void {
-        this.content.part1.disciplines.push({ name: '', questions: 1 });
-    }
-
-    removeDiscipline(index: number): void {
-        if (this.content.part1.disciplines.length <= 1) return;
-        this.content.part1.disciplines.splice(index, 1);
-    }
-
-    get totalQuestions(): number {
-        return this.content.part1.disciplines.reduce((sum, d) => sum + (Number(d.questions) || 0), 0);
-    }
-
     // ==================== Səviyyələr (part1.levels) ====================
 
     addLevel(): void {

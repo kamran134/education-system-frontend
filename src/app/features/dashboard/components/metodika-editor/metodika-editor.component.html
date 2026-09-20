@@ -93,36 +93,6 @@
           <app-input label="Nişan (badge)" [(ngModel)]="content.part1.badge"></app-input>
           <app-input label="Başlıq" [(ngModel)]="content.part1.title"></app-input>
           <app-input label="Lid mətn" [multiline]="true" [rows]="2" [(ngModel)]="content.part1.lead"></app-input>
-          <app-input label="İmtahanın adı" [(ngModel)]="content.part1.examTitle"></app-input>
-
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-gray-700">Fənlər (cəmi: {{ totalQuestions }} sual)</span>
-              <button type="button" (click)="addDiscipline()" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
-                <lucide-icon [img]="Plus" class="w-4 h-4"></lucide-icon> Fənn əlavə et
-              </button>
-            </div>
-            <div class="space-y-3">
-              @for (d of content.part1.disciplines; track $index) {
-                <div class="flex items-start gap-3 border border-gray-200 rounded-lg p-3">
-                  <div class="flex-1">
-                    <app-input label="Fənnin adı" [(ngModel)]="d.name"></app-input>
-                  </div>
-                  <div class="w-32">
-                    <app-input label="Sual sayı" type="number" [min]="1" [(ngModel)]="d.questions"></app-input>
-                  </div>
-                  <button
-                    type="button"
-                    [disabled]="content.part1.disciplines.length <= 1"
-                    (click)="removeDiscipline($index)"
-                    class="mt-6 p-2 text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed">
-                    <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
-                  </button>
-                </div>
-              }
-            </div>
-          </div>
-
           <app-input label="Səviyyələr bölməsinin başlığı" [(ngModel)]="content.part1.levelsTitle"></app-input>
           <app-input label="Səviyyələr bölməsinin lid mətni" [multiline]="true" [rows]="2" [(ngModel)]="content.part1.levelsLead"></app-input>
 

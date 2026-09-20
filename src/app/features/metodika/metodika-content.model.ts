@@ -11,11 +11,6 @@
 // (нужна ещё и кабинету ученика) — здесь остаётся только делегирование, чтобы не плодить копии.
 import { levelBadgeClass } from '../../core/utils/level-badge.util';
 
-export interface MetodikaDiscipline {
-    name: string;
-    questions: number;
-}
-
 export interface MetodikaLevel {
     code: string;
     percent: string;
@@ -46,8 +41,6 @@ export interface MetodikaContent {
         badge: string;
         title: string;
         lead: string;
-        examTitle: string;
-        disciplines: MetodikaDiscipline[];
         levelsTitle: string;
         levelsLead: string;
         levels: MetodikaLevel[];
@@ -60,18 +53,6 @@ export interface MetodikaContent {
     part2: { badge: string; title: string; lead: string; outcomeLabel: string; outcomeText: string };
 }
 
-/** Палитра полос предметов — циклически по индексу, см. решение 2 ТЗ. Админ её не редактирует. */
-export const METODIKA_DISCIPLINE_BAR_CLASSES: readonly string[] = [
-    'bg-brand-red',
-    'bg-brand-blue',
-    'bg-brand-green',
-    'bg-brand-magenta',
-];
-
-export function getDisciplineBarClass(index: number): string {
-    return METODIKA_DISCIPLINE_BAR_CLASSES[index % METODIKA_DISCIPLINE_BAR_CLASSES.length];
-}
-
 /** Цвет бейджа карточки «Nəticələr canlı yayımda» — по позиции, вёрстка не меняется (3 карточки). */
 const LIVE_CARD_BADGE_CLASSES: readonly string[] = ['bg-brand-red', 'bg-brand-green', 'bg-brand-magenta'];
 
@@ -82,11 +63,6 @@ export function getLiveCardBadgeClass(index: number): string {
 // YENI_DUZELISLER_2026-09-17 п.2: делегирует в общий util — поведение /metodika не меняется.
 export function getLevelTileClass(code: string): string {
     return levelBadgeClass(code);
-}
-
-/** totalQuestions больше не хранится отдельно — иначе разъезжается с суммой при правке. */
-export function getTotalQuestions(disciplines: readonly MetodikaDiscipline[]): number {
-    return disciplines.reduce((sum, d) => sum + (Number(d.questions) || 0), 0);
 }
 
 export const METODIKA_DEFAULT_CONTENT: MetodikaContent = {
@@ -119,13 +95,6 @@ export const METODIKA_DEFAULT_CONTENT: MetodikaContent = {
         badge: 'Birinci hissə',
         title: 'Şagirdin hədəfini formalaşdıraraq, dərslərə köklənməsini artırmaq',
         lead: 'Şagirdlər rayon (şəhər) üzrə Mərkəzləşmiş İmtahanda iştirak edir və 50 sualdan imtahan verirlər.',
-        examTitle: 'Mərkəzləşmiş İmtahan',
-        disciplines: [
-            { name: 'Azərbaycan dili', questions: 15 },
-            { name: 'Riyaziyyat', questions: 15 },
-            { name: 'Həyat Bilgisi', questions: 10 },
-            { name: 'Məntiq', questions: 10 },
-        ],
         levelsTitle: 'İmtahanın nəticəsi — 6 səviyyədən biri',
         levelsLead: 'Hər şagird topladığı xalın faizinə uyğun olaraq aşağıdakı səviyyələrdən birində qərarlaşır.',
         levels: [
@@ -213,7 +182,6 @@ export function mergeMetodikaContent(saved: Partial<MetodikaContent> | null | un
         part1: {
             ...def.part1,
             ...(saved.part1 ?? {}),
-            disciplines: arrOrDefault(saved.part1?.disciplines, def.part1.disciplines),
             levels: arrOrDefault(saved.part1?.levels, def.part1.levels),
         },
         live: {
