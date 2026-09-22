@@ -125,8 +125,8 @@ export class ExamResultsComponent implements OnInit {
             'grade': { key: 'grade', label: 'Sinif', sortable: true },
             'level': { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate },
             // Не сортируется — сортировка идёт на бэкенде по колонкам БД, а этой колонки в БД нет.
-            'scorePercent': { key: 'scorePercent', label: 'Xal faizi', sortable: false, formatter: (_v, row) => this.formatScorePercent(row) },
-            'totalScore': { key: 'totalScore', label: 'Ümumi xal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
+            'scorePercent': { key: 'scorePercent', label: 'Bal faizi', sortable: false, formatter: (_v, row) => this.formatScorePercent(row) },
+            'totalScore': { key: 'totalScore', label: 'Ümumi bal', sortable: true, cellTemplate: this.totalScoreCellTemplate },
             'exam.date': { key: 'exam.date', label: 'Tarix', sortable: true, formatter: (v) => this.formatDate(v) },
             'studentData.school.name': { key: 'studentData.school.name', label: 'Məktəb', sortable: true },
             // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" как заголовок колонки «учитель ученика» → "Layihə müəllimi".
@@ -141,7 +141,7 @@ export class ExamResultsComponent implements OnInit {
         return order.map(key => catalog[key]).filter((c): c is TableColumn => !!c);
     }
 
-    // Xal faizi — server hesablayır (student_results.score_percent, IMTAHAN_NOVLERI_TASK.md §5/§7):
+    // Bal faizi — server hesablayır (student_results.score_percent, IMTAHAN_NOVLERI_TASK.md §5/§7):
     // total_score / Σ max_questions konfiqurasiyası əsasında, imtahan növünün bölməsindən.
     // Əvvəlki "ehtiyat 50 sual" məxrəci (lifeKnowledgeCount/logicCount doldurulmadığı üçün)
     // artıq lazım deyil — server hər nəticənin öz maxQuestions-unu istifadə edir.

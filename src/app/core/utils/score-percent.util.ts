@@ -1,4 +1,4 @@
-// YENI_DUZELISLER_2026-09-17 п.5b: общий форматтер "Xal faizi" для месячных вкладок /stats и
+// YENI_DUZELISLER_2026-09-17 п.5b: общий форматтер "Bal faizi" для месячных вкладок /stats и
 // /type-ratings — бэк отдаёт scorePercent только там, где известно число вопросов
 // (stats.service.pg.ts::queryStudentResultStats, п.5a). Округление — точно как в
 // exam-results.component.ts::formatScorePercent, чтобы один и тот же результат не показывал

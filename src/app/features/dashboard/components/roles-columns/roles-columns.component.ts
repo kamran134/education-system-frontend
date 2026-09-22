@@ -36,8 +36,8 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'school', label: 'Məktəbi', selected: false, order: 5 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 6 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 7 },
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi".
-        { key: 'totalScore', label: 'Xal faizi', selected: false, order: 8 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 8 },
     ],
     monthStudents: [
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 0 },
@@ -49,8 +49,8 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'school', label: 'Məktəbi', selected: false, order: 4 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi".
-        { key: 'totalScore', label: 'Xal faizi', selected: false, order: 7 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 7 },
     ],
     republicMonthStudents: [
         { key: 'code', label: 'İş nömrəsi', selected: false, order: 0 },
@@ -62,8 +62,8 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'school', label: 'Məktəbi', selected: false, order: 4 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi".
-        { key: 'totalScore', label: 'Xal faizi', selected: false, order: 7 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 7 },
     ],
     allStudents: [
         { key: 'place', label: 'Respublika üzrə yer', selected: false, order: 0 },
@@ -125,8 +125,8 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'studentData.fullname', label: 'Şagird', selected: false, order: 1 },
         { key: 'grade', label: 'Sinif', selected: false, order: 2 },
         { key: 'level', label: 'Pillə', selected: false, order: 3 },
-        { key: 'scorePercent', label: 'Xal faizi', selected: false, order: 4 },
-        { key: 'totalScore', label: 'Ümumi xal', selected: false, order: 5 },
+        { key: 'scorePercent', label: 'Bal faizi', selected: false, order: 4 },
+        { key: 'totalScore', label: 'Ümumi bal', selected: false, order: 5 },
         { key: 'exam.date', label: 'Tarix', selected: false, order: 6 },
         { key: 'studentData.school.name', label: 'Məktəb', selected: false, order: 7 },
         // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".

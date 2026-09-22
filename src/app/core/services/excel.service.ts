@@ -32,8 +32,8 @@ export class ExcelService {
         ['teacher',           { label: 'Layihə müəllimi',         accessor: (r: any) => r.studentData?.teacher?.fullname || 'Layihə müəllimi tapılmadı' }],
         ['school',            { label: 'Məktəbi',          accessor: (r: any) => r.studentData?.school?.name || 'Məktəb tapılmadı' }],
         ['district',          { label: 'Təhsil sektoru', accessor: (r: any) => r.studentData?.district?.name || 'Təhsil sektoru tapılmadı' }],
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi".
-        ['totalScore',        { label: 'Xal faizi',    accessor: (r: any) => formatScorePercentOrTotal(r) }],
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        ['totalScore',        { label: 'Bal faizi',    accessor: (r: any) => formatScorePercentOrTotal(r) }],
         ['score',             { label: 'Reytinq xalı',             accessor: (r: any) => r.score ?? 0 }],
         ['averageScore',      { label: 'Orta reytinq xalı',        accessor: (r: any) => r.studentData?.averageScore ?? 0 }],
         ['participationCount',{ label: 'İştirak sayı',    accessor: (r: any) => r.participationCount ?? 0 }],
@@ -250,8 +250,8 @@ export class ExcelService {
                 // Раньше обе стояли в конце, за динамическими колонками предметов, и на широком
                 // листе их просто не находили глазами.
                 'Pilləsi': result.level || 'Pillə tapılmadı',
-                // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi" (ключ объекта = заголовок листа).
-                'Xal faizi': formatScorePercentOrTotal(result),
+                // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi" (ключ объекта = заголовок листа).
+                'Bal faizi': formatScorePercentOrTotal(result),
             };
             for (const [code, label] of disciplineLabels) {
                 row[label] = result.disciplines?.find(d => d.subjectCode === code)?.score ?? 0;
@@ -287,7 +287,7 @@ export class ExcelService {
     /**
      * Styled export for İmtahan nəticələri:
      * – merged title row with active filter label
-     * – blue header row, yellow Yekun xal column
+     * – blue header row, yellow Yekun bal column
      * – dynamic discipline columns (only those with at least one non-zero value)
      */
     exportExamResultsStyled(results: ExamResult[], filterLabel: string): void {
@@ -308,7 +308,7 @@ export class ExcelService {
         // ── 2. Column layout ──────────────────────────────────────────────────
         // «Şagirdin kodu» → «Şagirdin iş nömrəsi» по просьбе заказчика (02.09.2026), как и в выгрузке карточки ученика.
         const fixedBefore = ['№', 'Sinif', 'Şagirdin iş nömrəsi', 'Soyadı, adı, ata adı'];
-        const allHeaders  = [...fixedBefore, ...activeDisciplines.map(d => d.label), 'Yekun xal', 'Pillə'];
+        const allHeaders  = [...fixedBefore, ...activeDisciplines.map(d => d.label), 'Yekun bal', 'Pillə'];
         const totalCols   = allHeaders.length;
         const yekunBalIdx = fixedBefore.length + activeDisciplines.length;
         const pilleIdx    = yekunBalIdx + 1;
@@ -417,7 +417,7 @@ export class ExcelService {
             { wch: 16 },  // iş nömrəsi
             { wch: 28 },  // Soyadı, adı, ata adı
             ...activeDisciplines.map(() => ({ wch: 8 })),
-            { wch: 11 },  // Yekun xal
+            { wch: 11 },  // Yekun bal
             { wch: 9  },  // Pillə
         ];
         ws['!rows'] = [{ hpt: 28 }, { hpt: 26 }];

@@ -96,7 +96,7 @@ export const METODIKA_DEFAULT_CONTENT: MetodikaContent = {
         title: 'Şagirdin hədəfini formalaşdıraraq, dərslərə köklənməsini artırmaq',
         lead: 'Şagirdlər rayon (şəhər) üzrə Mərkəzləşmiş İmtahanda iştirak edir və 50 sualdan imtahan verirlər.',
         levelsTitle: 'İmtahanın nəticəsi — 6 səviyyədən biri',
-        levelsLead: 'Hər şagird topladığı xalın faizinə uyğun olaraq aşağıdakı səviyyələrdən birində qərarlaşır.',
+        levelsLead: 'Hər şagird topladığı balın faizinə uyğun olaraq aşağıdakı səviyyələrdən birində qərarlaşır.',
         levels: [
             { code: 'E', percent: '0–29%' },
             { code: 'D', percent: '30–49%' },

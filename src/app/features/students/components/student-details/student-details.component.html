@@ -171,11 +171,11 @@
                   <tr class="bg-gray-50">
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
-                    <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi xal" → "Xal faizi" — процент, если известно число вопросов. -->
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Xal faizi</th>
-                    <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə xallar» до «Reytinq xalı» — как в Excel-выгрузке -->
+                    <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi" — процент, если известно число вопросов. -->
+                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Bal faizi</th>
+                    <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                     <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
-                      Fənlər üzrə xallar
+                      Fənlər üzrə ballar
                       <!-- Sual sayı hər predmetin özündə göstərilir (IMTAHAN_NOVLERI_TASK.md §6) —
                            sinifdən deyil, imtahan növünün has_question_counts sazlamasından asılıdır. -->
                       @if (currentResults.some(r => (r.disciplines ?? []).some(d => d.questionCount != null))) {
@@ -201,10 +201,10 @@
                         </span>
                       </td>
                       <!-- YENI_DUZELISLER_2026-09-17 п.5: без scorePercent (нет числа вопросов) — title поясняет, что показан сырой балл. -->
-                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi xal — sual sayı məlum deyil' : null">
+                      <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi bal — sual sayı məlum deyil' : null">
                         {{ formatScorePercentOrTotal(result) }}
                       </td>
-                      <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə xallar» до «Reytinq xalı» — как в Excel-выгрузке -->
+                      <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                       <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                         <div class="space-y-1">
                           @for (d of result.disciplines; track d.subjectCode) {
@@ -283,10 +283,10 @@
                       <tr class="bg-blue-50">
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">İmtahan tarixi</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Pillə</th>
-                        <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi xal" → "Xal faizi". -->
-                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Xal faizi</th>
-                        <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə xallar» до «Reytinq xalı» — как в Excel-выгрузке -->
-                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə xallar</th>
+                        <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi". -->
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Bal faizi</th>
+                        <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Fənlər üzrə ballar</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Reytinq xalı</th>
                         <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-blue-100">Ay üzrə uğuru</th>
                       </tr>
@@ -305,10 +305,10 @@
                             </span>
                           </td>
                           <!-- YENI_DUZELISLER_2026-09-17 п.5: без scorePercent (нет числа вопросов) — title поясняет, что показан сырой балл. -->
-                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi xal — sual sayı məlum deyil' : null">
+                          <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi bal — sual sayı məlum deyil' : null">
                             {{ formatScorePercentOrTotal(result) }}
                           </td>
-                          <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə xallar» до «Reytinq xalı» — как в Excel-выгрузке -->
+                          <!-- KICIK_DUZELISLER_2026-09-11 п.1: «Fənlər üzrə ballar» до «Reytinq xalı» — как в Excel-выгрузке -->
                           <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">
                             <div class="space-y-1">
                               @for (d of result.disciplines; track d.subjectCode) {
@@ -378,8 +378,8 @@
                           <tr class="bg-gray-50">
                             <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">İmtahan tarixi</th>
                             <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Pillə</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Xal faizi</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Fənlər üzrə xallar</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Bal faizi</th>
+                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Fənlər üzrə ballar</th>
                             <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Reytinq xalı</th>
                             <th class="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">Ay üzrə uğuru</th>
                           </tr>
@@ -395,7 +395,7 @@
                                   {{ result.level || 'Müəyyən edilməyib' }}
                                 </span>
                               </td>
-                              <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi xal — sual sayı məlum deyil' : null">
+                              <td class="px-4 py-3 text-sm font-semibold text-gray-900 border-b border-gray-100" [title]="result.scorePercent == null ? 'Ümumi bal — sual sayı məlum deyil' : null">
                                 {{ formatScorePercentOrTotal(result) }}
                               </td>
                               <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-100">

@@ -69,8 +69,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'school', label: 'Məktəbi', selected: false, order: 5 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 6 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 7 },
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi".
-        { key: 'totalScore', label: 'Xal faizi', selected: false, order: 8 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 8 },
     ];
 
     monthStudentColumnOptions: Column[] = [
@@ -83,8 +83,8 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'school', label: 'Məktəbi', selected: false, order: 4 },
         { key: 'district', label: 'Təhsil sektoru', selected: false, order: 5 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 6 },
-        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Xal faizi".
-        { key: 'totalScore', label: 'Xal faizi', selected: false, order: 7 },
+        // YENI_DUZELISLER_2026-09-17 п.5: "İmtahan balı" → "Bal faizi".
+        { key: 'totalScore', label: 'Bal faizi', selected: false, order: 7 },
         // { key: 'place', label: 'Yer', selected: false, order: 10 }
     ];
 

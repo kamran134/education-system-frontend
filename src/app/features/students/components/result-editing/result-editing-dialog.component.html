@@ -26,13 +26,13 @@
                     [required]="true" />
             </div>
 
-            <!-- Pillə/Ümumi xal artıq burada redaktə edilmir (IMTAHAN_NOVLERI_TASK.md §5) —
-                 fənlər üzrə xalları saxladıqdan sonra server özü hesablayır. -->
+            <!-- Pillə/Ümumi bal artıq burada redaktə edilmir (IMTAHAN_NOVLERI_TASK.md §5) —
+                 fənlər üzrə balları saxladıqdan sonra server özü hesablayır. -->
             <p class="text-xs text-gray-500">
                 Hazırkı pillə: <span class="font-medium">{{ data.result.level || 'Müəyyən edilməyib' }}</span> ·
-                <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi xal" → "Xal faizi". -->
-                Xal faizi: <span class="font-medium">{{ formatScorePercentOrTotal(data.result) }}</span>
-                — fənlər üzrə xalları dəyişib yadda saxladıqdan sonra yenidən hesablanacaq.
+                <!-- YENI_DUZELISLER_2026-09-17 п.5: "Ümumi bal" → "Bal faizi". -->
+                Bal faizi: <span class="font-medium">{{ formatScorePercentOrTotal(data.result) }}</span>
+                — fənlər üzrə balları dəyişib yadda saxladıqdan sonra yenidən hesablanacaq.
             </p>
         </div>
 
@@ -42,7 +42,7 @@
             <!-- IMTAHAN_NOVLERI_TASK.md §16: sual sayı hər fənn üçün mütləqdir — bal faizinin
                  məxrəci məhz bu dəyərlərin cəmindən hesablanır, server tərəfindən. -->
             <p class="text-xs text-gray-500">
-                Xal faizinin hesablanması üçün hər fənn üzrə sualların sayı mütləq göstərilməlidir.
+                Bal faizinin hesablanması üçün hər fənn üzrə sualların sayı mütləq göstərilməlidir.
             </p>
 
             <div class="space-y-3">
