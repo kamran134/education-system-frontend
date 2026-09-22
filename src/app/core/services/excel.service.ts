@@ -261,7 +261,7 @@ export class ExcelService {
             // Рейтинговый балл ЗА ЭТОТ МЕСЯЦ (участие + inkişaf + ayın şagirdi + respublika üzrə),
             // а не result.score: та колонка в БД у каждого результата равна 1, из-за чего в выгрузке
             // везде стояла единица (жалоба заказчика 02.09.2026).
-            row['Reytinq xalı'] = result.ratingScore ?? 0;
+            row['Ay üzrə Reytinq xalı'] = result.ratingScore ?? 0;
             row['Ay üzrə uğuru'] = this.formatStudentAchievements(result);
             return row;
         });

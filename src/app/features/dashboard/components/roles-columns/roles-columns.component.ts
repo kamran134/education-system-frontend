@@ -168,7 +168,7 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'monthStudents', label: 'Ayın şagirdləri' },
         { key: 'republicMonthStudents', label: 'Respublika üzrə ayın şagirdləri' },
         { key: 'allStudents', label: 'İlin şagirdləri' },
-        { key: 'allTeachers', label: 'İlin layihə müəllimləri' },
+        { key: 'allTeachers', label: 'İlin müəllimləri' },
         { key: 'allSchools', label: 'İlin məktəbləri' },
         { key: 'allDistricts', label: 'İlin təhsil sektorları' },
         { key: 'allRegions', label: 'İlin regional idarələri' },

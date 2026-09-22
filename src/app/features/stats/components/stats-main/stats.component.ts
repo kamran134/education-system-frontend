@@ -144,7 +144,7 @@ export class StatsComponent implements OnInit, OnDestroy {
     private readonly yearlyTabNoun: Record<string, string> = {
         allStudents: 'şagirdlər',
         // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
-        allTeachers: 'layihə müəllimləri',
+        allTeachers: 'müəllimlər',
         allSchools: 'məktəblər',
         allDistricts: 'təhsil sektorları',
         allRegions: 'regional təhsil idarələri'
@@ -215,7 +215,7 @@ export class StatsComponent implements OnInit, OnDestroy {
         { label: 'Ayın şagirdləri', key: 'studentsOfMonth', permission: 'showStudentsTab' },
         { label: 'Respublika üzrə ayın şagirdləri', key: 'studentsOfMonthByRepublic', permission: 'showStudentsTab' },
         { label: 'İlin şagirdləri', key: 'allStudents', permission: 'showStudentsTab' },
-        { label: 'İlin layihə müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
+        { label: 'İlin müəllimləri', key: 'allTeachers', permission: 'showTeachersTab' },
         { label: 'İlin məktəbləri', key: 'allSchools', permission: 'showSchoolsTab' },
         { label: 'İlin təhsil sektorları', key: 'allDistricts', permission: 'showDistrictsTab' },
         { label: 'İlin regional idarələri', key: 'allRegions', permission: 'showRegionsTab' }
@@ -1538,7 +1538,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isExportingExcel = false;
                 const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
-                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.displayedTeacherColumns), `İlin layihə müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
+                this.downloadExcelSheet(this.excelService.formatTeacherData(data, this.displayedTeacherColumns), `İlin müəllimləri ${this.academicYearLabel(this.selectedAcademicYear)}`);
             },
             error: (error: any) => {
                 this.isExportingExcel = false;

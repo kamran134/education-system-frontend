@@ -42,7 +42,7 @@ export class StatsColumnsComponent implements OnInit{
 
     readonly tabs: TabItem[] = [
         { label: 'İnkişaf edən şagirdlər' }, { label: 'Ayın şagirdləri' }, { label: 'İlin şagirdləri' },
-        { label: 'İlin layihə müəllimləri' }, { label: 'İlin məktəbləri' }, { label: 'İlin təhsil sektorları' },
+        { label: 'İlin müəllimləri' }, { label: 'İlin məktəbləri' }, { label: 'İlin təhsil sektorları' },
         { label: 'İlin regional idarələri' },
     ];
 
