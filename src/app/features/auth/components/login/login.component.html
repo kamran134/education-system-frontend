@@ -73,10 +73,10 @@
               <!-- Submit Button -->
               <button
                 type="submit"
-                [disabled]="loginForm.invalid"
+                [disabled]="loginForm.invalid || loading()"
                 class="w-full py-3 px-4 rounded-lg font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-600 shadow-lg hover:shadow-xl"
                 >
-                Daxil ol
+                {{ loading() ? 'Yoxlanılır...' : 'Daxil ol' }}
               </button>
             </form>
           </div>

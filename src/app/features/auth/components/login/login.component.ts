@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Router } from '@angular/router';
@@ -17,6 +18,9 @@ export class LoginComponent {
     private router = inject(Router);
     private destroyRef = inject(DestroyRef);
     errorMessage = signal<string | null>(null);
+    // Пока запрос в полёте, повторные нажатия игнорируем: раньше серия тапов слала
+    // по 10 запросов в секунду и сразу упиралась в rate-limit бэка.
+    loading = signal(false);
 
     loginForm = this.fb.nonNullable.group({
         email: ['', [Validators.required, Validators.email]],
@@ -24,9 +28,15 @@ export class LoginComponent {
     });
 
     submit() {
-        if (this.loginForm.invalid) return;
+        if (this.loginForm.invalid || this.loading()) return;
 
-        this.authService.login(this.loginForm.getRawValue()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        this.loading.set(true);
+        this.errorMessage.set(null);
+        const { email, password } = this.loginForm.getRawValue();
+        this.authService.login({ email: email.trim(), password }).pipe(
+            finalize(() => this.loading.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
             next: (response) => {
                 if (response.success) {
                     // Токен уже сохранен в сервисе, очищаем ошибку и редиректим на панель.
