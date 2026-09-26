@@ -27,6 +27,17 @@ export class LoginComponent {
         password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
+    constructor() {
+        // Validators.email отвергает email с пробелом по краям (вставка из мессенджера,
+        // автоподстановка на телефоне), из-за чего кнопка оставалась заблокированной без
+        // единого объяснения, а submit() вообще не вызывался. Тримим до валидации.
+        const email = this.loginForm.controls.email;
+        email.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
+            const trimmed = value.trim();
+            if (trimmed !== value) email.setValue(trimmed);
+        });
+    }
+
     submit() {
         if (this.loginForm.invalid || this.loading()) return;
 
