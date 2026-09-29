@@ -95,26 +95,11 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
         }));
     }
 
-    // Kod = müəllimin kodu (prefiks) + fərdi hissə (son 3 rəqəm). Redaktə zamanı yalnız fərdi
-    // hissə dəyişilə bilər — prefiksi əl ilə dəyişmək backend-də rədd olunur (teacher/school
-    // dialoqları ilə eyni qayda). Yaratma zamanı məhdudiyyət yoxdur.
-    get isCodePrefixLocked(): boolean {
-        return this.data.isEditing && !!this.selectedTeacher;
-    }
-
-    get codePrefix(): number {
-        return this.selectedTeacher?.code ?? 0;
-    }
-
-    get ownCodeSuffix(): number {
-        if (!this.selectedTeacher) return 0;
-        return this.data.student.code % 1000;
-    }
-
-    set ownCodeSuffix(value: number) {
-        if (!this.selectedTeacher) return;
-        const suffix = Math.max(0, Math.min(999, Math.floor(value) || 0));
-        this.data.student.code = this.selectedTeacher.code * 1000 + suffix;
+    // DUZELISLER_2026-09-29 п.2c: код теперь единое редактируемое поле «İş nömrəsi» (без отдельно
+    // заблокированного префикса учителя) — сервер сам переводит ученика к учителю, чьему коду
+    // соответствует новый префикс (student.usecase.ts updateStudent, DUZELISLER_2026-09-29 п.2а).
+    get codeEditHint(): string {
+        return 'Kodun ilk 7 rəqəmi layihə müəlliminin kodudur. Onu dəyişsəniz, şagird həmin kodlu layihə müəlliminə keçiriləcək.';
     }
 
     get selectedDistrictId(): string | number {
@@ -252,6 +237,13 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
         this.data.student.district = this.selectedDistrict as District;
         this.data.student.school = this.selectedSchool as School;
         this.data.student.teacher = this.selectedTeacher as Teacher;
+
+        // DUZELISLER_2026-09-29 п.2c: при редактировании выбор другого учителя в диалоге должен
+        // сразу показать админу итоговый код (сервер всё равно перебазирует его сам, см. 2a) —
+        // без этого поле кода молча оставалось со старым префиксом до сохранения.
+        if (this.data.isEditing && this.selectedTeacher && this.data.student.code) {
+            this.data.student.code = this.selectedTeacher.code * 1000 + (this.data.student.code % 1000);
+        }
     }
 
     onGradeSelectChanged(): void {

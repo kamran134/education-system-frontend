@@ -585,7 +585,11 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                     },
                     error: (err: any) => {
                         this.isLoading = false;
-                        this.toastService.show('Şagird yenilənməsində xəta baş verdi', 'error');
+                        // DUZELISLER_2026-09-29 п.2d: раньше игнорировался err.error.message —
+                        // бизнес-ошибки перевода ученика (учитель не найден, дубликат кода и т.п.,
+                        // теперь отдаются 400-м с текстом, см. student.controller.ts) тонули в
+                        // общем тексте (как в schools-list.component.ts).
+                        this.toastService.show(err?.error?.message || 'Şagird yenilənməsində xəta baş verdi', 'error');
                     }
                 });
             }
