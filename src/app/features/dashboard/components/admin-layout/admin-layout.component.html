@@ -53,6 +53,22 @@
         </a>
       }
 
+      <!-- Login statistics (admin/superadmin only — same gate as the route's adminGuard) -->
+      @if (isAdminOrSuperAdmin$ | async) {
+        <a
+          routerLink="/admin/login-stats"
+          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+          <lucide-icon [img]="Activity" class="w-5 h-5 flex-shrink-0"></lucide-icon>
+          @if (sidebarOpen()) {
+            <span
+              class="ml-3 transition-opacity duration-300">
+              Giriş statistikası
+            </span>
+          }
+        </a>
+      }
+
       <!-- Rating Columns -->
       @if (permissions.canAccessRoute('canAccessRatingColumns')) {
         <a

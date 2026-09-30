@@ -13,6 +13,7 @@ import { ExamTypesListComponent } from '../exam-types/components/exam-types-list
 import { ExamTypeEditorComponent } from '../exam-types/components/exam-type-editor/exam-type-editor.component';
 import { SubjectsListComponent } from '../exam-types/components/subjects-list/subjects-list.component';
 import { LevelScalesViewComponent } from '../exam-types/components/level-scales-view/level-scales-view.component';
+import { LoginStatsComponent } from './components/login-stats/login-stats.component';
 import { adminGuard } from '../../core/guards/admin.guard';
 
 export const routes: Routes = [
@@ -21,6 +22,7 @@ export const routes: Routes = [
         component: AdminLayoutComponent,
         children: [
             { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
+            { path: 'login-stats', component: LoginStatsComponent, canActivate: [adminGuard] },
             { path: 'rating-columns', component: StatsColumnsComponent, canActivate: [adminGuard] },
             { path: 'profile-changes', component: ProfileChangesComponent, canActivate: [adminGuard] },
             { path: 'roles', component: RolesColumnsComponent, canActivate: [adminGuard] },

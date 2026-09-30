@@ -8,6 +8,7 @@ import { UserSettings } from "../../../core/models/settings.model";
 import { ApiResponse } from "../../../core/models/response.model";
 import { ResponseHandlerUtil } from "../../../core/utils/response-handler.util";
 import { catchError, map } from "rxjs/operators";
+import { ActivityStats, ActivityUsersParams, ActivityUsersResult } from "../../../core/models/login-stats.model";
 
 @Injectable({
     providedIn: 'root'
@@ -37,6 +38,28 @@ export class DashboardService {
         if (userParams.schoolIds && userParams.schoolIds.length > 0)     params = params.set('schoolIds', userParams.schoolIds.toString());
         if (userParams.teacherIds && userParams.teacherIds.length > 0)   params = params.set('teacherIds', userParams.teacherIds.toString());
         return this.http.get<UserResponse>(url, { params, withCredentials: true }).pipe(
+            catchError(this.handleError.bind(this))
+        );
+    }
+
+    /** Login/online aggregates for /admin/login-stats (admin + superadmin only). */
+    getActivityStats(): Observable<ActivityStats> {
+        const url = `${this.configService.getApiUrl()}/users/activity-stats`;
+        return this.http.get<ApiResponse<ActivityStats>>(url, { withCredentials: true }).pipe(
+            map(response => ResponseHandlerUtil.extractData<ActivityStats>(response)),
+            catchError(this.handleError.bind(this))
+        );
+    }
+
+    /** Paged user list for the login-stats page: never logged in / online now / all. */
+    getActivityUsers(p: ActivityUsersParams): Observable<ActivityUsersResult> {
+        const url = `${this.configService.getApiUrl()}/users/activity-stats/users`;
+        let params = new HttpParams().set('status', p.status).set('page', p.page).set('size', p.size);
+        if (p.role)       params = params.set('role', p.role);
+        if (p.districtId) params = params.set('districtId', p.districtId);
+        if (p.search)     params = params.set('search', p.search);
+        return this.http.get<ApiResponse<ActivityUsersResult>>(url, { params, withCredentials: true }).pipe(
+            map(response => ResponseHandlerUtil.extractData<ActivityUsersResult>(response)),
             catchError(this.handleError.bind(this))
         );
     }

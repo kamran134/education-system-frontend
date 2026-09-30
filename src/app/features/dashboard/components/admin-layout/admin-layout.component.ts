@@ -1,15 +1,17 @@
 
+import { AsyncPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { LucideAngularModule, Users, Settings, BarChart3, Menu, X, LogOut, Database, ShieldCheck, GraduationCap, Award, BookOpen, ClipboardList } from 'lucide-angular';
+import { LucideAngularModule, Users, Settings, BarChart3, Menu, X, LogOut, Database, ShieldCheck, GraduationCap, Award, BookOpen, ClipboardList, Activity } from 'lucide-angular';
 import { PermissionsService } from '../../../../core/services/permissions.service';
 
 @Component({
     selector: 'app-admin-layout',
     imports: [
     RouterModule,
-    LucideAngularModule
+    LucideAngularModule,
+    AsyncPipe
 ],
     templateUrl: './admin-layout.component.html',
     styleUrl: './admin-layout.component.scss'
@@ -28,6 +30,7 @@ export class AdminLayoutComponent {
     readonly Award = Award;
     readonly BookOpen = BookOpen;
     readonly ClipboardList = ClipboardList;
+    readonly Activity = Activity;
 
     sidebarOpen = signal(true);
     isAdminOrSuperAdmin$ = this.authService.isAdminOrSuperAdmin$;
