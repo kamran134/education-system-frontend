@@ -122,28 +122,6 @@
           </app-dropdown>
         }
 
-        <!-- Profil Menu -->
-        @if (isAuthorized() && !isOwnerRole()) {
-          <app-dropdown position="right">
-            <div slot="trigger" class="flex items-center space-x-1">
-              <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
-              <span class="hidden sm:block">Profil</span>
-              <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
-            </div>
-            <div slot="content">
-              <app-dropdown-item (clicked)="goToProfile()">
-                <lucide-icon [img]="UserCog" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
-                Şəxsi məlumatlar
-              </app-dropdown-item>
-              <app-dropdown-divider></app-dropdown-divider>
-              <app-dropdown-item (clicked)="logInOut()">
-                <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
-                Sistemdən çıxış
-              </app-dropdown-item>
-            </div>
-          </app-dropdown>
-        }
-
         <!-- Admin Menu -->
         @if (isAuthorized() && permissions.canShowUI('showAdminMenu')) {
           <app-dropdown position="right">
@@ -187,6 +165,28 @@
                   Admin paneli
                 </app-dropdown-item>
               }
+            </div>
+          </app-dropdown>
+        }
+
+        <!-- Profil Menu -->
+        @if (isAuthorized() && !isOwnerRole()) {
+          <app-dropdown position="right">
+            <div slot="trigger" class="flex items-center space-x-1">
+              <lucide-icon [img]="User" class="h-5 w-5"></lucide-icon>
+              <span class="hidden sm:block">Profil</span>
+              <lucide-icon [img]="ChevronDown" class="h-4 w-4"></lucide-icon>
+            </div>
+            <div slot="content">
+              <app-dropdown-item (clicked)="goToProfile()">
+                <lucide-icon [img]="UserCog" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
+                Şəxsi məlumatlar
+              </app-dropdown-item>
+              <app-dropdown-divider></app-dropdown-divider>
+              <app-dropdown-item (clicked)="logInOut()">
+                <lucide-icon [img]="LogOut" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
+                Sistemdən çıxış
+              </app-dropdown-item>
             </div>
           </app-dropdown>
         }
