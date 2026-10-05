@@ -1,13 +1,20 @@
 <app-modal
-  title="Yükləmə zamanı xətalar"
+  [title]="hasErrors ? 'Yükləmə zamanı xətalar' : 'Yükləmə nəticəsi'"
   size="lg"
   [buttons]="modalButtons"
   (closed)="onClose()"
   >
   <div class="space-y-6">
-    <p class="rounded-lg border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-950 px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
-      Aşağıdakı məlumatlar yüklənə bilmədi. Zəhmət olmasa yoxlayın və düzəliş edin.
-    </p>
+    @if (data.processedCount !== undefined) {
+      <p class="rounded-lg border-l-4 border-green-500 bg-green-50 dark:bg-green-950 px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+        Yükləndi: <strong>{{ data.processedCount }}</strong> şagirdin nəticəsi.
+      </p>
+    }
+    @if (hasErrors) {
+      <p class="rounded-lg border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-950 px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+        Aşağıdakı məlumatlar yüklənə bilmədi. Zəhmət olmasa yoxlayın və düzəliş edin.
+      </p>
+    }
 
     <!-- Teachers Errors -->
     @if (data.type === 'teachers') {
@@ -158,12 +165,32 @@
           <div class="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-950 p-4">
             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200">
               <lucide-icon [img]="Calculator" class="h-5 w-5 text-red-500"></lucide-icon>
-              Nəticələri yanlış olan şagirdlər (Cəm səhvdir)
+              Xətalı sətirlər ({{ data.errors.studentsWithIncorrectResults.length }})
             </h3>
             <div class="mt-3 space-y-2">
-              @for (student of data.errors.studentsWithIncorrectResults; track student) {
+              @for (student of data.errors.studentsWithIncorrectResults; track $index) {
                 <div class="rounded bg-red-100 dark:bg-red-900 px-3 py-2 text-sm text-gray-700 dark:text-gray-200">
-                  <strong class="font-semibold text-red-800 dark:text-red-200">{{ student.code }}:</strong> {{ student.reason }}
+                  @if (student.row) {
+                    <span class="mr-2 text-xs text-gray-500 dark:text-gray-400">Sətir {{ student.row }}</span>
+                  }
+                  <strong class="font-semibold text-red-800 dark:text-red-200">{{ student.code ?? '—' }}:</strong> {{ student.reason }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+        @if (data.errors.questionCountWarnings && data.errors.questionCountWarnings.length > 0) {
+          <div class="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-950 p-4">
+            <h3 class="flex items-center gap-2 text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+              <lucide-icon [img]="TriangleAlert" class="h-5 w-5 text-yellow-500"></lucide-icon>
+              Sual sayı fərqlidir — yükləndi, amma yoxlayın ({{ data.errors.questionCountWarnings.length }})
+            </h3>
+            <div class="mt-3 space-y-2">
+              @for (w of data.errors.questionCountWarnings; track $index) {
+                <div class="rounded bg-yellow-100 dark:bg-yellow-900 px-3 py-2 text-sm text-gray-700 dark:text-gray-200">
+                  <span class="mr-2 text-xs text-gray-500 dark:text-gray-400">Sətir {{ w.row }}</span>
+                  <strong class="font-semibold">{{ w.code }}:</strong>
+                  {{ w.subject }} — sual sayı {{ w.count }}, faylda adətən {{ w.usual }}
                 </div>
               }
             </div>

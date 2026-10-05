@@ -19,8 +19,12 @@ export interface FileUploadErrorsData {
 
     incorrectStudentCodes?: number[];
     studentsWithoutTeacher?: number[];
-    studentsWithIncorrectResults?: Array<{ code: number; reason: string }>;
+    // row — Excel row number (backend ImportRowIssue); code is null when the code cell itself was bad.
+    studentsWithIncorrectResults?: Array<{ row?: number; code: number | null; reason: string }>;
+    questionCountWarnings?: Array<{ row: number; code: number; subject: string; count: number; usual: number }>;
   };
+  /** Rows that did import — shown so a partial import isn't read as a total failure. */
+  processedCount?: number;
 }
 
 @Component({

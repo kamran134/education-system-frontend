@@ -95,16 +95,6 @@ export class ExamService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
-    importLegacyResults(file: File): Observable<any> {
-        const formData = new FormData();
-        formData.append('file', file);
-        return this.http.post<ApiResponse<any>>(
-            `${this.configService.getApiUrl()}/student-results/import-json`,
-            formData,
-            { withCredentials: true }
-        ).pipe(map(response => ResponseHandlerUtil.extractData(response)));
-    }
-
     /** GET /exams/:id/results-template.xlsx?grade=N — IMTAHAN_NOVLERI_TASK.md §7. */
     downloadResultsTemplate(examId: string | number, grade: number): Observable<Blob> {
         const url: string = `${this.configService.getApiUrl()}/exams/${examId}/results-template.xlsx?grade=${grade}`;

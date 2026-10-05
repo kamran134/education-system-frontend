@@ -1,10 +1,9 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Database, Upload, School, Users, GraduationCap, FileText, CheckCircle, XCircle, Loader } from 'lucide-angular';
+import { LucideAngularModule, Database, Upload, School, Users, GraduationCap, CheckCircle, XCircle, Loader } from 'lucide-angular';
 import { SchoolService } from '../../../schools/services/school.service';
 import { TeacherService } from '../../../teachers/services/teacher.service';
 import { StudentService } from '../../../students/services/student.service';
-import { ExamService } from '../../../exams/services/exam.service';
 
 interface ImportResult {
     inserted: number;
@@ -32,7 +31,6 @@ export class LegacyImportComponent {
     @ViewChild('schoolFileInput') schoolFileInput!: ElementRef<HTMLInputElement>;
     @ViewChild('teacherFileInput') teacherFileInput!: ElementRef<HTMLInputElement>;
     @ViewChild('studentFileInput') studentFileInput!: ElementRef<HTMLInputElement>;
-    @ViewChild('resultFileInput') resultFileInput!: ElementRef<HTMLInputElement>;
 
     // Icons
     readonly Database = Database;
@@ -40,7 +38,6 @@ export class LegacyImportComponent {
     readonly School = School;
     readonly Users = Users;
     readonly GraduationCap = GraduationCap;
-    readonly FileText = FileText;
     readonly CheckCircle = CheckCircle;
     readonly XCircle = XCircle;
     readonly Loader = Loader;
@@ -49,7 +46,6 @@ export class LegacyImportComponent {
         schools: { loading: false, result: null, error: null },
         teachers: { loading: false, result: null, error: null },
         students: { loading: false, result: null, error: null },
-        results: { loading: false, result: null, error: null },
     };
 
     importSections = [
@@ -74,17 +70,12 @@ export class LegacyImportComponent {
             description: 'Köhnə bazadan şagird məlumatlarını idxal edin',
             icon: GraduationCap,
             disabled: false
-        },
-        {
-            id: 'results',
-            title: 'Şagird nəticələri',
-            description: 'Köhnə bazadan şagird nəticələrini idxal edin',
-            icon: FileText,
-            disabled: false
         }
+        // "Şagird nəticələri" removed (IMTAHAN_NOVLERI_AUDIT_2026-10-05_TASK.md 2.5): its backend
+        // POST /student-results/import-json failed on every record (month 0 vs CHECK 1..12) and was deleted.
     ];
 
-    constructor(private schoolService: SchoolService, private teacherService: TeacherService, private studentService: StudentService, private examService: ExamService) {}
+    constructor(private schoolService: SchoolService, private teacherService: TeacherService, private studentService: StudentService) {}
 
     onImport(sectionId: string): void {
         if (sectionId === 'schools') {
@@ -96,9 +87,6 @@ export class LegacyImportComponent {
         } else if (sectionId === 'students') {
             this.studentFileInput.nativeElement.value = '';
             this.studentFileInput.nativeElement.click();
-        } else if (sectionId === 'results') {
-            this.resultFileInput.nativeElement.value = '';
-            this.resultFileInput.nativeElement.click();
         }
     }
 
@@ -157,28 +145,6 @@ export class LegacyImportComponent {
         state.error = null;
 
         this.studentService.importLegacyStudents(file).subscribe({
-            next: (result: ImportResult) => {
-                state.loading = false;
-                state.result = result;
-            },
-            error: (err: any) => {
-                state.loading = false;
-                state.error = err?.error?.message || err?.message || 'İdxal zamanı xəta baş verdi';
-            }
-        });
-    }
-
-    onResultFileSelected(event: Event): void {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (!file) return;
-
-        const state = this.sectionStates['results'];
-        state.loading = true;
-        state.result = null;
-        state.error = null;
-
-        this.examService.importLegacyResults(file).subscribe({
             next: (result: ImportResult) => {
                 state.loading = false;
                 state.result = result;

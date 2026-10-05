@@ -20,6 +20,7 @@
       [(ngModel)]="model.nameAz"
       name="nameAz"
       [required]="true"
+      [helpText]="data.isEditing ? 'Ad nəticə şablonunda sütun başlığıdır: dəyişsəniz, əvvəl endirilmiş şablonlar yüklənməyəcək — yeni şablon endirilməlidir' : ''"
     ></app-input>
 
     <app-input

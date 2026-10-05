@@ -81,23 +81,25 @@ export class ExamResultDialogComponent implements OnInit {
                     const validationErrors: FileUploadErrorsData['errors'] = {
                         incorrectStudentCodes: response.incorrectStudentCodes || [],
                         studentsWithoutTeacher: response.studentsWithoutTeacher || [],
-                        studentsWithIncorrectResults: response.studentsWithIncorrectResults || []
+                        studentsWithIncorrectResults: response.studentsWithIncorrectResults || [],
+                        questionCountWarnings: response.questionCountWarnings || []
                     };
-                    const processedCount: number = response.processedData?.length || 0;
+                    // processedCount since the batched import (audit group 2); processedData kept as a
+                    // fallback for an older backend still being deployed.
+                    const processedCount: number = response.processedCount ?? response.processedData?.length ?? 0;
+                    const sectionSuffix = response.sectionName ? ` (${response.sectionName})` : '';
 
                     const hasErrors =
                         validationErrors.incorrectStudentCodes!.length > 0 ||
                         validationErrors.studentsWithoutTeacher!.length > 0 ||
                         validationErrors.studentsWithIncorrectResults!.length > 0;
+                    const hasWarnings = validationErrors.questionCountWarnings!.length > 0;
 
-                    if (hasErrors) {
-                        if (processedCount > 0) {
-                            this.toastService.show(`${processedCount} şagirdin nəticəsi yükləndi, qalan sətirlərdə xəta var`, 'warning');
-                        }
-                        // Show error dialog
+                    if (hasErrors || hasWarnings) {
                         const dialogData: FileUploadErrorsData = {
                             type: 'studentResults',
-                            errors: validationErrors
+                            errors: validationErrors,
+                            processedCount
                         };
 
                         const errorsDialogRef = this.dialog.open<any>(FileUploadErrorsDialogComponent, {
@@ -109,7 +111,7 @@ export class ExamResultDialogComponent implements OnInit {
 
                         // Close main dialog only after errors dialog is closed
                         errorsDialogRef.closed.subscribe(() => {
-                            this.dialogRef.close({ hasErrors: true });
+                            this.dialogRef.close({ hasErrors });
                         });
                     } else if (processedCount === 0) {
                         // No errors but nothing was saved either
@@ -117,7 +119,7 @@ export class ExamResultDialogComponent implements OnInit {
                         this.dialogRef.close({ hasErrors: true });
                     } else {
                         // No errors, show success message with count and close immediately
-                        this.toastService.show(`${processedCount} şagirdin nəticəsi uğurla yükləndi`, 'success');
+                        this.toastService.show(`${processedCount} şagirdin nəticəsi uğurla yükləndi${sectionSuffix}`, 'success');
                         this.dialogRef.close({ hasErrors: false });
                     }
                 },
