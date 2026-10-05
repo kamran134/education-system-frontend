@@ -25,7 +25,7 @@
       <!-- Dashboard -->
       <a
         routerLink="/admin"
-        routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+        routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
         [routerLinkActiveOptions]="{exact: true}"
         class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
         <lucide-icon [img]="BarChart3" class="w-5 h-5 flex-shrink-0"></lucide-icon>
@@ -41,7 +41,7 @@
       @if (permissions.canAccessRoute('canAccessUserManagement')) {
         <a
           routerLink="/admin/users"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="Users" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -57,7 +57,7 @@
       @if (isAdminOrSuperAdmin$ | async) {
         <a
           routerLink="/admin/login-stats"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="Activity" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -73,7 +73,7 @@
       @if (permissions.canAccessRoute('canAccessRatingColumns')) {
         <a
           routerLink="/admin/rating-columns"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="Settings" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -89,7 +89,7 @@
       @if (permissions.canAccessRoute('canAccessUserManagement')) {
         <a
           routerLink="/admin/roles"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="ShieldCheck" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -107,7 +107,7 @@
       @if (permissions.canAccessRoute('canAccessUserManagement')) {
         <a
           routerLink="/admin/legacy-import"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="Database" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -124,7 +124,7 @@
       @if (permissions.canAccessRoute('canAccessUserManagement')) {
         <a
           routerLink="/admin/metodika"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="BookOpen" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -140,7 +140,7 @@
       @if (permissions.canAccessRoute('canAccessUserManagement')) {
         <a
           routerLink="/admin/academic-year"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="GraduationCap" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -156,7 +156,7 @@
       @if (permissions.canAccessRoute('canAccessUserManagement')) {
         <a
           routerLink="/admin/exam-types"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="ClipboardList" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {
@@ -172,7 +172,7 @@
       @if (permissions.canAccessRoute('canAccessCertificates')) {
         <a
           routerLink="/admin/certificates"
-          routerLinkActive="!bg-primary-100 !text-primary-700 !font-semibold"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
           class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
           <lucide-icon [img]="Award" class="w-5 h-5 flex-shrink-0"></lucide-icon>
           @if (sidebarOpen()) {

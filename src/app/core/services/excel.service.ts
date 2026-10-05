@@ -9,6 +9,19 @@ import { Region } from "../models/region.model";
 import moment from "moment";
 import { formatScorePercentOrTotal } from "../utils/score-percent.util";
 
+/** Line of a results-import report — mirrors backend `ImportIssue` (studentResult.service.pg.ts). */
+export interface ImportIssueRow {
+    row: number;
+    column: string | null;
+    columnName: string | null;
+    code: number | null;
+    fullname: string | null;
+    value: string | null;
+    kind: string;
+    message: string;
+    severity: 'error' | 'warning';
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -427,5 +440,110 @@ export class ExcelService {
         XLSX.utils.book_append_sheet(wb, ws, 'Nəticələr');
         const dateStr = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `imtahan-neticeleri-${dateStr}.xlsx`);
+    }
+
+    /**
+     * Downloadable report of a results import (backend ImportIssue[]): a "Xülasə" sheet with the
+     * totals and a "Xətalar" sheet with one line per problem — Excel row, column letter and header,
+     * student, the cell value and a plain-Azerbaijani explanation. Lets a district fix its file
+     * after the dialog is closed or the page reloaded.
+     */
+    exportImportIssues(issues: ImportIssueRow[], meta: { examName: string; fileName: string; processedCount: number }): void {
+        const BLUE = '244185';
+        const WHITE = 'FFFFFF';
+        const border = {
+            top: { style: 'thin', color: { rgb: 'BFBFBF' } },
+            bottom: { style: 'thin', color: { rgb: 'BFBFBF' } },
+            left: { style: 'thin', color: { rgb: 'BFBFBF' } },
+            right: { style: 'thin', color: { rgb: 'BFBFBF' } },
+        };
+        const errorCount = issues.filter(i => i.severity === 'error').length;
+        const warningCount = issues.length - errorCount;
+        const now = moment().format('DD.MM.YYYY HH:mm');
+
+        // ── Xülasə ──
+        const summaryRows: Array<[string, string | number]> = [
+            ['İmtahan', meta.examName],
+            ['Fayl', meta.fileName],
+            ['Yoxlanma vaxtı', now],
+            ['Yüklənmiş şagird sayı', meta.processedCount],
+            ['Xəta sayı (yüklənməyən sətirlər)', errorCount],
+            ['Xəbərdarlıq sayı (yüklənib, yoxlayın)', warningCount],
+        ];
+        const summary: XLSX.WorkSheet = {};
+        summary['A1'] = { v: 'Nəticələrin yüklənməsi — xəta hesabatı', t: 's', s: { font: { bold: true, sz: 14 } } };
+        summaryRows.forEach(([label, value], i) => {
+            summary[XLSX.utils.encode_cell({ r: i + 2, c: 0 })] = { v: label, t: 's', s: { font: { bold: true } } };
+            summary[XLSX.utils.encode_cell({ r: i + 2, c: 1 })] = { v: value, t: typeof value === 'number' ? 'n' : 's' };
+        });
+        const hintRow = summaryRows.length + 3;
+        summary[XLSX.utils.encode_cell({ r: hintRow, c: 0 })] = {
+            v: 'Necə düzəltməli: "Xətalar" vərəqində göstərilən sətir və sütunu faylda tapın, düzəldin və faylı yenidən yükləyin. '
+                + 'Artıq yüklənmiş şagirdlərin nəticələri yenilənəcək, təkrar yaranmayacaq.',
+            t: 's', s: { alignment: { wrapText: true, vertical: 'top' }, font: { italic: true } },
+        };
+        summary['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } },
+            { s: { r: hintRow, c: 0 }, e: { r: hintRow, c: 1 } },
+        ];
+        summary['!rows'] = [];
+        summary['!rows'][hintRow] = { hpt: 48 };
+        summary['!cols'] = [{ wch: 38 }, { wch: 70 }];
+        summary['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: hintRow, c: 1 } });
+
+        // ── Xətalar ──
+        const headers = ['№', 'Sətir', 'Sütun', 'Sütunun adı', 'Şagird kodu', 'Soyadı, adı, ata adı', 'Xanadakı dəyər', 'Növ', 'İzah', 'Status'];
+        const ws: XLSX.WorkSheet = {};
+        headers.forEach((h, c) => {
+            ws[XLSX.utils.encode_cell({ r: 0, c })] = {
+                v: h, t: 's',
+                s: {
+                    font: { bold: true, color: { rgb: WHITE } },
+                    fill: { patternType: 'solid', fgColor: { rgb: BLUE } },
+                    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                    border,
+                },
+            };
+        });
+        issues.forEach((issue, i) => {
+            const isError = issue.severity === 'error';
+            const statusStyle = {
+                font: { bold: true, color: { rgb: isError ? 'C00000' : '9C5700' } },
+                fill: { patternType: 'solid', fgColor: { rgb: isError ? 'FFE5E5' : 'FFF2CC' } },
+                alignment: { horizontal: 'center', vertical: 'center' },
+                border,
+            };
+            const cells: Array<string | number> = [
+                i + 1,
+                issue.row,
+                issue.column ?? '—',
+                issue.columnName ?? '—',
+                issue.code ?? '—',
+                issue.fullname ?? '',
+                issue.value ?? '',
+                issue.kind,
+                issue.message,
+                isError ? 'Yüklənmədi' : 'Yükləndi, yoxlayın',
+            ];
+            cells.forEach((v, c) => {
+                ws[XLSX.utils.encode_cell({ r: i + 1, c })] = {
+                    v, t: typeof v === 'number' ? 'n' : 's',
+                    s: c === headers.length - 1 ? statusStyle : {
+                        alignment: { horizontal: c <= 2 || c === 4 ? 'center' : 'left', vertical: 'center', wrapText: c === 8 },
+                        border,
+                    },
+                };
+            });
+        });
+        const lastRow = Math.max(issues.length, 1);
+        ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: lastRow, c: headers.length - 1 } });
+        ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: lastRow, c: headers.length - 1 } }) };
+        ws['!cols'] = [{ wch: 5 }, { wch: 7 }, { wch: 7 }, { wch: 26 }, { wch: 13 }, { wch: 30 }, { wch: 14 }, { wch: 16 }, { wch: 60 }, { wch: 18 }];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Xətalar');
+        XLSX.utils.book_append_sheet(wb, summary, 'Xülasə');
+        const base = meta.fileName.replace(/\.[^.]+$/, '').replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 60) || 'fayl';
+        XLSX.writeFile(wb, `xetalar-${base}-${moment().format('YYYY-MM-DD-HHmm')}.xlsx`);
     }
 }

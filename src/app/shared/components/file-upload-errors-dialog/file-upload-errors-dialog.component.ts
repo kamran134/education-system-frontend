@@ -3,6 +3,7 @@ import { Component, Inject } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { LucideAngularModule, TriangleAlert, XCircle, School, Building2, Info, CheckCircle, UserX, Calculator } from 'lucide-angular';
 import { ModalComponent, ModalButton } from '../ui/modal/modal.component';
+import { ExcelService, ImportIssueRow } from '../../../core/services/excel.service';
 
 export interface FileUploadErrorsData {
   type: 'teachers' | 'schools' | 'studentResults';
@@ -25,6 +26,8 @@ export interface FileUploadErrorsData {
   };
   /** Rows that did import — shown so a partial import isn't read as a total failure. */
   processedCount?: number;
+  /** Full per-cell report (backend `issues`) — enables the "download as Excel" button. */
+  report?: { issues: ImportIssueRow[]; examName: string; fileName: string };
 }
 
 @Component({
@@ -42,14 +45,31 @@ export class FileUploadErrorsDialogComponent {
   readonly UserX = UserX;
   readonly Calculator = Calculator;
 
-  readonly modalButtons: ModalButton[] = [
-    { label: 'OK', variant: 'primary', action: () => this.onClose() }
-  ];
+  readonly modalButtons: ModalButton[];
 
   constructor(
     public dialogRef: DialogRef<void>,
-    @Inject(DIALOG_DATA) public data: FileUploadErrorsData
-  ) {}
+    @Inject(DIALOG_DATA) public data: FileUploadErrorsData,
+    private excelService: ExcelService
+  ) {
+    // The list here is gone after a reload — the Excel report is what the district keeps and works from.
+    this.modalButtons = data.report && data.report.issues.length > 0
+      ? [
+          { label: 'Xətaları Excel-ə yüklə', variant: 'primary', action: () => this.downloadReport() },
+          { label: 'Bağla', variant: 'outline', action: () => this.onClose() }
+        ]
+      : [{ label: 'OK', variant: 'primary', action: () => this.onClose() }];
+  }
+
+  downloadReport(): void {
+    const report = this.data.report;
+    if (!report) return;
+    this.excelService.exportImportIssues(report.issues, {
+      examName: report.examName,
+      fileName: report.fileName,
+      processedCount: this.data.processedCount ?? 0
+    });
+  }
 
   get hasErrors(): boolean {
     const errors = this.data.errors;

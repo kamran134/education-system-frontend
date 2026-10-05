@@ -82,6 +82,16 @@ body.dark-mode {
     .border-red-300 { border-color: rgba(239, 68, 68, 0.45) !important; }
     .text-red-600 { color: #f87171 !important; }
 
+    // Admin sidebar active item (admin-layout.component.html). Its `!text-primary-700` loses to the
+    // `.text-gray-500` override above (higher specificity, also !important), and `!bg-primary-100`
+    // has no dark variant — together: grey text on a pale-blue pill. The `:hover` selector beats
+    // `.hover\:bg-gray-50:hover` so the pill doesn't flash dark under the cursor.
+    a.admin-nav-active,
+    a.admin-nav-active:hover {
+        background-color: rgba(59, 130, 246, 0.22) !important;
+        color: #bfdbfe !important;
+    }
+
     // Alert text colors - делаем ярче для лучшей читаемости
     .text-red-700 { color: #fca5a5 !important; }
     .text-red-800 { color: #fecaca !important; }

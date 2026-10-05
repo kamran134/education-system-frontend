@@ -16,6 +16,7 @@ import { ExamTypeService } from '../../../exam-types/services/exam-type.service'
 import { ExamType, ExamTypeSection } from '../../../../core/models/examType.model';
 import { ExamResultsService } from '../../../exam-results/services/exam-results.service';
 import { saveBlobResponse, blobErrorMessage } from '../../../../core/utils/blob-download.util';
+import { ImportIssueRow } from '../../../../core/services/excel.service';
 
 @Component({
     selector: 'app-exam-result-dialog',
@@ -107,6 +108,7 @@ export class ExamResultDialogComponent implements OnInit {
 
         if (this.file && !this.uploading) {
             this.uploading = true;
+            const uploadedFileName = this.file.name;
             this.examService.uploadResults(this.file, this.data.exam.id).subscribe({
                 next: (response) => {
                     this.uploading = false;
@@ -134,7 +136,12 @@ export class ExamResultDialogComponent implements OnInit {
                         const dialogData: FileUploadErrorsData = {
                             type: 'studentResults',
                             errors: validationErrors,
-                            processedCount
+                            processedCount,
+                            report: {
+                                issues: response.issues ?? this.issuesFromLegacyLists(validationErrors),
+                                examName: this.data.exam.name,
+                                fileName: uploadedFileName
+                            }
                         };
 
                         const errorsDialogRef = this.dialog.open<any>(FileUploadErrorsDialogComponent, {
@@ -164,6 +171,17 @@ export class ExamResultDialogComponent implements OnInit {
                 }
             });
         }
+    }
+
+    /** Report lines from the per-kind lists, for a backend that doesn't send `issues` yet (rollout window). */
+    private issuesFromLegacyLists(errors: FileUploadErrorsData['errors']): ImportIssueRow[] {
+        const base = { column: null, columnName: null, fullname: null, value: null };
+        return [
+            ...(errors.studentsWithIncorrectResults || []).map(e => ({ ...base, row: e.row ?? 0, code: e.code, kind: 'Sətir', message: e.reason, severity: 'error' as const })),
+            ...(errors.incorrectStudentCodes || []).map(code => ({ ...base, row: 0, code, kind: 'Şagird kodu', message: 'Şagird kodu 10 rəqəmli olmalıdır', severity: 'error' as const })),
+            ...(errors.studentsWithoutTeacher || []).map(code => ({ ...base, row: 0, code, kind: 'Layihə müəllimi', message: 'Layihə müəllimi tapılmadı — nəticə yüklənmədi', severity: 'error' as const })),
+            ...(errors.questionCountWarnings || []).map(w => ({ ...base, row: w.row, code: w.code, kind: 'Sual sayı', message: `${w.subject}: sual sayı ${w.count}, faylda adətən ${w.usual}`, severity: 'warning' as const })),
+        ];
     }
 
     /** "Şablonu yüklə" — GET /exams/:id/results-template.xlsx?grade=N (IMTAHAN_NOVLERI_TASK.md §7).
