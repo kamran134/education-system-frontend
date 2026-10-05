@@ -74,6 +74,13 @@ body.dark-mode {
     .bg-blue-100 { background-color: rgba(59, 130, 246, 0.25) !important; }
     .bg-purple-50 { background-color: rgba(168, 85, 247, 0.15) !important; }
     .bg-purple-100 { background-color: rgba(168, 85, 247, 0.25) !important; }
+    // Primary tints (badges, secondary buttons in the exam-type screens) — light blue on dark otherwise.
+    .bg-primary-50 { background-color: rgba(59, 130, 246, 0.15) !important; }
+    .hover\:bg-primary-50:hover { background-color: rgba(59, 130, 246, 0.15) !important; }
+    .text-primary-700 { color: #93c5fd !important; }
+    .border-primary-300 { border-color: rgba(59, 130, 246, 0.45) !important; }
+    .border-red-300 { border-color: rgba(239, 68, 68, 0.45) !important; }
+    .text-red-600 { color: #f87171 !important; }
 
     // Alert text colors - делаем ярче для лучшей читаемости
     .text-red-700 { color: #fca5a5 !important; }

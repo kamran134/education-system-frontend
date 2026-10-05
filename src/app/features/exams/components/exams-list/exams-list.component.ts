@@ -28,6 +28,8 @@ import { ExamEditingDialogComponent } from '../exam-editing-dialog/exam-editing-
 import { ExamResultDialogComponent } from '../exam-result-dialog/exam-result-dialog.component';
 import { BookletUploadDialogComponent } from '../booklet-upload-dialog/booklet-upload-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
+import { ExamTypeService } from '../../../exam-types/services/exam-type.service';
+import { ExamType } from '../../../../core/models/examType.model';
 
 @Component({
     selector: 'app-exams-list',
@@ -65,6 +67,8 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     searchString: string = '';
     selectedYear: number | null = null;
     selectedMonth: number | null = null;
+    selectedExamTypeId: number | null = null;
+    examTypes: ExamType[] = [];
 
     // Search debounce
     private searchSubject = new Subject<string>();
@@ -93,7 +97,8 @@ export class ExamsListComponent implements OnInit, OnDestroy {
     // Table configuration
     tableColumns: TableColumn[] = [
         { key: 'name', label: 'İmtahan adı', sortable: true, type: 'text' },
-        { key: 'date', label: 'İmtahan tarixi', sortable: true, type: 'date' }
+        { key: 'date', label: 'İmtahan tarixi', sortable: true, type: 'date' },
+        { key: 'examTypeName', label: 'İmtahan növü', sortable: false, type: 'text' }
     ];
 
     tableActions: TableAction[] = [
@@ -134,10 +139,15 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         private examService: ExamService,
         private authService: AuthService,
         private dialog: Dialog,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private examTypeService: ExamTypeService
     ) {}
 
     ngOnInit(): void {
+        this.examTypeService.getExamTypes().subscribe({
+            next: (types) => { this.examTypes = types || []; },
+            error: () => { this.examTypes = []; }
+        });
         this.setupActionButtons();
         this.generateYearOptions();
         this.setupSearchDebounce();
@@ -218,6 +228,10 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         return month ? month.label : '';
     }
 
+    examTypeName(id: number | null): string {
+        return this.examTypes.find(t => t.id === id)?.nameAz ?? '';
+    }
+
     onFilterChange(filterData: any): void {
         // Handle search filter
         if (filterData.search !== undefined) {
@@ -234,6 +248,10 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         // Handle month filter
         if (filterData.month !== undefined) {
             this.selectedMonth = filterData.month || null;
+        }
+
+        if (filterData.examTypeId !== undefined) {
+            this.selectedExamTypeId = filterData.examTypeId ? Number(filterData.examTypeId) : null;
         }
 
         // Reset pagination and reload data
@@ -287,6 +305,10 @@ export class ExamsListComponent implements OnInit, OnDestroy {
 
         if (this.selectedMonth) {
             params.month = this.selectedMonth.toString();
+        }
+
+        if (this.selectedExamTypeId) {
+            params.examTypeId = this.selectedExamTypeId;
         }
 
         this.isLoading = true;

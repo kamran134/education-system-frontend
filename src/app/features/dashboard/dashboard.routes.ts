@@ -11,6 +11,9 @@ import { CertificateEditorComponent } from '../certificates/components/certifica
 import { ProfileChangesComponent } from './components/profile-changes/profile-changes.component';
 import { ExamTypesListComponent } from '../exam-types/components/exam-types-list/exam-types-list.component';
 import { ExamTypeEditorComponent } from '../exam-types/components/exam-type-editor/exam-type-editor.component';
+
+/** Unsaved edits in the exam-type editor ask before leaving (IMTAHAN_NOVLERI_AUDIT_2026-10-05_TASK.md 3.4). */
+const confirmLeaveExamTypeEditor = (component: ExamTypeEditorComponent) => component.confirmLeave();
 import { SubjectsListComponent } from '../exam-types/components/subjects-list/subjects-list.component';
 import { LevelScalesViewComponent } from '../exam-types/components/level-scales-view/level-scales-view.component';
 import { LoginStatsComponent } from './components/login-stats/login-stats.component';
@@ -33,8 +36,8 @@ export const routes: Routes = [
             { path: 'certificates/:id', component: CertificateEditorComponent, canActivate: [adminGuard] },
             // IMTAHAN_NOVLERI_TASK.md §6 — админка справочников (шаг 1)
             { path: 'exam-types', component: ExamTypesListComponent, canActivate: [adminGuard] },
-            { path: 'exam-types/new', component: ExamTypeEditorComponent, canActivate: [adminGuard] },
-            { path: 'exam-types/:id', component: ExamTypeEditorComponent, canActivate: [adminGuard] },
+            { path: 'exam-types/new', component: ExamTypeEditorComponent, canActivate: [adminGuard], canDeactivate: [confirmLeaveExamTypeEditor] },
+            { path: 'exam-types/:id', component: ExamTypeEditorComponent, canActivate: [adminGuard], canDeactivate: [confirmLeaveExamTypeEditor] },
             { path: 'subjects', component: SubjectsListComponent, canActivate: [adminGuard] },
             { path: 'level-scales', component: LevelScalesViewComponent, canActivate: [adminGuard] },
             { path: '', redirectTo: 'rating-columns', pathMatch: 'full' }

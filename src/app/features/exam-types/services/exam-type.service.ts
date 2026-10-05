@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExamType, ExamTypeInput } from '../../../core/models/examType.model';
@@ -38,8 +38,8 @@ export class ExamTypeService {
     }
 
     /** GET /exam-types/:id/results-template.xlsx?sectionId=X — IMTAHAN_NOVLERI_TASK.md §18.1. */
-    downloadResultsTemplate(examTypeId: number, sectionId: number): Observable<Blob> {
+    downloadResultsTemplate(examTypeId: number, sectionId: number): Observable<HttpResponse<Blob>> {
         const url: string = `${this.configService.getApiUrl()}/exam-types/${examTypeId}/results-template.xlsx?sectionId=${sectionId}`;
-        return this.http.get(url, { responseType: 'blob', withCredentials: true });
+        return this.http.get(url, { responseType: 'blob', withCredentials: true, observe: 'response' });
     }
 }

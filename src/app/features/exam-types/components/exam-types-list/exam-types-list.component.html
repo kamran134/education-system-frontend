@@ -23,84 +23,87 @@
       </a>
     </div>
 
-    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-      <table class="min-w-full divide-y divide-gray-200 text-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 text-left font-medium text-gray-500">Kod</th>
-            <th class="px-4 py-2 text-left font-medium text-gray-500">Adı</th>
-            <th class="px-4 py-2 text-center font-medium text-gray-500">Əsas imtahan növü</th>
-            <th class="px-4 py-2 text-center font-medium text-gray-500">Aktiv</th>
-            <th class="px-4 py-2 text-right font-medium text-gray-500">Əməliyyatlar</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          @for (examType of examTypes; track examType.id) {
-            <tr>
-              <td class="px-4 py-2 text-gray-700">{{ examType.code }}</td>
-              <td class="px-4 py-2 text-gray-900">{{ examType.nameAz }}</td>
-              <td class="px-4 py-2 text-center">
+    <!-- One card per type: the section composition is what admins come here to check, so it is
+         shown inline instead of behind "Redaktə et" (IMTAHAN_NOVLERI_AUDIT_2026-10-05_TASK.md 3.3). -->
+    <div class="space-y-4">
+      @for (examType of examTypes; track examType.id) {
+        <div class="rounded-lg border border-gray-200 bg-white p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-semibold text-gray-900">{{ examType.nameAz }}</h3>
+                <span class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-600">{{ examType.code }}</span>
                 @if (examType.isBase) {
-                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-primary-500" title="Əsas imtahan növü"></span>
+                  <span class="rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700">Əsas növ</span>
                 }
-              </td>
-              <td class="px-4 py-2 text-center">
                 @if (examType.active) {
-                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-green-500" title="Aktiv"></span>
+                  <span class="rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700">Aktiv</span>
                 } @else {
-                  <span class="inline-block h-2.5 w-2.5 rounded-full bg-gray-300" title="Deaktiv"></span>
+                  <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">Deaktiv</span>
                 }
-              </td>
-              <td class="px-4 py-2">
-                <div class="flex justify-end gap-2">
-                  <!-- IMTAHAN_NOVLERI_TASK.md §18.1: шаблон свой у каждой секции. Кнопка на секцию
-                       прямо в строке, а не дропдаун: app-dropdown позиционирует меню absolute
-                       внутри ячейки, и контейнер таблицы с overflow его обрезает и рисует лишний
-                       скролл (тот же класс проблемы, что в MODAL_DROPDOWN_FIX.md — там тоже ушли
-                       от выпадашки, а не боролись с overflow). Плюс app-dropdown оборачивает
-                       триггер в собственную <button>, что давало вложенные кнопки и двойной
-                       паддинг — строка с дропдауном была выше остальных. -->
-                  @for (section of examType.sections; track section.id) {
-                    <button
-                      type="button"
-                      (click)="onDownloadSectionTemplate(examType, section)"
-                      [disabled]="downloadingTemplateExamTypeId === examType.id || section.subjects.length === 0"
-                      [title]="section.subjects.length === 0 ? 'Bu bölmə üçün fənlər təyin edilməyib' : ('Excel şablonu: ' + section.nameAz)"
-                      class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <lucide-icon [img]="FileDown" class="h-3.5 w-3.5"></lucide-icon>
-                      @if (examType.sections.length > 1) {
-                        {{ section.nameAz }}
-                      } @else {
-                        Excel şablonu
-                      }
-                    </button>
-                  }
-                  <a
-                    [routerLink]="['/admin/exam-types', examType.id]"
-                    class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <lucide-icon [img]="Edit" class="h-3.5 w-3.5"></lucide-icon>
-                    Redaktə et
-                  </a>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">
+                Pillə meyarı: {{ levelScaleName(examType.levelScaleId) || '—' }}
+                · İmtahan sayı: {{ examType.examCount }}
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <a
+                [routerLink]="['/admin/exam-types', examType.id]"
+                class="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <lucide-icon [img]="Edit" class="h-3.5 w-3.5"></lucide-icon>
+                Redaktə et
+              </a>
+              @if (canDelete(examType)) {
+                <button
+                  type="button"
+                  (click)="onDeleteExamType(examType)"
+                  class="inline-flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <lucide-icon [img]="Trash2" class="h-3.5 w-3.5"></lucide-icon>
+                  Sil
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+            @for (section of examType.sections; track section.id) {
+              <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ section.nameAz }}</div>
+                    <div class="text-xs text-gray-500">Siniflər: {{ section.gradeFrom }}–{{ section.gradeTo }}</div>
+                  </div>
                   <button
                     type="button"
-                    (click)="onDeleteExamType(examType)"
-                    class="inline-flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    (click)="onDownloadSectionTemplate(examType, section)"
+                    [disabled]="downloadingTemplateExamTypeId === examType.id || section.subjects.length === 0"
+                    [title]="section.subjects.length === 0 ? 'Bu bölmə üçün fənlər təyin edilməyib' : ('Excel şablonu: ' + section.nameAz)"
+                    class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <lucide-icon [img]="Trash2" class="h-3.5 w-3.5"></lucide-icon>
-                    Sil
+                    <lucide-icon [img]="FileDown" class="h-3.5 w-3.5"></lucide-icon>
+                    Excel şablonu
                   </button>
                 </div>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="5" class="px-4 py-6 text-center text-gray-500">İmtahan növü tapılmadı</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  @for (subject of section.subjects; track subject.subjectCode) {
+                    <span class="rounded-full border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-700">{{ subject.nameAz }}</span>
+                  } @empty {
+                    <span class="text-xs text-red-600">Fənlər təyin edilməyib — şablon və idxal mümkün deyil</span>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <p class="text-sm text-gray-500">Bölmə yoxdur</p>
+            }
+          </div>
+        </div>
+      } @empty {
+        <div class="rounded-lg border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500">İmtahan növü tapılmadı</div>
+      }
     </div>
   </div>
 </app-list-layout>

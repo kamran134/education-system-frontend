@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { ConfigService } from '../../../core/services/config.service';
 import { Observable } from 'rxjs';
 import { Exam, ExamResponse } from '../../../core/models/exam.model';
@@ -36,6 +36,10 @@ export class ExamService {
 
         if (params.month && params.month !== 'null' && params.month !== '') {
             queryParams.push(`month=${params.month}`);
+        }
+
+        if (params.examTypeId) {
+            queryParams.push(`examTypeId=${params.examTypeId}`);
         }
 
         // Собираем URL с параметрами
@@ -96,9 +100,9 @@ export class ExamService {
     }
 
     /** GET /exams/:id/results-template.xlsx?grade=N — IMTAHAN_NOVLERI_TASK.md §7. */
-    downloadResultsTemplate(examId: string | number, grade: number): Observable<Blob> {
+    downloadResultsTemplate(examId: string | number, grade: number): Observable<HttpResponse<Blob>> {
         const url: string = `${this.configService.getApiUrl()}/exams/${examId}/results-template.xlsx?grade=${grade}`;
-        return this.http.get(url, { responseType: 'blob', withCredentials: true });
+        return this.http.get(url, { responseType: 'blob', withCredentials: true, observe: 'response' });
     }
 
     exportResultsAsJson(examId?: string | number): Observable<Blob> {

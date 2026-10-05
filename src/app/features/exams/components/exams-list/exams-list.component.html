@@ -79,8 +79,22 @@
                   İmtahan ayını seçin.
                 </p>
               </div>
-              <!-- Empty space for symmetry -->
-              <div></div>
+              <!-- Exam type filter -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">İmtahan növü</label>
+                <select
+                  [(ngModel)]="selectedExamTypeId"
+                  (change)="onFilterChange({examTypeId: selectedExamTypeId})"
+                  class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                  <option [ngValue]="null">Bütün növlər</option>
+                  @for (type of examTypes; track type.id) {
+                    <option [ngValue]="type.id">{{ type.nameAz }}</option>
+                  }
+                </select>
+                <p class="text-xs text-gray-500 mt-1">
+                  İmtahan növünü seçin.
+                </p>
+              </div>
             </div>
           </div>
         }
@@ -97,7 +111,10 @@
             @if (selectedMonth) {
               <span>ay: {{ getMonthName(selectedMonth) }}, </span>
             }
-            @if (!searchString && !selectedYear && !selectedMonth) {
+            @if (selectedExamTypeId) {
+              <span>növ: {{ examTypeName(selectedExamTypeId) }}, </span>
+            }
+            @if (!searchString && !selectedYear && !selectedMonth && !selectedExamTypeId) {
               <span>
                 Filtrlər tətbiq edilməyib
               </span>

@@ -10,28 +10,40 @@
     <div class="bg-gray-50 p-4 rounded-lg space-y-2">
       <p><strong>Ad:</strong> {{ data.exam.name }}</p>
       <p><strong>Tarix:</strong> {{ data.exam.date | momentDateFormat: 'DD.MM.YYYY' }}</p>
+      <p><strong>Növ:</strong> {{ examType?.nameAz || data.exam.examTypeName }}</p>
+      @if (existingResultsCount !== null) {
+        <p>
+          <strong>Yüklənmiş nəticələr:</strong> {{ existingResultsCount }}
+          @if (existingResultsCount > 0) {
+            <span class="block text-xs text-gray-500 mt-1">
+              Yeni fayl fayldakı şagirdlərin nəticələrini yeniləyəcək; faylda olmayan şagirdlərin nəticələri qalacaq.
+            </span>
+          }
+        </p>
+      }
     </div>
 
-    <!-- Şablon: IMTAHAN_NOVLERI_TASK.md §7 — şablon serverdə seçilmiş sinfin bölməsinin fənlərinə
-         görə toplanır, formatı imtahan növünün sazlamasından fərqlənə bilməz. -->
+    <!-- Şablon: IMTAHAN_NOVLERI_TASK.md §7 — şablon serverdə seçilmiş bölmənin fənlərinə görə toplanır,
+         formatı imtahan növünün sazlamasından fərqlənə bilməz. -->
     <div class="bg-gray-50 p-4 rounded-lg flex items-end gap-3 flex-wrap">
-      <div class="w-24">
+      <div class="min-w-[14rem] flex-1">
         <app-select
-          label="Sinif"
-          [options]="gradeOptions"
-          [(ngModel)]="templateGrade"
-          name="templateGrade">
+          label="Bölmə"
+          [options]="sectionOptions"
+          [(ngModel)]="templateSectionId"
+          name="templateSectionId">
         </app-select>
       </div>
       <app-button
         variant="outline"
-        [disabled]="downloadingTemplate"
+        [disabled]="downloadingTemplate || !selectedSection"
         (clicked)="onDownloadTemplate()">
         <div class="flex items-center space-x-2">
           <lucide-icon [img]="FileDown" class="w-4 h-4"></lucide-icon>
           <span>Şablonu yüklə</span>
         </div>
       </app-button>
+      <p class="w-full text-xs text-gray-500">Bir fayl — bir bölmə: hər bölmə üçün ayrıca şablon endirib ayrıca fayl yükləyin.</p>
     </div>
 
     <!-- File Upload Section -->

@@ -26,6 +26,8 @@ export interface ExamType {
     isBase: boolean;
     active: boolean;
     sortOrder: number;
+    /** Exams of this type (GET /exam-types). Delete is refused by the backend while > 0. */
+    examCount: number;
     sections: ExamTypeSection[];
 }
 

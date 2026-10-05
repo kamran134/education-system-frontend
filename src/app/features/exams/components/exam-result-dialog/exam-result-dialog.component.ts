@@ -12,6 +12,10 @@ import { SelectComponent, SelectOption } from '../../../../shared/components/ui/
 import { LucideAngularModule, Upload, Save, Trash2, FileDown, Loader2 } from 'lucide-angular';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
+import { ExamTypeService } from '../../../exam-types/services/exam-type.service';
+import { ExamType, ExamTypeSection } from '../../../../core/models/examType.model';
+import { ExamResultsService } from '../../../exam-results/services/exam-results.service';
+import { saveBlobResponse, blobErrorMessage } from '../../../../core/utils/blob-download.util';
 
 @Component({
     selector: 'app-exam-result-dialog',
@@ -28,10 +32,13 @@ export class ExamResultDialogComponent implements OnInit {
     readonly FileDown = FileDown;
     readonly Loader2 = Loader2;
 
-    // IMTAHAN_NOVLERI_TASK.md §7: şablon GET /exams/:id/results-template.xlsx?grade=N sinfə görə
-    // toplanır (bölmənin fənlərinə görə), ona görə endirmədən əvvəl sinif seçilir.
-    readonly gradeOptions: SelectOption[] = Array.from({ length: 11 }, (_, i) => ({ value: i + 1, label: `${i + 1}` }));
-    templateGrade = 1;
+    // The template is per section of the exam's type (one file = one section, audit decision Р2),
+    // so the admin picks a section, not a bare grade 1-11.
+    examType: ExamType | null = null;
+    sectionOptions: SelectOption[] = [];
+    templateSectionId: number | null = null;
+    /** Results already loaded for this exam; null until known. */
+    existingResultsCount: number | null = null;
     downloadingTemplate = false;
     // A large import takes a while; without this a second click starts a parallel import of the same file.
     uploading = false;
@@ -42,6 +49,8 @@ export class ExamResultDialogComponent implements OnInit {
         private examService: ExamService,
         private toastService: ToastService,
         private dialog: Dialog,
+        private examTypeService: ExamTypeService,
+        private examResultsService: ExamResultsService,
         @Inject(DIALOG_DATA) public data: any) {}
 
     get modalButtons(): ModalButton[] {
@@ -58,7 +67,33 @@ export class ExamResultDialogComponent implements OnInit {
         return this.file?.name || '';
     }
 
-    ngOnInit(): void {}
+    ngOnInit(): void {
+        this.examTypeService.getExamTypes().subscribe({
+            next: (types) => {
+                this.examType = (types || []).find(t => t.id === this.data.exam.examTypeId) ?? null;
+                const sections = this.examType?.sections ?? [];
+                this.sectionOptions = sections.map(s => ({
+                    value: s.id,
+                    label: `${s.nameAz} (${s.gradeFrom}-${s.gradeTo})`,
+                    disabled: s.subjects.length === 0
+                }));
+                this.templateSectionId = sections.find(s => s.subjects.length > 0)?.id ?? null;
+            },
+            error: () => { this.examType = null; }
+        });
+        this.loadExistingResultsCount();
+    }
+
+    get selectedSection(): ExamTypeSection | null {
+        return this.examType?.sections.find(s => s.id === this.templateSectionId) ?? null;
+    }
+
+    private loadExistingResultsCount(): void {
+        this.examResultsService.getExamResults({ examIds: String(this.data.exam.id), page: 1, size: 1 }).subscribe({
+            next: (res) => { this.existingResultsCount = res?.totalCount || 0; },
+            error: () => { this.existingResultsCount = null; }
+        });
+    }
 
     onFileChange(event: Event): void {
         const input = event.target as HTMLInputElement;
@@ -135,34 +170,18 @@ export class ExamResultDialogComponent implements OnInit {
      *  Формат шаблона собирается сервером из набора предметов секции, в которую попадает
      *  выбранный класс, — если секция не настроена, бэк вернёт понятную ошибку на аз. */
     onDownloadTemplate(): void {
-        if (this.downloadingTemplate) return;
+        const section = this.selectedSection;
+        if (this.downloadingTemplate || !section) return;
         this.downloadingTemplate = true;
-        this.examService.downloadResultsTemplate(this.data.exam.id, this.templateGrade).subscribe({
-            next: (blob) => {
+        // The exam route resolves the section by grade — any grade of the section will do.
+        this.examService.downloadResultsTemplate(this.data.exam.id, section.gradeFrom).subscribe({
+            next: (response) => {
                 this.downloadingTemplate = false;
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `netice-sablonu-${this.data.exam.id}-sinif-${this.templateGrade}.xlsx`;
-                a.click();
-                URL.revokeObjectURL(url);
+                saveBlobResponse(response, `netice-sablonu-${this.data.exam.id}-${section.id}.xlsx`);
             },
-            error: (error: any) => {
+            error: async (error: any) => {
                 this.downloadingTemplate = false;
-                // responseType: 'blob' — HttpClient JSON-xəta gövdəsini parse etmir, error.error
-                // burada Blob-dur, mətn deyil. Server mesajını oxumaq üçün onu ayrıca oxumaq lazımdır.
-                if (error?.error instanceof Blob) {
-                    error.error.text().then((text: string) => {
-                        try {
-                            const parsed = JSON.parse(text);
-                            this.toastService.show(parsed?.message || 'Şablon yüklənərkən xəta baş verdi', 'error');
-                        } catch {
-                            this.toastService.show('Şablon yüklənərkən xəta baş verdi', 'error');
-                        }
-                    });
-                } else {
-                    this.toastService.show('Şablon yüklənərkən xəta baş verdi', 'error');
-                }
+                this.toastService.show(await blobErrorMessage(error, 'Şablon yüklənərkən xəta baş verdi'), 'error');
             }
         });
     }
@@ -189,6 +208,7 @@ export class ExamResultDialogComponent implements OnInit {
                     this.deleting = false;
                     const count = response?.deletedCount;
                     this.toastService.show(count ? `${count} nəticə silindi` : 'Nəticələr uğurla silindi', 'success');
+                    this.existingResultsCount = 0;
                 },
                 error: (error: Error) => {
                     this.deleting = false;

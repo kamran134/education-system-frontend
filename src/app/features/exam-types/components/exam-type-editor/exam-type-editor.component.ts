@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, Plus, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-angular';
 
 import { ExamType, ExamTypeInput, ExamTypeInputSection, ExamTypeInputSectionSubject } from '../../../../core/models/examType.model';
 import { LevelScale } from '../../../../core/models/levelScale.model';
@@ -15,6 +15,11 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { SubjectEditingDialogComponent, SubjectEditingDialogData } from '../subject-editing-dialog/subject-editing-dialog.component';
+import { ConfirmDialogService } from '../../../../shared/components/ui/confirm-dialog/confirm-dialog.service';
+
+/** Grade bounds accepted by the backend (examType.controller.ts::validateExamTypeBody). */
+const MIN_GRADE = 1;
+const MAX_GRADE = 11;
 
 /** Локальная (редактируемая на форме) модель секции — без FormArray, простой массив,
  *  мутируемый напрямую (ngModel/*ngFor), как заведено во всём остальном репозитории. */
@@ -78,6 +83,12 @@ export class ExamTypeEditorComponent implements OnInit {
 
     readonly Plus = Plus;
     readonly Trash2 = Trash2;
+    readonly ChevronUp = ChevronUp;
+    readonly ChevronDown = ChevronDown;
+
+    /** JSON of the model as last loaded/saved — the unsaved-changes guard compares against it. */
+    private savedSnapshot = '';
+    private saved = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -86,7 +97,8 @@ export class ExamTypeEditorComponent implements OnInit {
         private levelScaleService: LevelScaleService,
         private subjectService: SubjectService,
         private toastService: ToastService,
-        private dialog: Dialog
+        private dialog: Dialog,
+        private confirmDialog: ConfirmDialogService
     ) {}
 
     ngOnInit(): void {
@@ -105,15 +117,53 @@ export class ExamTypeEditorComponent implements OnInit {
 
         this.subjectService.getSubjects().subscribe({
             next: (subjects: SubjectModel[]) => {
-                this.subjectOptions = (subjects || []).map(s => ({ value: s.code, label: s.nameAz }));
                 this.subjectsByCode = new Map((subjects || []).map(s => [s.code, s]));
+                this.rebuildSubjectOptions();
             },
             error: () => { this.subjectOptions = []; }
         });
 
         if (this.isEditing && this.examTypeId !== null) {
             this.loadExamType(this.examTypeId);
+        } else {
+            this.savedSnapshot = this.snapshot();
         }
+    }
+
+    private snapshot(): string {
+        return JSON.stringify(this.model);
+    }
+
+    get isDirty(): boolean {
+        return !this.saved && this.snapshot() !== this.savedSnapshot;
+    }
+
+    /** canDeactivate (dashboard.routes.ts): leaving with unsaved edits asks first. */
+    confirmLeave(): Promise<boolean> | boolean {
+        if (!this.isDirty) return true;
+        return this.confirmDialog.confirm({
+            title: 'Yadda saxlanılmamış dəyişikliklər',
+            message: 'Dəyişikliklər yadda saxlanılmayıb. Səhifədən çıxılsın?',
+            confirmText: 'Çıx',
+            cancelText: 'Qal',
+            variant: 'danger'
+        });
+    }
+
+    @HostListener('window:beforeunload', ['$event'])
+    onBeforeUnload(event: BeforeUnloadEvent): void {
+        if (this.isDirty) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    }
+
+    /** Only active subjects are offered; an inactive one stays listed only where this type already uses it. */
+    private rebuildSubjectOptions(): void {
+        const used = new Set(this.model.sections.flatMap(s => s.subjects.map(x => x.subjectCode)));
+        this.subjectOptions = [...this.subjectsByCode.values()]
+            .filter(s => s.active || used.has(s.code))
+            .map(s => ({ value: s.code, label: s.active ? s.nameAz : `${s.nameAz} (deaktiv)` }));
     }
 
     /** GET /api/exam-types по id отдельно не существует (только список) — берём весь
@@ -146,6 +196,8 @@ export class ExamTypeEditorComponent implements OnInit {
                     }))
                 };
                 this.rebuildMonthAwardOptions();
+                this.rebuildSubjectOptions();
+                this.savedSnapshot = this.snapshot();
             },
             error: (err: any) => {
                 this.isLoading = false;
@@ -159,12 +211,51 @@ export class ExamTypeEditorComponent implements OnInit {
         return this.isEditing ? 'İmtahan növünün redaktə edilməsi' : 'Yeni imtahan növü';
     }
 
+    /** Mirrors examType.controller.ts::validateExamTypeBody, so problems show before saving. */
+    get validationErrors(): string[] {
+        const errors: string[] = [];
+        if (!this.model.code?.trim()) errors.push('Kod göstərilməyib');
+        if (!this.model.nameAz?.trim()) errors.push('Ad göstərilməyib');
+        if (!this.model.levelScaleId) errors.push('Pillə meyarı seçilməyib');
+        if (this.model.sections.length === 0) {
+            errors.push('Ən azı bir bölmə əlavə edilməlidir');
+            return errors;
+        }
+
+        const ranges: Array<{ label: string; from: number; to: number }> = [];
+        this.model.sections.forEach((section, i) => {
+            const label = section.nameAz?.trim() ? `"${section.nameAz.trim()}"` : `Bölmə №${i + 1}`;
+            if (!section.nameAz?.trim()) errors.push(`Bölmə №${i + 1}: ad göstərilməyib`);
+            const from = Number(section.gradeFrom);
+            const to = Number(section.gradeTo);
+            if (!Number.isInteger(from) || !Number.isInteger(to) || from < MIN_GRADE || to > MAX_GRADE || from > to) {
+                errors.push(`${label}: sinif aralığı ${MIN_GRADE}-${MAX_GRADE} daxilində və başlanğıc ≤ son olmalıdır`);
+            } else {
+                ranges.push({ label, from, to });
+            }
+            const seen = new Set<string>();
+            for (const subject of section.subjects) {
+                if (!subject.subjectCode) {
+                    errors.push(`${label}: fənn seçilməmiş sətir var`);
+                } else if (seen.has(subject.subjectCode)) {
+                    errors.push(`${label}: "${subject.nameAz || subject.subjectCode}" fənni bir neçə dəfə seçilib`);
+                } else {
+                    seen.add(subject.subjectCode);
+                }
+            }
+        });
+        for (let a = 0; a < ranges.length; a++) {
+            for (let b = a + 1; b < ranges.length; b++) {
+                if (ranges[a].from <= ranges[b].to && ranges[b].from <= ranges[a].to) {
+                    errors.push(`${ranges[a].label} və ${ranges[b].label}: sinif aralıqları üst-üstə düşür`);
+                }
+            }
+        }
+        return [...new Set(errors)];
+    }
+
     get isValid(): boolean {
-        return !!(
-            this.model.code?.trim() &&
-            this.model.nameAz?.trim() &&
-            !!this.model.levelScaleId
-        );
+        return this.validationErrors.length === 0;
     }
 
     onLevelScaleChange(): void {
@@ -200,15 +291,19 @@ export class ExamTypeEditorComponent implements OnInit {
     }
 
     addSubject(sectionIndex: number): void {
-        this.model.sections[sectionIndex].subjects.push({
-            subjectCode: '',
-            nameAz: '',
-            sortOrder: this.model.sections[sectionIndex].subjects.length
-        });
+        this.model.sections[sectionIndex].subjects.push({ subjectCode: '', nameAz: '', sortOrder: 0 });
     }
 
     removeSubject(sectionIndex: number, subjectIndex: number): void {
         this.model.sections[sectionIndex].subjects.splice(subjectIndex, 1);
+    }
+
+    /** Order = position in the list (it is the template's column order); sortOrder is derived on save. */
+    moveSubject(sectionIndex: number, subjectIndex: number, delta: -1 | 1): void {
+        const subjects = this.model.sections[sectionIndex].subjects;
+        const target = subjectIndex + delta;
+        if (target < 0 || target >= subjects.length) return;
+        [subjects[subjectIndex], subjects[target]] = [subjects[target], subjects[subjectIndex]];
     }
 
     /** Создание предмета справочника прямо из редактора типа (если забыли завести его в
@@ -228,12 +323,11 @@ export class ExamTypeEditorComponent implements OnInit {
                 next: (created: SubjectModel) => {
                     this.isCreatingSubject = false;
                     this.subjectsByCode.set(created.code, created);
-                    this.subjectOptions = [...this.subjectOptions, { value: created.code, label: created.nameAz }];
-                    const subjects = this.model.sections[sectionIndex].subjects;
-                    subjects.push({
+                    this.rebuildSubjectOptions();
+                    this.model.sections[sectionIndex].subjects.push({
                         subjectCode: created.code,
                         nameAz: created.nameAz,
-                        sortOrder: subjects.length
+                        sortOrder: 0
                     });
                     this.toastService.show('Fənn uğurla yaradıldı', 'success');
                 },
@@ -271,13 +365,13 @@ export class ExamTypeEditorComponent implements OnInit {
             sortOrder: this.model.sortOrder,
             sections: this.model.sections.map(section => ({
                 ...(section.id ? { id: section.id } : {}),
-                nameAz: section.nameAz,
-                gradeFrom: section.gradeFrom,
-                gradeTo: section.gradeTo,
-                subjects: section.subjects.map(subject => ({
+                nameAz: section.nameAz.trim(),
+                gradeFrom: Number(section.gradeFrom),
+                gradeTo: Number(section.gradeTo),
+                subjects: section.subjects.map((subject, index) => ({
                     subjectCode: subject.subjectCode,
                     nameAz: subject.nameAz,
-                    sortOrder: subject.sortOrder
+                    sortOrder: index + 1
                 }))
             }))
         };
@@ -290,6 +384,7 @@ export class ExamTypeEditorComponent implements OnInit {
         request$.subscribe({
             next: () => {
                 this.isSaving = false;
+                this.saved = true;
                 this.toastService.show(
                     this.isEditing ? 'İmtahan növü uğurla yeniləndi' : 'İmtahan növü uğurla yaradıldı',
                     'success'

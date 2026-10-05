@@ -55,13 +55,17 @@
           ></app-select>
         </div>
 
-        <div class="mt-6 flex flex-wrap gap-6">
-          <label class="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.isBase" name="isBase" [ngModelOptions]="{standalone: true}">
-            Əsas imtahan növüdür
-          </label>
-          <label class="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.active" name="active" [ngModelOptions]="{standalone: true}">
+        <div class="mt-6 flex flex-wrap items-center gap-6">
+          <!-- "Əsas" is not editable: the backend refuses both a second base type and un-basing the
+               only one (every rating screen resolves through it), so a checkbox could only produce 409s. -->
+          @if (model.isBase) {
+            <span class="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700"
+                  title="Mövcud reytinq ekranları bu növə görə hesablanır">Əsas imtahan növü</span>
+          }
+          <label class="flex items-center gap-2 text-sm text-gray-700"
+                 [title]="model.isBase ? 'Əsas imtahan növü deaktiv edilə bilməz' : ''">
+            <input type="checkbox" class="rounded border-gray-300" [(ngModel)]="model.active" name="active"
+                   [ngModelOptions]="{standalone: true}" [disabled]="model.isBase">
             Aktiv
           </label>
         </div>
@@ -99,6 +103,8 @@
                   <app-input
                     label="Sinif (başlanğıc)"
                     type="number"
+                    [min]="1"
+                    [max]="11"
                     [(ngModel)]="section.gradeFrom"
                     [name]="'sectionGradeFrom' + sectionIndex"
                     [ngModelOptions]="{standalone: true}"
@@ -106,6 +112,8 @@
                   <app-input
                     label="Sinif (son)"
                     type="number"
+                    [min]="1"
+                    [max]="11"
                     [(ngModel)]="section.gradeTo"
                     [name]="'sectionGradeTo' + sectionIndex"
                     [ngModelOptions]="{standalone: true}"
@@ -151,7 +159,7 @@
 
                 <div class="space-y-3">
                   @for (subjectEntry of section.subjects; track $index; let subjectIndex = $index) {
-                    <div class="grid grid-cols-1 gap-3 rounded-lg bg-gray-50 p-3 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
+                    <div class="grid grid-cols-1 gap-3 rounded-lg bg-gray-50 p-3 sm:grid-cols-[1fr_auto_auto] sm:items-end">
                       <app-select
                         label="Fənn"
                         [options]="subjectOptions"
@@ -160,13 +168,26 @@
                         [ngModelOptions]="{standalone: true}"
                         (selectionChange)="onSubjectCodeChange(sectionIndex, subjectIndex)"
                       ></app-select>
-                      <app-input
-                        label="Sıra"
-                        type="number"
-                        [(ngModel)]="subjectEntry.sortOrder"
-                        [name]="'subjectSortOrder' + sectionIndex + '_' + subjectIndex"
-                        [ngModelOptions]="{standalone: true}"
-                      ></app-input>
+                      <div class="flex gap-1">
+                        <button
+                          type="button"
+                          (click)="moveSubject(sectionIndex, subjectIndex, -1)"
+                          [disabled]="subjectIndex === 0"
+                          title="Yuxarı (şablonda sütun sırası)"
+                          class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-2 py-2 text-gray-600 hover:bg-gray-50 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <lucide-icon [img]="ChevronUp" class="h-3.5 w-3.5"></lucide-icon>
+                        </button>
+                        <button
+                          type="button"
+                          (click)="moveSubject(sectionIndex, subjectIndex, 1)"
+                          [disabled]="subjectIndex === section.subjects.length - 1"
+                          title="Aşağı (şablonda sütun sırası)"
+                          class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-2 py-2 text-gray-600 hover:bg-gray-50 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <lucide-icon [img]="ChevronDown" class="h-3.5 w-3.5"></lucide-icon>
+                        </button>
+                      </div>
                       <button
                         type="button"
                         (click)="removeSubject(sectionIndex, subjectIndex)"
@@ -183,6 +204,17 @@
           }
         </div>
       </div>
+
+      @if (validationErrors.length > 0 && !isLoading) {
+        <div class="rounded-lg border-l-4 border-yellow-500 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+          <div class="mb-1 font-medium">Yadda saxlamaq üçün düzəldin:</div>
+          <ul class="list-disc space-y-0.5 pl-5">
+            @for (error of validationErrors; track error) {
+              <li>{{ error }}</li>
+            }
+          </ul>
+        </div>
+      }
 
       <!-- Действия -->
       <div class="flex justify-end gap-3">
