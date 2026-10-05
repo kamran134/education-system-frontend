@@ -20,6 +20,7 @@
       [(ngModel)]="editedExam.dateString"
       name="date"
       [required]="true"
+      [disabled]="dateLocked"
     ></app-input>
 
     <app-select
@@ -32,7 +33,7 @@
     ></app-select>
     @if (examTypeLocked) {
       <p class="text-sm text-gray-500 dark:text-gray-400 -mt-4">
-        Bu imtahanın artıq nəticələri var, ona görə növünü dəyişmək olmaz.
+        Bu imtahanın artıq nəticələri var, ona görə növünü və tarixini dəyişmək olmaz.
       </p>
     }
   </form>

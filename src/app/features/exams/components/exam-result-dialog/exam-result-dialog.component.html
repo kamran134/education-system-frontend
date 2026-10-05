@@ -77,16 +77,17 @@
           <app-button
             variant="primary"
             type="submit"
-            [disabled]="!file"
+            [disabled]="!file || uploading || deleting"
             >
             <div class="flex items-center space-x-2">
-              <lucide-icon [img]="Save" class="w-4 h-4"></lucide-icon>
-              <span>Yüklə</span>
+              <lucide-icon [img]="uploading ? Loader2 : Save" class="w-4 h-4" [class.animate-spin]="uploading"></lucide-icon>
+              <span>{{ uploading ? 'Yüklənir...' : 'Yüklə' }}</span>
             </div>
           </app-button>
 
           <app-button
             variant="danger"
+            [disabled]="uploading || deleting"
             (clicked)="onDelete($event)"
             >
             <div class="flex items-center space-x-2">

@@ -385,7 +385,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             width: '400px',
             data: {
                 title: 'İmtahanı sil',
-                message: 'Bu imtahanı və onun bütün nəticələrini silmək istədiyinizə əminsinizmi?'
+                text: 'Bu imtahanı və onun bütün nəticələrini silmək istədiyinizə əminsinizmi?'
             }
         });
 
@@ -409,7 +409,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             width: '400px',
             data: {
                 title: 'Bütün imtahanları sil',
-                message: 'Bütün imtahanları və onların nəticələrini silmək istədiyinizə əminsinizmi? Bu əməliyyat geri qaytarıla bilməz!'
+                text: 'Bütün imtahanları və onların nəticələrini silmək istədiyinizə əminsinizmi? Bu əməliyyat geri qaytarıla bilməz!'
             }
         });
 

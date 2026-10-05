@@ -38,7 +38,8 @@ export class ExamAddDialogComponent implements OnInit {
     ngOnInit(): void {
         this.examTypeService.getExamTypes().subscribe({
             next: (types: ExamType[]) => {
-                this.examTypeOptions = (types || []).map(t => ({ value: t.id, label: t.nameAz }));
+                // Backend rejects inactive types for new exams (exam.service.pg.ts::assertExamTypeUsable).
+                this.examTypeOptions = (types || []).filter(t => t.active).map(t => ({ value: t.id, label: t.nameAz }));
             },
             error: () => { this.examTypeOptions = []; }
         });

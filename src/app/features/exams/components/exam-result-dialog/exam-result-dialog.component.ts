@@ -9,8 +9,9 @@ import { Error } from '../../../../core/models/error.model';
 import { ModalComponent, ModalButton } from '../../../../shared/components/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
-import { LucideAngularModule, Upload, Save, Trash2, FileDown } from 'lucide-angular';
+import { LucideAngularModule, Upload, Save, Trash2, FileDown, Loader2 } from 'lucide-angular';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-exam-result-dialog',
@@ -25,12 +26,16 @@ export class ExamResultDialogComponent implements OnInit {
     readonly Save = Save;
     readonly Trash2 = Trash2;
     readonly FileDown = FileDown;
+    readonly Loader2 = Loader2;
 
     // IMTAHAN_NOVLERI_TASK.md §7: şablon GET /exams/:id/results-template.xlsx?grade=N sinfə görə
     // toplanır (bölmənin fənlərinə görə), ona görə endirmədən əvvəl sinif seçilir.
     readonly gradeOptions: SelectOption[] = Array.from({ length: 11 }, (_, i) => ({ value: i + 1, label: `${i + 1}` }));
     templateGrade = 1;
     downloadingTemplate = false;
+    // A large import takes a while; without this a second click starts a parallel import of the same file.
+    uploading = false;
+    deleting = false;
 
     constructor(
         public dialogRef: DialogRef<{ hasErrors: boolean } | undefined>,
@@ -53,9 +58,7 @@ export class ExamResultDialogComponent implements OnInit {
         return this.file?.name || '';
     }
 
-    ngOnInit(): void {
-        console.log(this.data);
-    }
+    ngOnInit(): void {}
 
     onFileChange(event: Event): void {
         const input = event.target as HTMLInputElement;
@@ -67,18 +70,30 @@ export class ExamResultDialogComponent implements OnInit {
     onSubmit(event: Event): void {
         event.preventDefault();
 
-        if (this.file) {
+        if (this.file && !this.uploading) {
+            this.uploading = true;
             this.examService.uploadResults(this.file, this.data.exam.id).subscribe({
                 next: (response) => {
-                    const validationErrors = response.validationErrors || {};
+                    this.uploading = false;
+                    // The Postgres backend returns these lists at the top level of `data`
+                    // (studentResult.service.pg.ts::processStudentResultsFromExcel); the old Mongo
+                    // one nested them under `validationErrors`, which is why errors went unseen.
+                    const validationErrors: FileUploadErrorsData['errors'] = {
+                        incorrectStudentCodes: response.incorrectStudentCodes || [],
+                        studentsWithoutTeacher: response.studentsWithoutTeacher || [],
+                        studentsWithIncorrectResults: response.studentsWithIncorrectResults || []
+                    };
+                    const processedCount: number = response.processedData?.length || 0;
 
-                    // Check if there are any validation errors
                     const hasErrors =
-                        (validationErrors.incorrectStudentCodes && validationErrors.incorrectStudentCodes.length > 0) ||
-                        (validationErrors.studentsWithoutTeacher && validationErrors.studentsWithoutTeacher.length > 0) ||
-                        (validationErrors.studentsWithIncorrectResults && validationErrors.studentsWithIncorrectResults.length > 0);
+                        validationErrors.incorrectStudentCodes!.length > 0 ||
+                        validationErrors.studentsWithoutTeacher!.length > 0 ||
+                        validationErrors.studentsWithIncorrectResults!.length > 0;
 
                     if (hasErrors) {
+                        if (processedCount > 0) {
+                            this.toastService.show(`${processedCount} şagirdin nəticəsi yükləndi, qalan sətirlərdə xəta var`, 'warning');
+                        }
                         // Show error dialog
                         const dialogData: FileUploadErrorsData = {
                             type: 'studentResults',
@@ -96,18 +111,19 @@ export class ExamResultDialogComponent implements OnInit {
                         errorsDialogRef.closed.subscribe(() => {
                             this.dialogRef.close({ hasErrors: true });
                         });
-                    } else if (!response.processedData || response.processedData.length === 0) {
+                    } else if (processedCount === 0) {
                         // No errors but nothing was saved either
                         this.toastService.show('Yüklənəcək etibarlı məlumat tapılmadı. Faylı yoxlayın.', 'warning');
                         this.dialogRef.close({ hasErrors: true });
                     } else {
                         // No errors, show success message with count and close immediately
-                        this.toastService.show(`${response.processedData.length} şagirdin nəticəsi uğurla yükləndi`, 'success');
+                        this.toastService.show(`${processedCount} şagirdin nəticəsi uğurla yükləndi`, 'success');
                         this.dialogRef.close({ hasErrors: false });
                     }
                 },
                 error: (error: Error) => {
-                    this.toastService.show(`Fayl yüklənərkən xəta baş verdi!\n${error.error.message}`, 'error');
+                    this.uploading = false;
+                    this.toastService.show(`Fayl yüklənərkən xəta baş verdi!\n${error?.error?.message || ''}`, 'error');
                 }
             });
         }
@@ -151,13 +167,32 @@ export class ExamResultDialogComponent implements OnInit {
 
     onDelete(event: Event): void {
         event.preventDefault();
-        this.examService.deleteResults(this.data.exam.id).subscribe({
-            next: (response) => {
-                this.toastService.show(response.message || 'Nəticələr uğurla silindi', 'success')
-            },
-            error: (error: Error) => {
-                this.toastService.show(`Nəticələr silinərkən xəta baş verdi!\n${error.error.message}`, 'error');
+        if (this.deleting) return;
+
+        // cdk ConfirmDialogComponent, not ConfirmDialogService: the service's overlay is z-[300]
+        // and would render underneath this cdk dialog (cdk overlay container is z-index 1000).
+        const confirmRef = this.dialog.open<boolean>(ConfirmDialogComponent, {
+            width: '450px',
+            data: {
+                title: 'Nəticələri sil',
+                text: `"${this.data.exam.name}" imtahanının BÜTÜN nəticələri silinəcək. Bu əməliyyat geri qaytarıla bilməz. Davam edilsin?`
             }
+        });
+
+        confirmRef.closed.subscribe((confirmed) => {
+            if (!confirmed) return;
+            this.deleting = true;
+            this.examService.deleteResults(this.data.exam.id).subscribe({
+                next: (response) => {
+                    this.deleting = false;
+                    const count = response?.deletedCount;
+                    this.toastService.show(count ? `${count} nəticə silindi` : 'Nəticələr uğurla silindi', 'success');
+                },
+                error: (error: Error) => {
+                    this.deleting = false;
+                    this.toastService.show(`Nəticələr silinərkən xəta baş verdi!\n${error?.error?.message || ''}`, 'error');
+                }
+            });
         });
     }
 

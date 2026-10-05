@@ -28,6 +28,9 @@ export class ExamEditingDialogComponent implements OnInit {
     // nəticələri varsa (backend eyni qadağanı 409 ilə tətbiq edir — exam.service.pg.ts:update;
     // burada isə UI-da əvvəlcədən görünən edir, sorğu boşuna göndərilmir).
     examTypeLocked = false;
+    // IMTAHAN_NOVLERI_AUDIT_2026-10-05_TASK.md Р1: the date is locked the same way (backend 409) —
+    // student_results.month/year are copied from it at import time.
+    dateLocked = false;
 
     constructor(
         public dialogRef: DialogRef<{ action: 'save' | 'delete', data?: any } | undefined>,
@@ -51,7 +54,10 @@ export class ExamEditingDialogComponent implements OnInit {
     ngOnInit(): void {
         this.examTypeService.getExamTypes().subscribe({
             next: (types: ExamType[]) => {
-                this.examTypeOptions = (types || []).map(t => ({ value: t.id, label: t.nameAz }));
+                // Inactive types are offered only if the exam already uses one (backend rejects switching to them).
+                this.examTypeOptions = (types || [])
+                    .filter(t => t.active || t.id === this.editedExam.examTypeId)
+                    .map(t => ({ value: t.id, label: t.nameAz }));
             },
             error: () => { this.examTypeOptions = []; }
         });
@@ -59,8 +65,11 @@ export class ExamEditingDialogComponent implements OnInit {
         if (this.data.isEditing && this.data.exam?.id) {
             this.examResultsService.getExamResults({ examIds: String(this.data.exam.id), page: 1, size: 1 })
                 .subscribe({
-                    next: (res) => { this.examTypeLocked = (res?.totalCount || 0) > 0; },
-                    error: () => { this.examTypeLocked = false; }
+                    next: (res) => {
+                        this.examTypeLocked = (res?.totalCount || 0) > 0;
+                        this.dateLocked = this.examTypeLocked;
+                    },
+                    error: () => { this.examTypeLocked = false; this.dateLocked = false; }
                 });
         }
     }
@@ -109,16 +118,19 @@ export class ExamEditingDialogComponent implements OnInit {
     }
 
     onSave(): void {
-        // Преобразуем строку даты обратно в Date
+        // Send "YYYY-MM-DD", like the add dialog: the backend stores it as UTC midnight. A local
+        // `new Date(y, m, d)` serialised to 20:00Z of the previous day (Baku is UTC+4), which
+        // moved results of exams held on the 1st into the previous month.
+        let date: string | undefined;
         const dateParts = this.editedExam.dateString.split('.');
         if (dateParts.length === 3) {
             const [day, month, year] = dateParts.map((part: string) => parseInt(part, 10));
-            this.editedExam.date = new Date(year, month - 1, day);
+            date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         }
-        
+
         const examData = {
             name: this.editedExam.name,
-            date: this.editedExam.date,
+            ...(date && !this.dateLocked && { date }),
             examTypeId: this.editedExam.examTypeId
         };
         
