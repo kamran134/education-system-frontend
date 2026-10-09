@@ -24,10 +24,11 @@ import { IdUtil } from '../../../../core/utils/id.util';
 import { connectSearchDebounce } from '../../../../core/utils/debounce.util';
 
 // UI Components
-import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft, Trash } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft, Trash, Download } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { TABLE_PAGE_SIZE_DEFAULT, TABLE_EXPORT_PAGE_SIZE } from '../../../../shared/components/ui/data-table/table-defaults';
+import { ExcelService } from '../../../../core/services/excel.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 // Dialogs
@@ -133,6 +134,9 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     readonly ChevronUp = ChevronUp;
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
+    readonly Download = Download;
+
+    isExporting = false;
 
     constructor(
         private authService: AuthService,
@@ -143,7 +147,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         private dialog: Dialog,
         private toastService: ToastService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private excelService: ExcelService
     ) {}
 
     ngOnInit(): void {
@@ -252,6 +257,17 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                     variant: 'secondary'
                 }
             );
+        }
+
+        if (this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: this.isExporting ? 'Yüklənir...' : 'Excel-ə eksport et',
+                icon: this.Download,
+                action: () => this.exportToExcel(),
+                variant: 'secondary',
+                loading: this.isExporting,
+                disabled: this.isExporting
+            });
         }
 
         if (this.authService.canDeleteStudents() && this.isAdminOrSuperAdmin()) {
@@ -425,10 +441,9 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         input.click();
     }
 
-    loadStudents(): void {
-        const params: FilterParams = {
-            page: this.pageIndex + 1,
-            size: this.pageSize,
+    /** Filters + sort + search of the on-screen table, shared by the page load and the Excel export. */
+    private buildFilterParams(): FilterParams {
+        return {
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds.join(",") : undefined,
             schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds.join(",") : undefined,
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds.join(",") : undefined,
@@ -436,6 +451,14 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection,
             search: this.searchString || undefined
+        };
+    }
+
+    loadStudents(): void {
+        const params: FilterParams = {
+            ...this.buildFilterParams(),
+            page: this.pageIndex + 1,
+            size: this.pageSize
         };
 
         this.isLoading = true;
@@ -452,6 +475,32 @@ export class StudentsListComponent implements OnInit, OnDestroy {
                 this.errorMessage = `Error fetching students: ${err.message}`;
             }
         });
+    }
+
+    /** Справочник учеников по текущим фильтрам и поиску — все страницы одним запросом
+     *  (TABLE_EXPORT_PAGE_SIZE), как экспорт годовых вкладок в /stats. */
+    exportToExcel(): void {
+        if (this.isExporting) return;
+        this.setExporting(true);
+        this.studentService.getStudents({ ...this.buildFilterParams(), page: 1, size: TABLE_EXPORT_PAGE_SIZE })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response: any) => {
+                    this.setExporting(false);
+                    const data = ResponseHandlerUtil.extractPaginatedData<Student>(response).data || [];
+                    this.excelService.downloadDirectory(this.excelService.formatStudentDirectory(data), 'Şagirdlər', 'sagirdler');
+                },
+                error: (err: any) => {
+                    this.setExporting(false);
+                    this.toastService.show(err?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    /** list-layout is OnPush — the button array has to be rebuilt, not mutated, to show the spinner. */
+    private setExporting(value: boolean): void {
+        this.isExporting = value;
+        this.setupActionButtons();
     }
 
     loadDistricts(): void {

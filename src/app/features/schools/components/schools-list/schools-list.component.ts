@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild, inject } from '@angular/core';
 import { School, SchoolResponse } from '../../../../core/models/school.model';
 import { SchoolService } from '../../services/school.service';
 
@@ -15,10 +15,11 @@ import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/co
 import { AuthService } from '../../../../core/services/auth.service';
 import { SchoolEditingDialogComponent } from '../school-editing/school-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
-import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, ArrowLeft, Trash } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, ArrowLeft, Trash, Download } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { TABLE_PAGE_SIZE_DEFAULT, TABLE_EXPORT_PAGE_SIZE } from '../../../../shared/components/ui/data-table/table-defaults';
+import { ExcelService } from '../../../../core/services/excel.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
@@ -94,8 +95,12 @@ export class SchoolsListComponent implements OnInit {
     readonly Upload = Upload;
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
+    readonly Download = Download;
 
     isUpdatingStats = false;
+    isExporting = false;
+
+    private excelService = inject(ExcelService);
 
     /** Точка-маркер «есть неподтверждённые данные» (BASE_FIXES_TASK.md §2.7) — только у
      *  admin-подобных ролей, endpoint /pending-ids отдаёт 403 всем остальным. */
@@ -215,6 +220,17 @@ export class SchoolsListComponent implements OnInit {
             );
         }
 
+        if (this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: this.isExporting ? 'Yüklənir...' : 'Excel-ə eksport et',
+                icon: this.Download,
+                action: () => this.exportToExcel(),
+                variant: 'secondary',
+                loading: this.isExporting,
+                disabled: this.isExporting
+            });
+        }
+
         if (this.authService.canDeleteSchools() && this.isAdminOrSuperAdmin()) {
             this.actionButtons.push({
                 label: 'Ekranda olanları sil',
@@ -312,14 +328,21 @@ onFilterChange(filters: Record<string, any>): void {
         });
     }
 
-    loadSchools(): void {
-        const params: FilterParams = {
-            page: this.pageIndex + 1,
-            size: this.pageSize,
+    /** Filters + sort of the on-screen table, shared by the page load and the Excel export. */
+    private buildFilterParams(): FilterParams {
+        return {
             districtIds: this.selectedDistrictIds.join(","),
             active: this.selectedVisibility === 'all' ? undefined : this.selectedVisibility === 'shown',
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection
+        };
+    }
+
+    loadSchools(): void {
+        const params: FilterParams = {
+            ...this.buildFilterParams(),
+            page: this.pageIndex + 1,
+            size: this.pageSize
         };
 
         this.isLoading = true;
@@ -336,6 +359,31 @@ onFilterChange(filters: Record<string, any>): void {
                 this.errorMessage = `Error fetching schools: ${err.message}`;
             }
         });
+    }
+
+    /** Справочник школ по текущим фильтрам — все страницы одним запросом (TABLE_EXPORT_PAGE_SIZE),
+     *  как экспорт годовых вкладок в /stats. */
+    exportToExcel(): void {
+        if (this.isExporting) return;
+        this.setExporting(true);
+        this.schoolService.getSchools({ ...this.buildFilterParams(), page: 1, size: TABLE_EXPORT_PAGE_SIZE })
+            .subscribe({
+                next: (data: SchoolResponse) => {
+                    this.setExporting(false);
+                    const rows = this.excelService.formatSchoolDirectory(data.data || [], this.canFilterByVisibility);
+                    this.excelService.downloadDirectory(rows, 'Məktəblər', 'mektebler');
+                },
+                error: (err: any) => {
+                    this.setExporting(false);
+                    this.toastService.show(err?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    /** list-layout is OnPush — the button array has to be rebuilt, not mutated, to show the spinner. */
+    private setExporting(value: boolean): void {
+        this.isExporting = value;
+        this.setupActionButtons();
     }
 
     /** Единственная навигация со строки (PROFILES_V2_TASK.md §3.1) — редактирование, удаление

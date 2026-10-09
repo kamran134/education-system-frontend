@@ -280,6 +280,63 @@ export class ExcelService {
         });
     }
 
+    // ── Directory exports (/schools, /teachers, /students list pages) ────────
+    // Reference data only, no rating fields — those are exported from /stats. `studentCount` is
+    // deliberately left out: in list rows it is the stored average-score divisor (1000 for every
+    // school on prod), not a real head count, so it would only mislead in a spreadsheet.
+    // Codes go out as strings: a 10-digit student code otherwise turns into «1.2E+09» (П.10f).
+
+    private visibilityLabel(active: boolean | undefined): string {
+        return active === false ? 'Gizlədilib' : 'Göstərilir';
+    }
+
+    formatSchoolDirectory(schools: School[], withVisibility: boolean): any[] {
+        return schools.map(s => ({
+            'Məktəb kodu': String(s.code ?? ''),
+            'Məktəb adı': s.name ?? '',
+            'Ünvan': s.address ?? '',
+            'Təhsil sektoru': s.district?.name ?? '',
+            ...(withVisibility && { 'Görünürlük': this.visibilityLabel(s.active) }),
+        }));
+    }
+
+    formatTeacherDirectory(teachers: Teacher[], withVisibility: boolean): any[] {
+        return teachers.map(t => ({
+            'Müəllimin kodu': String(t.code ?? ''),
+            'Soyadı, adı, ata adı': t.fullname ?? '',
+            'Məktəbi': t.school?.name ?? '',
+            'Təhsil sektoru': t.district?.name ?? '',
+            ...(withVisibility && { 'Görünürlük': this.visibilityLabel(t.active) }),
+        }));
+    }
+
+    formatStudentDirectory(students: Student[]): any[] {
+        return students.map(s => ({
+            'Şagirdin iş nömrəsi': String(s.code ?? ''),
+            'Soyadı, adı, ata adı': s.fullname ?? '',
+            'Sinif': s.grade ?? '',
+            'Layihə müəllimi': s.teacher?.fullname ?? '',
+            'Məktəbi': s.school?.name ?? '',
+            'Təhsil sektoru': s.district?.name ?? '',
+        }));
+    }
+
+    /** One-sheet workbook with bold headers, auto-sized columns and an autofilter; file is `<fileBase>-<date>.xlsx`. */
+    downloadDirectory(rows: any[], sheetName: string, fileBase: string): void {
+        const ws = XLSX.utils.json_to_sheet(rows);
+        this.formatHeaders(ws);
+        const headers = rows.length ? Object.keys(rows[0]) : [];
+        // reduce, not Math.max(...spread): tens of thousands of student rows overflow the call stack.
+        ws['!cols'] = headers.map(h => ({
+            wch: Math.min(60, rows.reduce((w, r) => Math.max(w, String(r[h] ?? '').length), h.length) + 2),
+        }));
+        if (ws['!ref']) ws['!autofilter'] = { ref: ws['!ref'] };
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0, 31));
+        XLSX.writeFile(wb, `${fileBase}-${moment().format('YYYY-MM-DD')}.xlsx`);
+    }
+
     formatHeaders(ws: XLSX.WorkSheet) {
         const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
         const headerRow = 0;

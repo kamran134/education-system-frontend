@@ -20,10 +20,11 @@ import { RepairingResults } from '../../../../core/models/student.model';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
 import { ResponseFromBackend } from '../../../../core/models/response.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
-import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, Settings, ArrowLeft, Trash } from 'lucide-angular';
+import { LucideAngularModule, Plus, RefreshCw, Trash2, Upload, Settings, ArrowLeft, Trash, Download } from 'lucide-angular';
 import { ListLayoutComponent, ActionButton, BackButton } from '../../../../shared/components/ui/list-layout/list-layout.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
-import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { TABLE_PAGE_SIZE_DEFAULT, TABLE_EXPORT_PAGE_SIZE } from '../../../../shared/components/ui/data-table/table-defaults';
+import { ExcelService } from '../../../../core/services/excel.service';
 import { FullscreenPanelComponent } from '../../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
@@ -117,8 +118,12 @@ export class TeachersListComponent implements OnInit {
     readonly Settings = Settings;
     readonly ArrowLeft = ArrowLeft;
     readonly Trash = Trash;
+    readonly Download = Download;
+
+    isExporting = false;
 
     private destroyRef = inject(DestroyRef);
+    private excelService = inject(ExcelService);
 
     constructor(
         private teacherService: TeacherService,
@@ -265,6 +270,17 @@ export class TeachersListComponent implements OnInit {
             );
         }
 
+        if (this.isAdminOrSuperAdmin()) {
+            this.actionButtons.push({
+                label: this.isExporting ? 'Yüklənir...' : 'Excel-ə eksport et',
+                icon: this.Download,
+                action: () => this.exportToExcel(),
+                variant: 'secondary',
+                loading: this.isExporting,
+                disabled: this.isExporting
+            });
+        }
+
         if (this.authService.canDeleteTeachers() && this.isAdminOrSuperAdmin()) {
             this.actionButtons.push({
                 label: 'Ekranda olanları sil',
@@ -315,6 +331,32 @@ export class TeachersListComponent implements OnInit {
         }
     }
 
+    /** Справочник layihə müəllimləri по текущим фильтрам — все страницы одним запросом
+     *  (TABLE_EXPORT_PAGE_SIZE), как экспорт годовых вкладок в /stats. */
+    exportToExcel(): void {
+        if (this.isExporting) return;
+        this.setExporting(true);
+        this.teacherService.getTeachers({ ...this.buildFilterParams(), page: 1, size: TABLE_EXPORT_PAGE_SIZE })
+            .subscribe({
+                next: (response: TeacherResponse) => {
+                    this.setExporting(false);
+                    const data = ResponseHandlerUtil.extractPaginatedData<Teacher>(response).data || [];
+                    const rows = this.excelService.formatTeacherDirectory(data, this.canFilterByVisibility);
+                    this.excelService.downloadDirectory(rows, 'Layihə müəllimləri', 'layihe-muellimleri');
+                },
+                error: (err: any) => {
+                    this.setExporting(false);
+                    this.toastService.show(err?.error?.message ?? 'Excel yaradılarkən xəta baş verdi', 'error');
+                }
+            });
+    }
+
+    /** list-layout is OnPush — the button array has to be rebuilt, not mutated, to show the spinner. */
+    private setExporting(value: boolean): void {
+        this.isExporting = value;
+        this.setupActionButtons();
+    }
+
     /** Единственная навигация со строки (PROFILES_V2_TASK.md §3.1) — редактирование, удаление
      *  и просмотр учеников учителя теперь живут на самом профиле. */
     onTeacherProfile(teacher: Teacher): void {
@@ -358,16 +400,23 @@ export class TeachersListComponent implements OnInit {
         });
     }
 
-    loadTeachers(): void {
-        const params: FilterParams = {
-            page: this.pageIndex + 1,
-            size: this.pageSize,
+    /** Filters + sort of the on-screen table, shared by the page load and the Excel export. */
+    private buildFilterParams(): FilterParams {
+        return {
             districtIds: this.selectedDistrictIds.join(","),
             schoolIds: this.selectedSchoolIds.join(","),
             active: this.selectedVisibility === 'all' ? undefined : this.selectedVisibility === 'shown',
             sortColumn: this.sortColumn,
             sortDirection: this.sortDirection
-        }
+        };
+    }
+
+    loadTeachers(): void {
+        const params: FilterParams = {
+            ...this.buildFilterParams(),
+            page: this.pageIndex + 1,
+            size: this.pageSize
+        };
 
         this.isLoading = true;
         this.teacherService.getTeachers(params)
