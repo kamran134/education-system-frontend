@@ -79,7 +79,7 @@ export class AcademicYearComponent implements OnInit {
     }
 
     get canCloseYear(): boolean {
-        return !!this.closurePreview && !this.closurePreview.alreadyClosed && !this.isClosureExecuting;
+        return !!this.closurePreview && this.closurePreview.windowOpen && !this.closurePreview.alreadyClosed && !this.isClosureExecuting;
     }
 
     openCloseConfirm(): void {
@@ -122,7 +122,8 @@ export class AcademicYearComponent implements OnInit {
     }
 
     get canPromote(): boolean {
-        return !!this.preview && this.preview.windowOpen && !this.preview.alreadyPromotedThisYear && !this.isExecuting;
+        return !!this.preview && this.preview.windowOpen && !this.preview.alreadyPromotedThisYear
+            && this.preview.currentYearClosed && !this.isExecuting;
     }
 
     openConfirm(): void {

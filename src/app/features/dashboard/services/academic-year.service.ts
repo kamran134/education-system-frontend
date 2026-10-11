@@ -30,6 +30,8 @@ export interface GradePromotionResult {
 
 export interface AcademicYearClosurePreview {
     academicYear: number;
+    // June-August only: from September getCurrentAcademicYear() is the new, just-started year.
+    windowOpen: boolean;
     alreadyClosed: boolean;
     closedAt: string | null;
     closedBy: string | null;

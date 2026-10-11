@@ -42,6 +42,9 @@
             <p class="text-sm text-yellow-700 mt-1">
               {{ academicYearLabel(closurePreview.academicYear) }} tədris ili üçün statistika hələ açıqdır.
             </p>
+            @if (!closurePreview.windowOpen) {
+              <p class="text-sm text-yellow-700 mt-1">Tədris ilini yalnız iyun-avqust aylarında bağlamaq olar — il davam edir.</p>
+            }
           </div>
         </div>
       }
@@ -125,13 +128,13 @@
         </div>
       </div>
     }
-    <!-- Current year not closed yet — warning, not a block -->
-    @if (canPromote && !preview.currentYearClosed) {
+    <!-- Current year not closed yet — promotion is blocked until it is (backend returns 409) -->
+    @if (preview.windowOpen && !preview.alreadyPromotedThisYear && !preview.currentYearClosed) {
       <div class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6 flex items-start">
         <lucide-icon [img]="Lock" class="w-5 h-5 text-orange-500 mr-3 shrink-0 mt-0.5"></lucide-icon>
         <div>
           <h3 class="text-sm font-medium text-orange-800">Diqqət</h3>
-          <p class="text-sm text-orange-700 mt-1">Cari tədris ili hələ bağlanmayıb. Əvvəlcə yuxarıdakı «Tədris ilini bağla» düyməsindən istifadə edin.</p>
+          <p class="text-sm text-orange-700 mt-1">Cari tədris ili hələ bağlanmayıb. Sinifləri yüksəltmək üçün əvvəlcə yuxarıdakı «Tədris ilini bağla» düyməsindən istifadə edin.</p>
         </div>
       </div>
     }
