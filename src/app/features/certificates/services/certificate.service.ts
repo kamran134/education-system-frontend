@@ -82,15 +82,35 @@ export class CertificateService {
             .pipe(map((r) => ResponseHandlerUtil.extractData<CertificateTemplate>(r)));
     }
 
+    replaceTemplateFemaleImage(id: number, image: File): Observable<CertificateTemplate> {
+        const form = new FormData();
+        form.append('image', image);
+        return this.http
+            .post<ApiResponse<CertificateTemplate>>(`${this.baseUrl}/templates/${id}/female-image`, form)
+            .pipe(map((r) => ResponseHandlerUtil.extractData<CertificateTemplate>(r)));
+    }
+
+    removeTemplateFemaleImage(id: number): Observable<CertificateTemplate> {
+        return this.http
+            .delete<ApiResponse<CertificateTemplate>>(`${this.baseUrl}/templates/${id}/female-image`)
+            .pipe(map((r) => ResponseHandlerUtil.extractData<CertificateTemplate>(r)));
+    }
+
     deleteTemplate(id: number): Observable<void> {
         return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/templates/${id}`).pipe(map(() => undefined));
     }
 
     // studentResultId не передан -> сервер подставляет данные примера заказчика (§7 плана)
-    previewTemplate(id: number, fields: CertificateField[], studentResultId?: number): Observable<Blob> {
+    // variant не передан -> сервер выбирает по полу ученика (если задан studentResultId), иначе мужской.
+    previewTemplate(
+        id: number,
+        fields: CertificateField[],
+        studentResultId?: number,
+        variant?: 'male' | 'female'
+    ): Observable<Blob> {
         return this.http.post(
             `${this.baseUrl}/templates/${id}/preview`,
-            { fields, studentResultId },
+            { fields, studentResultId, variant },
             { responseType: 'blob' }
         );
     }

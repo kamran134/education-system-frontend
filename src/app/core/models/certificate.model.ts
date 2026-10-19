@@ -62,6 +62,8 @@ export interface CertificateTemplate {
     imagePath: string;
     imageWidth: number;
     imageHeight: number;
+    /** Girl-variant background (same pixel size as imagePath); null = no female variant. */
+    femaleImagePath: string | null;
     fields: CertificateField[];
     active: boolean;
     createdAt: string;

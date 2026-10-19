@@ -163,6 +163,7 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
     @ViewChild('canvasWrapper') canvasWrapper!: ElementRef<HTMLDivElement>;
     @ViewChild('canvasImage') canvasImage!: ElementRef<HTMLImageElement>;
     @ViewChild('replaceImageInput') replaceImageInput!: ElementRef<HTMLInputElement>;
+    @ViewChild('femaleImageInput') femaleImageInput!: ElementRef<HTMLInputElement>;
 
     readonly ArrowLeft = ArrowLeft;
     readonly Plus = Plus;
@@ -207,6 +208,12 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
     isSaving = false;
     isPreviewing = false;
     testStudentResultId: number | null = null;
+
+    // Girl variant of the background. previewVariant drives both the canvas backdrop and the PDF
+    // preview; with a test student and no explicit choice the server picks by the student's gender.
+    isUploadingFemale = false;
+    previewVariant: 'male' | 'female' = 'male';
+    private previewVariantTouched = false;
 
     scale = 1;
     private resizeObserver: ResizeObserver | null = null;
@@ -277,7 +284,21 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
     }
 
     imageUrl(): string | null {
-        return this.template ? this.configService.resolveAssetUrl(this.template.imagePath) : null;
+        if (!this.template) return null;
+        const path =
+            this.previewVariant === 'female' && this.template.femaleImagePath
+                ? this.template.femaleImagePath
+                : this.template.imagePath;
+        return this.configService.resolveAssetUrl(path);
+    }
+
+    femaleImageUrl(): string | null {
+        return this.template ? this.configService.resolveAssetUrl(this.template.femaleImagePath) : null;
+    }
+
+    setPreviewVariant(variant: 'male' | 'female'): void {
+        this.previewVariant = variant;
+        this.previewVariantTouched = true;
     }
 
     get selectedField(): CertificateField | null {
@@ -665,7 +686,12 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         if (!this.template) return;
         this.isPreviewing = true;
         this.certificateService
-            .previewTemplate(this.template.id, this.fields, this.testStudentResultId ?? undefined)
+            .previewTemplate(
+                this.template.id,
+                this.fields,
+                this.testStudentResultId ?? undefined,
+                this.previewVariantToSend()
+            )
             .subscribe({
                 next: (blob) => {
                     this.isPreviewing = false;
@@ -679,6 +705,53 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
             });
     }
 
+    private previewVariantToSend(): 'male' | 'female' | undefined {
+        if (!this.template?.femaleImagePath) return undefined;
+        // A test student without an explicit toggle choice: let the server decide by gender.
+        if (this.testStudentResultId !== null && !this.previewVariantTouched) return undefined;
+        return this.previewVariant;
+    }
+
+    onFemaleImageSelected(event: Event): void {
+        if (!this.template) return;
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+        this.isUploadingFemale = true;
+        this.certificateService.replaceTemplateFemaleImage(this.template.id, file).subscribe({
+            next: (updated) => {
+                this.template = updated;
+                this.isUploadingFemale = false;
+                this.toast.show('Qız variantı yükləndi', 'success');
+            },
+            error: (err) => {
+                this.isUploadingFemale = false;
+                this.toast.show(err?.error?.message || 'Şəkil yüklənərkən xəta baş verdi', 'error');
+            },
+        });
+        input.value = '';
+    }
+
+    async removeFemaleImage(): Promise<void> {
+        if (!this.template?.femaleImagePath) return;
+        const proceed = await this.confirmDialog.confirm({
+            title: 'Qız variantının silinməsi',
+            message: 'Qız variantı silinəcək, bundan sonra qızlar üçün də əsas şəkil istifadə olunacaq. Davam edilsin?',
+            confirmText: 'Bəli, sil',
+            variant: 'danger'
+        });
+        if (!proceed) return;
+        this.certificateService.removeTemplateFemaleImage(this.template.id).subscribe({
+            next: (updated) => {
+                this.template = updated;
+                this.previewVariant = 'male';
+                this.previewVariantTouched = false;
+                this.toast.show('Qız variantı silindi', 'success');
+            },
+            error: (err) => this.toast.show(err?.error?.message || 'Silinərkən xəta baş verdi', 'error'),
+        });
+    }
+
     onReplaceImageSelected(event: Event): void {
         if (!this.template) return;
         const input = event.target as HTMLInputElement;
@@ -686,8 +759,15 @@ export class CertificateEditorComponent implements OnInit, AfterViewInit, OnDest
         if (!file) return;
         this.certificateService.replaceTemplateImage(this.template.id, file).subscribe({
             next: (updated) => {
+                const femaleDropped = !!this.template?.femaleImagePath && !updated.femaleImagePath;
                 this.template = updated;
-                this.toast.show('Şəkil dəyişdirildi', 'success');
+                if (!updated.femaleImagePath) this.previewVariant = 'male';
+                this.toast.show(
+                    femaleDropped
+                        ? 'Şəkil dəyişdirildi — ölçü dəyişdiyi üçün qız variantı silindi, yenidən yükləyin'
+                        : 'Şəkil dəyişdirildi',
+                    femaleDropped ? 'warning' : 'success'
+                );
                 setTimeout(() => this.recomputeScale());
             },
             error: () => this.toast.show('Şəkil yüklənərkən xəta baş verdi', 'error'),

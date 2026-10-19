@@ -25,6 +25,14 @@
       ></app-input>
 
       <app-select
+        label="Cinsi"
+        placeholder="Cinsi seçin"
+        [options]="genderOptions"
+        [(ngModel)]="genderValue"
+        name="gender"
+      ></app-select>
+
+      <app-select
         label="Şagirdin təhsil sektoru"
         placeholder="Təhsil sektorunu seçin"
         [options]="districtOptions"

@@ -143,6 +143,45 @@
 
       <!-- Properties panel -->
       <div class="w-80 flex-shrink-0 overflow-y-auto space-y-4">
+        <!-- Qız variantı: eyni ölçülü alternativ fon şəkli (qız şagirdlər üçün) -->
+        <div class="border border-gray-200 rounded-xl p-4 space-y-3">
+          <span class="text-sm font-semibold text-gray-900">Qız variantı</span>
+          <input #femaleImageInput type="file" accept="image/jpeg,image/jpg,image/png" class="hidden" (change)="onFemaleImageSelected($event)" />
+
+          @if (template.femaleImagePath) {
+            <img [src]="femaleImageUrl()" alt="Qız variantı" class="w-24 rounded-lg border border-gray-200" />
+            <div class="flex gap-2">
+              <app-button variant="outline" size="sm" [disabled]="isUploadingFemale" (clicked)="femaleImageInput.click()">
+                Dəyiş
+              </app-button>
+              <app-button variant="ghost" size="sm" [disabled]="isUploadingFemale" (clicked)="removeFemaleImage()">
+                <span class="text-red-600">Sil</span>
+              </app-button>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs text-gray-500 mr-1">Önizləmə:</span>
+              <app-button
+                [variant]="previewVariant === 'male' ? 'primary' : 'outline'"
+                size="sm"
+                (clicked)="setPreviewVariant('male')">
+                Oğlan
+              </app-button>
+              <app-button
+                [variant]="previewVariant === 'female' ? 'primary' : 'outline'"
+                size="sm"
+                (clicked)="setPreviewVariant('female')">
+                Qız
+              </app-button>
+            </div>
+          } @else {
+            <app-button variant="outline" size="sm" [disabled]="isUploadingFemale" (clicked)="femaleImageInput.click()">
+              Qız şəklini yüklə
+            </app-button>
+            <p class="text-xs text-gray-500">Əsas şəklin ölçüsü ({{ template.imageWidth }}×{{ template.imageHeight }}) ilə eyni olmalıdır.</p>
+          }
+        </div>
+
         <div class="flex gap-2">
           <app-select class="flex-1" [options]="fieldTypeOptions" [(ngModel)]="newFieldType" name="newFieldType"></app-select>
           <app-button variant="outline" size="sm" (clicked)="addField()">

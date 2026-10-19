@@ -51,6 +51,8 @@ export interface Student {
     districtPlace?: number | null;
     filterPlace?: number | null;
     avatarUrl?: string;
+    /** 'm' = oğlan, 'f' = qız, null/undefined = bilinmir. Sertifikatın fon variantını seçir. */
+    gender?: 'm' | 'f' | null;
     participationCount?: number; // number of exams participated
     ratings?: YearRating[];
     /** Класс ЗА ЗАПРОШЕННЫЙ учебный год (student_grade_history на бэке). Отличие от `grade` —
@@ -62,6 +64,7 @@ export interface StudentForCreation {
     fullname: string;
     code: number;
     grade: number;
+    gender?: 'm' | 'f' | null;
     teacher?: Teacher;
     school?: School;
     district?: District;

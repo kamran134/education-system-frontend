@@ -88,6 +88,21 @@ export class StudentEditingDialogComponent implements OnInit, OnDestroy {
         }));
     }
 
+    // 'unknown' is a UI-only sentinel for gender = null (the select treats null as "no selection").
+    readonly genderOptions: SelectOption[] = [
+        { value: 'm', label: 'Oğlan' },
+        { value: 'f', label: 'Qız' },
+        { value: 'unknown', label: 'Bilinmir' }
+    ];
+
+    get genderValue(): string {
+        return this.data.student.gender ?? 'unknown';
+    }
+
+    set genderValue(value: string) {
+        this.data.student.gender = value === 'm' || value === 'f' ? value : null;
+    }
+
     get gradeOptions(): SelectOption[] {
         return this.grades.map(grade => ({
             value: grade,
