@@ -125,7 +125,14 @@
       <app-profile-achievements
         title="Uğurları"
         [text]="teacher.achievements ?? null"
-        [canEdit]="false">
+        [canEdit]="false"
+        [hasExtraContent]="achievementFilesCount > 0">
+        <app-profile-achievement-files
+          entityType="teacher"
+          [entityId]="numericTeacherId"
+          (countChange)="achievementFilesCount = $event"
+          (changed)="onAchievementFilesChanged()">
+        </app-profile-achievement-files>
       </app-profile-achievements>
 
       <!-- YENI_DUZELISLER_2026-09-17 п.1b: statsDetailsQueryParams уже содержит { districtIds, schoolIds, teacherIds } — переиспользуем для ссылки "Tam reytinq…" на /stats. -->

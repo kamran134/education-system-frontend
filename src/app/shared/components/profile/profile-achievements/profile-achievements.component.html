@@ -29,7 +29,9 @@
           }
         </ul>
       } @else {
-        <p class="text-sm italic text-[var(--ui-faint)]">Uğurlar hələ doldurulmayıb</p>
+        @if (!hasExtraContent) {
+          <p class="text-sm italic text-[var(--ui-faint)]">Uğurlar hələ doldurulmayıb</p>
+        }
       }
     }
 
@@ -48,5 +50,10 @@
         <app-button variant="outline" [disabled]="isSaving" (clicked)="cancelEdit()">Ləğv et</app-button>
       </div>
     }
+
+    <!-- Projected extra content (profile-achievement-files); mt-5 only when it follows the text list. -->
+    <div [class.mt-5]="hasExtraContent && items.length > 0 && !isEditing">
+      <ng-content></ng-content>
+    </div>
   </div>
 </div>

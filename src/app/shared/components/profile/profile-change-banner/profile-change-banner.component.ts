@@ -50,9 +50,30 @@ export class ProfileChangeBannerComponent {
         return String(value);
     }
 
+    /** Text fields of the request; achievementFiles is not a field but a file-op carrier. */
+    private get textKeys(): string[] {
+        return this.pending ? Object.keys(this.pending.payload).filter((key) => key !== 'achievementFiles') : [];
+    }
+
+    /** "Düzəliş et" corrects text values only — a request made of files alone has nothing to correct. */
+    get hasTextFields(): boolean {
+        return this.textKeys.length > 0;
+    }
+
+    /** E.g. "2 yeni fayl, 1 faylın silinməsi"; null when the request has no file ops. */
+    get filesSummary(): string | null {
+        const ops = this.pending?.payload['achievementFiles'];
+        const added = Array.isArray(ops?.add) ? ops.add.length : 0;
+        const removed = Array.isArray(ops?.remove) ? ops.remove.length : 0;
+        const parts: string[] = [];
+        if (added > 0) parts.push(`${added} yeni fayl`);
+        if (removed > 0) parts.push(`${removed} faylın silinməsi`);
+        return parts.length > 0 ? parts.join(', ') : null;
+    }
+
     get diffRows(): DiffRow[] {
         if (!this.pending) return [];
-        return Object.keys(this.pending.payload).map((key) => ({
+        return this.textKeys.map((key) => ({
             label: this.fieldLabels[key] ?? key,
             before: this.formatValue(this.current[key]),
             after: this.formatValue(this.pending!.payload[key]),
@@ -61,7 +82,7 @@ export class ProfileChangeBannerComponent {
 
     get ownFields(): DiffRow[] {
         if (!this.pending) return [];
-        return Object.keys(this.pending.payload).map((key) => ({
+        return this.textKeys.map((key) => ({
             label: this.fieldLabels[key] ?? key,
             before: '',
             after: this.formatValue(this.pending!.payload[key]),

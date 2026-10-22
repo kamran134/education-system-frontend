@@ -119,7 +119,14 @@
       <app-profile-achievements
         title="Məktəbin uğurları"
         [text]="school.achievements ?? null"
-        [canEdit]="false">
+        [canEdit]="false"
+        [hasExtraContent]="achievementFilesCount > 0">
+        <app-profile-achievement-files
+          entityType="school"
+          [entityId]="numericSchoolId"
+          (countChange)="achievementFilesCount = $event"
+          (changed)="onAchievementFilesChanged()">
+        </app-profile-achievement-files>
       </app-profile-achievements>
 
       <!-- YENI_DUZELISLER_2026-09-17 п.1b: statsDetailsQueryParams уже содержит { districtIds, schoolIds } — переиспользуем для ссылки "Tam reytinq…" на /stats. -->

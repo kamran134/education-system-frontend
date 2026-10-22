@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +22,7 @@ import { InputComponent } from '../../../../shared/components/ui/form-controls/i
 import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '../../../../shared/components/profile/profile-hero/profile-hero.component';
 import { ProfileChangeBannerComponent } from '../../../../shared/components/profile/profile-change-banner/profile-change-banner.component';
 import { ProfileAchievementsComponent } from '../../../../shared/components/profile/profile-achievements/profile-achievements.component';
+import { ProfileAchievementFilesComponent } from '../../../../shared/components/profile/profile-achievement-files/profile-achievement-files.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
 import { ProfileRatingSectionComponent, ProfilePlaceColumn } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
@@ -40,7 +41,7 @@ const TEACHERS_PAGE_SIZE = 12;
     imports: [
         CommonModule, FormsModule, RouterModule, LucideAngularModule,
         ButtonComponent, InputComponent,
-        ProfileHeroComponent, ProfileChangeBannerComponent, ProfileAchievementsComponent,
+        ProfileHeroComponent, ProfileChangeBannerComponent, ProfileAchievementsComponent, ProfileAchievementFilesComponent,
         ProfileStatsSectionComponent, ProfileRatingSectionComponent, EntityCardGridComponent,
         ProfileResultsSectionComponent,
     ],
@@ -74,6 +75,11 @@ export class SchoolProfileComponent implements OnInit {
 
     /** Модерация самостоятельно введённых полей (BASE_FIXES_TASK.md §2.4/§2.6) — не видно
      *  никому, кроме владельца и админа, сервер сам следит за этим через /profile-changes/current. */
+    // Attached "Uğurlar" files (UGURLAR_FILES_TASK.md): the count drives the empty-text placeholder,
+    // the ViewChild lets an approve/reject refresh the list the component loaded on its own.
+    @ViewChild(ProfileAchievementFilesComponent) achievementFiles?: ProfileAchievementFilesComponent;
+    achievementFilesCount = 0;
+
     pendingChange: ProfileChangeRequest | null = null;
     isProcessingChange = false;
     /** id заявки, которую админ сейчас правит через «Düzəliş et» — форма редактирования та же
@@ -166,6 +172,24 @@ export class SchoolProfileComponent implements OnInit {
 
     /** admin-like ИЛИ владелец — тот же круг, кому «/current» вообще ответит непустым телом
      *  (см. profileChange.controller.ts::current), поэтому дёргаем без лишних условий тут. */
+    get numericSchoolId(): number {
+        return parseInt(this.schoolId, 10);
+    }
+
+    /** The owner uploaded/deleted a file: that created or changed the pending request, so the banner is stale. */
+    onAchievementFilesChanged(): void {
+        this.loadPendingChange();
+    }
+
+    /** The server refused an approve because the request changed after the admin opened it (409). */
+    private handleStaleApprove(error: any): boolean {
+        if (error?.status !== 409) return false;
+        this.snackBarService.show(error.error?.message ?? 'Məlumat bu arada yenilənib', 'error');
+        this.loadPendingChange();
+        this.achievementFiles?.reload();
+        return true;
+    }
+
     private loadPendingChange(): void {
         if (!this.canEditFacts) return;
         this.profileChangeService.current('school', parseInt(this.schoolId, 10))
@@ -438,12 +462,13 @@ export class SchoolProfileComponent implements OnInit {
         this.factsSaveFailed = false;
 
         if (this.correctingPendingId != null) {
+            const expectedSubmittedAt = this.pendingChange?.submittedAt;
             this.profileChangeService.approve(this.correctingPendingId, {
                 name: this.editedName,
                 directorName: this.editedDirectorName,
                 foundedYear: this.editedFoundedYear,
                 achievements: this.editedAchievements,
-            })
+            }, expectedSubmittedAt)
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
                     next: () => {
@@ -452,10 +477,16 @@ export class SchoolProfileComponent implements OnInit {
                         this.correctingPendingId = null;
                         this.pendingChange = null;
                         this.loadSchool();
+                        this.achievementFiles?.reload();
                         this.snackBarService.show('Məlumatlar düzəlişlə təsdiqləndi', 'success');
                     },
-                    error: () => {
+                    error: (error) => {
                         this.isSavingFacts = false;
+                        if (this.handleStaleApprove(error)) {
+                            this.editingFacts = false;
+                            this.correctingPendingId = null;
+                            return;
+                        }
                         this.factsSaveFailed = true;
                         this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
                     }
@@ -497,17 +528,19 @@ export class SchoolProfileComponent implements OnInit {
     approvePendingChange(): void {
         if (!this.pendingChange) return;
         this.isProcessingChange = true;
-        this.profileChangeService.approve(this.pendingChange.id)
+        this.profileChangeService.approve(this.pendingChange.id, undefined, this.pendingChange.submittedAt)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
                     this.isProcessingChange = false;
                     this.pendingChange = null;
                     this.loadSchool();
+                    this.achievementFiles?.reload();
                     this.snackBarService.show('Məlumatlar təsdiqləndi', 'success');
                 },
-                error: () => {
+                error: (error) => {
                     this.isProcessingChange = false;
+                    if (this.handleStaleApprove(error)) return;
                     this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
                 }
             });
@@ -522,6 +555,7 @@ export class SchoolProfileComponent implements OnInit {
                 next: () => {
                     this.isProcessingChange = false;
                     this.pendingChange = null;
+                    this.achievementFiles?.reload();
                     this.snackBarService.show('Məlumatlar rədd edildi', 'success');
                 },
                 error: () => {

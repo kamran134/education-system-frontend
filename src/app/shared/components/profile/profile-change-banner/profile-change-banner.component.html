@@ -17,6 +17,12 @@
             </dd>
           </div>
         }
+        @if (filesSummary) {
+          <div>
+            <dt class="text-[10.5px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-1">Fayllar</dt>
+            <dd class="text-sm font-semibold text-[var(--ui-ink)]">{{ filesSummary }}</dd>
+          </div>
+        }
       </dl>
 
       @if (!showRejectForm) {
@@ -27,12 +33,14 @@
               <span>Təsdiqlə</span>
             </div>
           </app-button>
-          <app-button variant="outline" [disabled]="isProcessing" (clicked)="correctClicked.emit()">
-            <div class="flex items-center gap-1.5">
-              <lucide-icon [img]="Pencil" class="w-4 h-4"></lucide-icon>
-              <span>Düzəliş et</span>
-            </div>
-          </app-button>
+          @if (hasTextFields) {
+            <app-button variant="outline" [disabled]="isProcessing" (clicked)="correctClicked.emit()">
+              <div class="flex items-center gap-1.5">
+                <lucide-icon [img]="Pencil" class="w-4 h-4"></lucide-icon>
+                <span>Düzəliş et</span>
+              </div>
+            </app-button>
+          }
           <app-button variant="outline" [disabled]="isProcessing" (clicked)="toggleRejectForm()">
             <div class="flex items-center gap-1.5">
               <lucide-icon [img]="X" class="w-4 h-4"></lucide-icon>
@@ -69,6 +77,12 @@
           <div>
             <dt class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-0.5">{{ row.label }}</dt>
             <dd class="text-sm font-medium text-[var(--ui-ink)]">{{ row.after }}</dd>
+          </div>
+        }
+        @if (filesSummary) {
+          <div>
+            <dt class="text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)] mb-0.5">Fayllar</dt>
+            <dd class="text-sm font-medium text-[var(--ui-ink)]">{{ filesSummary }}</dd>
           </div>
         }
       </dl>

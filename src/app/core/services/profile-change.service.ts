@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { ResponseHandlerUtil } from '../utils/response-handler.util';
+import { AchievementFile } from '../models/achievement-file.model';
 import { ProfileChangeEntityType, ProfileChangeQueueRow, ProfileChangeRequest, ProfileChangeStatus } from '../models/profile-change.model';
 
 /**
@@ -38,7 +39,19 @@ export class ProfileChangeService {
 
     listQueue(status: ProfileChangeStatus = 'pending'): Observable<ProfileChangeQueueRow[]> {
         return this.http.get<any>(`${this.baseUrl}?status=${status}`, { withCredentials: true })
-            .pipe(map((response) => ResponseHandlerUtil.extractData<ProfileChangeQueueRow[]>(response)));
+            .pipe(map((response) => ResponseHandlerUtil.extractData<ProfileChangeQueueRow[]>(response).map((row) => this.withAbsoluteFileUrls(row))));
+    }
+
+    /** The server issues relative /api/... file links; the dev stand lives on another origin than prod. */
+    private withAbsoluteFileUrls(row: ProfileChangeQueueRow): ProfileChangeQueueRow {
+        if (!row.files) return row;
+        const absolute = (f: AchievementFile): AchievementFile => ({
+            ...f,
+            fileUrl: this.configService.resolveAssetUrl(f.fileUrl)!,
+            downloadUrl: this.configService.resolveAssetUrl(f.downloadUrl)!,
+            thumbUrl: this.configService.resolveAssetUrl(f.thumbUrl),
+        });
+        return { ...row, files: { add: row.files.add.map(absolute), remove: row.files.remove.map(absolute) } };
     }
 
     count(): Observable<number> {
@@ -63,9 +76,11 @@ export class ProfileChangeService {
     }
 
     /** payload — только для сценария «Düzəliş et»: админ подтверждает СВОИ значения, не то,
-     *  что изначально прислал владелец. */
-    approve(id: number, payload?: Record<string, any>): Observable<ProfileChangeRequest> {
-        return this.http.post<any>(`${this.baseUrl}/${id}/approve`, payload ? { payload } : {}, { withCredentials: true })
+     *  что изначально прислал владелец. expectedSubmittedAt — submittedAt заявки, как её видел
+     *  админ: если владелец успел что-то догрузить, сервер ответит 409 вместо одобрения
+     *  невиденного (UGURLAR_FILES_TASK.md Р6). */
+    approve(id: number, payload?: Record<string, any>, expectedSubmittedAt?: string): Observable<ProfileChangeRequest> {
+        return this.http.post<any>(`${this.baseUrl}/${id}/approve`, { ...(payload ? { payload } : {}), ...(expectedSubmittedAt ? { expectedSubmittedAt } : {}) }, { withCredentials: true })
             .pipe(
                 map((response) => ResponseHandlerUtil.extractData<ProfileChangeRequest>(response)),
                 tap(() => this.refreshPendingCount())

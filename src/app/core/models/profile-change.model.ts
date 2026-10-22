@@ -1,3 +1,5 @@
+import { AchievementFile } from './achievement-file.model';
+
 /** Модерация самостоятельно введённых полей профиля (BASE_FIXES_TASK.md §2.4).
  *  'student' добавлен п.3 ТЗ 04.09.2026 — заявку на ФИО ученика подаёт его учитель. */
 export type ProfileChangeEntityType = 'school' | 'teacher' | 'district' | 'student';
@@ -20,6 +22,8 @@ export interface ProfileChangeQueueRow extends ProfileChangeRequest {
     entityName: string;
     submittedByEmail: string;
     current: Record<string, any>;
+    /** Файловые операции заявки школы/учителя (payload.achievementFiles) в виде самих файлов; нет — если их нет. */
+    files?: { add: AchievementFile[]; remove: AchievementFile[] };
 }
 
 /**

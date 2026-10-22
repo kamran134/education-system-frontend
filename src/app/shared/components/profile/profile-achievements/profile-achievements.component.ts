@@ -26,6 +26,8 @@ export class ProfileAchievementsComponent implements OnChanges {
     @Input() canEdit = false;
     @Input() isSaving = false;
     @Input() saveFailed = false;
+    /** The projected content (attached files) is non-empty — the "not filled in" placeholder is then wrong. */
+    @Input() hasExtraContent = false;
 
     @Output() save = new EventEmitter<string | null>();
 

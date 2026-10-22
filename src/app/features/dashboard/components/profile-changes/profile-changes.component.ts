@@ -109,7 +109,8 @@ export class ProfileChangesComponent implements OnInit {
 
     diffRows(row: ProfileChangeQueueRow): { label: string; before: string; after: string }[] {
         const format = (v: any) => (v === null || v === undefined || v === '' ? 'Doldurulmayıb' : String(v));
-        return Object.keys(row.payload).map((key) => ({
+        // achievementFiles is a file-op carrier, rendered separately from row.files (filesCell).
+        return Object.keys(row.payload).filter((key) => key !== 'achievementFiles').map((key) => ({
             label: FIELD_LABELS[key] ?? key,
             before: format(row.current[key]),
             after: format(row.payload[key]),
@@ -122,14 +123,22 @@ export class ProfileChangesComponent implements OnInit {
     }
 
     private approve(row: ProfileChangeQueueRow): void {
-        this.profileChangeService.approve(row.id)
+        // submittedAt as the admin saw it: the server answers 409 if the owner changed files since.
+        this.profileChangeService.approve(row.id, undefined, row.submittedAt)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
                     this.snackBarService.show('Məlumatlar təsdiqləndi', 'success');
                     this.load();
                 },
-                error: () => this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error')
+                error: (error) => {
+                    if (error?.status === 409) {
+                        this.snackBarService.show(error.error?.message ?? 'Məlumat bu arada yenilənib', 'error');
+                        this.load();
+                        return;
+                    }
+                    this.snackBarService.show('Təsdiqlənərkən xəta baş verdi', 'error');
+                }
             });
     }
 
