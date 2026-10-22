@@ -94,6 +94,16 @@ export class TeacherService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
     }
 
+    /** Moves the teacher to another school; his students stay and go to `studentsToTeacherId` (TRANSFERS_TASK.md §4). */
+    transferTeacher(
+        teacherId: string | number,
+        body: { schoolId: number; codeSuffix?: number; studentsToTeacherId?: number }
+    ): Observable<{ teacher: Teacher; movedStudents: Array<{ id: number; fullname: string; oldCode: number; newCode: number }> }> {
+        const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/transfer`;
+        return this.http.post<ApiResponse<any>>(url, body, { withCredentials: true })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
     /** Owner (учитель сам) уходит в очередь модерации — ответ 202 (BASE_FIXES_TASK.md §2.5). */
     updateTeacherProfile(teacherId: string | number, data: { fullname?: string | null; biography?: string | null; pedagogicalExperienceYears?: number | null; achievements?: string | null; gradeLabel?: string | null }): Observable<ProfileSaveResult<Teacher>> {
         const url: string = `${this.configService.getApiUrl()}/teachers/${teacherId}/profile`;

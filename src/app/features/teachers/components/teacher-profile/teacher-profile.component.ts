@@ -28,6 +28,7 @@ import { ProfileRatingSectionComponent, ProfilePlaceColumn } from '../../../../s
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { ProfileResultsSectionComponent } from '../../../../shared/components/profile/profile-results-section/profile-results-section.component';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
+import { TeacherTransferDialogComponent, TeacherTransferResult } from '../teacher-transfer/teacher-transfer-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { StatisticsFilter } from '../../../../core/models/statistics.model';
 import { canViewAncestorCrumb } from '../../../../core/utils/entity-hierarchy.util';
@@ -426,6 +427,26 @@ export class TeacherProfileComponent implements OnInit {
                     }
                 });
             }
+        });
+    }
+
+    /** «Başqa məktəbə köçür» (TRANSFERS_TASK.md §4.3): the students stay in the old school, results stay with it. */
+    openTransferDialog(): void {
+        if (!this.teacher) return;
+        const dialogRef = this.dialog.open<TeacherTransferResult | undefined>(TeacherTransferDialogComponent, {
+            width: '640px',
+            data: { teacher: this.teacher }
+        });
+
+        dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+            if (!result) return;
+            const moved = result.movedStudents?.length ?? 0;
+            const studentsPart = moved > 0 && result.targetTeacherName
+                ? `, ${moved} şagird ${result.targetTeacherName} müəlliminə verildi`
+                : '';
+            this.snackBarService.show(`Müəllim köçürüldü${studentsPart}`, 'success');
+            this.loadTeacher();
+            this.resetAndLoadStudents();
         });
     }
 

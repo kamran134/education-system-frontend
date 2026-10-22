@@ -59,7 +59,11 @@ export class ProfileHeroComponent {
     @Input() canUploadPhoto = false;
     @Input() isUploading = false;
 
+    /** Second action under «Redaktə et» (person variant, shown with canEdit) — the teacher's «Başqa məktəbə köçür». */
+    @Input() extraActionLabel: string | null = null;
+
     @Output() editClicked = new EventEmitter<void>();
+    @Output() extraActionClicked = new EventEmitter<void>();
     @Output() editFactsClicked = new EventEmitter<void>();
     @Output() avatarSelected = new EventEmitter<Blob>();
     @Output() uploadRejected = new EventEmitter<string>();

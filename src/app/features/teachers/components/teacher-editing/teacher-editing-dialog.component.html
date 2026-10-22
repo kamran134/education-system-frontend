@@ -12,7 +12,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">Məktəb prefiksi</label>
           <input type="text" [value]="codePrefix" disabled
             class="block w-full rounded-lg px-3 py-2 text-sm border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" />
-            <p class="text-sm text-gray-500 mt-2">Məktəbdən asılıdır, dəyişmək üçün "Müəllimin məktəbi" seçin</p>
+            <p class="text-sm text-gray-500 mt-2">Məktəbdən asılıdır, dəyişmək üçün profildə «Başqa məktəbə köçür» düyməsini istifadə edin</p>
           </div>
           <app-input
             label="Fərdi hissə (00-99)"
@@ -49,6 +49,8 @@
         [(ngModel)]="selectedDistrictId"
         name="district"
         [required]="true"
+        [disabled]="isEditingSchoolLocked"
+        [helpText]="isEditingSchoolLocked ? 'Məktəbi dəyişmək üçün profildə «Başqa məktəbə köçür» düyməsini istifadə edin' : ''"
       ></app-select>
 
       <app-select
@@ -58,7 +60,8 @@
         [(ngModel)]="selectedSchoolId"
         name="school"
         [required]="true"
-        [disabled]="!selectedDistrict"
+        [disabled]="isEditingSchoolLocked || !selectedDistrict"
+        [helpText]="isEditingSchoolLocked ? 'Məktəbi dəyişmək üçün profildə «Başqa məktəbə köçür» düyməsini istifadə edin' : ''"
       ></app-select>
 
       <app-input

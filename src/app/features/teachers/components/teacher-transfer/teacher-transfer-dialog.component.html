@@ -1,0 +1,76 @@
+<app-modal
+  title="Başqa məktəbə köçür"
+  [subtitle]="data.teacher.fullname"
+  size="md"
+  [buttons]="modalButtons"
+  (closed)="dialogRef.close()"
+  >
+  <div class="space-y-6">
+    <p class="text-sm text-gray-500">Əvvəlki nəticələr və xallar köhnə məktəbdə və bu müəllimdə qalır.</p>
+
+    <app-select
+      label="Təhsil sektoru"
+      placeholder="Təhsil sektorunu seçin"
+      [options]="districtOptions"
+      [ngModel]="selectedDistrictId"
+      (ngModelChange)="onDistrictChanged($event)"
+      [required]="true"
+    ></app-select>
+
+    <app-select
+      label="Yeni məktəb"
+      placeholder="Məktəbi seçin"
+      [options]="schoolOptions"
+      [(ngModel)]="selectedSchoolId"
+      [required]="true"
+      [disabled]="schools.length === 0"
+    ></app-select>
+
+    <div class="grid grid-cols-[1fr_1fr] gap-3">
+      <app-input
+        label="Fərdi hissə (01-99)"
+        placeholder="Son 2 rəqəm"
+        [(ngModel)]="codeSuffix"
+        type="number"
+        [required]="true"
+        [error]="!isSuffixValid"
+        errorMessage="1 ilə 99 arasında olmalıdır"
+      ></app-input>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Yeni kod</label>
+        <input type="text" [value]="newCode ?? '—'" disabled
+          class="block w-full rounded-lg px-3 py-2 text-sm border border-gray-300 bg-gray-50 text-gray-500 cursor-not-allowed" />
+      </div>
+    </div>
+
+    @if (studentCount > 0) {
+      <div class="space-y-2">
+        <p class="text-sm text-gray-700">
+          Bu müəllimin {{ studentCount }} şagirdi köhnə məktəbdə qalır. Onlar hansı müəllimə verilsin?
+        </p>
+        <app-select
+          label="Şagirdlərin veriləcəyi müəllim"
+          placeholder="Müəllimi seçin"
+          [options]="teacherOptions"
+          [(ngModel)]="studentsToTeacherId"
+          [required]="true"
+          [searchable]="true"
+        ></app-select>
+        <p class="text-xs text-gray-500">Şagirdlərin kodları yeni müəllimə uyğun dəyişəcək, köhnə kodlar saxlanılır.</p>
+      </div>
+    } @else {
+      <app-select
+        label="Silinmiş şagirdlər varsa, hansı müəllimə verilsin? (könüllü)"
+        placeholder="Müəllimi seçin"
+        [options]="teacherOptions"
+        [(ngModel)]="studentsToTeacherId"
+        [searchable]="true"
+        [clearable]="true"
+      ></app-select>
+    }
+
+    @if (errorMessage) {
+      <p class="text-sm text-red-600">{{ errorMessage }}</p>
+    }
+  </div>
+</app-modal>
