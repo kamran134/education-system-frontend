@@ -650,7 +650,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             width: '400px',
             data: {
                 title: 'Şagirdi sil',
-                text: 'Bu şagirdi silmək istədiyinizə əminsinizmi?\n\nDİQQƏT!\nŞagird silinərkən onun bütün nəticələri də silinəcək!'
+                text: 'Bu şagirdi silmək istədiyinizə əminsinizmi?\n\nŞagird «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Administrator onu bərpa edə bilər.'
             }
         });
 
@@ -692,7 +692,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             width: '400px',
             data: {
                 title: 'Silinməyə razılıq',
-                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?\n\nDİQQƏT!\nŞagirdlər silinərkən onların bütün nəticələri də silinəcək!'
+                text: 'Ekranda göstərilən bütün şagirdləri silmək istədiyinizdən əminsiniz mi?\n\nŞagirdlər «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Administrator onları bərpa edə bilər.'
             }
         });
 

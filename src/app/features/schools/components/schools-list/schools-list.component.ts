@@ -422,7 +422,7 @@ onFilterChange(filters: Record<string, any>): void {
             width: '350px',
             data: {
                 title: 'Silinməyə razılıq',
-                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəblər silinərkən onlara bağlı layihə müəllimləri, şagirdlər və onların nəticələri də silinəcək!'
+                text: 'Ekranda göstərilən bütün məktəbləri silmək istədiyinizdən əminsiniz mi?\n\nMəktəblər «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Bağlı layihə müəllimləri və şagirdlər də gizlədiləcək. Administrator onları bərpa edə bilər.'
             }
         });
 

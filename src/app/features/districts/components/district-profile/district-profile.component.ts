@@ -340,7 +340,7 @@ export class DistrictProfileComponent implements OnInit {
     private handleDistrictDelete(): void {
         const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
-            data: { title: 'Silinməyə razılıq', text: 'Təhsil sektorunu silmək istədiyinizdən əminsiniz mi?' }
+            data: { title: 'Silinməyə razılıq', text: 'Təhsil sektorunu silmək istədiyinizdən əminsiniz mi?\n\nTəhsil sektoru «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Bağlı məktəblər, layihə müəllimləri və şagirdlər də gizlədiləcək. Administrator onu bərpa edə bilər.' }
         });
 
         confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {

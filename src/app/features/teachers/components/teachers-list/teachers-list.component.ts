@@ -525,7 +525,7 @@ export class TeachersListComponent implements OnInit {
         const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimləri" (вин. мн.) → "Layihə müəllimlərini".
-            data: { title: 'Silinməyə razılıq', text: 'Bütün layihə müəllimlərini silmək istədiyinizdən əminsiniz mi?' }
+            data: { title: 'Silinməyə razılıq', text: 'Bütün layihə müəllimlərini silmək istədiyinizdən əminsiniz mi?\n\nLayihə müəllimləri «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Bağlı şagirdlər də gizlədiləcək. Administrator onları bərpa edə bilər.' }
         });
 
         confirmRef.closed.subscribe((result: boolean) => {

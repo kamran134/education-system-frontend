@@ -433,7 +433,7 @@ export class TeacherProfileComponent implements OnInit {
         const confirmRef = this.dialog.open<any>(ConfirmDialogComponent, {
             width: '350px',
             // YENI_DUZELISLER_2026-09-17 п.3: "Müəllimi sil"/"Müəllim" → "Layihə müəllimini"/"Layihə müəllimi".
-            data: { title: 'Silinməyə razılıq', text: 'Layihə müəllimini silmək istədiyinizdən əminsiniz mi?\n\n DİQQƏT!\nLayihə müəllimi silinərkən onun BÜTÜN şagirdləri də silinəcək!' }
+            data: { title: 'Silinməyə razılıq', text: 'Layihə müəllimini silmək istədiyinizdən əminsiniz mi?\n\nLayihə müəllimi «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Bağlı şagirdlər də gizlədiləcək. Administrator onu bərpa edə bilər.' }
         });
 
         confirmRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: boolean) => {

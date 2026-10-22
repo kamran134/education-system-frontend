@@ -69,6 +69,22 @@
         </a>
       }
 
+      <!-- Deleted items («Silinənlər», SOFT_DELETE_TASK.md §8; admin/superadmin only — same gate as the route) -->
+      @if (permissions.canAccessRoute('canAccessDeletedItems')) {
+        <a
+          routerLink="/admin/deleted"
+          routerLinkActive="admin-nav-active !bg-primary-100 !text-primary-700 !font-semibold"
+          class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors group">
+          <lucide-icon [img]="ArchiveRestore" class="w-5 h-5 flex-shrink-0"></lucide-icon>
+          @if (sidebarOpen()) {
+            <span
+              class="ml-3 transition-opacity duration-300">
+              Silinənlər
+            </span>
+          }
+        </a>
+      }
+
       <!-- Rating Columns -->
       @if (permissions.canAccessRoute('canAccessRatingColumns')) {
         <a

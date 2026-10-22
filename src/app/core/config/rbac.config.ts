@@ -22,6 +22,7 @@ export interface RolePermissions {
         canAccessUserManagement: boolean;      // /admin/users
         canAccessRatingColumns: boolean;       // /admin/rating-columns
         canAccessProfileChanges: boolean;      // /admin/profile-changes (BASE_FIXES_TASK.md §2.7)
+        canAccessDeletedItems: boolean;        // /admin/deleted — «Silinənlər» (SOFT_DELETE_TASK.md §8)
         canAccessProfile: boolean;             // /profile
         canAccessStats: boolean;               // /stats
         canAccessStatistics: boolean;          // /statistics
@@ -123,6 +124,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: true,
             canAccessRatingColumns: true,
             canAccessProfileChanges: true,
+            canAccessDeletedItems: true,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
@@ -209,6 +211,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: true,
             canAccessRatingColumns: true,
             canAccessProfileChanges: true,
+            canAccessDeletedItems: true,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
@@ -295,6 +298,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfileChanges: false,
+            canAccessDeletedItems: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true,
@@ -381,6 +385,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfileChanges: false,
+            canAccessDeletedItems: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): rayon dashboard-una öz statistikası
@@ -468,6 +473,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfileChanges: false,
+            canAccessDeletedItems: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): məktəb dashboard-una öz statistikası
@@ -555,6 +561,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfileChanges: false,
+            canAccessDeletedItems: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): müəllim dashboard-una öz statistikası
@@ -642,6 +649,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfileChanges: false,
+            canAccessDeletedItems: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: false,
@@ -730,6 +738,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canAccessUserManagement: false,
             canAccessRatingColumns: false,
             canAccessProfileChanges: false,
+            canAccessDeletedItems: false,
             canAccessProfile: true,
             canAccessStats: true,
             canAccessStatistics: true, // BASE_FIXES_TASK.md §1.3 (25.08.2026): region dashboard-una öz statistikası
@@ -887,6 +896,7 @@ export class RbacService {
         if (permissions.routes.canAccessUserManagement) routes.push('/admin/users');
         if (permissions.routes.canAccessRatingColumns) routes.push('/admin/rating-columns');
         if (permissions.routes.canAccessProfileChanges) routes.push('/admin/profile-changes');
+        if (permissions.routes.canAccessDeletedItems) routes.push('/admin/deleted');
         if (permissions.routes.canAccessCertificates) routes.push('/admin/certificates');
 
         return routes;

@@ -156,6 +156,12 @@
                   </span>
                 </app-dropdown-item>
               }
+              @if (permissions.canAccessRoute('canAccessDeletedItems')) {
+                <app-dropdown-item (clicked)="goToDeletedItems()">
+                  <lucide-icon [img]="ArchiveRestore" class="mr-3 h-4 w-4 shrink-0"></lucide-icon>
+                  Silinənlər
+                </app-dropdown-item>
+              }
               @if (permissions.isAdmin()) {
                 <app-dropdown-divider></app-dropdown-divider>
               }

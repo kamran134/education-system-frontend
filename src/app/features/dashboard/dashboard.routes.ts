@@ -17,6 +17,7 @@ const confirmLeaveExamTypeEditor = (component: ExamTypeEditorComponent) => compo
 import { SubjectsListComponent } from '../exam-types/components/subjects-list/subjects-list.component';
 import { LevelScalesViewComponent } from '../exam-types/components/level-scales-view/level-scales-view.component';
 import { LoginStatsComponent } from './components/login-stats/login-stats.component';
+import { DeletedItemsComponent } from './components/deleted-items/deleted-items.component';
 import { adminGuard } from '../../core/guards/admin.guard';
 
 export const routes: Routes = [
@@ -28,6 +29,8 @@ export const routes: Routes = [
             { path: 'login-stats', component: LoginStatsComponent, canActivate: [adminGuard] },
             { path: 'rating-columns', component: StatsColumnsComponent, canActivate: [adminGuard] },
             { path: 'profile-changes', component: ProfileChangesComponent, canActivate: [adminGuard] },
+            // SOFT_DELETE_TASK.md §8 — «Silinənlər»: restore soft-deleted districts/schools/teachers/students
+            { path: 'deleted', component: DeletedItemsComponent, canActivate: [adminGuard] },
             { path: 'roles', component: RolesColumnsComponent, canActivate: [adminGuard] },
             { path: 'legacy-import', component: LegacyImportComponent, canActivate: [adminGuard] },
             { path: 'academic-year', component: AcademicYearComponent, canActivate: [adminGuard] },

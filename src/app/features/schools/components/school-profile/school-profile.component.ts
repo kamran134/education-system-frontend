@@ -407,7 +407,7 @@ export class SchoolProfileComponent implements OnInit {
             width: '350px',
             data: {
                 title: 'Silinməyə razılıq',
-                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\nDİQQƏT! Məktəb silinərkən ona bağlı layihə müəllimləri, şagirdlər və onların nəticələri də silinəcək!'
+                text: 'Məktəbi silmək istədiyinizdən əminsiniz mi?\n\nMəktəb «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Bağlı layihə müəllimləri və şagirdlər də gizlədiləcək. Administrator onu bərpa edə bilər.'
             }
         });
 

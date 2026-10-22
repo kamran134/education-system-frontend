@@ -84,7 +84,7 @@ export class SchoolDialogManagerComponent {
         const dialogRef = this.dialogService.confirm({
             title: 'Silinməyə razılıq',
             // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
-            content: 'Məktəbi silmək istədiyinizdən əminsiniz mi?<br><br><strong>DİQQƏT!</strong> Məktəb silinərkən ona bağlı layihə müəllimləri, şagirdlər və onların nəticələri də silinəcək!',
+            content: 'Məktəbi silmək istədiyinizdən əminsiniz mi?<br><br>Məktəb «Silinənlər» bölməsinə köçürüləcək və heç yerdə görünməyəcək. Bağlı layihə müəllimləri və şagirdlər də gizlədiləcək. Administrator onu bərpa edə bilər.',
             type: 'error',
             confirmText: 'Bəli, Sil',
             cancelText: 'Ləğv et'
