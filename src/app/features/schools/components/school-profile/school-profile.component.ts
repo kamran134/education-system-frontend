@@ -309,18 +309,17 @@ export class SchoolProfileComponent implements OnInit {
         // Заказчик (24.08.2026): в таблице «Reytinqlər» колонка "Yer" должна показывать место
         // в СВОЁМ районе, не по республике — «Gəncə üzrə yeri» (см. комментарий в
         // profile-rating-section.component.ts).
-        // The customer asked (24.08.2026) for the district place only on teacher/school profiles;
-        // RATING_PLACES_TASK.md adds its orta-xal twin. Republic pair only when the district is unknown.
+        // Republic and district places, each by ümumi and orta xal (owner's decision 22.10.2026;
+        // supersedes the district-only column of 24.08.2026). District pair only when the district is known.
         const districtName = school.district?.name;
-        this.ratingsPlaceColumns = districtName
-            ? [
-                { label: `${districtName} üzrə yer (ümumi xal)`, field: 'districtPlace' },
-                { label: `${districtName} üzrə yer (orta xal)`, field: 'averageDistrictPlace' },
-            ]
-            : [
-                { label: 'Ümumi xal üzrə yer', field: 'place' },
-                { label: 'Orta xal üzrə yer', field: 'averagePlace' },
-            ];
+        this.ratingsPlaceColumns = [
+            { label: 'Respublika üzrə yer (ümumi xal)', field: 'place' },
+            { label: 'Respublika üzrə yer (orta xal)', field: 'averagePlace' },
+            ...(districtName ? [
+                { label: `${districtName} üzrə yer (ümumi xal)`, field: 'districtPlace' as const },
+                { label: `${districtName} üzrə yer (orta xal)`, field: 'averageDistrictPlace' as const },
+            ] : []),
+        ];
     }
 
     private recomputeTeacherCards(): void {
