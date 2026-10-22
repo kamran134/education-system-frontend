@@ -3,6 +3,7 @@ import { School } from '../../../../core/models/school.model';
 import { ButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { DataTableComponent, TableColumn, PaginationEvent } from '../../../../shared/components/ui/data-table/data-table.component';
 import { TABLE_PAGE_SIZE_DEFAULT } from '../../../../shared/components/ui/data-table/table-defaults';
+import { FilterPlaceBasis, filterPlaceSublabel } from '../../../../core/utils/filter-place-basis.util';
 import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { LucideAngularModule, ArrowLeft, Download } from 'lucide-angular';
 
@@ -22,6 +23,8 @@ export class SchoolsYearTabComponent {
     @Input() pageSize: number = TABLE_PAGE_SIZE_DEFAULT;
     @Input() pageIndex: number = 0;
     @Input() isLoading: boolean = false;
+    /** Metric the "Filtr üzrə yer" column was ranked by; shown as a caption under its header. */
+    @Input() filterPlaceBasis: FilterPlaceBasis | null = null;
     @Input() canGoBack: boolean = false;
     @Input() fullscreen = false;
     @Input() isExporting = false;
@@ -51,9 +54,11 @@ export class SchoolsYearTabComponent {
     ];
 
     get columns(): TableColumn[] {
+        const filterPlaceCaption = filterPlaceSublabel(this.filterPlaceBasis);
         return this.displayedColumns
             .map(key => this.allColumns.find(c => c.key === key))
-            .filter((c): c is TableColumn => !!c);
+            .filter((c): c is TableColumn => !!c)
+            .map(c => (c.key === 'filterPlace' && filterPlaceCaption ? { ...c, sublabel: filterPlaceCaption } : c));
     }
 
     sortBy = '';

@@ -9,6 +9,8 @@ import { TABLE_PAGE_SIZE_DEFAULT, TABLE_PAGE_SIZE_FULLSCREEN, TABLE_PAGE_SIZE_OP
 export interface TableColumn {
   key: string;
   label: string;
+  /** Small grey caption rendered under the header label (e.g. which metric a rank column is based on). */
+  sublabel?: string;
   sortable?: boolean;
   type?: 'text' | 'number' | 'date' | 'boolean' | 'custom';
   width?: string;
@@ -83,6 +85,9 @@ export interface PageSizeOption {
                       <span class="text-xs font-medium uppercase tracking-wide text-gray-500">
                         {{ column.label }}
                       </span>
+                    }
+                    @if (column.sublabel) {
+                      <div class="mt-0.5 text-[10px] font-normal normal-case tracking-normal text-gray-400">{{ column.sublabel }}</div>
                     }
                   </th>
                 }

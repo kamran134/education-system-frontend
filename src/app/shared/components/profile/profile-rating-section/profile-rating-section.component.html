@@ -23,27 +23,37 @@
 
   <div class="px-5 sm:px-6 py-5">
     @if (sortedRatings.length > 0) {
-      <div class="grid grid-cols-[76px_1fr_1fr] sm:grid-cols-[92px_1fr_1fr] gap-3 sm:gap-3.5 px-1 pb-1.5 border-b border-[var(--ui-line)] text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]">
-        <span>Tədris ili</span>
-        <span class="text-right">Reytinq xalı</span>
-        <span class="text-right">{{ placeColumnLabel }}</span>
-      </div>
-      <div class="flex flex-col">
-        @for (rating of sortedRatings; track rating.year) {
-          <div class="grid grid-cols-[76px_1fr_1fr] sm:grid-cols-[92px_1fr_1fr] gap-3 sm:gap-3.5 items-center px-1 py-2.5"
-               [class.border-b]="!$last" [class.border-dashed]="!$last"
-               style="border-color: var(--ui-line)">
-            <span class="text-[13px] font-semibold tabular-nums" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink-2)'">
-              {{ yearLabel(rating.year) }}
-            </span>
-            <span class="text-sm font-bold text-right tabular-nums tracking-tight" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink)'">
-              {{ scoreLabel(rating.score) }}
-            </span>
-            <span class="text-xs font-bold text-right tabular-nums text-[var(--ui-muted)]">
-              {{ placeValue(rating) ?? '—' }}
-            </span>
+      <div class="overflow-x-auto">
+        <div [style.min-width]="minTableWidth">
+          <div class="grid gap-3 sm:gap-3.5 px-1 pb-1.5 border-b border-[var(--ui-line)] text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]"
+               [style.grid-template-columns]="gridTemplate">
+            <span>Tədris ili</span>
+            <span class="text-right">Reytinq xalı</span>
+            @for (column of placeColumns; track column.field) {
+              <span class="text-right leading-tight">{{ column.label }}</span>
+            }
           </div>
-        }
+          <div class="flex flex-col">
+            @for (rating of sortedRatings; track rating.year) {
+              <div class="grid gap-3 sm:gap-3.5 items-center px-1 py-2.5"
+                   [style.grid-template-columns]="gridTemplate"
+                   [class.border-b]="!$last" [class.border-dashed]="!$last"
+                   style="border-color: var(--ui-line)">
+                <span class="text-[13px] font-semibold tabular-nums" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink-2)'">
+                  {{ yearLabel(rating.year) }}
+                </span>
+                <span class="text-sm font-bold text-right tabular-nums tracking-tight" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink)'">
+                  {{ scoreLabel(rating.score) }}
+                </span>
+                @for (column of placeColumns; track column.field) {
+                  <span class="text-xs font-bold text-right tabular-nums text-[var(--ui-muted)]">
+                    {{ placeValue(rating, column) ?? '—' }}
+                  </span>
+                }
+              </div>
+            }
+          </div>
+        </div>
       </div>
     } @else {
       <p class="text-sm italic text-[var(--ui-faint)] text-center py-4">Reytinq tarixçəsi yoxdur</p>

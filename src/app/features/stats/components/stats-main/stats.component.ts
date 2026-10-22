@@ -7,6 +7,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, NavigationExtras, Params, Router, RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
+import { FilterPlaceBasis, extractFilterPlaceBasis } from '../../../../core/utils/filter-place-basis.util';
 import { Stats } from '../../../../core/models/stats.model';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MonthNamePipe } from '../../../../shared/pipes/month-name.pipe';
@@ -233,6 +234,8 @@ export class StatsComponent implements OnInit, OnDestroy {
     teachers: Teacher[] = [];
     students: Student[] = [];
     totalCount: number = 0;
+    /** Metric the "Filtr üzrə yer" column of the current table was ranked by (from the list response). */
+    filterPlaceBasis: FilterPlaceBasis | null = null;
     pageSize: number = TABLE_PAGE_SIZE_DEFAULT;
     studentsPageSize: number = TABLE_PAGE_SIZE_DEFAULT;
     pageIndex: number = 0;
@@ -783,6 +786,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isloading = false;
                 const paginatedData = ResponseHandlerUtil.extractPaginatedData<Student>(response);
+                this.filterPlaceBasis = extractFilterPlaceBasis(response);
                 this.stats.students = paginatedData.data || [];
                 this.totalCounts.allStudentsTotalCount = paginatedData.totalCount || 0;
             },
@@ -816,6 +820,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isloading = false;
                 const statsData = ResponseHandlerUtil.extractPaginatedData<Teacher>(response);
+                this.filterPlaceBasis = extractFilterPlaceBasis(response);
                 this.stats = {
                     ...this.stats, teachers: statsData.data || []
                 };
@@ -851,6 +856,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response) => {
                 this.isloading = false;
                 const statsData = ResponseHandlerUtil.extractPaginatedData<School>(response);
+                this.filterPlaceBasis = extractFilterPlaceBasis(response);
                 this.stats = { ...this.stats, schools: statsData.data || [] };
                 this.totalCounts.allSchoolsTotalCount = statsData.totalCount || 0;
             },
@@ -880,6 +886,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isloading = false;
                 const statsData = ResponseHandlerUtil.extractPaginatedData<District>(response);
+                this.filterPlaceBasis = extractFilterPlaceBasis(response);
                 this.stats = { ...this.stats, districts: statsData.data || [] };
                 this.totalCounts.allDistrictsTotalCount = statsData.totalCount || 0;
             },
@@ -907,6 +914,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 this.isloading = false;
                 const statsData = ResponseHandlerUtil.extractPaginatedData<Region>(response);
+                this.filterPlaceBasis = extractFilterPlaceBasis(response);
                 this.stats = { ...this.stats, regions: statsData.data || [] };
                 this.totalCounts.allRegionsTotalCount = statsData.totalCount || 0;
             },

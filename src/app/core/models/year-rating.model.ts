@@ -8,4 +8,7 @@ export interface YearRating {
     averageScore: number;
     place: number | null;
     districtPlace?: number | null;
+    /** Place by average score (RATING_PLACES_TASK.md); place/districtPlace are by total score. */
+    averagePlace?: number | null;
+    averageDistrictPlace?: number | null;
 }

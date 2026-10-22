@@ -23,6 +23,8 @@ export interface Teacher {
     teacherOfTheYearScore?: number;
     place?: number;
     districtPlace?: number | null;
+    averagePlace?: number | null;
+    averageDistrictPlace?: number | null;
     filterPlace?: number | null;
     active: boolean;
     ratings?: YearRating[];

@@ -20,6 +20,7 @@ export interface District {
     studentCount: number;
     districtOfTheYearScore?: number;
     place?: number;
+    averagePlace?: number | null;
     filterPlace?: number | null;
     ratings?: YearRating[];
     avatarUrl?: string;

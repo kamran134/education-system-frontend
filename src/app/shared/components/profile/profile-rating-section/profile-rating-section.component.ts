@@ -7,6 +7,12 @@ import { YearRating } from '../../../../core/models/year-rating.model';
 import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 import { ExamTypeService } from '../../../../features/exam-types/services/exam-type.service';
 
+/** One place column of the per-year table: which YearRating field it shows and its header. */
+export interface ProfilePlaceColumn {
+    label: string;
+    field: 'place' | 'districtPlace' | 'averagePlace' | 'averageDistrictPlace';
+}
+
 /**
  * Блок "Reytinqlər bölməsi" на профиле (PROFILES_TASK.md §5) — данные уже приходят в ratings[].
  * С PROFILES_V3_TASK.md §3 плашки мест/баллов (бывший @Input scopes) отсюда убраны — это был
@@ -29,8 +35,12 @@ import { ExamTypeService } from '../../../../features/exam-types/services/exam-t
 export class ProfileRatingSectionComponent implements OnInit {
     @Input() ratings: YearRating[] = [];
     @Input() showDetailsLink = true;
-    @Input() placeField: 'place' | 'districtPlace' = 'place';
-    @Input() placeColumnLabel = 'Respublika üzrə yeri';
+    /** RATING_PLACES_TASK.md: two places per year — by total score and by average score; teacher and
+     *  school profiles add the district-scoped pair. Region has no average place, so it passes its own list. */
+    @Input() placeColumns: ProfilePlaceColumn[] = [
+        { label: 'Ümumi xal üzrə yer', field: 'place' },
+        { label: 'Orta xal üzrə yer', field: 'averagePlace' },
+    ];
     // YENI_DUZELISLER_2026-09-17 п.1a: параметры фильтра для ссылки "Tam reytinq…" на /stats —
     // по образцу detailsQueryParams в profile-stats-section.component.ts.
     @Input() detailsQueryParams: Record<string, any> | null = null;
@@ -60,8 +70,18 @@ export class ProfileRatingSectionComponent implements OnInit {
         return [...this.ratings].sort((a, b) => b.year - a.year);
     }
 
-    placeValue(rating: YearRating): number | null {
-        return (this.placeField === 'districtPlace' ? rating.districtPlace : rating.place) ?? null;
+    placeValue(rating: YearRating, column: ProfilePlaceColumn): number | null {
+        return rating[column.field] ?? null;
+    }
+
+    /** Year + score + one column per place. */
+    get gridTemplate(): string {
+        return `76px minmax(64px, 1fr) repeat(${this.placeColumns.length}, minmax(64px, 1fr))`;
+    }
+
+    /** Four or more place columns do not fit a phone screen: let the table scroll sideways instead of squeezing. */
+    get minTableWidth(): string | null {
+        return this.placeColumns.length > 2 ? `${140 + this.placeColumns.length * 84}px` : null;
     }
 
     yearLabel(year: number): string {

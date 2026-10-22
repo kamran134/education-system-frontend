@@ -23,7 +23,7 @@ import { ProfileHeroComponent, ProfileHeroFact, ProfileHeroSubtitlePart } from '
 import { ProfileChangeBannerComponent } from '../../../../shared/components/profile/profile-change-banner/profile-change-banner.component';
 import { ProfileAchievementsComponent } from '../../../../shared/components/profile/profile-achievements/profile-achievements.component';
 import { ProfileStatsSectionComponent } from '../../../../shared/components/profile/profile-stats-section/profile-stats-section.component';
-import { ProfileRatingSectionComponent } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
+import { ProfileRatingSectionComponent, ProfilePlaceColumn } from '../../../../shared/components/profile/profile-rating-section/profile-rating-section.component';
 import { EntityCardGridComponent, EntityCardItem } from '../../../../shared/components/profile/entity-card-grid/entity-card-grid.component';
 import { ProfileResultsSectionComponent } from '../../../../shared/components/profile/profile-results-section/profile-results-section.component';
 import { TeacherEditingDialogComponent } from '../teacher-editing/teacher-editing-dialog.component';
@@ -93,7 +93,10 @@ export class TeacherProfileComponent implements OnInit {
     crumbs: { text: string; link?: any[] }[] = [];
     heroSubtitleParts: ProfileHeroSubtitlePart[] = [];
     heroFacts: ProfileHeroFact[] = [];
-    ratingsPlaceLabel = 'Respublika üzrə yeri';
+    ratingsPlaceColumns: ProfilePlaceColumn[] = [
+        { label: 'Ümumi xal üzrə yer', field: 'place' },
+        { label: 'Orta xal üzrə yer', field: 'averagePlace' },
+    ];
     /** Подпись над блоком статистики. Не readonly и не «текущий год»: цифры под ней приходят
      *  за год резолвера (REYTINQ_ILI_TASK.md §3), и подпись обязана называть тот же год —
      *  иначе в сентябре заголовок обещает 2026/2027, а под ним данные 2025/2026. */
@@ -332,7 +335,18 @@ export class TeacherProfileComponent implements OnInit {
         // Заказчик (24.08.2026): в таблице «Reytinqlər» колонка "Yer" должна показывать место
         // в СВОЁМ районе, не по республике — «Gəncə üzrə yeri» (см. комментарий в
         // profile-rating-section.component.ts).
-        this.ratingsPlaceLabel = teacher.district?.name ? `${teacher.district.name} üzrə yeri` : 'Respublika üzrə yeri';
+        // The customer asked (24.08.2026) for the district place only on teacher/school profiles;
+        // RATING_PLACES_TASK.md adds its orta-xal twin. Republic pair only when the district is unknown.
+        const districtName = teacher.district?.name;
+        this.ratingsPlaceColumns = districtName
+            ? [
+                { label: `${districtName} üzrə yer (ümumi xal)`, field: 'districtPlace' },
+                { label: `${districtName} üzrə yer (orta xal)`, field: 'averageDistrictPlace' },
+            ]
+            : [
+                { label: 'Ümumi xal üzrə yer', field: 'place' },
+                { label: 'Orta xal üzrə yer', field: 'averagePlace' },
+            ];
     }
 
     private recomputeStudentCards(): void {
