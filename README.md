@@ -1,27 +1,55 @@
-# EducationSystemFront
+# İSİM — фронтенд
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.7.
+SPA системы ежемесячных экзаменов и рейтингов İSİM: публичный лендинг, страница методики,
+проверка сертификатов по QR и рабочий кабинет для всех ролей (от администратора до ученика).
+Прод: `https://isim.kpm.az`.
 
-## Development server
+Angular 21 (standalone-компоненты), Tailwind, собственный UI-кит. API — в отдельном репозитории
+[education-system-backend](https://github.com/kamran134/education-system-backend).
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## С чего начать
 
-## Code scaffolding
+**Общая документация системы лежит в репозитории бэкенда**: что за система, роли, рейтинги,
+закрытие года, деплой, ловушки. Начните с его
+[README](https://github.com/kamran134/education-system-backend#readme), там порядок чтения.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Документы этого репозитория:
 
-## Build
+| Документ | О чём |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Стек, соглашения, структура `src/`, авторизация на клиенте, сборка и деплой, ловушки |
+| [docs/roles-and-routes.md](docs/roles-and-routes.md) | Все маршруты с гвардами, матрица прав `rbac.config.ts`, что видит каждая роль |
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+`CLAUDE.md` — конспект для ИИ-ассистента. Остальные `*.md` в корне (`RBAC_GUIDE.md`,
+`UI_REDESIGN.md`, `DARK_MODE_STATUS.md` и т. п.) — заметки прошлых этапов, частично устарели.
 
-## Running unit tests
+## Быстрый старт
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+npm install
+npm start          # http://localhost:4200, бэкенд ожидается на http://localhost:5000
+```
 
-## Running end-to-end tests
+Как поднять бэкенд и базу — `docs/02-local-setup.md` в репозитории бэкенда.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Команды
 
-## Further help
+| Команда | Что делает |
+|---|---|
+| `npm start` | dev-сервер `ng serve` |
+| `npm run build` | продовая сборка в `dist/education-system-frontend/browser` |
+| `npm test` | Karma/Jasmine; спеки почти пустые, проверкой поведения не являются |
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Деплой
+
+Пуш в `main` собирает Docker-образ (nginx со статикой) и выкатывает его на прод. Подробности —
+[docs/architecture.md](docs/architecture.md#сборка-и-деплой) и `docs/07-deploy-operations.md`
+бэкенда.
+
+## Главное, что надо помнить
+
+- Права в `src/app/core/config/rbac.config.ts` только прячут интерфейс. Данные ограничивает бэкенд.
+- Новое право — значение для **каждой** из 8 ролей, иначе тихий баг.
+- SSR и пререндер выключены намеренно: пререндер запекал редирект на `/login` во все защищённые
+  страницы.
+- Интерфейс на азербайджанском. Шрифты проверяйте на `ə Ə ğ ş ç ı İ ö ü`.
