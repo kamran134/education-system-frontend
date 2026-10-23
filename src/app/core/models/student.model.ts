@@ -50,6 +50,11 @@ export interface Student {
     place?: number;
     districtPlace?: number | null;
     filterPlace?: number | null;
+    // Stored yearly places (039, all within the grade) — shown in the fullscreen view of /stats.
+    averagePlace?: number | null;
+    averageDistrictPlace?: number | null;
+    schoolPlace?: number | null;
+    averageSchoolPlace?: number | null;
     avatarUrl?: string;
     /** 'm' = oğlan, 'f' = qız, null/undefined = bilinmir. Sertifikatın fon variantını seçir. */
     gender?: 'm' | 'f' | null;

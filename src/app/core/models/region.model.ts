@@ -19,6 +19,7 @@ export interface Region {
     regionOfTheYearScore?: number;
     active: boolean;
     place?: number;
+    averagePlace?: number | null;
     filterPlace?: number | null;
     ratings?: YearRating[];
     avatarUrl?: string;

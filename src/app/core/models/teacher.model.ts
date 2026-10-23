@@ -25,6 +25,9 @@ export interface Teacher {
     districtPlace?: number | null;
     averagePlace?: number | null;
     averageDistrictPlace?: number | null;
+    // Place within the teacher's school (039) — shown in the fullscreen view of /stats.
+    schoolPlace?: number | null;
+    averageSchoolPlace?: number | null;
     filterPlace?: number | null;
     active: boolean;
     ratings?: YearRating[];
