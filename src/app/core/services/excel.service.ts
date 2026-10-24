@@ -53,8 +53,12 @@ export class ExcelService {
     ]);
 
     private readonly studentColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
-        ['place',             { label: 'Respublika üzrə yer', accessor: (s: any) => s.place || '' }],
-        ['districtPlace',     { label: 'Təhsil sektoru üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
+        ['place', { label: 'Respublika üzrə yer (ümumi xal)', accessor: (s: any) => s.place || '' }],
+        ['averagePlace', { label: 'Respublika üzrə yer (orta xal)', accessor: (s: any) => s.averagePlace || '' }],
+        ['districtPlace', { label: 'Təhsil sektoru üzrə yer (ümumi xal)', accessor: (s: any) => s.districtPlace || '' }],
+        ['averageDistrictPlace', { label: 'Təhsil sektoru üzrə yer (orta xal)', accessor: (s: any) => s.averageDistrictPlace || '' }],
+        ['schoolPlace', { label: 'Məktəb üzrə yer (ümumi xal)', accessor: (s: any) => s.schoolPlace || '' }],
+        ['averageSchoolPlace', { label: 'Məktəb üzrə yer (orta xal)', accessor: (s: any) => s.averageSchoolPlace || '' }],
         ['filterPlace',       { label: 'Filtr üzrə yer',    accessor: (s: any) => s.filterPlace || '' }],
         ['code',              { label: 'Şagirdin iş nömrəsi',    accessor: (s: any) => s.code }],
         // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся.
@@ -74,8 +78,12 @@ export class ExcelService {
     ]);
 
     private readonly teacherColumnMap = new Map<string, { label: string; accessor: (t: any) => any }>([
-        ['place',        { label: 'Respublika üzrə yer',   accessor: (t: any) => t.place || '' }],
-        ['districtPlace',{ label: 'Təhsil sektoru üzrə yer',  accessor: (t: any) => t.districtPlace || '' }],
+        ['place', { label: 'Respublika üzrə yer (ümumi xal)', accessor: (t: any) => t.place || '' }],
+        ['averagePlace', { label: 'Respublika üzrə yer (orta xal)', accessor: (t: any) => t.averagePlace || '' }],
+        ['districtPlace', { label: 'Təhsil sektoru üzrə yer (ümumi xal)', accessor: (t: any) => t.districtPlace || '' }],
+        ['averageDistrictPlace', { label: 'Təhsil sektoru üzrə yer (orta xal)', accessor: (t: any) => t.averageDistrictPlace || '' }],
+        ['schoolPlace', { label: 'Məktəb üzrə yer (ümumi xal)', accessor: (t: any) => t.schoolPlace || '' }],
+        ['averageSchoolPlace', { label: 'Məktəb üzrə yer (orta xal)', accessor: (t: any) => t.averageSchoolPlace || '' }],
         ['filterPlace',  { label: 'Filtr üzrə yer',        accessor: (t: any) => t.filterPlace || '' }],
         ['code',         { label: 'Müəllimin kodu',        accessor: (t: any) => t.code }],
         ['fullName',     { label: 'Soyadı, adı, ata adı', accessor: (t: any) => t.fullname }],
@@ -87,8 +95,10 @@ export class ExcelService {
     ]);
 
     private readonly schoolColumnMap = new Map<string, { label: string; accessor: (s: any) => any }>([
-        ['place',        { label: 'Respublika üzrə yer', accessor: (s: any) => s.place || '' }],
-        ['districtPlace',{ label: 'Təhsil sektoru üzrə yer', accessor: (s: any) => s.districtPlace || '' }],
+        ['place', { label: 'Respublika üzrə yer (ümumi xal)', accessor: (s: any) => s.place || '' }],
+        ['averagePlace', { label: 'Respublika üzrə yer (orta xal)', accessor: (s: any) => s.averagePlace || '' }],
+        ['districtPlace', { label: 'Təhsil sektoru üzrə yer (ümumi xal)', accessor: (s: any) => s.districtPlace || '' }],
+        ['averageDistrictPlace', { label: 'Təhsil sektoru üzrə yer (orta xal)', accessor: (s: any) => s.averageDistrictPlace || '' }],
         ['filterPlace',  { label: 'Filtr üzrə yer',      accessor: (s: any) => s.filterPlace || '' }],
         ['code',         { label: 'Məktəbin kodu',     accessor: (s: any) => s.code }],
         ['name',         { label: 'Adı',               accessor: (s: any) => s.name }],
@@ -99,7 +109,8 @@ export class ExcelService {
     ]);
 
     private readonly districtColumnMap = new Map<string, { label: string; accessor: (d: any) => any }>([
-        ['place',        { label: 'Respublika üzrə yer', accessor: (d: any) => d.place || '' }],
+        ['place', { label: 'Respublika üzrə yer (ümumi xal)', accessor: (d: any) => d.place || '' }],
+        ['averagePlace', { label: 'Respublika üzrə yer (orta xal)', accessor: (d: any) => d.averagePlace || '' }],
         ['filterPlace',  { label: 'Filtr üzrə yer',       accessor: (d: any) => d.filterPlace || '' }],
         ['code',         { label: 'Təhsil sektorunun kodu', accessor: (d: any) => d.code }],
         ['name',         { label: 'Adı',                 accessor: (d: any) => d.name }],
@@ -109,7 +120,8 @@ export class ExcelService {
     ]);
 
     private readonly regionColumnMap = new Map<string, { label: string; accessor: (r: any) => any }>([
-        ['place',         { label: 'Respublika üzrə yer', accessor: (r: any) => r.place || '' }],
+        ['place', { label: 'Respublika üzrə yer (ümumi xal)', accessor: (r: any) => r.place || '' }],
+        ['averagePlace', { label: 'Respublika üzrə yer (orta xal)', accessor: (r: any) => r.averagePlace || '' }],
         ['filterPlace',   { label: 'Filtr üzrə yer',       accessor: (r: any) => r.filterPlace || '' }],
         ['code',          { label: 'Regional idarə kodu', accessor: (r: any) => r.code }],
         ['name',          { label: 'Adı',                 accessor: (r: any) => r.name }],

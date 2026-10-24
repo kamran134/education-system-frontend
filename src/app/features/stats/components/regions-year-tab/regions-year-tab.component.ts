@@ -8,11 +8,6 @@ import { RoundNumberPipe } from '../../../../shared/pipes/round-number.pipe';
 import { LucideAngularModule, ArrowLeft, Download } from 'lucide-angular';
 
 const PLACE_FORMATTER = (v: number) => (v ? String(v) : '—');
-/**
- * Columns of the fullscreen view (owner's decision 24.10.2026): name, scores and every place, each by ümumi
- * and by orta xal, so a user sees where they stand without configuring columns or filters.
- */
-const FULLSCREEN_COLUMNS: string[] = ['name', 'score', 'averageScore', 'filterPlace', 'place', 'averagePlace'];
 const FILTER_PLACE_FORMATTER = (v: number) => (v > 0 ? String(v) : '—');
 const COUNT_FORMATTER = (v: number) => String(v || 0);
 
@@ -60,14 +55,12 @@ export class RegionsYearTabComponent {
 
     get columns(): TableColumn[] {
         const filterPlaceCaption = filterPlaceSublabel(this.filterPlaceBasis);
-        // Fullscreen = the fixed "where do I stand" set for every role, the per-role column settings do not apply.
-        const keys = this.fullscreen ? FULLSCREEN_COLUMNS : this.displayedColumns;
-        return keys
+        return this.displayedColumns
             .map(key => this.allColumns.find(c => c.key === key))
             .filter((c): c is TableColumn => !!c)
             .map(c => (c.key === 'filterPlace' && filterPlaceCaption ? { ...c, sublabel: filterPlaceCaption } : c))
-            // Next to its "orta xal" twin the existing raw-score place needs the caption too.
-            .map(c => (this.fullscreen && (c.key === 'place' || c.key === 'districtPlace') ? { ...c, sublabel: 'ümumi xal' } : c));
+            // Next to its "orta xal" twin (039) the raw-score place needs the caption too.
+            .map(c => (c.key === 'place' || c.key === 'districtPlace' ? { ...c, sublabel: 'ümumi xal' } : c));
     }
 
     sortBy = '';
