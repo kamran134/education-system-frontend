@@ -76,8 +76,9 @@ export class SchoolProfileComponent implements OnInit {
     /** Модерация самостоятельно введённых полей (BASE_FIXES_TASK.md §2.4/§2.6) — не видно
      *  никому, кроме владельца и админа, сервер сам следит за этим через /profile-changes/current. */
     // Attached "Uğurlar" files (UGURLAR_FILES_TASK.md): the count drives the empty-text placeholder,
-    // the ViewChild lets an approve/reject refresh the list the component loaded on its own.
-    @ViewChild(ProfileAchievementFilesComponent) achievementFiles?: ProfileAchievementFilesComponent;
+    // the ViewChild lets an approve/reject refresh the list the component loaded on its own. By ref, not
+    // by type: a second, managing instance lives in the "… məlumatlarını yenilə" form (customer, 24.10.2026).
+    @ViewChild('achievementFilesView') achievementFiles?: ProfileAchievementFilesComponent;
     achievementFilesCount = 0;
 
     pendingChange: ProfileChangeRequest | null = null;
@@ -176,9 +177,10 @@ export class SchoolProfileComponent implements OnInit {
         return parseInt(this.schoolId, 10);
     }
 
-    /** The owner uploaded/deleted a file: that created or changed the pending request, so the banner is stale. */
+    /** A file was uploaded/deleted in the edit form: the banner and the read-only list in the card are stale. */
     onAchievementFilesChanged(): void {
         this.loadPendingChange();
+        this.achievementFiles?.reload();
     }
 
     /** The server refused an approve because the request changed after the admin opened it (409). */

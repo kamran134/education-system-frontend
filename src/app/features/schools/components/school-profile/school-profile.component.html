@@ -107,6 +107,15 @@
               placeholder="Hər nailiyyəti yeni sətirdən yazın"
             ></app-input>
           </div>
+          <div class="mt-4">
+            <p class="text-sm font-medium text-[var(--ui-ink-2)] mb-2">Sertifikatlar</p>
+            <app-profile-achievement-files
+              entityType="school"
+              mode="manage"
+              [entityId]="numericSchoolId"
+              (changed)="onAchievementFilesChanged()">
+            </app-profile-achievement-files>
+          </div>
           <div class="flex gap-2 mt-4">
             <app-button variant="primary" [disabled]="isSavingFacts" (clicked)="saveFacts()">
               {{ isSavingFacts ? 'Yadda saxlanılır...' : 'Yadda saxla' }}
@@ -121,11 +130,10 @@
         [text]="school.achievements ?? null"
         [canEdit]="false"
         [hasExtraContent]="achievementFilesCount > 0">
-        <app-profile-achievement-files
+        <app-profile-achievement-files #achievementFilesView
           entityType="school"
           [entityId]="numericSchoolId"
-          (countChange)="achievementFilesCount = $event"
-          (changed)="onAchievementFilesChanged()">
+          (countChange)="achievementFilesCount = $event">
         </app-profile-achievement-files>
       </app-profile-achievements>
 

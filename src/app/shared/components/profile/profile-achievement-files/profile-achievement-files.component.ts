@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, Input, On
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
-import { LucideAngularModule, FileText, Upload, Download, ExternalLink, Trash2, Undo2, Clock } from 'lucide-angular';
+import { LucideAngularModule, FileText, Upload, Download, ExternalLink, Trash2, Undo2, Clock, ChevronDown, ChevronUp } from 'lucide-angular';
 import { AchievementFile, AchievementFileEntityType } from '../../../../core/models/achievement-file.model';
 import { AchievementFileService } from '../../../../core/services/achievement-file.service';
 import { PermissionsService } from '../../../../core/services/permissions.service';
@@ -14,10 +14,12 @@ const ALLOWED_MIME = ['application/pdf', 'image/jpeg', 'image/png'];
 const ALLOWED_EXT = /\.(pdf|jpe?g|png)$/i;
 
 /**
- * Файлы под текстом «Uğurlar» (UGURLAR_FILES_TASK.md §5.2): список с миниатюрами, а для владельца/
- * админа ещё и загрузка/удаление. Права берутся из ответа сервера (`canManage`) — компонент и
- * профиль их сами не вычисляют. Загруженное владельцем уходит в модерацию и до одобрения видно
- * только ему и админу (бейдж «Təsdiq gözləyir»).
+ * Файлы «Uğurlar» (UGURLAR_FILES_TASK.md §5.2). Два режима (просьба заказчика 24.10.2026):
+ * - `view` — под текстом в карточке профиля: только просмотр, свёрнуто за кнопкой
+ *   «Sertifikatları gör», без кнопок загрузки/удаления даже у владельца;
+ * - `manage` — внутри формы «… məlumatlarını yenilə»: загрузка, удаление, отмена удаления.
+ * Права берутся из ответа сервера (`canManage`) — компонент и профиль их сами не вычисляют.
+ * Загруженное владельцем уходит в модерацию и до одобрения видно только ему и админу.
  */
 @Component({
     selector: 'app-profile-achievement-files',
@@ -28,6 +30,7 @@ const ALLOWED_EXT = /\.(pdf|jpe?g|png)$/i;
 export class ProfileAchievementFilesComponent implements OnChanges {
     @Input({ required: true }) entityType!: AchievementFileEntityType;
     @Input({ required: true }) entityId!: number;
+    @Input() mode: 'view' | 'manage' = 'view';
 
     /** Number of files the viewer can see — the parent uses it to decide on the empty-text placeholder. */
     @Output() countChange = new EventEmitter<number>();
@@ -41,6 +44,8 @@ export class ProfileAchievementFilesComponent implements OnChanges {
     readonly Trash2 = Trash2;
     readonly Undo2 = Undo2;
     readonly Clock = Clock;
+    readonly ChevronDown = ChevronDown;
+    readonly ChevronUp = ChevronUp;
 
     readonly files = signal<AchievementFile[]>([]);
     readonly canManage = signal(false);
@@ -48,6 +53,7 @@ export class ProfileAchievementFilesComponent implements OnChanges {
     readonly loaded = signal(false);
     readonly uploading = signal(false);
     readonly busyId = signal<number | null>(null);
+    readonly expanded = signal(false);
     readonly slotsLeft = computed(() => Math.max(0, this.limit() - this.files().length));
 
     private destroyRef = inject(DestroyRef);
@@ -55,6 +61,15 @@ export class ProfileAchievementFilesComponent implements OnChanges {
     private snackBar = inject(SnackBarService);
     private confirmDialog = inject(ConfirmDialogService);
     private permissions = inject(PermissionsService);
+
+    /** Upload/delete controls exist only in the edit form, never in the profile card. */
+    get manageable(): boolean {
+        return this.mode === 'manage' && this.canManage();
+    }
+
+    toggleExpanded(): void {
+        this.expanded.update((v) => !v);
+    }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['entityType'] || changes['entityId']) this.reload();
