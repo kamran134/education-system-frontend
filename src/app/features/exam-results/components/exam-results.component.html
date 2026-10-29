@@ -141,6 +141,17 @@
             <span class="text-sm text-gray-500">· {{ selectedExamTypeName }}</span>
           }
         </div>
+        @if (canDeleteFiltered) {
+          <app-button
+            variant="danger"
+            [disabled]="isDeletingFiltered || isLoading"
+            (clicked)="onDeleteFiltered()">
+            <div class="flex items-center space-x-2">
+              <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
+              <span>Filtrə uyğun nəticələri sil ({{ totalCount }})</span>
+            </div>
+          </app-button>
+        }
       </div>
     </div>
 

@@ -27,7 +27,9 @@ import { DashboardService } from '../../dashboard/services/dashboard.service';
 import { UserSettings } from '../../../core/models/settings.model';
 
 // UI Components
-import { LucideAngularModule, Search, Download, Filter, X, Edit2 } from 'lucide-angular';
+import { LucideAngularModule, Search, Download, Filter, X, Edit2, Trash2 } from 'lucide-angular';
+import { ConfirmDialogService } from '../../../shared/components/ui/confirm-dialog/confirm-dialog.service';
+import { ToastService } from '../../../shared/components/ui/toast/toast.service';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
 import { InputComponent } from '../../../shared/components/ui/form-controls/input/input.component';
 import { SelectComponent, SelectOption } from '../../../shared/components/ui/form-controls/select/select.component';
@@ -58,6 +60,7 @@ export class ExamResultsComponent implements OnInit {
     readonly Filter = Filter;
     readonly X = X;
     readonly Edit2 = Edit2;
+    readonly Trash2 = Trash2;
 
     // Data
     examResults: ExamResult[] = [];
@@ -179,6 +182,7 @@ export class ExamResultsComponent implements OnInit {
     sortDirection: 'asc' | 'desc' = 'desc';
 
     isExporting = false;
+    isDeletingFiltered = false;
 
     private filterTrigger$ = new Subject<void>();
     private destroyRef = inject(DestroyRef);
@@ -193,6 +197,8 @@ export class ExamResultsComponent implements OnInit {
         private authService: AuthService,
         private excelService: ExcelService,
         private dashboardService: DashboardService,
+        private confirmDialog: ConfirmDialogService,
+        private toastService: ToastService,
         private examTypeService: ExamTypeService,
         private route: ActivatedRoute
     ) {}
@@ -202,21 +208,13 @@ export class ExamResultsComponent implements OnInit {
             debounceTime(150),
             switchMap(() => {
                 this.isLoading = true;
-                const filters: FilterParams = {
+                return this.examResultsService.getExamResults({
+                    ...this.buildFilterParams(),
                     page: this.pageIndex + 1,
                     size: this.pageSize,
-                    search: this.searchText || undefined,
-                    code: this.studentCode || undefined,
-                    districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
-                    schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
-                    teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
-                    examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
-                    grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
-                    examTypeId: this.selectedExamTypeId ?? undefined,
                     sortColumn: this.sortColumn || undefined,
                     sortDirection: this.sortDirection || undefined
-                };
-                return this.examResultsService.getExamResults(filters);
+                });
             }),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
@@ -618,6 +616,55 @@ export class ExamResultsComponent implements OnInit {
         this.examResultsService.updateStudentResult(resultId, editedResult).subscribe({
             next: () => { this.loadExamResults(); },
             error: (error: any) => { console.error('Xəta!', error); }
+        });
+    }
+
+    /** The on-screen filter without paging/sorting — shared by the list and «Filtrə uyğun nəticələri sil». */
+    private buildFilterParams(): FilterParams {
+        return {
+            search: this.searchText || undefined,
+            code: this.studentCode || undefined,
+            districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
+            schoolIds: this.selectedSchoolIds.length > 0 ? this.selectedSchoolIds : undefined,
+            teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
+            examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
+            grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
+            examTypeId: this.selectedExamTypeId ?? undefined
+        };
+    }
+
+    /** Bulk delete needs at least one exam in the filter (the backend refuses otherwise). */
+    get canDeleteFiltered(): boolean {
+        return this.canDeleteExamResults && this.selectedExamIds.length > 0 && this.totalCount > 0;
+    }
+
+    /** Customer request 29.10.2026: delete everything the filter shows, e.g. to re-upload a corrected file. */
+    async onDeleteFiltered(): Promise<void> {
+        if (!this.canDeleteFiltered || this.isDeletingFiltered) return;
+        const selectedExams = new Set(this.selectedExamIds.map(String));
+        const examNames = this.examOptions.filter(o => selectedExams.has(String(o.value))).map(o => o.label).join(', ');
+        const confirmed = await this.confirmDialog.confirm({
+            title: 'Filtrə uyğun nəticələri sil',
+            message: `Seçilmiş filtrə uyğun ${this.totalCount} nəticə birdəfəlik silinəcək` +
+                (examNames ? ` (imtahan: ${examNames})` : '') +
+                '. Bu əməliyyat geri qaytarıla bilməz. Davam edilsin?',
+            variant: 'danger',
+            confirmText: 'Sil'
+        });
+        if (!confirmed) return;
+
+        this.isDeletingFiltered = true;
+        this.examResultsService.deleteFilteredResults(this.buildFilterParams()).subscribe({
+            next: (response) => {
+                this.isDeletingFiltered = false;
+                this.toastService.show(`${response?.deletedCount ?? 0} nəticə silindi`, 'success');
+                this.pageIndex = 0;
+                this.loadExamResults();
+            },
+            error: (error: any) => {
+                this.isDeletingFiltered = false;
+                this.toastService.show(error?.error?.message || 'Nəticələri silmək mümkün olmadı', 'error');
+            }
         });
     }
 

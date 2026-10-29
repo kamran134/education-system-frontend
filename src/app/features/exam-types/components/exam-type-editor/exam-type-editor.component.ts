@@ -2,9 +2,11 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { Dialog } from '@angular/cdk/dialog';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LucideAngularModule, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-angular';
+import { CdkDragDrop, CdkDropList, CdkDrag, CdkDragHandle, moveItemInArray } from '@angular/cdk/drag-drop';
+import { LucideAngularModule, Plus, Trash2, ChevronUp, ChevronDown, GripVertical } from 'lucide-angular';
 
-import { ExamType, ExamTypeInput, ExamTypeInputSection, ExamTypeInputSectionSubject } from '../../../../core/models/examType.model';
+import { ExamType, ExamTypeInput, ExamTypeInputSection, ExamTypeInputSectionSubject, ExamTypeSection } from '../../../../core/models/examType.model';
+import { academicYearLabel, getCurrentAcademicYear } from '../../../../core/utils/academic-year.util';
 import { LevelScale } from '../../../../core/models/levelScale.model';
 import { Subject as SubjectModel, SubjectInput } from '../../../../core/models/subject.model';
 import { ExamTypeService } from '../../services/exam-type.service';
@@ -25,6 +27,8 @@ const MAX_GRADE = 11;
  *  мутируемый напрямую (ngModel/*ngFor), как заведено во всём остальном репозитории. */
 interface EditableSection extends ExamTypeInputSection {
     subjects: ExamTypeInputSectionSubject[];
+    /** Display-only (the "from year" label); never part of the save payload. */
+    fromYear?: number | null;
 }
 
 @Component({
@@ -35,7 +39,10 @@ interface EditableSection extends ExamTypeInputSection {
         LucideAngularModule,
         InputComponent,
         SelectComponent,
-        ListLayoutComponent
+        ListLayoutComponent,
+        CdkDropList,
+        CdkDrag,
+        CdkDragHandle
     ],
     templateUrl: './exam-type-editor.component.html',
     styleUrls: ['./exam-type-editor.component.scss']
@@ -85,6 +92,13 @@ export class ExamTypeEditorComponent implements OnInit {
     readonly Trash2 = Trash2;
     readonly ChevronUp = ChevronUp;
     readonly ChevronDown = ChevronDown;
+    readonly GripVertical = GripVertical;
+    readonly academicYearLabel = academicYearLabel;
+    readonly currentAcademicYearLabel = academicYearLabel(getCurrentAcademicYear());
+
+    /** Archived (read-only history) sections of the loaded type; never put into the save payload. */
+    archivedSections: ExamTypeSection[] = [];
+    archivedOpen = false;
 
     /** JSON of the model as last loaded/saved — the unsaved-changes guard compares against it. */
     private savedSnapshot = '';
@@ -187,14 +201,16 @@ export class ExamTypeEditorComponent implements OnInit {
                     isBase: found.isBase,
                     active: found.active,
                     sortOrder: found.sortOrder,
-                    sections: (found.sections || []).map(section => ({
+                    sections: (found.sections || []).filter(section => !section.archived).map(section => ({
                         id: section.id,
                         nameAz: section.nameAz,
                         gradeFrom: section.gradeFrom,
                         gradeTo: section.gradeTo,
+                        fromYear: section.fromYear,
                         subjects: (section.subjects || []).map(subject => ({ ...subject }))
                     }))
                 };
+                this.archivedSections = (found.sections || []).filter(section => section.archived);
                 this.rebuildMonthAwardOptions();
                 this.rebuildSubjectOptions();
                 this.savedSnapshot = this.snapshot();
@@ -288,6 +304,27 @@ export class ExamTypeEditorComponent implements OnInit {
 
     removeSection(index: number): void {
         this.model.sections.splice(index, 1);
+    }
+
+    /** Section order = array order; the backend writes the array index into sort_order on save. */
+    onSectionDrop(event: CdkDragDrop<EditableSection[]>): void {
+        moveItemInArray(this.model.sections, event.previousIndex, event.currentIndex);
+    }
+
+    gradeRangeLabel(section: { gradeFrom: number; gradeTo: number }): string {
+        return section.gradeFrom === section.gradeTo
+            ? `sinif ${section.gradeFrom}`
+            : `siniflər ${section.gradeFrom}-${section.gradeTo}`;
+    }
+
+    archivedYearsLabel(section: ExamTypeSection): string {
+        const from = section.fromYear !== null ? academicYearLabel(section.fromYear) : 'əvvəldən';
+        const to = section.toYear !== null ? academicYearLabel(section.toYear) : '…';
+        return `${from} – ${to}`;
+    }
+
+    archivedSubjectsLabel(section: ExamTypeSection): string {
+        return section.subjects.map(subject => subject.nameAz).join(', ');
     }
 
     addSubject(sectionIndex: number): void {

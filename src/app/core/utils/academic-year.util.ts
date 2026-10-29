@@ -5,6 +5,16 @@ export function getCurrentAcademicYear(): number {
 }
 
 /**
+ * Academic year of an exam date. Same formula as backend academicYearOfDate: the calendar day is
+ * taken in Asia/Baku (exam dates are stored at 20:00Z of the previous day, so UTC getters are wrong).
+ */
+export function academicYearOfDate(date: Date | string): number {
+    const day = new Date(date).toLocaleDateString('en-CA', { timeZone: 'Asia/Baku' }); // YYYY-MM-DD
+    const [year, month] = day.split('-').map(Number);
+    return month >= 9 ? year : year - 1;
+}
+
+/**
  * Первый учебный год, за который данные считаются достоверными.
  * До 2025/2026 в базе лежат остатки импорта из Mongo, которым нельзя доверять —
  * решение заказчика 24.08.2026: такие годы в выборе года просто не показываем.

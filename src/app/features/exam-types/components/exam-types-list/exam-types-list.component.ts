@@ -32,6 +32,9 @@ export class ExamTypesListComponent implements OnInit {
     // повторный клик, пока не пришёл ответ.
     downloadingTemplateExamTypeId: number | null = null;
 
+    /** Per type: sections shown on the card (non-archived) and how many archived ones are hidden. */
+    sectionViews = new Map<number, { current: ExamTypeSection[]; archivedCount: number }>();
+
     actionButtons: ActionButton[] = [];
     private levelScaleNames = new Map<number, string>();
 
@@ -74,6 +77,13 @@ export class ExamTypesListComponent implements OnInit {
         this.examTypeService.getExamTypes().subscribe({
             next: (types: ExamType[]) => {
                 this.examTypes = types || [];
+                this.sectionViews = new Map(this.examTypes.map(t => {
+                    const sections = t.sections || [];
+                    return [t.id, {
+                        current: sections.filter(s => !s.archived),
+                        archivedCount: sections.filter(s => s.archived).length
+                    }];
+                }));
                 this.isLoading = false;
             },
             error: (err: any) => {

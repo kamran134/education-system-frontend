@@ -15,6 +15,20 @@ export interface ExamTypeSection {
     gradeFrom: number;
     gradeTo: number;
     subjects: ExamTypeSectionSubject[];
+    /** Academic year (start year, 2026 = 2026/2027) the section is in force from, inclusive; null = unbounded. */
+    fromYear: number | null;
+    /** Academic year the section is in force until, inclusive; null = unbounded. */
+    toYear: number | null;
+    /** toYear < current academic year: read-only history, never sent back on save. */
+    archived: boolean;
+    /** Display order (0..n); the backend already applies it to the array order. */
+    sortOrder: number;
+}
+
+/** True when the section applies to the given academic year (start year of the pair). */
+export function isSectionInForce(section: { fromYear: number | null; toYear: number | null }, academicYear: number): boolean {
+    return (section.fromYear === null || section.fromYear <= academicYear)
+        && (section.toYear === null || section.toYear >= academicYear);
 }
 
 export interface ExamType {

@@ -22,7 +22,8 @@ export class ExamResultsService {
         private configService: ConfigService
     ) {}
 
-    getExamResults(params: FilterParams): Observable<ExamResultsResponse> {
+    /** URL of /exam-results with the filter as query string — the same filter for the list and the bulk delete. */
+    private buildFilterUrl(params: FilterParams): string {
         let url = `${this.configService.getApiUrl()}/exam-results`;
         const queryParams: string[] = [];
         
@@ -94,7 +95,11 @@ export class ExamResultsService {
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }
-        
+        return url;
+    }
+
+    getExamResults(params: FilterParams): Observable<ExamResultsResponse> {
+        const url = this.buildFilterUrl(params);
         console.log('🌐 Final URL:', url);
         
         return this.http.get<ApiResponse<ExamResultsResponse>>(url)
@@ -104,6 +109,13 @@ export class ExamResultsService {
     updateStudentResult(resultId: string | number, result: any): Observable<any> {
         return this.http.put<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/${resultId}`, result)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
+    }
+
+    /** Deletes every result matching the filter (page/size/sort are ignored); returns the deleted count. */
+    deleteFilteredResults(params: FilterParams): Observable<{ deletedCount: number }> {
+        const { page, size, sortColumn, sortDirection, ...filter } = params;
+        return this.http.delete<ApiResponse<{ deletedCount: number }>>(this.buildFilterUrl(filter))
+            .pipe(map(response => ResponseHandlerUtil.extractData(response) as { deletedCount: number }));
     }
 
     deleteStudentResult(resultId: string | number): Observable<any> {

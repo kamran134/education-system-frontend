@@ -13,7 +13,8 @@ import { LucideAngularModule, Upload, Save, Trash2, FileDown, Loader2 } from 'lu
 import { FileUploadErrorsDialogComponent, FileUploadErrorsData } from '../../../../shared/components/file-upload-errors-dialog/file-upload-errors-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
 import { ExamTypeService } from '../../../exam-types/services/exam-type.service';
-import { ExamType, ExamTypeSection } from '../../../../core/models/examType.model';
+import { ExamType, ExamTypeSection, isSectionInForce } from '../../../../core/models/examType.model';
+import { academicYearOfDate } from '../../../../core/utils/academic-year.util';
 import { ExamResultsService } from '../../../exam-results/services/exam-results.service';
 import { saveBlobResponse, blobErrorMessage } from '../../../../core/utils/blob-download.util';
 import { ImportIssueRow } from '../../../../core/services/excel.service';
@@ -38,6 +39,8 @@ export class ExamResultDialogComponent implements OnInit {
     examType: ExamType | null = null;
     sectionOptions: SelectOption[] = [];
     templateSectionId: number | null = null;
+    /** Sections of the type in force in the exam's academic year (archived versions of other years excluded). */
+    private sectionsInForce: ExamTypeSection[] = [];
     /** Results already loaded for this exam; null until known. */
     existingResultsCount: number | null = null;
     downloadingTemplate = false;
@@ -72,7 +75,9 @@ export class ExamResultDialogComponent implements OnInit {
         this.examTypeService.getExamTypes().subscribe({
             next: (types) => {
                 this.examType = (types || []).find(t => t.id === this.data.exam.examTypeId) ?? null;
-                const sections = this.examType?.sections ?? [];
+                const examYear = academicYearOfDate(this.data.exam.date);
+                const sections = (this.examType?.sections ?? []).filter(s => isSectionInForce(s, examYear));
+                this.sectionsInForce = sections;
                 this.sectionOptions = sections.map(s => ({
                     value: s.id,
                     label: `${s.nameAz} (${s.gradeFrom}-${s.gradeTo})`,
@@ -86,7 +91,7 @@ export class ExamResultDialogComponent implements OnInit {
     }
 
     get selectedSection(): ExamTypeSection | null {
-        return this.examType?.sections.find(s => s.id === this.templateSectionId) ?? null;
+        return this.sectionsInForce.find(s => s.id === this.templateSectionId) ?? null;
     }
 
     private loadExistingResultsCount(): void {
