@@ -102,6 +102,8 @@ export class ExamResultsComponent implements OnInit {
     @ViewChild('totalScoreCell', { static: true }) totalScoreCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
     @ViewChild('levelCell', { static: true }) levelCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
     @ViewChild('studentLinkCell', { static: true }) studentLinkCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
+    @ViewChild('selectCell', { static: true }) selectCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
+    @ViewChild('selectHeader', { static: true }) selectHeaderTemplate!: TemplateRef<unknown>;
 
     // Порядок и состав колонок по умолчанию (FIXES п.4 от 04.09.2026: «Şagirdlər, pilləsi və bal
     // faizləri ön planda»). Единый каталог ключей — core/config/column-catalogs.ts; это те же строки,
@@ -133,7 +135,10 @@ export class ExamResultsComponent implements OnInit {
     get displayedColumns(): TableColumn[] {
         const order = this.columnOrder?.length ? this.columnOrder : this.defaultColumnOrder;
         const catalog = this.columnCatalog;
-        return order.map(key => catalog[key]).filter((c): c is TableColumn => !!c);
+        const columns = order.map(key => catalog[key]).filter((c): c is TableColumn => !!c);
+        return this.selectionMode
+            ? [{ key: '__select', label: '', width: '3rem', headerTemplate: this.selectHeaderTemplate, cellTemplate: this.selectCellTemplate }, ...columns]
+            : columns;
     }
 
     // Bal faizi — server hesablayır (student_results.score_percent, IMTAHAN_NOVLERI_TASK.md §5/§7):
@@ -176,6 +181,14 @@ export class ExamResultsComponent implements OnInit {
     isExporting = false;
     isDeletingFiltered = false;
 
+    // «Seçilmişləri sil» (30.10.2026): checkboxes appear only after the quiet «Seçim rejimi» link below the
+    // table is clicked — the page is shown live (Г3 E). The selection survives paging and sorting and is
+    // dropped when the filter changes (selectionFilterKey), so it never holds rows the filter no longer shows.
+    selectionMode = false;
+    selectedResultIds = new Set<number>();
+    isDeletingSelected = false;
+    private selectionFilterKey = '';
+
     private filterTrigger$ = new Subject<void>();
     // Fires the "latest exam with results" probe; its result preselects the exam and starts the list load.
     private latestExamTrigger$ = new Subject<void>();
@@ -203,6 +216,11 @@ export class ExamResultsComponent implements OnInit {
             debounceTime(150),
             switchMap(() => {
                 this.isLoading = true;
+                const filterKey = JSON.stringify(this.buildFilterParams());
+                if (filterKey !== this.selectionFilterKey) {
+                    this.selectionFilterKey = filterKey;
+                    this.selectedResultIds.clear();
+                }
                 return this.examResultsService.getExamResults({
                     ...this.buildFilterParams(),
                     page: this.pageIndex + 1,
@@ -704,12 +722,72 @@ export class ExamResultsComponent implements OnInit {
         this.examResultsService.deleteFilteredResults(this.buildFilterParams()).subscribe({
             next: (response) => {
                 this.isDeletingFiltered = false;
+                this.selectedResultIds.clear();
                 this.toastService.show(`${response?.deletedCount ?? 0} nəticə silindi`, 'success');
                 this.pageIndex = 0;
                 this.loadExamResults();
             },
             error: (error: any) => {
                 this.isDeletingFiltered = false;
+                this.toastService.show(error?.error?.message || 'Nəticələri silmək mümkün olmadı', 'error');
+            }
+        });
+    }
+
+    get canSelectResults(): boolean {
+        return this.canDeleteExamResults && this.totalCount > 0;
+    }
+
+    toggleSelectionMode(): void {
+        this.selectionMode = !this.selectionMode;
+        this.selectedResultIds.clear();
+    }
+
+    isResultSelected(row: ExamResult): boolean {
+        return this.selectedResultIds.has(row.id);
+    }
+
+    toggleResultSelected(row: ExamResult, checked: boolean): void {
+        if (checked) this.selectedResultIds.add(row.id);
+        else this.selectedResultIds.delete(row.id);
+    }
+
+    get allOnPageSelected(): boolean {
+        return this.examResults.length > 0 && this.examResults.every(r => this.selectedResultIds.has(r.id));
+    }
+
+    get someOnPageSelected(): boolean {
+        return !this.allOnPageSelected && this.examResults.some(r => this.selectedResultIds.has(r.id));
+    }
+
+    togglePageSelected(checked: boolean): void {
+        for (const r of this.examResults) {
+            if (checked) this.selectedResultIds.add(r.id);
+            else this.selectedResultIds.delete(r.id);
+        }
+    }
+
+    async onDeleteSelected(): Promise<void> {
+        const count = this.selectedResultIds.size;
+        if (!this.canDeleteExamResults || count === 0 || this.isDeletingSelected) return;
+        const confirmed = await this.confirmDialog.confirm({
+            title: 'Seçilmiş nəticələri sil',
+            message: `Seçilmiş ${count} nəticə birdəfəlik silinəcək. Bu əməliyyat geri qaytarıla bilməz. Davam edilsin?`,
+            variant: 'danger',
+            confirmText: 'Sil'
+        });
+        if (!confirmed) return;
+
+        this.isDeletingSelected = true;
+        this.examResultsService.deleteSelectedResults(Array.from(this.selectedResultIds)).subscribe({
+            next: (response) => {
+                this.isDeletingSelected = false;
+                this.selectedResultIds.clear();
+                this.toastService.show(`${response?.deletedCount ?? 0} nəticə silindi`, 'success');
+                this.loadExamResults();
+            },
+            error: (error: any) => {
+                this.isDeletingSelected = false;
                 this.toastService.show(error?.error?.message || 'Nəticələri silmək mümkün olmadı', 'error');
             }
         });

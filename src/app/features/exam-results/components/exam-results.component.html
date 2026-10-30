@@ -150,6 +150,22 @@
     }
   </ng-template>
 
+  <!-- «Seçim rejimi»: row checkboxes; the click is kept off the row -->
+  <ng-template #selectCell let-row="row">
+    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+      [attr.aria-label]="'Seç: ' + (row.studentData?.fullname || row.id)"
+      [checked]="isResultSelected(row)"
+      (click)="$event.stopPropagation()"
+      (change)="toggleResultSelected(row, $any($event.target).checked)">
+  </ng-template>
+  <ng-template #selectHeader>
+    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 cursor-pointer"
+      aria-label="Səhifədəki bütün nəticələri seç"
+      [checked]="allOnPageSelected"
+      [indeterminate]="someOnPageSelected"
+      (change)="togglePageSelected($any($event.target).checked)">
+  </ng-template>
+
   <!-- Results Table -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200">
     <div class="p-6 border-b border-gray-200">
@@ -206,16 +222,33 @@
     }
   </div>
 
-  <!-- Г3 E: bulk delete is kept off the first screen (the page is shown live) — a quiet link below the table -->
-  @if (canDeleteFiltered) {
-    <div class="flex justify-end">
+  <!-- Г3 E: bulk delete is kept off the first screen (the page is shown live) — quiet links below the table -->
+  @if (canSelectResults || selectionMode) {
+    <div class="flex justify-end gap-4">
+      @if (selectionMode && selectedResultIds.size > 0) {
+        <button
+          type="button"
+          class="text-xs text-gray-400 hover:text-gray-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="isDeletingSelected || isLoading"
+          (click)="onDeleteSelected()">
+          Seçilmişləri sil ({{ selectedResultIds.size }})
+        </button>
+      }
       <button
         type="button"
-        class="text-xs text-gray-400 hover:text-gray-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-        [disabled]="isDeletingFiltered || isLoading"
-        (click)="onDeleteFiltered()">
-        Filtrə uyğun nəticələri sil ({{ totalCount }})
+        class="text-xs text-gray-400 hover:text-gray-600 hover:underline"
+        (click)="toggleSelectionMode()">
+        {{ selectionMode ? 'Seçimi bağla' : 'Seçim rejimi' }}
       </button>
+      @if (canDeleteFiltered) {
+        <button
+          type="button"
+          class="text-xs text-gray-400 hover:text-gray-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+          [disabled]="isDeletingFiltered || isLoading"
+          (click)="onDeleteFiltered()">
+          Filtrə uyğun nəticələri sil ({{ totalCount }})
+        </button>
+      }
     </div>
   }
 </div>

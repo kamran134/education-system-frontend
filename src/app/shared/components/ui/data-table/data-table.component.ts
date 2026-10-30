@@ -21,6 +21,8 @@ export interface TableColumn {
   formatter?: (value: any, row: any) => any;
   /** Custom cell rendering. Context: { $implicit: formatted value, row: full row object }. Takes priority over `type`. */
   cellTemplate?: TemplateRef<{ $implicit: any; row: any }>;
+  /** Custom header content (e.g. a select-all checkbox); replaces the label and sorting. */
+  headerTemplate?: TemplateRef<unknown>;
 }
 
 export interface TableAction {
@@ -69,7 +71,9 @@ export interface PageSizeOption {
                     [class]="getHeaderClass(column)"
                     [style.width]="column.width"
                     >
-                    @if (column.sortable) {
+                    @if (column.headerTemplate) {
+                      <ng-container *ngTemplateOutlet="column.headerTemplate"></ng-container>
+                    } @else if (column.sortable) {
                       <button
                         type="button"
                         [attr.aria-label]="'Sırala: ' + column.label"
@@ -81,7 +85,7 @@ export interface PageSizeOption {
                         <!-- Sort indicators can be added here -->
                       </button>
                     }
-                    @if (!column.sortable) {
+                    @if (!column.headerTemplate && !column.sortable) {
                       <span class="text-xs font-medium uppercase tracking-wide text-gray-500">
                         {{ column.label }}
                       </span>

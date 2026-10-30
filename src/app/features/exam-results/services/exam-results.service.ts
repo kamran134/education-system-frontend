@@ -125,6 +125,12 @@ export class ExamResultsService {
             .pipe(map(response => ResponseHandlerUtil.extractData(response) as { deletedCount: number }));
     }
 
+    /** Deletes the ticked results; ids go in the body (a selection across pages may not fit a URL). */
+    deleteSelectedResults(ids: number[]): Observable<{ deletedCount: number }> {
+        return this.http.delete<ApiResponse<{ deletedCount: number }>>(`${this.configService.getApiUrl()}/exam-results/selected`, { body: { ids } })
+            .pipe(map(response => ResponseHandlerUtil.extractData(response) as { deletedCount: number }));
+    }
+
     deleteStudentResult(resultId: string | number): Observable<any> {
         return this.http.delete<ApiResponse<any>>(`${this.configService.getApiUrl()}/student-results/${resultId}`)
             .pipe(map(response => ResponseHandlerUtil.extractData(response)));
