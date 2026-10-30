@@ -78,6 +78,10 @@ export class StudentService {
             queryParams.push(`examTypeId=${params.examTypeId}`);
         }
 
+        if (params.ratedOnly) {
+            queryParams.push('ratedOnly=true');
+        }
+
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
         }

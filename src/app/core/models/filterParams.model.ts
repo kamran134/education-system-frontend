@@ -25,6 +25,9 @@ export interface FilterParams {
     // не передают его вовсе и продолжают видеть ровно то же, что и раньше. Используется новой
     // страницей features/type-ratings/.
     examTypeId?: number;
+    // Only entities with a rating (score > 0) for the chosen year/month and exam type. Set by the
+    // yearly /stats tabs only; without it the lists are unchanged (/students directory, teacher profile).
+    ratedOnly?: boolean;
 }
 
 export interface UserParams {

@@ -774,6 +774,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
             ...this.examTypeParams(),
+            ratedOnly: true,
         };
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -811,6 +812,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
             ...this.examTypeParams(),
+            ratedOnly: true,
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -847,6 +849,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
             ...this.examTypeParams(),
+            ratedOnly: true,
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -877,6 +880,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
             ...this.examTypeParams(),
+            ratedOnly: true,
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -905,6 +909,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
             ...this.examTypeParams(),
+            ratedOnly: true,
         }
         if (this.selectedYearlyMonth) {
             params.month = this.selectedYearlyMonthParam;
@@ -1500,6 +1505,7 @@ export class StatsComponent implements OnInit, OnDestroy {
             code: this.searchString || undefined,
             academicYear: this.selectedAcademicYear,
             ...this.examTypeParams(),
+            ratedOnly: true,
         };
         // Иначе экспорт с включённым фильтром «Ay» тихо выгрузил бы годовые данные вместо
         // месячных — тот же фильтр, что и у таблицы на экране (п.10 ТЗ 04.09.2026).

@@ -195,6 +195,9 @@ export class StatsService {
         if (params.examTypeId) {
             queryParams.push(`examTypeId=${params.examTypeId}`);
         }
+        if (params.ratedOnly) {
+            queryParams.push('ratedOnly=true');
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -232,6 +235,9 @@ export class StatsService {
         if (params.examTypeId) {
             queryParams.push(`examTypeId=${params.examTypeId}`);
         }
+        if (params.ratedOnly) {
+            queryParams.push('ratedOnly=true');
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -266,6 +272,9 @@ export class StatsService {
         if (params.examTypeId) {
             queryParams.push(`examTypeId=${params.examTypeId}`);
         }
+        if (params.ratedOnly) {
+            queryParams.push('ratedOnly=true');
+        }
 
         if (queryParams.length > 0) {
             url = `${url}?${queryParams.join('&')}`;
@@ -296,6 +305,9 @@ export class StatsService {
         }
         if (params.examTypeId) {
             queryParams.push(`examTypeId=${params.examTypeId}`);
+        }
+        if (params.ratedOnly) {
+            queryParams.push('ratedOnly=true');
         }
 
         if (queryParams.length > 0) {
