@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { Dialog } from '@angular/cdk/dialog';
 import { Subject } from 'rxjs';
@@ -14,6 +14,7 @@ import { FilterParams } from '../../../../core/models/filterParams.model';
 // Services
 import { ExamService } from '../../services/exam.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { FilterMemoryService } from '../../../../core/services/filter-memory.service';
 
 // UI Components
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Calendar, ChevronDown, ChevronUp, BookOpen } from 'lucide-angular';
@@ -140,7 +141,10 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         private authService: AuthService,
         private dialog: Dialog,
         private toastService: ToastService,
-        private examTypeService: ExamTypeService
+        private examTypeService: ExamTypeService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private filterMemory: FilterMemoryService
     ) {}
 
     ngOnInit(): void {
@@ -152,12 +156,66 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         this.generateYearOptions();
         this.setupSearchDebounce();
 
-        // Trigger initial load through search subject if search exists, otherwise direct load
-        if (this.searchString) {
-            this.searchSubject.next(this.searchString);
-        } else {
-            this.loadExams();
+        // Filters live in the URL (syncStateToUrl) and FilterMemoryService puts the last ones back
+        // when the page is opened without them: read the snapshot once, before the first load.
+        const queryParams = this.route.snapshot.queryParams;
+        if (queryParams['search']) {
+            this.searchString = queryParams['search'];
         }
+        const year = parseInt(queryParams['year']);
+        if (!isNaN(year)) {
+            this.selectedYear = year;
+        }
+        const month = parseInt(queryParams['month']);
+        if (!isNaN(month)) {
+            this.selectedMonth = month;
+        }
+        const examTypeId = parseInt(queryParams['examTypeId']);
+        if (!isNaN(examTypeId)) {
+            this.selectedExamTypeId = examTypeId;
+        }
+        const pageIndex = parseInt(queryParams['pageIndex']);
+        if (!isNaN(pageIndex) && pageIndex > 0) {
+            this.pageIndex = pageIndex;
+        }
+        const pageSize = parseInt(queryParams['pageSize']);
+        if (!isNaN(pageSize) && pageSize > 0) {
+            this.pageSize = pageSize;
+        }
+        if (queryParams['sortColumn']) {
+            this.sortColumn = queryParams['sortColumn'];
+        }
+        if (queryParams['sortDirection'] === 'asc' || queryParams['sortDirection'] === 'desc') {
+            this.sortDirection = queryParams['sortDirection'];
+        }
+        // Remembered filters are shown, not just applied: open the collapsed panel.
+        if (this.filterMemory.takeRestored()) {
+            this.filtersExpanded = true;
+        }
+
+        // Direct load (not through searchSubject): the debounce callback resets pageIndex.
+        this.loadExams();
+    }
+
+    /** Filters/sort/page go to the URL on every change (replaceUrl, history stays clean) so
+     *  FilterMemoryService can remember them for the next visit from the menu. */
+    private syncStateToUrl(): void {
+        if (!this.router.url.startsWith('/exams')) return;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                search: this.searchString || undefined,
+                year: this.selectedYear || undefined,
+                month: this.selectedMonth || undefined,
+                examTypeId: this.selectedExamTypeId || undefined,
+                pageIndex: this.pageIndex || undefined,
+                pageSize: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn === 'date' ? undefined : this.sortColumn,
+                sortDirection: this.sortDirection === 'desc' ? undefined : this.sortDirection,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     private setupSearchDebounce(): void {
@@ -168,6 +226,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
             this.searchString = searchTerm;
             this.pageIndex = 0;
             this.loadExams();
+            this.syncStateToUrl();
         });
     }
 
@@ -257,6 +316,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         // Reset pagination and reload data
         this.pageIndex = 0;
         this.loadExams();
+        this.syncStateToUrl();
     }
 
     onTableAction(event: { action: string; item: any }): void {
@@ -277,6 +337,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadExams();
+        this.syncStateToUrl();
     }
 
     onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
@@ -284,6 +345,7 @@ export class ExamsListComponent implements OnInit, OnDestroy {
         this.sortDirection = event.direction;
         this.pageIndex = 0; // Reset to first page when sorting
         this.loadExams();
+        this.syncStateToUrl();
     }
 
     loadExams(): void {

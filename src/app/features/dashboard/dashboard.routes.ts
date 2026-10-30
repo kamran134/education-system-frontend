@@ -19,14 +19,15 @@ import { LevelScalesViewComponent } from '../exam-types/components/level-scales-
 import { LoginStatsComponent } from './components/login-stats/login-stats.component';
 import { DeletedItemsComponent } from './components/deleted-items/deleted-items.component';
 import { adminGuard } from '../../core/guards/admin.guard';
+import { restoreFiltersGuard } from '../../core/guards/restore-filters.guard';
 
 export const routes: Routes = [
     {
         path: '',
         component: AdminLayoutComponent,
         children: [
-            { path: 'users', component: UsersComponent, canActivate: [adminGuard] },
-            { path: 'login-stats', component: LoginStatsComponent, canActivate: [adminGuard] },
+            { path: 'users', component: UsersComponent, canActivate: [adminGuard, restoreFiltersGuard] },
+            { path: 'login-stats', component: LoginStatsComponent, canActivate: [adminGuard, restoreFiltersGuard] },
             { path: 'rating-columns', component: StatsColumnsComponent, canActivate: [adminGuard] },
             { path: 'profile-changes', component: ProfileChangesComponent, canActivate: [adminGuard] },
             // SOFT_DELETE_TASK.md §8 — «Silinənlər»: restore soft-deleted districts/schools/teachers/students

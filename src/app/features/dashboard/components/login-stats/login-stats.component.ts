@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, interval } from 'rxjs';
 import { LucideAngularModule, Activity, RefreshCw } from 'lucide-angular';
 import { DashboardService } from '../../services/dashboard.service';
@@ -19,6 +20,7 @@ import { FullscreenPanelComponent } from '../../../../shared/components/ui/fulls
 import { SelectComponent, SelectOption } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { InputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
+import { FilterMemoryService } from '../../../../core/services/filter-memory.service';
 
 /** Cards/tables are refreshed this often while the page is open. */
 const AUTO_REFRESH_MS = 60_000;
@@ -36,6 +38,8 @@ export class LoginStatsComponent implements OnInit {
     private dashboardService = inject(DashboardService);
     private toastService = inject(ToastService);
     private destroyRef = inject(DestroyRef);
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
 
     readonly Activity = Activity;
     readonly RefreshCw = RefreshCw;
@@ -81,6 +85,30 @@ export class LoginStatsComponent implements OnInit {
     ];
 
     ngOnInit(): void {
+        // Filters live in the URL (syncStateToUrl) and FilterMemoryService puts the last ones back
+        // when the page is opened without them: read the snapshot once, before the first load.
+        const queryParams = this.route.snapshot.queryParams;
+        if (this.statusTabs.some(tab => tab.value === queryParams['status'])) {
+            this.status = queryParams['status'];
+        }
+        if (this.roleOptions.some(option => option.value === queryParams['role'])) {
+            this.selectedRole = queryParams['role'];
+        }
+        if (queryParams['districtId']) {
+            this.selectedDistrictId = queryParams['districtId'];
+        }
+        if (queryParams['search']) {
+            this.search = queryParams['search'];
+        }
+        const pageIndex = parseInt(queryParams['pageIndex']);
+        if (!isNaN(pageIndex) && pageIndex > 0) {
+            this.pageIndex = pageIndex;
+        }
+        const pageSize = parseInt(queryParams['pageSize']);
+        if (this.pageSizeOptions.some(option => option.value === pageSize)) {
+            this.pageSize = pageSize;
+        }
+
         this.loadStats();
         this.loadUsers();
 
@@ -89,6 +117,7 @@ export class LoginStatsComponent implements OnInit {
             .subscribe(() => {
                 this.pageIndex = 0;
                 this.loadUsers();
+                this.syncStateToUrl();
             });
 
         // Keep the cards/tables fresh while the page stays open; the user list is left alone so
@@ -96,6 +125,25 @@ export class LoginStatsComponent implements OnInit {
         interval(AUTO_REFRESH_MS)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => this.loadStats(true));
+    }
+
+    /** Filters/page go to the URL on every change (replaceUrl, history stays clean) so
+     *  FilterMemoryService can remember them for the next visit from the menu. */
+    private syncStateToUrl(): void {
+        if (!this.router.url.startsWith('/admin/login-stats')) return;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                status: this.status === 'never' ? undefined : this.status,
+                role: this.selectedRole || undefined,
+                districtId: this.selectedDistrictId || undefined,
+                search: this.search.trim() || undefined,
+                pageIndex: this.pageIndex || undefined,
+                pageSize: this.pageSize === 50 ? undefined : this.pageSize,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     refresh(): void {
@@ -148,11 +196,13 @@ export class LoginStatsComponent implements OnInit {
         this.status = status;
         this.pageIndex = 0;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     onFilterChange(): void {
         this.pageIndex = 0;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     onSearchChange(): void {
@@ -163,6 +213,7 @@ export class LoginStatsComponent implements OnInit {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     getStatusTabClasses(status: ActivityUserStatus): string {

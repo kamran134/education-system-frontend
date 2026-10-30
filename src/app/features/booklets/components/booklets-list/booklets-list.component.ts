@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Dialog } from '@angular/cdk/dialog';
@@ -14,6 +15,7 @@ import { BookletService } from '../../../exams/services/booklet.service';
 import { ExamService } from '../../../exams/services/exam.service';
 import { DistrictService } from '../../../districts/services/district.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { FilterMemoryService } from '../../../../core/services/filter-memory.service';
 
 import {
     LucideAngularModule,
@@ -91,6 +93,9 @@ export class BookletsListComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
+    // Exam id from the URL: the exam list loads async, so it is applied there (instead of the default latest exam).
+    private restoredExamId: string | null = null;
+
     private readonly toastDurationMs = 4000;
 
     // Table configuration
@@ -133,10 +138,40 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         private districtService: DistrictService,
         private authService: AuthService,
         private dialog: Dialog,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private filterMemory: FilterMemoryService
     ) {}
 
     ngOnInit(): void {
+        // Filters live in the URL (syncStateToUrl) and FilterMemoryService puts the last ones back
+        // when the page is opened without them: read the snapshot once, before the first load.
+        const queryParams = this.route.snapshot.queryParams;
+        if (queryParams['examId']) {
+            this.restoredExamId = String(queryParams['examId']);
+        }
+        if (queryParams['districtId']) {
+            this.selectedDistrictId = queryParams['districtId'];
+        }
+        const pageIndex = parseInt(queryParams['pageIndex']);
+        if (!isNaN(pageIndex) && pageIndex > 0) {
+            this.pageIndex = pageIndex;
+        }
+        const pageSize = parseInt(queryParams['pageSize']);
+        if (!isNaN(pageSize) && pageSize > 0) {
+            this.pageSize = pageSize;
+        }
+        if (queryParams['sortColumn']) {
+            this.sortColumn = queryParams['sortColumn'];
+        }
+        if (queryParams['sortDirection'] === 'asc' || queryParams['sortDirection'] === 'desc') {
+            this.sortDirection = queryParams['sortDirection'];
+        }
+        // The filter panel is expanded by default, so there is nothing to open for restored filters;
+        // consume the flag anyway so it does not leak to the next page.
+        this.filterMemory.takeRestored();
+
         this.loadExamsForFilter();
         this.loadDistrictsForFilter();
     }
@@ -144,6 +179,26 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    /** Filters/sort/page go to the URL on every change (replaceUrl, history stays clean) so
+     *  FilterMemoryService can remember them for the next visit from the menu.
+     *  «Bütün imtahanlar» is a real choice (the default is the latest exam), so it is written as examId=all. */
+    private syncStateToUrl(): void {
+        if (!this.router.url.startsWith('/booklets')) return;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                examId: this.selectedExamId ? this.selectedExamId : 'all',
+                districtId: this.selectedDistrictId || undefined,
+                pageIndex: this.pageIndex || undefined,
+                pageSize: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn === 'grade' ? undefined : this.sortColumn,
+                sortDirection: this.sortDirection === 'asc' ? undefined : this.sortDirection,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     private loadExamsForFilter(): void {
@@ -156,7 +211,11 @@ export class BookletsListComponent implements OnInit, OnDestroy {
                     this.exams = [...list].sort((a, b) =>
                         new Date(b.date).getTime() - new Date(a.date).getTime()
                     );
-                    if (this.exams.length > 0) {
+                    if (this.restoredExamId === 'all') {
+                        this.selectedExamId = null;
+                    } else if (this.restoredExamId && this.exams.some(e => String(e.id) === this.restoredExamId)) {
+                        this.selectedExamId = this.restoredExamId;
+                    } else if (this.exams.length > 0) {
                         this.selectedExamId = this.exams[0].id;
                     }
                     this.loadBooklets();
@@ -236,11 +295,13 @@ export class BookletsListComponent implements OnInit, OnDestroy {
     onExamChange(): void {
         this.pageIndex = 0;
         this.loadBooklets();
+        this.syncStateToUrl();
     }
 
     onDistrictChange(): void {
         this.pageIndex = 0;
         this.loadBooklets();
+        this.syncStateToUrl();
     }
 
     onTableAction(event: { action: string; item: any }): void {
@@ -313,6 +374,7 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadBooklets();
+        this.syncStateToUrl();
     }
 
     onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
@@ -320,5 +382,6 @@ export class BookletsListComponent implements OnInit, OnDestroy {
         this.sortDirection = event.direction;
         this.pageIndex = 0;
         this.loadBooklets();
+        this.syncStateToUrl();
     }
 }

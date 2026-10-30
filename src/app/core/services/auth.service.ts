@@ -6,6 +6,7 @@ import { ConfigService } from './config.service';
 import { isPlatformBrowser } from '@angular/common';
 import { ActiveSessionsInfo, TokenStatistics, AuthResponse, LoginResponse, RefreshResponse, UserInfo } from '../models/auth.models';
 import { ROLE_PERMISSIONS, RolePermissions, UserRole } from '../config/rbac.config';
+import { clearRememberedFilters } from './filter-memory.service';
 
 @Injectable({
     providedIn: 'root'
@@ -371,6 +372,7 @@ export class AuthService {
             localStorage.removeItem('token');
             localStorage.removeItem('id');
             localStorage.removeItem('role');
+            clearRememberedFilters();
         }
         this.userRole.next(null);
         this.userId.next(null);

@@ -6,7 +6,8 @@ import { Dialog } from '@angular/cdk/dialog';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ExcelService } from '../../../../core/services/excel.service';
-import { Router } from '@angular/router';
+import { FilterMemoryService } from '../../../../core/services/filter-memory.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialogs/confirm-dialog/confirm-dialog.component';
@@ -108,10 +109,52 @@ export class UsersComponent implements OnInit, OnDestroy {
         private toastService: ToastService,
         private authService: AuthService,
         private router: Router,
-        private excelService: ExcelService
+        private excelService: ExcelService,
+        private route: ActivatedRoute,
+        private filterMemory: FilterMemoryService
     ) {}
 
     ngOnInit(): void {
+        // Filters live in the URL (syncStateToUrl) and FilterMemoryService puts the last ones back
+        // when the page is opened without them: read the snapshot once, before the first load.
+        const queryParams = this.route.snapshot.queryParams;
+        if (this.roleTabs.some(tab => tab.value === queryParams['role'])) {
+            this.selectedRole = queryParams['role'];
+        }
+        const pageIndex = parseInt(queryParams['pageIndex']);
+        if (!isNaN(pageIndex) && pageIndex > 0) {
+            this.pageIndex = pageIndex;
+        }
+        const pageSize = parseInt(queryParams['pageSize']);
+        if (!isNaN(pageSize) && pageSize > 0) {
+            this.pageSize = pageSize;
+        }
+        if (queryParams['sortColumn']) {
+            this.sortColumn = queryParams['sortColumn'];
+        }
+        if (queryParams['sortDirection'] === 'asc' || queryParams['sortDirection'] === 'desc') {
+            this.sortDirection = queryParams['sortDirection'];
+        }
+        // Hierarchy filters exist only on some role tabs; load the option lists of restored parents
+        // (without resetting the restored children, unlike the change handlers).
+        if (this.showHierarchyFilters) {
+            if (queryParams['districtIds']) {
+                this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['schoolIds']) {
+                this.selectedSchoolIds = queryParams['schoolIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (queryParams['teacherIds']) {
+                this.selectedTeacherIds = queryParams['teacherIds'].split(',').filter((id: string) => id.trim() !== '');
+            }
+            if (this.selectedDistrictIds.length > 0) {
+                this.loadSchools();
+                if (this.selectedSchoolIds.length > 0) {
+                    this.loadTeachers();
+                }
+            }
+        }
+
         // Initial load of users or rating columns based on user role
         this.authService.isLoggedIn$
             .pipe(takeUntil(this.destroy$))
@@ -209,10 +252,33 @@ export class UsersComponent implements OnInit, OnDestroy {
             });
     }
 
+    /** Role/filters/sort/page go to the URL on every change (replaceUrl, history stays clean) so
+     *  FilterMemoryService can remember them for the next visit from the menu. */
+    private syncStateToUrl(): void {
+        if (!this.router.url.startsWith('/admin/users')) return;
+        const hierarchy = this.showHierarchyFilters;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                role: this.selectedRole === 'student' ? undefined : this.selectedRole,
+                districtIds: hierarchy && this.selectedDistrictIds.length ? this.selectedDistrictIds.join(',') : undefined,
+                schoolIds: hierarchy && this.selectedSchoolIds.length ? this.selectedSchoolIds.join(',') : undefined,
+                teacherIds: hierarchy && this.selectedTeacherIds.length ? this.selectedTeacherIds.join(',') : undefined,
+                pageIndex: this.pageIndex || undefined,
+                pageSize: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn === 'email' ? undefined : this.sortColumn,
+                sortDirection: this.sortDirection === 'asc' ? undefined : this.sortDirection,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
+    }
+
     onPageChange(event: PaginationEvent): void {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     selectRoleTab(role: string): void {
@@ -224,6 +290,7 @@ export class UsersComponent implements OnInit, OnDestroy {
             this.loadDistricts();
         }
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     getTabClasses(role: string): string {
@@ -292,6 +359,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.loadSchools();
         this.pageIndex = 0;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     onSchoolChange(schoolIds: string[]): void {
@@ -300,12 +368,14 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.loadTeachers();
         this.pageIndex = 0;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     onTeacherChange(teacherIds: string[]): void {
         this.selectedTeacherIds = teacherIds || [];
         this.pageIndex = 0;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
@@ -313,6 +383,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.sortDirection = event.direction;
         this.pageIndex = 0;
         this.loadUsers();
+        this.syncStateToUrl();
     }
 
     onUserCreate(): void {

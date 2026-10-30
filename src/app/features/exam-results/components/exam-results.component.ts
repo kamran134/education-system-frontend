@@ -37,6 +37,7 @@ import { InputComponent } from '../../../shared/components/ui/form-controls/inpu
 import { SelectComponent, SelectOption } from '../../../shared/components/ui/form-controls/select/select.component';
 import { DataTableComponent, TableColumn, TableAction, PaginationEvent } from '../../../shared/components/ui/data-table/data-table.component';
 import { TABLE_PAGE_SIZE_DEFAULT } from '../../../shared/components/ui/data-table/table-defaults';
+import { FilterMemoryService } from '../../../core/services/filter-memory.service';
 import { FullscreenPanelComponent } from '../../../shared/components/ui/fullscreen-panel/fullscreen-panel.component';
 
 @Component({
@@ -98,6 +99,10 @@ export class ExamResultsComponent implements OnInit {
 
     // Filter visibility
     showFilters = false;
+
+    /** examTypeId/examIds read from the URL in applyQueryParamFilters(), see loadInitialResults(). */
+    private urlExamTypeId: number | null = null;
+    private examIdsFromUrl = false;
 
     @ViewChild('totalScoreCell', { static: true }) totalScoreCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
     @ViewChild('levelCell', { static: true }) levelCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
@@ -208,7 +213,8 @@ export class ExamResultsComponent implements OnInit {
         private toastService: ToastService,
         private examTypeService: ExamTypeService,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private filterMemory: FilterMemoryService
     ) {}
 
     ngOnInit(): void {
@@ -221,6 +227,7 @@ export class ExamResultsComponent implements OnInit {
                     this.selectionFilterKey = filterKey;
                     this.selectedResultIds.clear();
                 }
+                this.syncStateToUrl();
                 return this.examResultsService.getExamResults({
                     ...this.buildFilterParams(),
                     page: this.pageIndex + 1,
@@ -265,7 +272,7 @@ export class ExamResultsComponent implements OnInit {
         // образцу statistics-main.component.ts::applyQueryParamFilters(). Серверный скоуп по
         // ролям (examResults.controller.ts) остаётся как есть — здесь только предвыбор фронта.
         const hasQueryFilters = this.applyQueryParamFilters();
-        if (hasQueryFilters) this.showFilters = true;
+        if (hasQueryFilters || this.filterMemory.takeRestored()) this.showFilters = true;
 
         // Тот же приём каскада district → school → teacher, что и в onDistrictChange/onSchoolChange
         // ниже — но без повторного вызова loadExamResults() (первый запрос списка шлёт предвыбор экзамена, Г3 A).
@@ -302,7 +309,61 @@ export class ExamResultsComponent implements OnInit {
             this.selectedTeacherIds = String(params['teacherIds']).split(',').filter((id: string) => id.trim() !== '');
             hasFilters = true;
         }
+        // The rest is written by syncStateToUrl() — back from a student card or restored by
+        // FilterMemoryService. examIds from the URL replace the latest-exam preselect (see loadExamTypes).
+        if (params['examTypeId']) {
+            const examTypeId = parseInt(params['examTypeId'], 10);
+            if (!isNaN(examTypeId)) this.urlExamTypeId = examTypeId;
+        }
+        if (params['examIds']) {
+            this.selectedExamIds = String(params['examIds']).split(',').filter((id: string) => id.trim() !== '');
+            this.examIdsFromUrl = this.selectedExamIds.length > 0;
+            hasFilters = true;
+        }
+        if (params['grades']) {
+            this.selectedGrades = String(params['grades']).split(',').map(Number).filter((g: number) => !isNaN(g));
+            hasFilters = true;
+        }
+        if (params['search']) {
+            this.searchText = String(params['search']);
+            hasFilters = true;
+        }
+        if (params['code']) {
+            this.studentCode = String(params['code']);
+            hasFilters = true;
+        }
+        if (params['page']) this.pageIndex = Math.max(0, (parseInt(params['page'], 10) || 1) - 1);
+        if (params['size']) this.pageSize = parseInt(params['size'], 10) || TABLE_PAGE_SIZE_DEFAULT;
+        if (params['sortColumn']) this.sortColumn = String(params['sortColumn']);
+        if (params['sortDirection'] === 'asc' || params['sortDirection'] === 'desc') this.sortDirection = params['sortDirection'];
         return hasFilters;
+    }
+
+    /** Every list request writes the on-screen state into the URL (replaceUrl): location.back() from
+     *  a student card returns to the same list, and FilterMemoryService remembers it for the menu. */
+    private syncStateToUrl(): void {
+        // The list request is debounced — don't rewrite the URL of a page the user already left.
+        if (!this.router.url.startsWith('/exam-results')) return;
+        const f = this.buildFilterParams();
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                districtIds: this.selectedDistrictIds.length ? this.selectedDistrictIds.join(',') : undefined,
+                schoolIds: this.selectedSchoolIds.length ? this.selectedSchoolIds.join(',') : undefined,
+                teacherIds: this.selectedTeacherIds.length ? this.selectedTeacherIds.join(',') : undefined,
+                examTypeId: f.examTypeId,
+                examIds: f.examIds,
+                grades: f.grades,
+                search: f.search,
+                code: f.code,
+                page: this.pageIndex ? this.pageIndex + 1 : undefined,
+                size: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn || undefined,
+                sortDirection: this.sortColumn ? this.sortDirection : undefined,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     // admin/superadmin берут свои колонки (user_settings.exam_result_collumns, Г2 п.3), остальные роли —
@@ -468,14 +529,23 @@ export class ExamResultsComponent implements OnInit {
             next: (types) => {
                 this.examTypes = types.filter(t => t.active);
                 const base = this.examTypes.find(t => t.isBase);
-                this.selectedExamTypeId = base?.id ?? this.examTypes[0]?.id ?? null;
-                this.preselectLatestExam();
+                const fromUrl = this.examTypes.find(t => t.id === this.urlExamTypeId);
+                this.selectedExamTypeId = fromUrl?.id ?? base?.id ?? this.examTypes[0]?.id ?? null;
+                this.loadInitialResults();
             },
             error: (err: any) => {
                 console.error('İmtahan növlərinin yüklənməsində xəta:', err);
-                this.preselectLatestExam();
+                this.selectedExamTypeId = this.urlExamTypeId;
+                this.loadInitialResults();
             }
         });
+    }
+
+    /** First list request: exams already chosen in the URL (back from a card, remembered filters)
+     *  are kept as is; otherwise the latest exam is preselected (Г3 A). */
+    private loadInitialResults(): void {
+        if (this.examIdsFromUrl) this.loadExamResults();
+        else this.preselectLatestExam();
     }
 
     /** Г3 A: preselect the latest exam (of the selected/base type) that has results in the caller's scope. */

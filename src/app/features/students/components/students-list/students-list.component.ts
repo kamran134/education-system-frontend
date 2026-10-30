@@ -22,6 +22,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseHandlerUtil } from '../../../../core/utils/response-handler.util';
 import { IdUtil } from '../../../../core/utils/id.util';
 import { connectSearchDebounce } from '../../../../core/utils/debounce.util';
+import { FilterMemoryService } from '../../../../core/services/filter-memory.service';
 
 // UI Components
 import { LucideAngularModule, Plus, RefreshCw, Edit, Trash2, Upload, Settings, ChevronDown, ChevronUp, ArrowLeft, Trash, Download } from 'lucide-angular';
@@ -148,7 +149,8 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         private toastService: ToastService,
         private router: Router,
         private route: ActivatedRoute,
-        private excelService: ExcelService
+        private excelService: ExcelService,
+        private filterMemory: FilterMemoryService
     ) {}
 
     ngOnInit(): void {
@@ -165,56 +167,77 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             this.setupActionButtons();
         });
 
-        // Restore state from query parameters if coming back
-        this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(queryParams => {
-            // Restore pagination
-            if (queryParams['pageIndex'] !== undefined) {
-                this.pageIndex = parseInt(queryParams['pageIndex']) || 0;
-            }
-            if (queryParams['pageSize'] !== undefined) {
-                this.pageSize = parseInt(queryParams['pageSize']) || TABLE_PAGE_SIZE_DEFAULT;
-            }
+        // Filters live in the URL (syncStateToUrl) and FilterMemoryService puts the last ones back
+        // when the page is opened without them — read the snapshot once: a queryParams
+        // subscription would fire again on every own URL write and reload the list twice.
+        const queryParams = this.route.snapshot.queryParams;
+        if (queryParams['pageIndex'] !== undefined) {
+            this.pageIndex = parseInt(queryParams['pageIndex']) || 0;
+        }
+        if (queryParams['pageSize'] !== undefined) {
+            this.pageSize = parseInt(queryParams['pageSize']) || TABLE_PAGE_SIZE_DEFAULT;
+        }
+        if (queryParams['districtIds']) {
+            this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (queryParams['schoolIds']) {
+            this.selectedSchoolIds = queryParams['schoolIds'].split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (queryParams['teacherIds'] && !this.teacherId) {
+            // Only restore teacherIds filter if not viewing specific teacher's students
+            this.selectedTeacherIds = queryParams['teacherIds'].split(',').filter((id: string) => id.trim() !== '');
+        }
+        if (queryParams['grades']) {
+            this.selectedGrades = queryParams['grades'].split(',').map((g: string) => parseInt(g)).filter((g: number) => !isNaN(g));
+        }
+        if (queryParams['search']) {
+            this.searchString = queryParams['search'];
+        }
+        if (queryParams['defective'] !== undefined) {
+            this.checkedDefective = queryParams['defective'] === 'true';
+        }
+        if (queryParams['sortColumn']) {
+            this.sortColumn = queryParams['sortColumn'];
+        }
+        if (queryParams['sortDirection'] === 'asc' || queryParams['sortDirection'] === 'desc') {
+            this.sortDirection = queryParams['sortDirection'];
+        }
+        // Remembered filters are shown, not just applied: open the collapsed panel.
+        if (this.filterMemory.takeRestored()) {
+            this.filtersExpanded = true;
+        }
 
-            // Restore filters from query params (for display purposes)
-            if (queryParams['districtIds']) {
-                this.selectedDistrictIds = queryParams['districtIds'].split(',').filter((id: string) => id.trim() !== '');
+        // Load districts first, then cascade load schools and teachers if needed
+        this.loadDistricts();
+        if (this.selectedDistrictIds.length > 0) {
+            this.loadSchools();
+            if (this.selectedSchoolIds.length > 0) {
+                this.loadTeachers();
             }
-            if (queryParams['schoolIds']) {
-                this.selectedSchoolIds = queryParams['schoolIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
-            if (queryParams['teacherIds'] && !this.teacherId) {
-                // Only restore teacherIds filter if not viewing specific teacher's students
-                this.selectedTeacherIds = queryParams['teacherIds'].split(',').filter((id: string) => id.trim() !== '');
-            }
-            if (queryParams['grades']) {
-                this.selectedGrades = queryParams['grades'].split(',').map((g: string) => parseInt(g)).filter((g: number) => !isNaN(g));
-            }
-            if (queryParams['search']) {
-                this.searchString = queryParams['search'];
-            }
-            if (queryParams['defective'] !== undefined) {
-                this.checkedDefective = queryParams['defective'] === 'true';
-            }
+        }
+        this.loadStudents();
+    }
 
-            // Load districts first, then cascade load schools and teachers if needed
-            this.loadDistricts();
-
-            // After districts loaded, cascade load schools and teachers based on restored filters
-            if (this.selectedDistrictIds.length > 0) {
-                this.loadSchools();
-
-                // If schools are selected, load teachers too
-                if (this.selectedSchoolIds.length > 0) {
-                    this.loadTeachers();
-                }
-            }
-
-            // Trigger initial data load through search subject if search exists, otherwise direct load
-            if (this.searchString) {
-                this.searchSubject.next(this.searchString);
-            } else {
-                this.loadStudents();
-            }
+    /** Filters/sort/page go to the URL on every change (replaceUrl, history stays clean): «Geri»
+     *  from the student card (location.back()) then lands on the same list, and
+     *  FilterMemoryService remembers it for the next visit from the menu. */
+    private syncStateToUrl(): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                districtIds: this.selectedDistrictIds.length ? this.selectedDistrictIds.join(',') : undefined,
+                schoolIds: this.selectedSchoolIds.length ? this.selectedSchoolIds.join(',') : undefined,
+                teacherIds: this.teacherId ? undefined : (this.selectedTeacherIds.length ? this.selectedTeacherIds.join(',') : undefined),
+                grades: this.selectedGrades.length ? this.selectedGrades.join(',') : undefined,
+                search: this.searchString || undefined,
+                defective: this.checkedDefective ? 'true' : undefined,
+                pageIndex: this.pageIndex || undefined,
+                pageSize: this.pageSize === TABLE_PAGE_SIZE_DEFAULT ? undefined : this.pageSize,
+                sortColumn: this.sortColumn === 'fullname' ? undefined : this.sortColumn,
+                sortDirection: this.sortDirection === 'asc' ? undefined : this.sortDirection,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
         });
     }
 
@@ -293,6 +316,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
             this.searchString = searchTerm;
             this.pageIndex = 0;
             this.loadStudents();
+            this.syncStateToUrl();
         }, this.destroy$);
     }
 
@@ -348,6 +372,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         // Reset pagination and reload data
         this.pageIndex = 0;
         this.loadStudents();
+        this.syncStateToUrl();
     }
 
     onTableAction(event: { action: string; item: any }): void {
@@ -362,6 +387,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         this.pageIndex = event.pageIndex;
         this.pageSize = event.pageSize;
         this.loadStudents();
+        this.syncStateToUrl();
     }
 
     onSortChange(event: { column: string; direction: 'asc' | 'desc' }): void {
@@ -369,6 +395,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
         this.sortDirection = event.direction;
         this.pageIndex = 0; // Reset to first page
         this.loadStudents();
+        this.syncStateToUrl();
     }
 
     goBack(): void {

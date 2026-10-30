@@ -21,6 +21,7 @@ import { BookletDetailComponent } from './features/booklets/components/booklet-d
 import { CertificateVerifyComponent } from './features/certificates/components/certificate-verify/certificate-verify.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { restoreFiltersGuard } from './core/guards/restore-filters.guard';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { RegisterComponent } from './features/auth/register/register/register.component';
 
@@ -40,35 +41,35 @@ export const routes: Routes = [
     // доступ к чужим спискам. Владение проверяется в компоненте и на бэкенде.
     { path: 'regions/:id/profile', component: RegionProfileComponent, canActivate: [authGuard] },
     { path: 'districts', component: DistrictsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
-    { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts')] },
+    { path: 'districts/:id/schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessDistricts'), restoreFiltersGuard] },
     // Профиль района — не gated ролевым canAccessDistricts, тот же паттерн, что у профиля
     // школы/учителя чуть ниже: districtRepresenter должен видеть/редактировать СВОЙ профиль,
     // даже если canAccessDistricts=false (тот флаг про доступ к чужим спискам, не про свою
     // же запись). Владение проверяется в компоненте (canEdit) и на бэкенде (canManageOwnEntity).
     { path: 'districts/:id/profile', component: DistrictProfileComponent, canActivate: [authGuard] },
-    { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
-    { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessSchools')] },
+    { path: 'schools', component: SchoolsListComponent, canActivate: [authGuard, roleGuard('canAccessSchools'), restoreFiltersGuard] },
+    { path: 'schools/:id/teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessSchools'), restoreFiltersGuard] },
     // Профиль школы/учителя — не gated ролевым canAccessSchools/canAccessTeachers: schoolDirector
     // и teacher должны видеть/редактировать СВОЙ профиль, даже если у них canAccessSchools/
     // canAccessTeachers=false (те флаги про доступ к чужим спискам, не про свою же запись).
     // Владение проверяется в самом компоненте (canEdit) и на бэкенде (canManageOwnEntity).
     { path: 'schools/:id/profile', component: SchoolProfileComponent, canActivate: [authGuard] },
-    { path: 'teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers')] },
-    { path: 'teachers/:id/students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers')] },
+    { path: 'teachers', component: TeachersListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers'), restoreFiltersGuard] },
+    { path: 'teachers/:id/students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessTeachers'), restoreFiltersGuard] },
     { path: 'teachers/:id/profile', component: TeacherProfileComponent, canActivate: [authGuard] },
-    { path: 'students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
+    { path: 'students', component: StudentsListComponent, canActivate: [authGuard, roleGuard('canAccessStudents'), restoreFiltersGuard] },
     { path: 'students/:id', component: StudentDetailsComponent, canActivate: [authGuard, roleGuard('canAccessStudents')] },
-    { path: 'exams', component: ExamsListComponent, canActivate: [authGuard, roleGuard('canAccessExams')] },
-    { path: 'booklets', component: BookletsListComponent, canActivate: [authGuard, roleGuard('canAccessBooklets')] },
+    { path: 'exams', component: ExamsListComponent, canActivate: [authGuard, roleGuard('canAccessExams'), restoreFiltersGuard] },
+    { path: 'booklets', component: BookletsListComponent, canActivate: [authGuard, roleGuard('canAccessBooklets'), restoreFiltersGuard] },
     { path: 'public/booklets/:id', component: BookletDetailComponent },
     // Публичная проверка сертификата по QR — без гварда, намеренно (CERTIFICATES_TASK.md §10)
     { path: 'sertifikat/:token', component: CertificateVerifyComponent },
-    { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard] },
-    { path: 'stats', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')] },
+    { path: 'exam-results', component: ExamResultsComponent, canActivate: [authGuard, restoreFiltersGuard] },
+    { path: 'stats', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats'), restoreFiltersGuard] },
     // IMTAHAN_NOVLERI_TASK.md §6 — рейтинги по типу экзамена. Больше не отдельный компонент:
     // тот же StatsComponent в режиме выбора типа экзамена (data.examTypeSelectable), тот же гейт.
-    { path: 'type-ratings', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats')], data: { examTypeSelectable: true } },
-    { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard] },
+    { path: 'type-ratings', component: StatsComponent, canActivate: [authGuard, roleGuard('canAccessStats'), restoreFiltersGuard], data: { examTypeSelectable: true } },
+    { path: 'statistics', component: StatisticsMainComponent, canActivate: [authGuard, restoreFiltersGuard] },
     { path: 'profile', loadChildren: () => import('./features/profile/profile.routes').then(m => m.PROFILE_ROUTES), canActivate: [authGuard] },
     { path: 'admin', loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.routes), canActivate: [authGuard] },
     { path: 'login', component: LoginComponent },

@@ -367,6 +367,40 @@ export class StatisticsMainComponent implements OnInit {
             const examTypeId = parseInt(params['examTypeId'], 10);
             if (!isNaN(examTypeId)) this.selectedExamTypeId = examTypeId;
         }
+        // Written by syncStateToUrl() — back via history or restored by FilterMemoryService.
+        if (params['grades']) {
+            this.selectedGrades = String(params['grades']).split(',').map(Number).filter((g: number) => !isNaN(g));
+        }
+        if (params['month']) {
+            const month = parseInt(params['month'], 10);
+            if (!isNaN(month)) this.selectedMonth = month;
+        }
+        // Non-admins have a fixed 3 (see ngOnInit) — the URL must not change that.
+        if (params['minParticipations'] && this.isAdminUser) {
+            const min = parseInt(params['minParticipations'], 10);
+            if (!isNaN(min)) this.inkishafMinParticipations = min;
+        }
+    }
+
+    /** The on-screen filter goes to the URL on every load (replaceUrl): «Geri» via history returns
+     *  to the same view, and FilterMemoryService remembers it for the next visit from the menu. */
+    private syncStateToUrl(): void {
+        if (!this.router.url.startsWith('/statistics')) return;
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                districtIds: this.selectedDistrictIds.length ? this.selectedDistrictIds.join(',') : undefined,
+                schoolIds: this.selectedSchoolIds.length ? this.selectedSchoolIds.join(',') : undefined,
+                teacherIds: this.selectedTeacherIds.length ? this.selectedTeacherIds.join(',') : undefined,
+                grades: this.selectedGrades.length ? this.selectedGrades.join(',') : undefined,
+                month: this.selectedMonth ?? undefined,
+                year: this.selectedYear,
+                examTypeId: this.selectedExamTypeId ?? undefined,
+                minParticipations: this.isAdminUser ? this.inkishafMinParticipations : undefined,
+            },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     loadDistricts(): void {
@@ -414,6 +448,7 @@ export class StatisticsMainComponent implements OnInit {
 
     loadStatistics(): void {
         this.isLoading = true;
+        this.syncStateToUrl();
 
         const filters: StatisticsFilter = {
             districtIds: this.selectedDistrictIds.length > 0 ? this.selectedDistrictIds : undefined,
@@ -462,6 +497,7 @@ export class StatisticsMainComponent implements OnInit {
 
     onInkishafParticipationsChange(): void {
         this.loadInkishafStatistics();
+        this.syncStateToUrl();
     }
 
     onDistrictChange(): void {
