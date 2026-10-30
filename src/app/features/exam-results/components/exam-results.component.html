@@ -1,9 +1,23 @@
 <div class="p-6 space-y-6">
   <!-- Header -->
   <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-gray-900">İmtahan nəticələri</h1>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">İmtahan nəticələri</h1>
+      @if (restrictToCurrentYear) {
+        <p class="text-sm text-gray-500 mt-1">{{ currentYearLabel }} tədris ili</p>
+      }
+    </div>
 
     <div class="flex items-center gap-4">
+      <!-- Г3 C: shown to roles without the admin menu; always leads to the front page (/panel) -->
+      @if (restrictToCurrentYear) {
+        <app-button variant="outline" size="sm" (clicked)="goHome()">
+          <div class="flex items-center gap-2">
+            <lucide-icon [img]="ArrowLeft" class="w-4 h-4"></lucide-icon>
+            <span>Geri</span>
+          </div>
+        </app-button>
+      }
       <app-button
         variant="outline"
         (clicked)="toggleFilters()">
@@ -127,6 +141,14 @@
       {{ level || 'Müəyyən edilməyib' }}
     </span>
   </ng-template>
+  <!-- Г3 D: student name / work number link to the student's cabinet -->
+  <ng-template #studentLinkCell let-value let-row="row">
+    @if (row.studentData?.id) {
+      <a [routerLink]="['/students', row.studentData.id]" [queryParams]="{ source: 'exam-results' }" class="text-blue-600 hover:text-blue-800 hover:underline">{{ value }}</a>
+    } @else {
+      {{ value }}
+    }
+  </ng-template>
 
   <!-- Results Table -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -140,18 +162,10 @@
           @if (selectedExamTypeName) {
             <span class="text-sm text-gray-500">· {{ selectedExamTypeName }}</span>
           }
+          @if (selectedExamsLabel) {
+            <span class="text-sm text-gray-500">· {{ selectedExamsLabel }}</span>
+          }
         </div>
-        @if (canDeleteFiltered) {
-          <app-button
-            variant="danger"
-            [disabled]="isDeletingFiltered || isLoading"
-            (clicked)="onDeleteFiltered()">
-            <div class="flex items-center space-x-2">
-              <lucide-icon [img]="Trash2" class="w-4 h-4"></lucide-icon>
-              <span>Filtrə uyğun nəticələri sil ({{ totalCount }})</span>
-            </div>
-          </app-button>
-        }
       </div>
     </div>
 
@@ -191,4 +205,17 @@
       </app-fullscreen-panel>
     }
   </div>
+
+  <!-- Г3 E: bulk delete is kept off the first screen (the page is shown live) — a quiet link below the table -->
+  @if (canDeleteFiltered) {
+    <div class="flex justify-end">
+      <button
+        type="button"
+        class="text-xs text-gray-400 hover:text-gray-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="isDeletingFiltered || isLoading"
+        (click)="onDeleteFiltered()">
+        Filtrə uyğun nəticələri sil ({{ totalCount }})
+      </button>
+    </div>
+  }
 </div>

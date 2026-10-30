@@ -23,8 +23,8 @@ export class ExamResultsService {
     ) {}
 
     /** URL of /exam-results with the filter as query string — the same filter for the list and the bulk delete. */
-    private buildFilterUrl(params: FilterParams): string {
-        let url = `${this.configService.getApiUrl()}/exam-results`;
+    private buildFilterUrl(params: FilterParams, path = ''): string {
+        let url = `${this.configService.getApiUrl()}/exam-results${path}`;
         const queryParams: string[] = [];
         
         console.log('🔍 ExamResultsService params:', params);
@@ -104,6 +104,13 @@ export class ExamResultsService {
         
         return this.http.get<ApiResponse<ExamResultsResponse>>(url)
             .pipe(map(response => ResponseHandlerUtil.extractData(response) as ExamResultsResponse));
+    }
+
+    /** Latest exam (by date) that has results within the caller's scope and the given filter; null if none. */
+    getLatestExamId(params: FilterParams): Observable<number | null> {
+        const { page, size, sortColumn, sortDirection, examIds, ...filter } = params;
+        return this.http.get<ApiResponse<{ examId: number | null }>>(this.buildFilterUrl(filter, '/latest-exam'))
+            .pipe(map(response => ResponseHandlerUtil.extractData<{ examId: number | null }>(response)?.examId ?? null));
     }
 
     updateStudentResult(resultId: string | number, result: any): Observable<any> {

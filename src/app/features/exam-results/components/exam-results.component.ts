@@ -1,8 +1,8 @@
 import { Component, DestroyRef, OnInit, inject, TemplateRef, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime, switchMap } from 'rxjs';
+import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from '@angular/cdk/dialog';
 import { ExamResultsService } from '../services/exam-results.service';
@@ -26,9 +26,10 @@ import { ResultEditingDialogComponent } from '../../students/components/result-e
 import { DashboardService } from '../../dashboard/services/dashboard.service';
 import { UserSettings } from '../../../core/models/settings.model';
 import { DEFAULT_EXAM_RESULT_COLUMNS } from '../../../core/config/column-catalogs';
+import { academicYearLabel, academicYearOfDate, getCurrentAcademicYear } from '../../../core/utils/academic-year.util';
 
 // UI Components
-import { LucideAngularModule, Search, Download, Filter, X, Edit2, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Search, Download, Filter, X, Edit2, ArrowLeft } from 'lucide-angular';
 import { ConfirmDialogService } from '../../../shared/components/ui/confirm-dialog/confirm-dialog.service';
 import { ToastService } from '../../../shared/components/ui/toast/toast.service';
 import { ButtonComponent } from '../../../shared/components/ui/button/button.component';
@@ -61,7 +62,7 @@ export class ExamResultsComponent implements OnInit {
     readonly Filter = Filter;
     readonly X = X;
     readonly Edit2 = Edit2;
-    readonly Trash2 = Trash2;
+    readonly ArrowLeft = ArrowLeft;
 
     // Data
     examResults: ExamResult[] = [];
@@ -100,6 +101,7 @@ export class ExamResultsComponent implements OnInit {
 
     @ViewChild('totalScoreCell', { static: true }) totalScoreCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
     @ViewChild('levelCell', { static: true }) levelCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
+    @ViewChild('studentLinkCell', { static: true }) studentLinkCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
 
     // Порядок и состав колонок по умолчанию (FIXES п.4 от 04.09.2026: «Şagirdlər, pilləsi və bal
     // faizləri ön planda»). Единый каталог ключей — core/config/column-catalogs.ts; это те же строки,
@@ -112,9 +114,9 @@ export class ExamResultsComponent implements OnInit {
 
     private get columnCatalog(): Record<string, TableColumn> {
         return {
-            'studentData.code': { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student },
+            'studentData.code': { key: 'studentData.code', label: 'İş nömrəsi', sortable: true, formatter: (v, row) => v || row.student, cellTemplate: this.studentLinkCellTemplate },
             // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся (заказчик: «в /exam-results тоже»).
-            'studentData.fullname': { key: 'studentData.fullname', label: 'Şagird', sortable: true },
+            'studentData.fullname': { key: 'studentData.fullname', label: 'Şagird', sortable: true, cellTemplate: this.studentLinkCellTemplate },
             'grade': { key: 'grade', label: 'Sinif', sortable: true },
             'level': { key: 'level', label: 'Pillə', sortable: true, cellTemplate: this.levelCellTemplate },
             // Не сортируется — сортировка идёт на бэкенде по колонкам БД, а этой колонки в БД нет.
@@ -175,6 +177,8 @@ export class ExamResultsComponent implements OnInit {
     isDeletingFiltered = false;
 
     private filterTrigger$ = new Subject<void>();
+    // Fires the "latest exam with results" probe; its result preselects the exam and starts the list load.
+    private latestExamTrigger$ = new Subject<void>();
     private destroyRef = inject(DestroyRef);
 
     constructor(
@@ -190,7 +194,8 @@ export class ExamResultsComponent implements OnInit {
         private confirmDialog: ConfirmDialogService,
         private toastService: ToastService,
         private examTypeService: ExamTypeService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private router: Router
     ) {}
 
     ngOnInit(): void {
@@ -219,6 +224,19 @@ export class ExamResultsComponent implements OnInit {
             }
         });
 
+        this.latestExamTrigger$.pipe(
+            switchMap(() => {
+                this.isLoading = true;
+                return this.examResultsService.getLatestExamId({ ...this.buildFilterParams(), examIds: undefined })
+                    .pipe(catchError(() => of(null)));
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(examId => {
+            this.selectedExamIds = examId != null ? [String(examId)] : [];
+            this.pageIndex = 0;
+            this.loadExamResults();
+        });
+
         this.loadDistricts();
         this.loadExams();
         this.loadExamTypes();
@@ -232,7 +250,7 @@ export class ExamResultsComponent implements OnInit {
         if (hasQueryFilters) this.showFilters = true;
 
         // Тот же приём каскада district → school → teacher, что и в onDistrictChange/onSchoolChange
-        // ниже — но без повторного вызова loadExamResults() (он всего один раз, в конце метода).
+        // ниже — но без повторного вызова loadExamResults() (первый запрос списка шлёт предвыбор экзамена, Г3 A).
         if (this.selectedDistrictIds.length > 0) {
             this.loadSchools();
         }
@@ -246,8 +264,7 @@ export class ExamResultsComponent implements OnInit {
             // yuxarıdakı budaq artıq yükləyib — təkrar sorğu getmir.
             this.loadTeachers();
         }
-
-        this.loadExamResults();
+        // The first list request is sent by the latest-exam preselect (see loadExamTypes), not here.
     }
 
     /** YENI_DUZELISLER_2026-09-17 п.7c: см. вызов в ngOnInit(). Возвращает true, если хоть один
@@ -321,13 +338,32 @@ export class ExamResultsComponent implements OnInit {
     get examOptions(): SelectOption[] {
         // правки заказчика 20.09.2026 — сузить список имтаханов до выбранного типа экзамена
         // (без выбранного типа — не фильтруем, все имтаханы).
-        const exams = this.selectedExamTypeId != null
+        let exams = this.selectedExamTypeId != null
             ? this.exams.filter(exam => exam.examTypeId === this.selectedExamTypeId)
             : this.exams;
+        // Г3 B: roles other than admin/superadmin see only the current academic year (the backend enforces it too).
+        if (this.restrictToCurrentYear) {
+            exams = exams.filter(exam => academicYearOfDate(exam.date) === getCurrentAcademicYear());
+        }
         return exams.map(exam => ({
             value: exam.id,
             label: `${exam.name} (${new Date(exam.date).toLocaleDateString('az-AZ', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
         }));
+    }
+
+    /** Г3 B: every role except admin/superadmin is limited to the current academic year. */
+    get restrictToCurrentYear(): boolean {
+        return !this.authService.isAdminOrSuperAdmin();
+    }
+
+    readonly currentYearLabel = academicYearLabel(getCurrentAcademicYear());
+
+    /** Selected exam(s) for the table header: name for one, count for several. */
+    get selectedExamsLabel(): string {
+        const n = this.selectedExamIds.length;
+        if (n === 0) return '';
+        if (n > 1) return `${n} imtahan`;
+        return this.examOptions.find(o => String(o.value) === String(this.selectedExamIds[0]))?.label ?? '';
     }
 
     get examTypeOptions(): SelectOption[] {
@@ -406,24 +442,27 @@ export class ExamResultsComponent implements OnInit {
         });
     }
 
-    // правки заказчика 20.09.2026 — default = базовый тип. Первая loadExamResults() из
-    // ngOnInit уже ушла без examTypeId (бэкенд и так резолвит базовый) — второй запрос нужен
-    // только если дефолт НЕ базовый (нет активного базового типа среди active), иначе это был
-    // бы дублирующий запрос с тем же результатом.
+    // правки заказчика 20.09.2026 — default = базовый тип. Г3 A: первый запрос списка уходит
+    // отсюда — после выбора типа и пробы «последний экзамен с результатами» (preselectLatestExam),
+    // сразу с предвыбранным examIds. При ошибке загрузки типов бэкенд сам возьмёт базовый.
     loadExamTypes(): void {
         this.examTypeService.getExamTypes().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (types) => {
                 this.examTypes = types.filter(t => t.active);
                 const base = this.examTypes.find(t => t.isBase);
                 this.selectedExamTypeId = base?.id ?? this.examTypes[0]?.id ?? null;
-                if (!base && this.selectedExamTypeId != null) {
-                    this.loadExamResults();
-                }
+                this.preselectLatestExam();
             },
             error: (err: any) => {
                 console.error('İmtahan növlərinin yüklənməsində xəta:', err);
+                this.preselectLatestExam();
             }
         });
+    }
+
+    /** Г3 A: preselect the latest exam (of the selected/base type) that has results in the caller's scope. */
+    private preselectLatestExam(): void {
+        this.latestExamTrigger$.next();
     }
 
     loadExams(): void {
@@ -492,7 +531,7 @@ export class ExamResultsComponent implements OnInit {
         this.selectedExamTypeId = id;
         this.selectedExamIds = [];
         this.pageIndex = 0;
-        this.loadExamResults();
+        this.preselectLatestExam();
     }
 
     onSearch(): void {
@@ -517,6 +556,11 @@ export class ExamResultsComponent implements OnInit {
         this.loadExamResults();
     }
 
+    /** Г3 C: always the front page (/panel), not browser history. */
+    goHome(): void {
+        this.router.navigate(['/panel']);
+    }
+
     toggleFilters(): void {
         this.showFilters = !this.showFilters;
     }
@@ -534,7 +578,8 @@ export class ExamResultsComponent implements OnInit {
         this.pageIndex = 0;
         // правки заказчика 20.09.2026 — сброс типа экзамена возвращает к базовому, не к «всем».
         this.selectedExamTypeId = this.examTypes.find(t => t.isBase)?.id ?? this.examTypes[0]?.id ?? null;
-        this.loadExamResults();
+        // Г3 A: reset = default state, i.e. the latest exam of the base type is preselected again.
+        this.preselectLatestExam();
     }
 
     formatDate(date: string | Date | undefined): string {
