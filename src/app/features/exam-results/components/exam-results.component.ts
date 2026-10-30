@@ -13,6 +13,9 @@ import { Teacher } from '../../../core/models/teacher.model';
 import { Exam } from '../../../core/models/exam.model';
 import { ExamType } from '../../../core/models/examType.model';
 import { ExamTypeService } from '../../exam-types/services/exam-type.service';
+import { LevelScaleService } from '../../exam-types/services/level-scale.service';
+import { LevelScale } from '../../../core/models/levelScale.model';
+import { DEFAULT_LEVEL_OPTIONS } from '../../stats/components/stats-filters/stats-filters.component';
 import { FilterParams } from '../../../core/models/filterParams.model';
 import { DistrictService } from '../../districts/services/district.service';
 import { SchoolService } from '../../schools/services/school.service';
@@ -72,6 +75,7 @@ export class ExamResultsComponent implements OnInit {
     teachers: Teacher[] = [];
     exams: Exam[] = [];
     examTypes: ExamType[] = [];
+    levelScales: LevelScale[] = [];
 
     // Pagination
     totalCount = 0;
@@ -94,6 +98,8 @@ export class ExamResultsComponent implements OnInit {
     selectedTeacherIds: string[] = [];
     selectedExamIds: string[] = [];
     selectedGrades: number[] = [];
+    // Pillə band codes (customer request 30.10.2026); the options follow the selected exam type's scale.
+    selectedLevels: string[] = [];
     // правки заказчика 20.09.2026 — селект типа экзамена, по умолчанию базовый.
     selectedExamTypeId: number | null = null;
 
@@ -212,6 +218,7 @@ export class ExamResultsComponent implements OnInit {
         private confirmDialog: ConfirmDialogService,
         private toastService: ToastService,
         private examTypeService: ExamTypeService,
+        private levelScaleService: LevelScaleService,
         private route: ActivatedRoute,
         private router: Router,
         private filterMemory: FilterMemoryService
@@ -265,6 +272,7 @@ export class ExamResultsComponent implements OnInit {
         this.loadDistricts();
         this.loadExams();
         this.loadExamTypes();
+        this.loadLevelScales();
         this.loadColumnSettings();
 
         // YENI_DUZELISLER_2026-09-17 п.7c: фильтр из ссылки профиля/меню владельца (districtIds/
@@ -324,6 +332,10 @@ export class ExamResultsComponent implements OnInit {
             this.selectedGrades = String(params['grades']).split(',').map(Number).filter((g: number) => !isNaN(g));
             hasFilters = true;
         }
+        if (params['levels']) {
+            this.selectedLevels = String(params['levels']).split(',').filter((l: string) => l.trim() !== '');
+            hasFilters = true;
+        }
         if (params['search']) {
             this.searchText = String(params['search']);
             hasFilters = true;
@@ -354,6 +366,7 @@ export class ExamResultsComponent implements OnInit {
                 examTypeId: f.examTypeId,
                 examIds: f.examIds,
                 grades: f.grades,
+                levels: f.levels,
                 search: f.search,
                 code: f.code,
                 page: this.pageIndex ? this.pageIndex + 1 : undefined,
@@ -460,6 +473,15 @@ export class ExamResultsComponent implements OnInit {
         }));
     }
 
+    /** Bands of the selected exam type's scale, best last as on /stats; the default set until the scales load. */
+    get levelOptions(): SelectOption[] {
+        const levelScaleId = this.examTypes.find(t => t.id === this.selectedExamTypeId)?.levelScaleId;
+        const scale = levelScaleId != null ? this.levelScales.find(s => s.id === levelScaleId) : undefined;
+        return scale
+            ? [...scale.bands].sort((a, b) => a.rank - b.rank).map(b => ({ value: b.code, label: b.nameAz }))
+            : DEFAULT_LEVEL_OPTIONS;
+    }
+
     loadExamResults(): void {
         this.filterTrigger$.next();
     }
@@ -541,6 +563,13 @@ export class ExamResultsComponent implements OnInit {
         });
     }
 
+    loadLevelScales(): void {
+        this.levelScaleService.getLevelScales().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (scales) => { this.levelScales = scales || []; },
+            error: (err: any) => console.error('Pillə şkalalarının yüklənməsində xəta:', err)
+        });
+    }
+
     /** First list request: exams already chosen in the URL (back from a card, remembered filters)
      *  are kept as is; otherwise the latest exam is preselected (Г3 A). */
     private loadInitialResults(): void {
@@ -615,9 +644,17 @@ export class ExamResultsComponent implements OnInit {
         this.loadExamResults();
     }
 
+    onLevelChange(levels: string[]): void {
+        this.selectedLevels = levels;
+        this.pageIndex = 0;
+        this.loadExamResults();
+    }
+
     onExamTypeChange(id: number | null): void {
         this.selectedExamTypeId = id;
         this.selectedExamIds = [];
+        // Another type may have another scale — its band codes would not match.
+        this.selectedLevels = [];
         this.pageIndex = 0;
         this.preselectLatestExam();
     }
@@ -661,6 +698,7 @@ export class ExamResultsComponent implements OnInit {
         this.selectedTeacherIds = [];
         this.selectedExamIds = [];
         this.selectedGrades = [];
+        this.selectedLevels = [];
         this.schools = [];
         this.teachers = [];
         this.pageIndex = 0;
@@ -706,6 +744,12 @@ export class ExamResultsComponent implements OnInit {
 
         if (this.selectedGrades.length > 0) {
             parts.push(this.selectedGrades.join(', ') + ' sinif');
+        }
+
+        if (this.selectedLevels.length > 0) {
+            const options = this.levelOptions;
+            const labels = this.selectedLevels.map(code => options.find(o => o.value === code)?.label ?? code);
+            parts.push(labels.join(', ') + ' pillə');
         }
 
         const filterLabel = parts.length > 0 ? parts.join(' | ') : 'İmtahan nəticələri';
@@ -764,6 +808,7 @@ export class ExamResultsComponent implements OnInit {
             teacherIds: this.selectedTeacherIds.length > 0 ? this.selectedTeacherIds : undefined,
             examIds: this.selectedExamIds.length > 0 ? this.selectedExamIds.join(',') : undefined,
             grades: this.selectedGrades.length > 0 ? this.selectedGrades.join(',') : undefined,
+            levels: this.selectedLevels.length > 0 ? this.selectedLevels.join(',') : undefined,
             examTypeId: this.selectedExamTypeId ?? undefined
         };
     }

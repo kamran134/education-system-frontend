@@ -72,6 +72,10 @@ export class ExamResultsService {
             // grades уже приходит как строка с join(",") из компонента
             queryParams.push(`grades=${params.grades}`);
         }
+
+        if (params.levels) {
+            queryParams.push(`levels=${encodeURIComponent(params.levels)}`);
+        }
         
         if (params.dateFrom) {
             queryParams.push(`dateFrom=${params.dateFrom}`);

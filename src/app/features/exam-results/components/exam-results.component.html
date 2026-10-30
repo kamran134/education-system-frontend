@@ -92,6 +92,15 @@
           (ngModelChange)="onGradeChange($event)"
           placeholder="Sinifləri seçin">
         </app-select>
+        <!-- Level filter -->
+        <app-select
+          label="Pillə"
+          [options]="levelOptions"
+          [multiple]="true"
+          [(ngModel)]="selectedLevels"
+          (ngModelChange)="onLevelChange($event)"
+          placeholder="Pillələri seçin">
+        </app-select>
         <!-- District filter -->
         @if (!hideDistrictFilter) {
           <app-select
