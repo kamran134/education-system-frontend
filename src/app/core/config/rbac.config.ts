@@ -332,7 +332,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
             canCreateExams: true,
             canEditExams: false,        // НЕ МОЖЕТ РЕДАКТИРОВАТЬ
             canDeleteExams: false,      // НЕ МОЖЕТ УДАЛЯТЬ
-            canEditExamResults: true,   // МОЖЕТ РЕДАКТИРОВАТЬ РЕЗУЛЬТАТЫ
+            canEditExamResults: false,  // «Düzəliş et» on /exam-results hidden for moderator (30.10.2026)
             canDeleteExamResults: false,// НЕ МОЖЕТ УДАЛЯТЬ РЕЗУЛЬТАТЫ
             canEditBooklets: true,
             canDeleteBooklets: false,   // НЕ МОЖЕТ УДАЛЯТЬ
