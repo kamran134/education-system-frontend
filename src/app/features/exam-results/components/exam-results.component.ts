@@ -25,6 +25,7 @@ import { IdUtil } from '../../../core/utils/id.util';
 import { ResultEditingDialogComponent } from '../../students/components/result-editing/result-editing-dialog.component';
 import { DashboardService } from '../../dashboard/services/dashboard.service';
 import { UserSettings } from '../../../core/models/settings.model';
+import { DEFAULT_EXAM_RESULT_COLUMNS } from '../../../core/config/column-catalogs';
 
 // UI Components
 import { LucideAngularModule, Search, Download, Filter, X, Edit2, Trash2 } from 'lucide-angular';
@@ -101,20 +102,9 @@ export class ExamResultsComponent implements OnInit {
     @ViewChild('levelCell', { static: true }) levelCellTemplate!: TemplateRef<{ $implicit: any; row: any }>;
 
     // Порядок и состав колонок по умолчанию (FIXES п.4 от 04.09.2026: «Şagirdlər, pilləsi və bal
-    // faizləri ön planda»). Ключи совпадают с ключами вкладки examResults в roles-columns.component.ts —
-    // это те же строки, что хранятся в user_settings.role_settings.
-    private readonly defaultColumnOrder: string[] = [
-        'studentData.code',
-        'studentData.fullname',
-        'grade',
-        'level',
-        'scorePercent',
-        'totalScore',
-        'exam.date',
-        'studentData.school.name',
-        'studentData.teacher.fullname',
-        'studentData.district.name'
-    ];
+    // faizləri ön planda»). Единый каталог ключей — core/config/column-catalogs.ts; это те же строки,
+    // что хранятся в user_settings.role_settings и user_settings.exam_result_collumns.
+    private readonly defaultColumnOrder: string[] = DEFAULT_EXAM_RESULT_COLUMNS;
 
     // Порядок колонок, настроенный админом для роли пользователя (roles-columns.component.ts) —
     // null, пока настройки ещё не загружены или роль не настроена: тогда используется defaultColumnOrder.
@@ -280,9 +270,21 @@ export class ExamResultsComponent implements OnInit {
         return hasFilters;
     }
 
-    // Тот же приём, что stats.component.ts:loadSettings() (non-admin ветка) — глобальные
-    // настройки по ролям, а не персональные (у exam-results нет отдельных «своих» колонок).
+    // admin/superadmin берут свои колонки (user_settings.exam_result_collumns, Г2 п.3), остальные роли —
+    // глобальные настройки по ролям, как в stats.component.ts:loadSettings() (non-admin ветка).
     private loadColumnSettings(): void {
+        const role = this.userRole;
+        if (role === 'admin' || role === 'superadmin') {
+            this.dashboardService.getRatingColumns(this.authService.getUserId() || '').subscribe({
+                next: (settings: UserSettings) => {
+                    this.columnOrder = settings?.examResultCollumns?.length ? settings.examResultCollumns : null;
+                },
+                error: (error: Error) => {
+                    console.error('Error loading exam results column settings:', error);
+                }
+            });
+            return;
+        }
         this.dashboardService.getGlobalColumns().subscribe({
             next: (settings: UserSettings) => {
                 const roleKey = this.userRole as string;

@@ -55,6 +55,7 @@
       <!-- YENI_DUZELISLER_2026-09-17 п.1b: ratingsQueryParams = { regionIds }, не statsDetailsQueryParams (см. .ts). -->
       <app-profile-rating-section
         [ratings]="region.ratings ?? []"
+        settingsRole="regionRepresenter"
         [placeColumns]="[{ label: 'Respublika üzrə yeri', field: 'place' }]"
         [detailsQueryParams]="ratingsQueryParams">
       </app-profile-rating-section>

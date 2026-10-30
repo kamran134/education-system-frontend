@@ -60,6 +60,12 @@
           }
         </div>
 
+        @if (isProfileRatingsTabActive) {
+          <p class="text-xs text-gray-500 mb-4">
+            Bu rolun ön səhifəsindəki (profilindəki) «Reytinqlər» cədvəli. Profilə kim baxırsa baxsın, sütunlar belə görünəcək. «Tədris ili» həmişə birinci sütundur.
+          </p>
+        }
+
         <!-- Select all + count -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center cursor-pointer select-none" (click)="toggleSelectAll()">

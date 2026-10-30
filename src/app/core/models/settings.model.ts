@@ -8,6 +8,8 @@ export interface RoleTabSettings {
     allDistricts?: string[];
     allRegions?: string[];
     examResults?: string[];
+    // Г2: order/visibility of the «Reytinqlər» table columns on this role's own profile; no key = current set.
+    profileRatings?: string[];
 }
 
 export interface RoleSettings {
@@ -32,5 +34,6 @@ export interface UserSettings {
     directorViewCollumns?: string[];
     districtViewCollumns?: string[];
     studentViewCollumns?: string[];
+    examResultCollumns?: string[];
     roleSettings?: RoleSettings;
 }

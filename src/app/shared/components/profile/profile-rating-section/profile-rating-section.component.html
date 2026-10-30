@@ -22,15 +22,16 @@
   </div>
 
   <div class="px-5 sm:px-6 py-5">
-    @if (sortedRatings.length > 0) {
+    @if (!settingsLoaded) {
+      <!-- Wait for the column setting so the table does not flash a column the admin hid. -->
+    } @else if (sortedRatings.length > 0) {
       <div class="overflow-x-auto">
         <div [style.min-width]="minTableWidth">
           <div class="grid gap-3 sm:gap-3.5 px-1 pb-1.5 border-b border-[var(--ui-line)] text-[10px] font-bold tracking-wider uppercase text-[var(--ui-muted)]"
                [style.grid-template-columns]="gridTemplate">
             <span>Tədris ili</span>
-            <span class="text-right">Reytinq xalı</span>
-            @for (column of placeColumns; track column.field) {
-              <span class="text-right leading-tight">{{ column.label }}</span>
+            @for (column of columns; track column.key) {
+              <span class="text-right" [class.leading-tight]="column.key !== 'score'">{{ column.label }}</span>
             }
           </div>
           <div class="flex flex-col">
@@ -42,13 +43,16 @@
                 <span class="text-[13px] font-semibold tabular-nums" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink-2)'">
                   {{ yearLabel(rating.year) }}
                 </span>
-                <span class="text-sm font-bold text-right tabular-nums tracking-tight" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink)'">
-                  {{ scoreLabel(rating.score) }}
-                </span>
-                @for (column of placeColumns; track column.field) {
-                  <span class="text-xs font-bold text-right tabular-nums text-[var(--ui-muted)]">
-                    {{ placeValue(rating, column) ?? '—' }}
-                  </span>
+                @for (column of columns; track column.key) {
+                  @if (column.key === 'score') {
+                    <span class="text-sm font-bold text-right tabular-nums tracking-tight" [style.color]="rating.year === currentYear ? 'var(--ui-accent)' : 'var(--ui-ink)'">
+                      {{ scoreLabel(rating.score) }}
+                    </span>
+                  } @else {
+                    <span class="text-xs font-bold text-right tabular-nums text-[var(--ui-muted)]">
+                      {{ placeValue(rating, column.key) ?? '—' }}
+                    </span>
+                  }
                 }
               </div>
             }

@@ -95,6 +95,7 @@
       <!-- YENI_DUZELISLER_2026-09-17 п.1b: statsDetailsQueryParams уже содержит { districtIds } — переиспользуем для ссылки "Tam reytinq…" на /stats. -->
       <app-profile-rating-section
         [ratings]="district.ratings ?? []"
+        settingsRole="districtRepresenter"
         [detailsQueryParams]="statsDetailsQueryParams">
       </app-profile-rating-section>
 

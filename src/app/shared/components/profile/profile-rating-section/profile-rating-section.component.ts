@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, DestroyRef, Input, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -6,11 +6,19 @@ import { LucideAngularModule, TrendingUp, ChevronRight } from 'lucide-angular';
 import { YearRating } from '../../../../core/models/year-rating.model';
 import { getCurrentAcademicYear, academicYearLabel } from '../../../../core/utils/academic-year.util';
 import { ExamTypeService } from '../../../../features/exam-types/services/exam-type.service';
+import { DashboardService } from '../../../../features/dashboard/services/dashboard.service';
+import { applyColumnSetting, ProfileRatingColumnKey, ProfileRatingOwnerRole } from '../../../../core/config/column-catalogs';
 
 /** One place column of the per-year table: which YearRating field it shows and its header. */
 export interface ProfilePlaceColumn {
     label: string;
     field: 'place' | 'districtPlace' | 'averagePlace' | 'averageDistrictPlace';
+}
+
+/** One data column of the per-year table (the "Tədris ili" key column is always first and not listed here). */
+export interface ProfileRatingColumn {
+    key: ProfileRatingColumnKey;
+    label: string;
 }
 
 /**
@@ -25,6 +33,8 @@ export interface ProfilePlaceColumn {
  * (districtPlace) есть только у учителя и школы (см. db/schema.sql: у district/region своего
  * "district_place" не существует вообще) — там, где его нет, остаётся общий Respublika üzrə
  * yeri через дефолты ниже.
+ *
+ * Г2 (29.10.2026): набор и порядок колонок (кроме "Tədris ili") настраивает админ — roleSettings[settingsRole].profileRatings.
  */
 @Component({
     selector: 'app-profile-rating-section',
@@ -45,6 +55,9 @@ export class ProfileRatingSectionComponent implements OnInit {
     // по образцу detailsQueryParams в profile-stats-section.component.ts.
     @Input() detailsQueryParams: Record<string, any> | null = null;
 
+    /** Role that owns this profile type; its saved `profileRatings` (admin panel) sets the columns. Null = defaults. */
+    @Input() settingsRole: ProfileRatingOwnerRole | null = null;
+
     readonly TrendingUp = TrendingUp;
     readonly ChevronRight = ChevronRight;
     readonly currentYear = getCurrentAcademicYear();
@@ -56,13 +69,39 @@ export class ProfileRatingSectionComponent implements OnInit {
     examTypeName: string | null = null;
     private destroyRef = inject(DestroyRef);
     private examTypeService = inject(ExamTypeService);
+    private dashboardService = inject(DashboardService);
+    private cdr = inject(ChangeDetectorRef);
+
+    /** False until the saved column setting arrives, so the table does not flash a column that is hidden. */
+    settingsLoaded = false;
+    private savedColumns: string[] | undefined;
 
     ngOnInit(): void {
+        if (this.settingsRole) {
+            const role = this.settingsRole;
+            this.dashboardService.getGlobalColumns()
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: (settings) => {
+                        this.savedColumns = settings?.roleSettings?.[role]?.profileRatings;
+                        this.settingsLoaded = true;
+                        this.cdr.markForCheck();
+                    },
+                    error: () => {
+                        this.savedColumns = undefined;
+                        this.settingsLoaded = true;
+                        this.cdr.markForCheck();
+                    },
+                });
+        } else {
+            this.settingsLoaded = true;
+        }
+
         this.examTypeService.getExamTypes()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (types) => { this.examTypeName = types.find((t) => t.isBase)?.nameAz ?? null; },
-                error: () => { this.examTypeName = null; },
+                next: (types) => { this.examTypeName = types.find((t) => t.isBase)?.nameAz ?? null; this.cdr.markForCheck(); },
+                error: () => { this.examTypeName = null; this.cdr.markForCheck(); },
             });
     }
 
@@ -70,18 +109,29 @@ export class ProfileRatingSectionComponent implements OnInit {
         return [...this.ratings].sort((a, b) => b.year - a.year);
     }
 
-    placeValue(rating: YearRating, column: ProfilePlaceColumn): number | null {
-        return rating[column.field] ?? null;
+    /** Score plus the profile's place columns, filtered and ordered by the admin setting (no setting = all, as passed). */
+    get columns(): ProfileRatingColumn[] {
+        const available: ProfileRatingColumn[] = [
+            { key: 'score', label: 'Reytinq xalı' },
+            ...this.placeColumns.map((c) => ({ key: c.field, label: c.label })),
+        ];
+        return applyColumnSetting(available, this.savedColumns);
     }
 
-    /** Year + score + one column per place. */
+    placeValue(rating: YearRating, key: ProfileRatingColumnKey): number | null {
+        return key === 'score' ? null : rating[key] ?? null;
+    }
+
+    /** Year + one column per visible rating column. */
     get gridTemplate(): string {
-        return `76px minmax(64px, 1fr) repeat(${this.placeColumns.length}, minmax(64px, 1fr))`;
+        const count = this.columns.length;
+        return count > 0 ? `76px repeat(${count}, minmax(64px, 1fr))` : '76px';
     }
 
-    /** Four or more place columns do not fit a phone screen: let the table scroll sideways instead of squeezing. */
+    /** Four or more data columns do not fit a phone screen: let the table scroll sideways instead of squeezing. */
     get minTableWidth(): string | null {
-        return this.placeColumns.length > 2 ? `${140 + this.placeColumns.length * 84}px` : null;
+        const count = this.columns.length;
+        return count > 3 ? `${76 + count * 84}px` : null;
     }
 
     yearLabel(year: number): string {

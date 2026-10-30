@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { UserSettings } from '../../../../core/models/settings.model';
+import { EXAM_RESULT_COLUMN_OPTIONS } from '../../../../core/config/column-catalogs';
 
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
@@ -43,7 +44,7 @@ export class StatsColumnsComponent implements OnInit{
     readonly tabs: TabItem[] = [
         { label: 'İnkişaf edən şagirdlər' }, { label: 'Ayın şagirdləri' }, { label: 'İlin şagirdləri' },
         { label: 'İlin müəllimləri' }, { label: 'İlin məktəbləri' }, { label: 'İlin təhsil sektorları' },
-        { label: 'İlin regional idarələri' },
+        { label: 'İlin regional idarələri' }, { label: 'İmtahan nəticələri' },
     ];
 
     displayedColumns: string[] = ['id', 'name', 'actions'];
@@ -163,6 +164,9 @@ export class StatsColumnsComponent implements OnInit{
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: true, order: 8 }
     ];
 
+    // Admin's own /exam-results columns (Г2, п.3); all selected = what the page shows without a saved setting.
+    examResultColumnOptions: Column[] = EXAM_RESULT_COLUMN_OPTIONS.map((c, i) => ({ ...c, selected: true, order: i }));
+
     userId: string = '';
 
     constructor(
@@ -186,16 +190,20 @@ export class StatsColumnsComponent implements OnInit{
 
     loadColumns(): void {
         this.dashboardService.getRatingColumns(this.userId).subscribe({
-            next: (settings: UserSettings) => {
-                this.dataSource = settings;
+            next: (settings: UserSettings | null) => {
+                if (settings) this.dataSource = settings;
                 // Restore columns order and selected state
-                this.restoreColumnOrder(this.developingStudentColumnOptions, settings.developingStudentCollumns || []);
-                this.restoreColumnOrder(this.monthStudentColumnOptions, settings.studentCollumns || []);
-                this.restoreColumnOrder(this.studentColumnOptions, settings.allStudentCollumns || []);
-                this.restoreColumnOrder(this.teacherColumnOptions, settings.allTeacherCollumns || []);
-                this.restoreColumnOrder(this.schoolColumnOptions, settings.allSchoolCollumns || []);
-                this.restoreColumnOrder(this.districtColumnOptions, settings.allDistrictCollumns || []);
-                this.restoreColumnOrder(this.regionColumnOptions, settings.allRegionCollumns || []);
+                this.restoreColumnOrder(this.developingStudentColumnOptions, settings?.developingStudentCollumns || []);
+                this.restoreColumnOrder(this.monthStudentColumnOptions, settings?.studentCollumns || []);
+                this.restoreColumnOrder(this.studentColumnOptions, settings?.allStudentCollumns || []);
+                this.restoreColumnOrder(this.teacherColumnOptions, settings?.allTeacherCollumns || []);
+                this.restoreColumnOrder(this.schoolColumnOptions, settings?.allSchoolCollumns || []);
+                this.restoreColumnOrder(this.districtColumnOptions, settings?.allDistrictCollumns || []);
+                this.restoreColumnOrder(this.regionColumnOptions, settings?.allRegionCollumns || []);
+                // Empty / missing = the page default (all columns), which is what the tab starts with.
+                if (settings?.examResultCollumns?.length) {
+                    this.restoreColumnOrder(this.examResultColumnOptions, settings.examResultCollumns);
+                }
             },
             error: (error) => {
                 console.error('Error loading columns:', error);
@@ -257,6 +265,10 @@ export class StatsColumnsComponent implements OnInit{
             .filter(column => column.selected)
             .map(column => column.key);
 
+        const selectedExamResultColumns = this.examResultColumnOptions
+            .filter(column => column.selected)
+            .map(column => column.key);
+
         const userSettings: UserSettings = {
             userId: this.userId || '',
             developingStudentCollumns: selectedDevelopingStudentColumns,
@@ -265,7 +277,8 @@ export class StatsColumnsComponent implements OnInit{
             allTeacherCollumns: selectedTeacherColumns,
             allSchoolCollumns: selectedSchoolColumns,
             allDistrictCollumns: selectedDistrictColumns,
-            allRegionCollumns: selectedRegionColumns
+            allRegionCollumns: selectedRegionColumns,
+            examResultCollumns: selectedExamResultColumns
         };
 
         this.dashboardService.saveRatingColumns(userSettings).subscribe({
@@ -286,6 +299,8 @@ export class StatsColumnsComponent implements OnInit{
         this.schoolColumnOptions.forEach(column => column.selected = false);
         this.districtColumnOptions.forEach(column => column.selected = false);
         this.regionColumnOptions.forEach(column => column.selected = false);
+        // The exam-results default is every column in catalog order, not an empty list.
+        this.examResultColumnOptions = EXAM_RESULT_COLUMN_OPTIONS.map((c, i) => ({ ...c, selected: true, order: i }));
 
         // Reset the dataSource to its initial state
         this.dataSource.developingStudentCollumns = [];
@@ -295,6 +310,7 @@ export class StatsColumnsComponent implements OnInit{
         this.dataSource.allSchoolCollumns = [];
         this.dataSource.allDistrictCollumns = [];
         this.dataSource.allRegionCollumns = [];
+        this.dataSource.examResultCollumns = [];
 
         // Save the reset settings
         this.saveColumnSettings();
@@ -334,6 +350,11 @@ export class StatsColumnsComponent implements OnInit{
     dropRegion(event: CdkDragDrop<Column[]>): void {
         moveItemInArray(this.regionColumnOptions, event.previousIndex, event.currentIndex);
         this.updateColumnOrder(this.regionColumnOptions);
+    }
+
+    dropExamResult(event: CdkDragDrop<Column[]>): void {
+        moveItemInArray(this.examResultColumnOptions, event.previousIndex, event.currentIndex);
+        this.updateColumnOrder(this.examResultColumnOptions);
     }
 
     private updateColumnOrder(columns: Column[]): void {

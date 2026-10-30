@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { RoleSettings, UserSettings } from '../../../../core/models/settings.model';
+import {
+    EXAM_RESULT_COLUMN_OPTIONS,
+    PROFILE_RATING_COLUMN_OPTIONS,
+    ProfileRatingOwnerRole
+} from '../../../../core/config/column-catalogs';
 
 import { ToastService } from '../../../../shared/components/ui/toast/toast.service';
 import { LucideAngularModule, Save, RotateCcw, CheckSquare, Square, GripVertical } from 'lucide-angular';
@@ -23,6 +28,9 @@ interface TabDef {
     key: string;
     label: string;
 }
+
+// Tab with the per-year rating table on the role's own profile (Г2, 29.10.2026); its saved array may be empty.
+const PROFILE_RATINGS_TAB = 'profileRatings';
 
 const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
     developingStudents: [
@@ -135,21 +143,8 @@ const BASE_COLUMN_OPTIONS: Record<string, Column[]> = {
         { key: 'score', label: 'Reytinq xalı', selected: false, order: 7 },
         { key: 'averageScore', label: 'Orta reytinq xalı', selected: false, order: 8 },
     ],
-    // Ключи должны совпадать с displayedColumns в exam-results.component.ts (FIXES п.4 от 04.09.2026)
-    examResults: [
-        { key: 'studentData.code', label: 'İş nömrəsi', selected: false, order: 0 },
-        // YENI_DUZELISLER_2026-09-17 п.8: заголовок колонки упрощён, ключ не менялся (заказчик: «в /exam-results тоже»).
-        { key: 'studentData.fullname', label: 'Şagird', selected: false, order: 1 },
-        { key: 'grade', label: 'Sinif', selected: false, order: 2 },
-        { key: 'level', label: 'Pillə', selected: false, order: 3 },
-        { key: 'scorePercent', label: 'Bal faizi', selected: false, order: 4 },
-        { key: 'totalScore', label: 'Ümumi bal', selected: false, order: 5 },
-        { key: 'exam.date', label: 'Tarix', selected: false, order: 6 },
-        { key: 'studentData.school.name', label: 'Məktəb', selected: false, order: 7 },
-        // YENI_DUZELISLER_2026-09-17 п.3: "Müəllim" → "Layihə müəllimi".
-        { key: 'studentData.teacher.fullname', label: 'Layihə müəllimi', selected: false, order: 8 },
-        { key: 'studentData.district.name', label: 'Təhsil sektoru', selected: false, order: 9 },
-    ],
+    // Single catalog shared with stats-columns and exam-results (core/config/column-catalogs.ts).
+    examResults: EXAM_RESULT_COLUMN_OPTIONS.map((c, i) => ({ ...c, selected: false, order: i })),
 };
 
 @Component({
@@ -190,16 +185,17 @@ export class RolesColumnsComponent implements OnInit {
         { key: 'allDistricts', label: 'İlin təhsil sektorları' },
         { key: 'allRegions', label: 'İlin regional idarələri' },
         { key: 'examResults', label: 'İmtahan nəticələri' },
+        { key: 'profileRatings', label: 'Ön səhifə — Reytinqlər' },
     ];
 
     // exam-results səhifəsi (/exam-results) yalnız authGuard ilə qorunur — bütün rollara açıqdır,
     // ona görə examResults tabı da bura sadalanan bütün rollara əlavə olunub (FIXES п.4 от 04.09.2026).
     readonly roleTabAccess: Record<string, string[]> = {
         moderator: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions', 'examResults'],
-        regionRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions', 'examResults'],
-        districtRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'examResults'],
-        schoolDirector: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'examResults'],
-        teacher: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'examResults'],
+        regionRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'allRegions', 'examResults', 'profileRatings'],
+        districtRepresenter: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'allDistricts', 'examResults', 'profileRatings'],
+        schoolDirector: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'allSchools', 'examResults', 'profileRatings'],
+        teacher: ['developingStudents', 'monthStudents', 'republicMonthStudents', 'allStudents', 'allTeachers', 'examResults', 'profileRatings'],
         student: ['developingStudents', 'monthStudents', 'examResults'],
     };
 
@@ -224,9 +220,17 @@ export class RolesColumnsComponent implements OnInit {
             const accessibleTabs = this.roleTabAccess[role.key] || [];
             this.activeTabKey[role.key] = accessibleTabs[0] || '';
             for (const tabKey of accessibleTabs) {
-                this.roleTabColumns[role.key][tabKey] = this.deepCopyColumns(BASE_COLUMN_OPTIONS[tabKey] || []);
+                this.roleTabColumns[role.key][tabKey] = tabKey === PROFILE_RATINGS_TAB
+                    ? this.profileRatingColumns(role.key)
+                    : this.deepCopyColumns(BASE_COLUMN_OPTIONS[tabKey] || []);
             }
         }
+    }
+
+    /** «Ön səhifə — Reytinqlər» columns of a role's own profile; unlike other tabs they start fully selected (what the profile shows now). */
+    private profileRatingColumns(roleKey: string): Column[] {
+        const options = PROFILE_RATING_COLUMN_OPTIONS[roleKey as ProfileRatingOwnerRole] || [];
+        return options.map((c, i) => ({ key: c.key, label: c.label, selected: true, order: i }));
     }
 
     private deepCopyColumns(columns: Column[]): Column[] {
@@ -236,6 +240,10 @@ export class RolesColumnsComponent implements OnInit {
     getTabsForRole(roleKey: string): TabDef[] {
         const allowedTabKeys = this.roleTabAccess[roleKey] || [];
         return this.allTabs.filter(t => allowedTabKeys.includes(t.key));
+    }
+
+    get isProfileRatingsTabActive(): boolean {
+        return this.activeTabKey[this.activeRoleKey] === PROFILE_RATINGS_TAB;
     }
 
     getCurrentColumns(): Column[] {
@@ -275,7 +283,8 @@ export class RolesColumnsComponent implements OnInit {
             if (!roleData) continue;
             for (const tabKey of this.roleTabAccess[role.key] || []) {
                 const savedColumns = roleData[tabKey];
-                if (savedColumns?.length) {
+                // profileRatings: a saved empty array means "hide every column", so any array is applied.
+                if (tabKey === PROFILE_RATINGS_TAB ? Array.isArray(savedColumns) : savedColumns?.length) {
                     this.restoreColumnOrder(this.roleTabColumns[role.key][tabKey], savedColumns);
                 }
             }
@@ -322,6 +331,11 @@ export class RolesColumnsComponent implements OnInit {
 
     resetCurrentTab(): void {
         const tabKey = this.activeTabKey[this.activeRoleKey];
+        if (tabKey === PROFILE_RATINGS_TAB) {
+            // Default of this tab is "everything selected, original order", not "nothing selected".
+            this.roleTabColumns[this.activeRoleKey][tabKey] = this.profileRatingColumns(this.activeRoleKey);
+            return;
+        }
         const columns = this.roleTabColumns[this.activeRoleKey]?.[tabKey];
         if (columns) {
             columns.forEach(c => { c.selected = false; });
